@@ -136,6 +136,12 @@ function SearchToolbar({ query, onChange }) {
         color="green.800"
         value={query}
         onChange={(e) => onChange(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") {
+            onChange("");
+            e.target.blur();
+          }
+        }}
       />
       {query && (
         <InputRightElement>
