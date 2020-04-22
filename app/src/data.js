@@ -41,4 +41,16 @@ export const ITEMS = [
     thumbnailSrc: "http://images.neopets.com/items/gif_magicball_table.gif",
     zoneName: "Lower Foreground Item",
   },
+  {
+    id: 8,
+    name: "Green Leaf String Lights",
+    thumbnailSrc: "http://images.neopets.com/items/toy_stringlight_illleaf.gif",
+    zoneName: "Background Item",
+  },
+  {
+    id: 9,
+    name: "Jewelled Staff",
+    thumbnailSrc: "http://images.neopets.com/items/mall_staff_jewelled.gif",
+    zoneName: "Left-hand item",
+  },
 ];

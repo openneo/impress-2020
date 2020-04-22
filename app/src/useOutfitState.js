@@ -3,7 +3,16 @@ import React from "react";
 import { ITEMS } from "./data.js";
 
 function useOutfitState() {
-  const [wornItemIds, setWornItemIds] = React.useState([1, 2, 3, 4, 6, 7]);
+  const [wornItemIds, setWornItemIds] = React.useState([
+    1,
+    2,
+    3,
+    4,
+    6,
+    7,
+    8,
+    9,
+  ]);
   const [closetedItemIds, setClosetedItemIds] = React.useState([5]);
 
   const wearItem = React.useCallback(
