@@ -34,16 +34,18 @@ function WardrobePage() {
       wearItemRaw(itemIdToAdd);
 
       if (!hasSentToast) {
-        toast({
-          title: "Not yet implemented",
-          description:
-            "The outfit preview is static right now, we'll update it " +
-            "to change later! But the list animation is good, yeah? 😊",
-          status: "warning",
-          isClosable: true,
-          duration: 10000,
-          position: window.innerWidth < 992 ? "top" : "bottom-left",
-        });
+        setTimeout(() => {
+          toast({
+            title: "So, the outfit didn't change 😅",
+            description:
+              "This is a prototype, and the outfit preview is static right " +
+              "now! But the list animation is good, yeah? Nice and smooth 😊",
+            status: "warning",
+            isClosable: true,
+            duration: 10000,
+            position: window.innerWidth < 992 ? "top" : "bottom-left",
+          });
+        }, 3000);
         setHasSentToast(true);
       }
     },
