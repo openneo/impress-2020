@@ -90,7 +90,7 @@ function OutfitHeading() {
         fontFamily="Delicious"
         fontWeight="800"
       >
-        <Editable defaultValue="roopal27">
+        <Editable defaultValue="Zafara Agent (roopal27)">
           {({ isEditing, onRequestEdit }) => (
             <>
               <EditablePreview d="inline" />
