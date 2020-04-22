@@ -62,7 +62,7 @@ function ItemsPanel() {
   const [zonesAndItems, wearItem] = useOutfitState();
 
   return (
-    <>
+    <Box color="green.800">
       <PseudoBox role="group" d="inline-block">
         <Heading size="xl" mb="6" wordBreak="break-word">
           <Editable defaultValue="roopal27">
@@ -81,7 +81,7 @@ function ItemsPanel() {
                     <IconButton
                       icon="edit"
                       variant="link"
-                      color="gray.600"
+                      color="green.600"
                       aria-label="Edit outfit name"
                       title="Edit outfit name"
                     />
@@ -104,14 +104,14 @@ function ItemsPanel() {
           </Box>
         ))}
       </Stack>
-    </>
+    </Box>
   );
 }
 
 function ItemsForZone({ zoneName, items, wornItemId, onWearItem }) {
   return (
     <Box>
-      <Heading size="lg" mb="3">
+      <Heading size="lg" color="green.900" mb="3">
         {zoneName}
       </Heading>
       <Stack spacing="3">
@@ -139,10 +139,10 @@ function Item({ item, isWorn, onWear }) {
       onClick={onWear}
     >
       <PseudoBox
-        rounded="full"
+        rounded="lg"
         boxShadow="md"
         border="1px"
-        borderColor={isWorn ? "green.700" : "gray.400"}
+        borderColor={isWorn ? "green.700" : "green.700"}
         opacity={isWorn ? 1 : 0.7}
         width="50px"
         height="50px"
@@ -154,7 +154,7 @@ function Item({ item, isWorn, onWear }) {
           !isWorn && {
             opacity: 0.9,
             transform: "scale(0.9)",
-            borderColor: "gray.600",
+            borderColor: "green.600",
           }
         }
       >
@@ -164,12 +164,14 @@ function Item({ item, isWorn, onWear }) {
         marginLeft="3"
         fontSize="md"
         fontWeight={isWorn && "bold"}
-        color={isWorn ? "gray.800" : "gray.600"}
+        color="green.800"
         transition="all 0.15s"
+        opacity={isWorn ? 1 : 0.8}
         _groupHover={
           !isWorn && {
-            color: "gray.800",
+            color: "green.800",
             fontWeight: "medium",
+            opacity: 0.9,
           }
         }
       >
