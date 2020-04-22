@@ -1,4 +1,6 @@
 import React from "react";
+import gql from "graphql-tag";
+import { useQuery } from "@apollo/react-hooks";
 import {
   Box,
   Editable,
@@ -25,6 +27,16 @@ import useOutfitState from "./useOutfitState.js";
 import { ITEMS } from "./data";
 
 function WardrobePage() {
+  const { loading, error, data: datax } = useQuery(gql`
+    query {
+      items(ids: [38913, 38911]) {
+        id
+        name
+      }
+    }
+  `);
+  console.log(loading, error, datax);
+
   const [data, wearItemRaw] = useOutfitState();
   const [searchQuery, setSearchQuery] = React.useState("");
 

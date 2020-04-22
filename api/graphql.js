@@ -1,10 +1,5 @@
-const express = require("express");
-const { ApolloServer } = require("apollo-server-express");
-
+const { ApolloServer } = require("../src/server/apollo-server-vercel");
 const { config } = require("../src/server");
 
 const server = new ApolloServer(config);
-const app = express();
-server.applyMiddleware({ app });
-
-module.exports = app;
+module.exports = server.createHandler();
