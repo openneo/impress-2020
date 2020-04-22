@@ -13,7 +13,17 @@ import useOutfitState from "./useOutfitState.js";
 
 function WardrobePage() {
   return (
-    <Grid templateRows="50vh 50vh">
+    <Grid
+      // Fullscreen, split into a vertical stack on smaller screens
+      // or a horizontal stack on larger ones!
+      templateRows={{ base: "50% 50%", lg: "none" }}
+      templateColumns={{ base: "none", lg: "50% 50%" }}
+      position="absolute"
+      top="0"
+      bottom="0"
+      left="0"
+      right="0"
+    >
       <Box boxShadow="md">
         <OutfitPreview />
       </Box>
