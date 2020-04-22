@@ -1,4 +1,4 @@
-const { ApolloServer, gql } = require("apollo-server");
+const { gql } = require("apollo-server");
 
 const connectToDb = require("./db");
 const { loadItems, buildItemTranslationLoader } = require("./loaders");
@@ -26,7 +26,7 @@ const resolvers = {
   },
 };
 
-const server = new ApolloServer({
+const config = {
   typeDefs,
   resolvers,
   context: async () => {
@@ -36,12 +36,14 @@ const server = new ApolloServer({
       itemTranslationLoader: buildItemTranslationLoader(db),
     };
   },
-});
+};
 
 if (require.main === module) {
+  const { ApolloServer } = require("apollo-server");
+  const server = new ApolloServer(config);
   server.listen().then(({ url }) => {
     console.log(`🚀  Server ready at ${url}`);
   });
 }
 
-module.exports = { server };
+module.exports = { config };

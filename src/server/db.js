@@ -1,5 +1,9 @@
-require("dotenv").config();
 const mysql = require("mysql2/promise");
+
+console.log(
+  process.env["IMPRESS_MYSQL_USER"],
+  process.env["IMPRESS_MYSQL_PASSWORD"]
+);
 
 async function connectToDb() {
   const db = await mysql.createConnection({

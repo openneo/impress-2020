@@ -1,18 +1,18 @@
 const gql = require("graphql-tag");
+const { ApolloServer } = require("apollo-server");
 const { createTestClient } = require("apollo-server-testing");
 
 const connectToDb = require("./db");
 const actualConnectToDb = jest.requireActual("./db");
-const { server } = require("./index");
+const { config } = require("./index");
 
-const { query } = createTestClient(server);
+const { query } = createTestClient(new ApolloServer(config));
 
 // Spy on db.execute, so we can snapshot the queries we run. This can help us
 // keep an eye on perf - watch for tests with way too many queries!
 jest.mock("./db");
 let queryFn;
 beforeEach(() => {
-  numQueries = 0;
   connectToDb.mockImplementation(async (...args) => {
     const db = await actualConnectToDb(...args);
     queryFn = jest.spyOn(db, "execute");
