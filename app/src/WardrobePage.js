@@ -149,37 +149,38 @@ function Item({ item, isWorn, onWear }) {
       cursor="pointer"
       onClick={onWear}
     >
-      <Flex w="50px" h="50px" mr="3" align="center" justify="center">
-        <PseudoBox
-          rounded="full"
-          border="2px"
-          boxShadow="md"
-          borderColor={isWorn ? "green.700" : "gray.400"}
-          opacity={isWorn ? 1 : 0.7}
-          width={isWorn ? "50px" : "40px"}
-          height={isWorn ? "50px" : "40px"}
-          overflow="hidden"
-          transition="all 0.2s"
-          transformOrigin="center"
-          _groupHover={
-            !isWorn && {
-              opacity: 0.9,
-              transform: "scale(1.1)",
-              borderColor: "gray.600",
-            }
-          }
-        >
-          <Image src={item.thumbnailSrc} />
-        </PseudoBox>
-      </Flex>
       <PseudoBox
+        rounded="full"
+        boxShadow="md"
+        border="1px"
+        borderColor={isWorn ? "green.700" : "gray.400"}
+        opacity={isWorn ? 1 : 0.7}
+        width="50px"
+        height="50px"
+        overflow="hidden"
+        transition="all 0.15s"
+        transformOrigin="center"
+        transform={isWorn ? null : "scale(0.8)"}
+        _groupHover={
+          !isWorn && {
+            opacity: 0.9,
+            transform: "scale(0.9)",
+            borderColor: "gray.600",
+          }
+        }
+      >
+        <Image src={item.thumbnailSrc} />
+      </PseudoBox>
+      <PseudoBox
+        marginLeft="3"
         fontSize="md"
         fontWeight={isWorn && "bold"}
         color={isWorn ? "gray.800" : "gray.600"}
-        transition="all 0.2s"
+        transition="all 0.15s"
         _groupHover={
           !isWorn && {
             color: "gray.800",
+            fontWeight: "medium",
           }
         }
       >
