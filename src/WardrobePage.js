@@ -21,9 +21,10 @@ import {
   useToast,
 } from "@chakra-ui/core";
 
-import ItemList, { ItemListSkeleton } from "./ItemList";
-import useOutfitState from "./useOutfitState.js";
 import { ITEMS } from "./data";
+import ItemList, { ItemListSkeleton } from "./ItemList";
+import useItemData from "./useItemData";
+import useOutfitState from "./useOutfitState.js";
 
 function WardrobePage() {
   const { loading, error, data, wearItem } = useOutfitState();
@@ -174,20 +175,47 @@ function SearchToolbar({ query, onChange }) {
 }
 
 function SearchPanel({ query, wornItemIds, onWearItem }) {
+  const { loading, error, itemsById } = useItemData(ITEMS.map((i) => i.id));
+
   const normalize = (s) => s.toLowerCase();
-  const results = ITEMS.filter((item) =>
+  const results = Object.values(itemsById).filter((item) =>
     normalize(item.name).includes(normalize(query))
   );
   results.sort((a, b) => a.name.localeCompare(b.name));
 
-  const resultsSection =
-    results.length > 0 ? (
-      <ItemList
-        items={results}
+  return (
+    <Box color="green.800">
+      <Heading1 mb="6">Searching for "{query}"</Heading1>
+      <SearchResults
+        loading={loading}
+        error={error}
+        results={results}
         wornItemIds={wornItemIds}
         onWearItem={onWearItem}
       />
-    ) : (
+    </Box>
+  );
+}
+
+function SearchResults({ loading, error, results, wornItemIds, onWearItem }) {
+  if (loading) {
+    return <ItemListSkeleton />;
+  }
+
+  if (error) {
+    return (
+      <Text color="green.500">
+        We hit an error trying to load your search results
+        <span role="img" aria-label="(sweat emoji)">
+          😓
+        </span>{" "}
+        Try again?
+      </Text>
+    );
+  }
+
+  if (results.length === 0) {
+    return (
       <Text color="green.500">
         We couldn't find any matching items{" "}
         <span role="img" aria-label="(thinking emoji)">
@@ -196,12 +224,14 @@ function SearchPanel({ query, wornItemIds, onWearItem }) {
         Try again?
       </Text>
     );
+  }
 
   return (
-    <Box color="green.800">
-      <Heading1 mb="6">Searching for "{query}"</Heading1>
-      {resultsSection}
-    </Box>
+    <ItemList
+      items={results}
+      wornItemIds={wornItemIds}
+      onWearItem={onWearItem}
+    />
   );
 }
 
