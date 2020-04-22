@@ -64,7 +64,7 @@ function WardrobePage() {
              "outfit items"`,
       }}
       templateRows={{
-        base: "50% auto 1fr",
+        base: "minmax(100px, 1fr) auto minmax(300px, 1fr)",
         lg: "auto 1fr",
       }}
       templateColumns={{
@@ -219,7 +219,7 @@ function OutfitHeading() {
         <Editable defaultValue="Zafara Agent (roopal27)">
           {({ isEditing, onRequestEdit }) => (
             <>
-              <EditablePreview d="inline" />
+              <EditablePreview />
               <EditableInput />
               {!isEditing && (
                 <PseudoBox
@@ -228,6 +228,7 @@ function OutfitHeading() {
                   transition="opacity 0.5s"
                   _groupHover={{ opacity: "1" }}
                   onClick={onRequestEdit}
+                  position="absolute"
                 >
                   <IconButton
                     icon="edit"
