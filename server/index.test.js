@@ -72,24 +72,11 @@ it("can load items", async () => {
         ],
       ],
       Array [
-        "SELECT * FROM item_translations WHERE item_id = ? AND locale = ? LIMIT 1",
+        "SELECT * FROM item_translations WHERE item_id IN (?,?,?) AND locale = \\"en\\"",
         Array [
           38911,
-          "en",
-        ],
-      ],
-      Array [
-        "SELECT * FROM item_translations WHERE item_id = ? AND locale = ? LIMIT 1",
-        Array [
           38912,
-          "en",
-        ],
-      ],
-      Array [
-        "SELECT * FROM item_translations WHERE item_id = ? AND locale = ? LIMIT 1",
-        Array [
           38913,
-          "en",
         ],
       ],
     ]

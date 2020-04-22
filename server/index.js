@@ -1,7 +1,7 @@
 const { ApolloServer, gql } = require("apollo-server");
 
 const connectToDb = require("./db");
-const { loadItems, loadItemTranslation } = require("./loaders");
+const { loadItems, buildItemTranslationLoader } = require("./loaders");
 
 const typeDefs = gql`
   type Item {
@@ -16,8 +16,8 @@ const typeDefs = gql`
 
 const resolvers = {
   Item: {
-    name: async (item, _, { db }) => {
-      const translation = await loadItemTranslation(db, item.id, "en");
+    name: async (item, _, { itemTranslationLoader }) => {
+      const translation = await itemTranslationLoader.load(item.id);
       return translation.name;
     },
   },
@@ -31,7 +31,10 @@ const server = new ApolloServer({
   resolvers,
   context: async () => {
     const db = await connectToDb();
-    return { db };
+    return {
+      db,
+      itemTranslationLoader: buildItemTranslationLoader(db),
+    };
   },
 });
 
