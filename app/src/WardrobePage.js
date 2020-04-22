@@ -4,9 +4,13 @@ import {
   Flex,
   Grid,
   Heading,
+  IconButton,
   Image,
   Stack,
   PseudoBox,
+  Editable,
+  EditablePreview,
+  EditableInput,
 } from "@chakra-ui/core";
 
 import useOutfitState from "./useOutfitState.js";
@@ -58,18 +62,49 @@ function ItemsPanel() {
   const [zonesAndItems, wearItem] = useOutfitState();
 
   return (
-    <Stack spacing="10">
-      {zonesAndItems.map(({ zoneName, items, wornItemId }) => (
-        <Box key={zoneName}>
-          <ItemsForZone
-            zoneName={zoneName}
-            items={items}
-            wornItemId={wornItemId}
-            onWearItem={wearItem}
-          />
-        </Box>
-      ))}
-    </Stack>
+    <>
+      <PseudoBox role="group" d="inline-block">
+        <Heading size="xl" mb="6" wordBreak="break-word">
+          <Editable defaultValue="roopal27">
+            {({ isEditing, onRequestEdit }) => (
+              <>
+                <EditablePreview d="inline" />
+                <EditableInput />
+                {!isEditing && (
+                  <PseudoBox
+                    d="inline-block"
+                    opacity="0"
+                    transition="opacity 0.5s"
+                    _groupHover={{ opacity: "1" }}
+                    onClick={onRequestEdit}
+                  >
+                    <IconButton
+                      icon="edit"
+                      variant="link"
+                      color="gray.600"
+                      aria-label="Edit outfit name"
+                      title="Edit outfit name"
+                    />
+                  </PseudoBox>
+                )}
+              </>
+            )}
+          </Editable>
+        </Heading>
+      </PseudoBox>
+      <Stack spacing="10">
+        {zonesAndItems.map(({ zoneName, items, wornItemId }) => (
+          <Box key={zoneName}>
+            <ItemsForZone
+              zoneName={zoneName}
+              items={items}
+              wornItemId={wornItemId}
+              onWearItem={wearItem}
+            />
+          </Box>
+        ))}
+      </Stack>
+    </>
   );
 }
 
