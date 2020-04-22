@@ -61,7 +61,9 @@ function useOutfitState() {
     return { zoneName, items, wornItemId };
   });
 
-  return [zonesAndItems, wearItem];
+  const data = { zonesAndItems, wornItemIds };
+
+  return [data, wearItem];
 }
 
 export default useOutfitState;

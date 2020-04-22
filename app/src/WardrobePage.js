@@ -1,39 +1,78 @@
 import React from "react";
 import {
   Box,
-  Flex,
-  Grid,
-  Heading,
-  IconButton,
-  Image,
-  Stack,
-  PseudoBox,
   Editable,
   EditablePreview,
   EditableInput,
+  Flex,
+  Grid,
+  Heading,
+  Icon,
+  IconButton,
+  Image,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  InputRightElement,
+  PseudoBox,
+  Stack,
+  Text,
 } from "@chakra-ui/core";
 
 import useOutfitState from "./useOutfitState.js";
+import { ITEMS } from "./data";
 
 function WardrobePage() {
+  const [data, wearItem] = useOutfitState();
+  const [searchQuery, setSearchQuery] = React.useState("");
+
   return (
     <Grid
       // Fullscreen, split into a vertical stack on smaller screens
       // or a horizontal stack on larger ones!
-      templateRows={{ base: "50% 50%", lg: "none" }}
-      templateColumns={{ base: "none", lg: "50% 50%" }}
+      templateAreas={{
+        base: `"outfit"
+               "search"
+               "items"`,
+        lg: `"outfit search"
+             "outfit items"`,
+      }}
+      templateRows={{
+        base: "50% auto 1fr",
+        lg: "auto 1fr",
+      }}
+      templateColumns={{
+        base: "100%",
+        lg: "50% 50%",
+      }}
       position="absolute"
       top="0"
       bottom="0"
       left="0"
       right="0"
     >
-      <Box boxShadow="md">
+      <Box gridArea="outfit">
         <OutfitPreview />
       </Box>
-      <Box overflow="auto">
+      <Box gridArea="search" boxShadow="sm">
+        <Box px="5" py="3">
+          <SearchToolbar query={searchQuery} onChange={setSearchQuery} />
+        </Box>
+      </Box>
+      <Box gridArea="items" overflow="auto">
         <Box px="5" py="5">
-          <ItemsPanel />
+          {searchQuery ? (
+            <SearchPanel
+              query={searchQuery}
+              wornItemIds={data.wornItemIds}
+              onWearItem={wearItem}
+            />
+          ) : (
+            <ItemsPanel
+              zonesAndItems={data.zonesAndItems}
+              onWearItem={wearItem}
+            />
+          )}
         </Box>
       </Box>
     </Grid>
@@ -58,9 +97,70 @@ function OutfitPreview() {
   );
 }
 
-function ItemsPanel() {
-  const [zonesAndItems, wearItem] = useOutfitState();
+function SearchToolbar({ query, onChange }) {
+  return (
+    <InputGroup>
+      <InputLeftElement>
+        <Icon name="search" color="gray.400" />
+      </InputLeftElement>
+      <Input
+        placeholder="Search items…"
+        focusBorderColor="green.600"
+        color="green.800"
+        value={query}
+        onChange={(e) => onChange(e.target.value)}
+      />
+      {query && (
+        <InputRightElement>
+          <IconButton
+            icon="close"
+            color="gray.400"
+            variant="ghost"
+            variantColor="green"
+            aria-label="Clear search"
+            onClick={() => onChange("")}
+          />
+        </InputRightElement>
+      )}
+    </InputGroup>
+  );
+}
 
+function SearchPanel({ query, wornItemIds, onWearItem }) {
+  const normalize = (s) => s.toLowerCase();
+  const results = ITEMS.filter((item) =>
+    normalize(item.name).includes(normalize(query))
+  );
+  results.sort((a, b) => a.name.localeCompare(b.name));
+
+  const resultsSection =
+    results.length > 0 ? (
+      <ItemList
+        items={results}
+        wornItemIds={wornItemIds}
+        onWearItem={onWearItem}
+      />
+    ) : (
+      <Text color="green.500">
+        We couldn't find any matching items{" "}
+        <span role="img" aria-label="(thinking emoji)">
+          🤔
+        </span>{" "}
+        Try again?
+      </Text>
+    );
+
+  return (
+    <Box color="green.800">
+      <Heading fontFamily="Delicious" fontWeight="800" size="2xl" mb="6">
+        Searching for "{query}"
+      </Heading>
+      {resultsSection}
+    </Box>
+  );
+}
+
+function ItemsPanel({ zonesAndItems, onWearItem }) {
   return (
     <Box color="green.800">
       <OutfitHeading />
@@ -71,7 +171,7 @@ function ItemsPanel() {
               zoneName={zoneName}
               items={items}
               wornItemId={wornItemId}
-              onWearItem={wearItem}
+              onWearItem={onWearItem}
             />
           </Box>
         ))}
@@ -126,18 +226,28 @@ function ItemsForZone({ zoneName, items, wornItemId, onWearItem }) {
       <Heading size="xl" color="green.800" mb="3" fontFamily="Delicious">
         {zoneName}
       </Heading>
-      <Stack spacing="3">
-        {items.map((item) => (
-          <Box key={item.id}>
-            <Item
-              item={item}
-              isWorn={item.id === wornItemId}
-              onWear={() => onWearItem(item.id)}
-            />
-          </Box>
-        ))}
-      </Stack>
+      <ItemList
+        items={items}
+        wornItemIds={[wornItemId]}
+        onWearItem={onWearItem}
+      />
     </Box>
+  );
+}
+
+function ItemList({ items, wornItemIds, onWearItem }) {
+  return (
+    <Stack spacing="3">
+      {items.map((item) => (
+        <Box key={item.id}>
+          <Item
+            item={item}
+            isWorn={wornItemIds.includes(item.id)}
+            onWear={() => onWearItem(item.id)}
+          />
+        </Box>
+      ))}
+    </Stack>
   );
 }
 
