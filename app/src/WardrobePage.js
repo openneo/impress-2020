@@ -178,9 +178,7 @@ function SearchPanel({ query, wornItemIds, onWearItem }) {
 
   return (
     <Box color="green.800">
-      <Heading fontFamily="Delicious" fontWeight="800" size="2xl" mb="6">
-        Searching for "{query}"
-      </Heading>
+      <Heading1 mb="6">Searching for "{query}"</Heading1>
       {resultsSection}
     </Box>
   );
@@ -209,13 +207,7 @@ function ItemsPanel({ zonesAndItems, onWearItem }) {
 function OutfitHeading() {
   return (
     <PseudoBox role="group" d="inline-block">
-      <Heading
-        size="2xl"
-        mb="6"
-        wordBreak="break-word"
-        fontFamily="Delicious"
-        fontWeight="800"
-      >
+      <Heading1 mb="6">
         <Editable defaultValue="Zafara Agent (roopal27)">
           {({ isEditing, onRequestEdit }) => (
             <>
@@ -242,7 +234,7 @@ function OutfitHeading() {
             </>
           )}
         </Editable>
-      </Heading>
+      </Heading1>
     </PseudoBox>
   );
 }
@@ -250,9 +242,7 @@ function OutfitHeading() {
 function ItemsForZone({ zoneName, items, wornItemId, onWearItem }) {
   return (
     <Box>
-      <Heading size="xl" color="green.800" mb="3" fontFamily="Delicious">
-        {zoneName}
-      </Heading>
+      <Heading2 mb="3">{zoneName}</Heading2>
       <ItemList
         items={items}
         wornItemIds={[wornItemId]}
@@ -327,6 +317,22 @@ function Item({ item, isWorn, onWear }) {
         {item.name}
       </PseudoBox>
     </PseudoBox>
+  );
+}
+
+function Heading1({ children, ...props }) {
+  return (
+    <Heading fontFamily="Delicious" fontWeight="800" size="2xl" {...props}>
+      {children}
+    </Heading>
+  );
+}
+
+function Heading2({ children, ...props }) {
+  return (
+    <Heading size="xl" color="green.800" fontFamily="Delicious" {...props}>
+      {children}
+    </Heading>
   );
 }
 
