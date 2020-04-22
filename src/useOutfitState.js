@@ -1,19 +1,23 @@
 import React from "react";
 
-import { ITEMS } from "./data.js";
+import useItemData from "./useItemData";
 
 function useOutfitState() {
   const [wornItemIds, setWornItemIds] = React.useState([
-    1,
-    2,
-    3,
-    4,
-    6,
-    7,
-    8,
-    9,
+    "38913",
+    "38911",
+    "38912",
+    "37375",
+    "48313",
+    "37229",
+    "43014",
+    "43397",
   ]);
-  const [closetedItemIds, setClosetedItemIds] = React.useState([5]);
+  const [closetedItemIds, setClosetedItemIds] = React.useState(["74166"]);
+
+  const allItemIds = [...wornItemIds, ...closetedItemIds];
+
+  const { loading, error, itemsById } = useItemData(allItemIds);
 
   const wearItem = React.useCallback(
     (itemIdToAdd) => {
@@ -24,7 +28,7 @@ function useOutfitState() {
       let newWornItemIds = wornItemIds;
       let newClosetedItemIds = closetedItemIds;
 
-      const itemToAdd = ITEMS.find((item) => item.id === itemIdToAdd);
+      const itemToAdd = itemsById[itemIdToAdd];
 
       // Move the item out of the closet.
       newClosetedItemIds = newClosetedItemIds.filter(
@@ -33,7 +37,7 @@ function useOutfitState() {
 
       // Move conflicting items to the closet.
       const conflictingItemIds = newWornItemIds.filter((wornItemId) => {
-        const wornItem = ITEMS.find((item) => item.id === wornItemId);
+        const wornItem = itemsById[wornItemId];
         return wornItem.zoneName === itemToAdd.zoneName;
       });
       newWornItemIds = newWornItemIds.filter(
@@ -47,15 +51,25 @@ function useOutfitState() {
       setWornItemIds(newWornItemIds);
       setClosetedItemIds(newClosetedItemIds);
     },
-    [wornItemIds, setWornItemIds, closetedItemIds, setClosetedItemIds]
+    [wornItemIds, closetedItemIds, itemsById]
   );
 
-  const wornItems = wornItemIds.map((id) =>
-    ITEMS.find((item) => item.id === id)
+  const zonesAndItems = getZonesAndItems(
+    itemsById,
+    wornItemIds,
+    closetedItemIds
   );
-  const closetedItems = closetedItemIds.map((id) =>
-    ITEMS.find((item) => item.id === id)
-  );
+
+  const data = { zonesAndItems, wornItemIds };
+
+  return { loading, error, data, wearItem };
+}
+
+function getZonesAndItems(itemsById, wornItemIds, closetedItemIds) {
+  const wornItems = wornItemIds.map((id) => itemsById[id]).filter((i) => i);
+  const closetedItems = closetedItemIds
+    .map((id) => itemsById[id])
+    .filter((i) => i);
 
   const allItems = [...wornItems, ...closetedItems];
   const allZoneNames = [...new Set(allItems.map((item) => item.zoneName))];
@@ -70,9 +84,7 @@ function useOutfitState() {
     return { zoneName, items, wornItemId };
   });
 
-  const data = { zonesAndItems, wornItemIds };
-
-  return [data, wearItem];
+  return zonesAndItems;
 }
 
 export default useOutfitState;

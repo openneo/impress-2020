@@ -30,6 +30,7 @@ it("can load items", async () => {
         items(ids: $ids) {
           id
           name
+          thumbnailUrl
         }
       }
     `,
@@ -49,14 +50,17 @@ it("can load items", async () => {
         Object {
           "id": "38911",
           "name": "Zafara Agent Hood",
+          "thumbnailUrl": "http://images.neopets.com/items/clo_zafara_agent_hood.gif",
         },
         Object {
           "id": "38912",
           "name": "Zafara Agent Robe",
+          "thumbnailUrl": "http://images.neopets.com/items/clo_zafara_agent_robe.gif",
         },
         Object {
           "id": "38913",
           "name": "Zafara Agent Gloves",
+          "thumbnailUrl": "http://images.neopets.com/items/clo_zafara_agent_gloves.gif",
         },
       ],
     }

@@ -1,6 +1,4 @@
 import React from "react";
-import gql from "graphql-tag";
-import { useQuery } from "@apollo/react-hooks";
 import {
   Box,
   Editable,
@@ -27,24 +25,14 @@ import useOutfitState from "./useOutfitState.js";
 import { ITEMS } from "./data";
 
 function WardrobePage() {
-  const { loading, error, data: datax } = useQuery(gql`
-    query {
-      items(ids: [38913, 38911]) {
-        id
-        name
-      }
-    }
-  `);
-  console.log(loading, error, datax);
-
-  const [data, wearItemRaw] = useOutfitState();
+  const { loading, error, data, wearItem } = useOutfitState();
   const [searchQuery, setSearchQuery] = React.useState("");
 
   const toast = useToast();
   const [hasSentToast, setHasSentToast] = React.useState(false);
-  const wearItem = React.useCallback(
+  const wearItemAndToast = React.useCallback(
     (itemIdToAdd) => {
-      wearItemRaw(itemIdToAdd);
+      wearItem(itemIdToAdd);
 
       if (!hasSentToast) {
         setTimeout(() => {
@@ -62,7 +50,7 @@ function WardrobePage() {
         setHasSentToast(true);
       }
     },
-    [toast, wearItemRaw, hasSentToast, setHasSentToast]
+    [toast, wearItem, hasSentToast, setHasSentToast]
   );
 
   return (
@@ -104,12 +92,12 @@ function WardrobePage() {
             <SearchPanel
               query={searchQuery}
               wornItemIds={data.wornItemIds}
-              onWearItem={wearItem}
+              onWearItem={wearItemAndToast}
             />
           ) : (
             <ItemsPanel
               zonesAndItems={data.zonesAndItems}
-              onWearItem={wearItem}
+              onWearItem={wearItemAndToast}
             />
           )}
         </Box>

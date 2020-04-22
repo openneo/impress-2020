@@ -7,6 +7,7 @@ const typeDefs = gql`
   type Item {
     id: ID!
     name: String!
+    thumbnailUrl: String!
   }
 
   type Query {

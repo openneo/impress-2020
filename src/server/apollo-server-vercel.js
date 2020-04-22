@@ -177,10 +177,15 @@ class ApolloServer extends ApolloServerBase {
             ...this.playgroundOptions,
           };
 
-          return setHeaders(res, {
-            "Content-Type": "text/html",
-            ...requestCorsHeadersObject,
-          }).send(renderPlaygroundPage(playgroundRenderPageOptions));
+          return setHeaders(
+            res,
+            new Headers({
+              "Content-Type": "text/html",
+              ...requestCorsHeadersObject,
+            })
+          )
+            .status(200)
+            .send(renderPlaygroundPage(playgroundRenderPageOptions));
         }
       }
 

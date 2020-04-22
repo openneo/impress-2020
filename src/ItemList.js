@@ -26,7 +26,7 @@ function Item({ item, isWorn, onWear }) {
       cursor="pointer"
       onClick={onWear}
     >
-      <ItemThumbnail src={item.thumbnailSrc} isWorn={isWorn} />
+      <ItemThumbnail src={item.thumbnailUrl} isWorn={isWorn} />
       <Box width="3" />
       <ItemName isWorn={isWorn}>{item.name}</ItemName>
     </PseudoBox>
