@@ -1,0 +1,1 @@
+* Embed Delicious font, right now it just uses the locally installed one!

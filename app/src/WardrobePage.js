@@ -63,35 +63,7 @@ function ItemsPanel() {
 
   return (
     <Box color="green.800">
-      <PseudoBox role="group" d="inline-block">
-        <Heading size="xl" mb="6" wordBreak="break-word">
-          <Editable defaultValue="roopal27">
-            {({ isEditing, onRequestEdit }) => (
-              <>
-                <EditablePreview d="inline" />
-                <EditableInput />
-                {!isEditing && (
-                  <PseudoBox
-                    d="inline-block"
-                    opacity="0"
-                    transition="opacity 0.5s"
-                    _groupHover={{ opacity: "1" }}
-                    onClick={onRequestEdit}
-                  >
-                    <IconButton
-                      icon="edit"
-                      variant="link"
-                      color="green.600"
-                      aria-label="Edit outfit name"
-                      title="Edit outfit name"
-                    />
-                  </PseudoBox>
-                )}
-              </>
-            )}
-          </Editable>
-        </Heading>
-      </PseudoBox>
+      <OutfitHeading />
       <Stack spacing="10">
         {zonesAndItems.map(({ zoneName, items, wornItemId }) => (
           <Box key={zoneName}>
@@ -108,10 +80,50 @@ function ItemsPanel() {
   );
 }
 
+function OutfitHeading() {
+  return (
+    <PseudoBox role="group" d="inline-block">
+      <Heading
+        size="2xl"
+        mb="6"
+        wordBreak="break-word"
+        fontFamily="Delicious"
+        fontWeight="800"
+      >
+        <Editable defaultValue="roopal27">
+          {({ isEditing, onRequestEdit }) => (
+            <>
+              <EditablePreview d="inline" />
+              <EditableInput />
+              {!isEditing && (
+                <PseudoBox
+                  d="inline-block"
+                  opacity="0"
+                  transition="opacity 0.5s"
+                  _groupHover={{ opacity: "1" }}
+                  onClick={onRequestEdit}
+                >
+                  <IconButton
+                    icon="edit"
+                    variant="link"
+                    color="green.600"
+                    aria-label="Edit outfit name"
+                    title="Edit outfit name"
+                  />
+                </PseudoBox>
+              )}
+            </>
+          )}
+        </Editable>
+      </Heading>
+    </PseudoBox>
+  );
+}
+
 function ItemsForZone({ zoneName, items, wornItemId, onWearItem }) {
   return (
     <Box>
-      <Heading size="lg" color="green.900" mb="3">
+      <Heading size="xl" color="green.800" mb="3" fontFamily="Delicious">
         {zoneName}
       </Heading>
       <Stack spacing="3">
