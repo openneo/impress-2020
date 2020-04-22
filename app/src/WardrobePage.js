@@ -215,27 +215,33 @@ function OutfitHeading() {
               <EditablePreview />
               <EditableInput />
               {!isEditing && (
-                <PseudoBox
-                  d="inline-block"
-                  opacity="0"
-                  transition="opacity 0.5s"
-                  _groupHover={{ opacity: "1" }}
-                  onClick={onRequestEdit}
-                  position="absolute"
-                >
-                  <IconButton
-                    icon="edit"
-                    variant="link"
-                    color="green.600"
-                    aria-label="Edit outfit name"
-                    title="Edit outfit name"
-                  />
-                </PseudoBox>
+                <OutfitNameEditButton onRequestEdit={onRequestEdit} />
               )}
             </>
           )}
         </Editable>
       </Heading1>
+    </PseudoBox>
+  );
+}
+
+function OutfitNameEditButton({ onRequestEdit }) {
+  return (
+    <PseudoBox
+      d="inline-block"
+      opacity="0"
+      transition="opacity 0.5s"
+      _groupHover={{ opacity: "1" }}
+      onClick={onRequestEdit}
+      position="absolute"
+    >
+      <IconButton
+        icon="edit"
+        variant="link"
+        color="green.600"
+        aria-label="Edit outfit name"
+        title="Edit outfit name"
+      />
     </PseudoBox>
   );
 }
