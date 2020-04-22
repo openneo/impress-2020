@@ -1,0 +1,25 @@
+{
+  "name": "impress-2020-server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Matchu",
+  "license": "MIT",
+  "dependencies": {
+    "apollo-server": "^2.12.0",
+    "dotenv": "^8.2.0",
+    "graphql": "^15.0.0",
+    "mysql2": "^2.1.0"
+  },
+  "devDependencies": {
+    "apollo-server-testing": "^2.12.0",
+    "jest": "^25.4.0",
+    "nodemon": "^2.0.3",
+    "prettier": "^2.0.5"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "watch": "nodemon index.js",
+    "test": "jest",
+    "setup-mysql-user": "mysql -h impress.openneo.net -u matchu -p < setup-mysql-user.sql"
+  }
+}
