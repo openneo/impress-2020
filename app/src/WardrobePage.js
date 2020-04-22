@@ -192,10 +192,10 @@ function ItemsPanel({ zonesAndItems, onWearItem }) {
       <Stack spacing="10">
         {zonesAndItems.map(({ zoneName, items, wornItemId }) => (
           <Box key={zoneName}>
-            <ItemsForZone
-              zoneName={zoneName}
+            <Heading2 mb="3">{zoneName}</Heading2>
+            <ItemList
               items={items}
-              wornItemId={wornItemId}
+              wornItemIds={[wornItemId]}
               onWearItem={onWearItem}
             />
           </Box>
@@ -237,19 +237,6 @@ function OutfitHeading() {
         </Editable>
       </Heading1>
     </PseudoBox>
-  );
-}
-
-function ItemsForZone({ zoneName, items, wornItemId, onWearItem }) {
-  return (
-    <Box>
-      <Heading2 mb="3">{zoneName}</Heading2>
-      <ItemList
-        items={items}
-        wornItemIds={[wornItemId]}
-        onWearItem={onWearItem}
-      />
-    </Box>
   );
 }
 
