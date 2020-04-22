@@ -213,7 +213,7 @@ function ItemsPanel({ zonesAndItems, onWearItem }) {
 
 function OutfitHeading() {
   return (
-    <PseudoBox role="group" d="inline-block">
+    <PseudoBox role="group" d="inline-block" position="relative">
       <Heading1 mb="6">
         <Editable defaultValue="Zafara Agent (roopal27)">
           {({ isEditing, onRequestEdit }) => (
