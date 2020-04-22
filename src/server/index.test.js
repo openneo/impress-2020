@@ -12,15 +12,18 @@ const { query } = createTestClient(new ApolloServer(config));
 // keep an eye on perf - watch for tests with way too many queries!
 jest.mock("./db");
 let queryFn;
+let db;
 beforeEach(() => {
   connectToDb.mockImplementation(async (...args) => {
-    const db = await actualConnectToDb(...args);
+    db = await actualConnectToDb(...args);
     queryFn = jest.spyOn(db, "execute");
     return db;
   });
 });
 afterEach(() => {
   jest.resetAllMocks();
+  db.end();
+  db = null;
 });
 
 it("can load items", async () => {
