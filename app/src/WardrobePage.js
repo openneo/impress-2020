@@ -17,14 +17,38 @@ import {
   PseudoBox,
   Stack,
   Text,
+  useToast,
 } from "@chakra-ui/core";
 
 import useOutfitState from "./useOutfitState.js";
 import { ITEMS } from "./data";
 
 function WardrobePage() {
-  const [data, wearItem] = useOutfitState();
+  const [data, wearItemRaw] = useOutfitState();
   const [searchQuery, setSearchQuery] = React.useState("");
+
+  const toast = useToast();
+  const [hasSentToast, setHasSentToast] = React.useState(false);
+  const wearItem = React.useCallback(
+    (itemIdToAdd) => {
+      wearItemRaw(itemIdToAdd);
+
+      if (!hasSentToast) {
+        toast({
+          title: "Not yet implemented",
+          description:
+            "The outfit preview is static right now, we'll update it " +
+            "to change later! But the list animation is good, yeah? 😊",
+          status: "warning",
+          isClosable: true,
+          duration: 10000,
+          position: window.innerWidth < 992 ? "top" : "bottom-left",
+        });
+        setHasSentToast(true);
+      }
+    },
+    [toast, wearItemRaw, hasSentToast, setHasSentToast]
+  );
 
   return (
     <Grid
