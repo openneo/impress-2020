@@ -15,12 +15,13 @@ import {
   InputLeftElement,
   InputRightElement,
   PseudoBox,
+  Skeleton,
   Stack,
   Text,
   useToast,
 } from "@chakra-ui/core";
 
-import ItemList from "./ItemList";
+import ItemList, { ItemListSkeleton } from "./ItemList";
 import useOutfitState from "./useOutfitState.js";
 import { ITEMS } from "./data";
 
@@ -52,6 +53,18 @@ function WardrobePage() {
     },
     [toast, wearItem, hasSentToast, setHasSentToast]
   );
+
+  React.useEffect(() => {
+    if (error) {
+      toast({
+        title: "We couldn't load this outfit 😖",
+        description: "Please reload the page to try again. Sorry!",
+        status: "error",
+        isClosable: true,
+        duration: Infinity,
+      });
+    }
+  }, [error, toast]);
 
   return (
     <Grid
@@ -97,6 +110,7 @@ function WardrobePage() {
           ) : (
             <ItemsPanel
               zonesAndItems={data.zonesAndItems}
+              loading={loading}
               onWearItem={wearItemAndToast}
             />
           )}
@@ -191,21 +205,29 @@ function SearchPanel({ query, wornItemIds, onWearItem }) {
   );
 }
 
-function ItemsPanel({ zonesAndItems, onWearItem }) {
+function ItemsPanel({ zonesAndItems, loading, onWearItem }) {
   return (
     <Box color="green.800">
       <OutfitHeading />
       <Stack spacing="10">
-        {zonesAndItems.map(({ zoneName, items, wornItemId }) => (
-          <Box key={zoneName}>
-            <Heading2 mb="3">{zoneName}</Heading2>
-            <ItemList
-              items={items}
-              wornItemIds={[wornItemId]}
-              onWearItem={onWearItem}
-            />
-          </Box>
-        ))}
+        {loading &&
+          [1, 2, 3].map((i) => (
+            <Box key={i}>
+              <Skeleton height="2.3rem" width="12rem" mb="3" />
+              <ItemListSkeleton />
+            </Box>
+          ))}
+        {!loading &&
+          zonesAndItems.map(({ zoneName, items, wornItemId }) => (
+            <Box key={zoneName}>
+              <Heading2 mb="3">{zoneName}</Heading2>
+              <ItemList
+                items={items}
+                wornItemIds={[wornItemId]}
+                onWearItem={onWearItem}
+              />
+            </Box>
+          ))}
       </Stack>
     </Box>
   );
@@ -213,21 +235,23 @@ function ItemsPanel({ zonesAndItems, onWearItem }) {
 
 function OutfitHeading() {
   return (
-    <PseudoBox role="group" d="inline-block" position="relative">
-      <Heading1 mb="6">
-        <Editable defaultValue="Zafara Agent (roopal27)">
-          {({ isEditing, onRequestEdit }) => (
-            <>
-              <EditablePreview />
-              <EditableInput />
-              {!isEditing && (
-                <OutfitNameEditButton onRequestEdit={onRequestEdit} />
-              )}
-            </>
-          )}
-        </Editable>
-      </Heading1>
-    </PseudoBox>
+    <Box>
+      <PseudoBox role="group" d="inline-block" position="relative">
+        <Heading1 mb="6">
+          <Editable defaultValue="Zafara Agent (roopal27)">
+            {({ isEditing, onRequestEdit }) => (
+              <>
+                <EditablePreview />
+                <EditableInput />
+                {!isEditing && (
+                  <OutfitNameEditButton onRequestEdit={onRequestEdit} />
+                )}
+              </>
+            )}
+          </Editable>
+        </Heading1>
+      </PseudoBox>
+    </Box>
   );
 }
 

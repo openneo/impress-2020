@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Image, PseudoBox, Stack } from "@chakra-ui/core";
+import { Box, Image, PseudoBox, Stack, Skeleton } from "@chakra-ui/core";
 
 function ItemList({ items, wornItemIds, onWearItem }) {
   return (
@@ -17,6 +17,22 @@ function ItemList({ items, wornItemIds, onWearItem }) {
   );
 }
 
+function ItemListSkeleton() {
+  return (
+    <Stack spacing="3">
+      <Box>
+        <ItemSkeleton />
+      </Box>
+      <Box>
+        <ItemSkeleton />
+      </Box>
+      <Box>
+        <ItemSkeleton />
+      </Box>
+    </Stack>
+  );
+}
+
 function Item({ item, isWorn, onWear }) {
   return (
     <PseudoBox
@@ -30,6 +46,16 @@ function Item({ item, isWorn, onWear }) {
       <Box width="3" />
       <ItemName isWorn={isWorn}>{item.name}</ItemName>
     </PseudoBox>
+  );
+}
+
+function ItemSkeleton() {
+  return (
+    <Box d="flex" alignItems="center">
+      <Skeleton width="50px" height="50px" />
+      <Box width="3" />
+      <Skeleton height="1.5rem" width="12rem" />
+    </Box>
   );
 }
 
@@ -82,3 +108,4 @@ function ItemName({ children, isWorn }) {
 }
 
 export default ItemList;
+export { ItemListSkeleton };
