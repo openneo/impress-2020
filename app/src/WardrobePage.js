@@ -130,7 +130,7 @@ function SearchToolbar({ query, onChange }) {
         <Icon name="search" color="gray.400" />
       </InputLeftElement>
       <Input
-        placeholder="Search items…"
+        placeholder="Search for items to add…"
         focusBorderColor="green.600"
         color="green.800"
         value={query}
