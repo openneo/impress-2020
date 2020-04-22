@@ -7,6 +7,12 @@ import ApolloClient from "apollo-boost";
 
 const client = new ApolloClient({
   uri: "/api/graphql",
+  cacheRedirects: {
+    Query: {
+      items: (_, args, { getCacheKey }) =>
+        args.ids.map((id) => getCacheKey({ __typename: "Item", id })),
+    },
+  },
 });
 
 function App() {
