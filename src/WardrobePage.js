@@ -4,12 +4,10 @@ import {
   Editable,
   EditablePreview,
   EditableInput,
-  Flex,
   Grid,
   Heading,
   Icon,
   IconButton,
-  Image,
   Input,
   InputGroup,
   InputLeftElement,
@@ -25,6 +23,8 @@ import { ITEMS } from "./data";
 import ItemList, { ItemListSkeleton } from "./ItemList";
 import useItemData from "./useItemData";
 import useOutfitState from "./useOutfitState.js";
+import OutfitPreview from "./OutfitPreview";
+import { Delay } from "./util";
 
 function WardrobePage() {
   const { loading, error, data, wearItem } = useOutfitState();
@@ -92,8 +92,8 @@ function WardrobePage() {
       left="0"
       right="0"
     >
-      <Box gridArea="outfit">
-        <OutfitPreview />
+      <Box gridArea="outfit" backgroundColor="gray.900">
+        <OutfitPreview itemIds={data.wornItemIds} speciesId="54" colorId="75" />
       </Box>
       <Box gridArea="search" boxShadow="sm">
         <Box px="5" py="3">
@@ -118,24 +118,6 @@ function WardrobePage() {
         </Box>
       </Box>
     </Grid>
-  );
-}
-
-function OutfitPreview() {
-  return (
-    <Flex
-      alignItems="center"
-      justifyContent="center"
-      height="100%"
-      width="100%"
-      backgroundColor="gray.900"
-    >
-      <Image
-        src="http://pets.neopets.com/cp/wgmdtdwz/1/7.png"
-        maxHeight="100%"
-        maxWidth="100%"
-      />
-    </Flex>
   );
 }
 
@@ -243,8 +225,10 @@ function ItemsPanel({ zonesAndItems, loading, onWearItem }) {
         {loading &&
           [1, 2, 3].map((i) => (
             <Box key={i}>
-              <Skeleton height="2.3rem" width="12rem" mb="3" />
-              <ItemListSkeleton />
+              <Delay>
+                <Skeleton height="2.3rem" width="12rem" mb="3" />
+                <ItemListSkeleton />
+              </Delay>
             </Box>
           ))}
         {!loading &&
