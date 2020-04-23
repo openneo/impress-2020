@@ -116,7 +116,9 @@ const config = {
 
   // Enable Playground in production :)
   introspection: true,
-  playground: true,
+  playground: {
+    endpoint: "/api/graphql",
+  },
 };
 
 if (require.main === module) {
