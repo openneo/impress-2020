@@ -46,16 +46,6 @@ function OutfitPreview({ itemIds, speciesId, colorId }) {
     { variables: { itemIds, speciesId, colorId } }
   );
 
-  if (loading) {
-    return (
-      <FullScreenCenter>
-        <Delay>
-          <Spinner color="green.400" size="lg" />
-        </Delay>
-      </FullScreenCenter>
-    );
-  }
-
   if (error) {
     return (
       <FullScreenCenter>
@@ -66,6 +56,37 @@ function OutfitPreview({ itemIds, speciesId, colorId }) {
         </Text>
       </FullScreenCenter>
     );
+  }
+
+  return (
+    <Box pos="relative" height="100%" width="100%">
+      {getVisibleLayers(data).map((layer) => (
+        <FullScreenCenter key={layer.id}>
+          <Image src={layer.imageUrl} maxWidth="100%" maxHeight="100%" />
+        </FullScreenCenter>
+      ))}
+      {loading && (
+        <Delay>
+          <FullScreenCenter>
+            <Box
+              width="100%"
+              height="100%"
+              backgroundColor="gray.900"
+              opacity="0.8"
+            />
+          </FullScreenCenter>
+          <FullScreenCenter>
+            <Spinner color="green.400" size="xl" />
+          </FullScreenCenter>
+        </Delay>
+      )}
+    </Box>
+  );
+}
+
+function getVisibleLayers(data) {
+  if (!data) {
+    return [];
   }
 
   const allAppearances = [
@@ -84,33 +105,19 @@ function OutfitPreview({ itemIds, speciesId, colorId }) {
   );
   visibleLayers.sort((a, b) => a.zone.depth - b.zone.depth);
 
-  return (
-    <Box pos="relative" height="100%" width="100%">
-      {visibleLayers.map((layer) => (
-        <Box
-          key={layer.id}
-          pos="absolute"
-          top="0"
-          right="0"
-          bottom="0"
-          left="0"
-        >
-          <FullScreenCenter>
-            <Image src={layer.imageUrl} maxWidth="100%" maxHeight="100%" />
-          </FullScreenCenter>
-        </Box>
-      ))}
-    </Box>
-  );
+  return visibleLayers;
 }
 
 function FullScreenCenter({ children }) {
   return (
     <Flex
+      pos="absolute"
+      top="0"
+      right="0"
+      bottom="0"
+      left="0"
       alignItems="center"
       justifyContent="center"
-      height="100%"
-      width="100%"
     >
       {children}
     </Flex>
