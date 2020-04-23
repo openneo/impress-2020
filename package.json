@@ -27,7 +27,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "setup-mysql-user": "mysql -h impress.openneo.net -u matchu -p < setup-mysql-user.sql"
   },
   "eslintConfig": {
     "extends": "react-app"
