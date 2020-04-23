@@ -113,6 +113,10 @@ const config = {
       zoneTranslationLoader: loaders.buildZoneTranslationLoader(db),
     };
   },
+
+  // Enable Playground in production :)
+  introspection: true,
+  playground: true,
 };
 
 if (require.main === module) {
