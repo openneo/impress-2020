@@ -14,8 +14,13 @@ function OutfitPreview({ itemIds, speciesId, colorId }) {
             id
             imageUrl(size: SIZE_600)
             zone {
+              id
               depth
             }
+          }
+
+          restrictedZones {
+            id
           }
         }
 
@@ -26,8 +31,13 @@ function OutfitPreview({ itemIds, speciesId, colorId }) {
               id
               imageUrl(size: SIZE_600)
               zone {
+                id
                 depth
               }
+            }
+
+            restrictedZones {
+              id
             }
           }
         }
@@ -58,16 +68,33 @@ function OutfitPreview({ itemIds, speciesId, colorId }) {
     );
   }
 
-  const allLayers = [
-    ...data.petAppearance.layers,
-    ...data.items.map((i) => i.appearanceOn.layers).flat(),
+  const allAppearances = [
+    data.petAppearance,
+    ...data.items.map((i) => i.appearanceOn),
   ];
-  allLayers.sort((a, b) => a.zone.depth - b.zone.depth);
+  const allLayers = allAppearances.map((a) => a.layers).flat();
+
+  const allRestrictedZoneIds = allAppearances
+    .map((l) => l.restrictedZones)
+    .flat()
+    .map((z) => z.id);
+
+  const visibleLayers = allLayers.filter(
+    (l) => !allRestrictedZoneIds.includes(l.zone.id)
+  );
+  visibleLayers.sort((a, b) => a.zone.depth - b.zone.depth);
 
   return (
     <Box pos="relative" height="100%" width="100%">
-      {allLayers.map((layer) => (
-        <Box pos="absolute" top="0" right="0" bottom="0" left="0">
+      {visibleLayers.map((layer) => (
+        <Box
+          key={layer.id}
+          pos="absolute"
+          top="0"
+          right="0"
+          bottom="0"
+          left="0"
+        >
           <FullScreenCenter>
             <Image src={layer.imageUrl} maxWidth="100%" maxHeight="100%" />
           </FullScreenCenter>

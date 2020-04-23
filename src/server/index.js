@@ -19,6 +19,7 @@ const typeDefs = gql`
 
   type Appearance {
     layers: [AppearanceLayer!]!
+    restrictedZones: [Zone!]!
   }
 
   type AppearanceLayer {
@@ -58,7 +59,16 @@ const resolvers = {
         itemId: item.id,
         bodyId: petType.bodyId,
       });
-      return { layers: swfAssets };
+
+      const restrictedZones = [];
+      for (const [i, bit] of Array.from(item.zonesRestrict).entries()) {
+        if (bit === "1") {
+          const zone = { id: i + 1 };
+          restrictedZones.push(zone);
+        }
+      }
+
+      return { layers: swfAssets, restrictedZones };
     },
   },
   AppearanceLayer: {
@@ -109,7 +119,7 @@ const resolvers = {
       const petStates = await petStateLoader.load(petType.id);
       const petState = petStates[0]; // TODO
       const swfAssets = await petSwfAssetLoader.load(petState.id);
-      return { layers: swfAssets };
+      return { layers: swfAssets, restrictedZones: [] };
     },
   },
 };

@@ -29,31 +29,7 @@ import { Delay } from "./util";
 function WardrobePage() {
   const { loading, error, data, wearItem } = useOutfitState();
   const [searchQuery, setSearchQuery] = React.useState("");
-
   const toast = useToast();
-  const [hasSentToast, setHasSentToast] = React.useState(false);
-  const wearItemAndToast = React.useCallback(
-    (itemIdToAdd) => {
-      wearItem(itemIdToAdd);
-
-      if (!hasSentToast) {
-        setTimeout(() => {
-          toast({
-            title: "So, the outfit didn't change 😅",
-            description:
-              "This is a prototype, and the outfit preview is static right " +
-              "now! But the list animation is good, yeah? Nice and smooth 😊",
-            status: "warning",
-            isClosable: true,
-            duration: 10000,
-            position: window.innerWidth < 992 ? "top" : "bottom-left",
-          });
-        }, 3000);
-        setHasSentToast(true);
-      }
-    },
-    [toast, wearItem, hasSentToast, setHasSentToast]
-  );
 
   React.useEffect(() => {
     if (error) {
@@ -106,13 +82,13 @@ function WardrobePage() {
             <SearchPanel
               query={searchQuery}
               wornItemIds={data.wornItemIds}
-              onWearItem={wearItemAndToast}
+              onWearItem={wearItem}
             />
           ) : (
             <ItemsPanel
               zonesAndItems={data.zonesAndItems}
               loading={loading}
-              onWearItem={wearItemAndToast}
+              onWearItem={wearItem}
             />
           )}
         </Box>

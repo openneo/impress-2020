@@ -103,6 +103,10 @@ describe("Item", () => {
                   label
                 }
               }
+
+              restrictedZones {
+                id
+              }
             }
           }
         }
@@ -126,6 +130,14 @@ describe("Item", () => {
                   },
                 },
               ],
+              "restrictedZones": Array [
+                Object {
+                  "id": "20",
+                },
+                Object {
+                  "id": "22",
+                },
+              ],
             },
             "id": "38912",
             "name": "Zafara Agent Robe",
@@ -141,6 +153,14 @@ describe("Item", () => {
                     "id": "40",
                     "label": "Hat",
                   },
+                },
+              ],
+              "restrictedZones": Array [
+                Object {
+                  "id": "37",
+                },
+                Object {
+                  "id": "38",
                 },
               ],
             },
@@ -160,6 +180,7 @@ describe("Item", () => {
                   },
                 },
               ],
+              "restrictedZones": Array [],
             },
             "id": "37375",
             "name": "Moon and Stars Background",
