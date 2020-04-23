@@ -89,7 +89,7 @@ describe("Item", () => {
     const res = await query({
       query: gql`
         query {
-          items(ids: ["38912", "38911"]) {
+          items(ids: ["38912", "38911", "37375"]) {
             id
             name
 
@@ -113,6 +113,23 @@ describe("Item", () => {
     expect(res.data).toMatchInlineSnapshot(`
       Object {
         "items": Array [
+          Object {
+            "appearanceOn": Object {
+              "layers": Array [
+                Object {
+                  "id": "30203",
+                  "imageUrl": "https://impress-asset-images.s3.amazonaws.com/object/000/000/006/6829/600x600.png?0",
+                  "zone": Object {
+                    "depth": 3,
+                    "id": "3",
+                    "label": "Background",
+                  },
+                },
+              ],
+            },
+            "id": "37375",
+            "name": "Moon and Stars Background",
+          },
           Object {
             "appearanceOn": Object {
               "layers": Array [
@@ -153,22 +170,26 @@ describe("Item", () => {
     expect(queryFn.mock.calls).toMatchInlineSnapshot(`
       Array [
         Array [
-          "SELECT * FROM items WHERE id IN (?,?)",
+          "SELECT * FROM items WHERE id IN (?,?,?)",
           Array [
             "38912",
             "38911",
+            "37375",
           ],
         ],
         Array [
-          "SELECT * FROM item_translations WHERE item_id IN (?,?) AND locale = \\"en\\"",
+          "SELECT * FROM item_translations WHERE item_id IN (?,?,?) AND locale = \\"en\\"",
           Array [
+            "37375",
             "38911",
             "38912",
           ],
         ],
         Array [
-          "SELECT * FROM pet_types WHERE (species_id = ? AND color_id = ?) OR (species_id = ? AND color_id = ?)",
+          "SELECT * FROM pet_types WHERE (species_id = ? AND color_id = ?) OR (species_id = ? AND color_id = ?) OR (species_id = ? AND color_id = ?)",
           Array [
+            "54",
+            "75",
             "54",
             "75",
             "54",
@@ -180,8 +201,10 @@ describe("Item", () => {
              INNER JOIN parents_swf_assets rel ON
                rel.parent_type = \\"Item\\" AND
                rel.swf_asset_id = sa.id
-             WHERE (rel.parent_id = ? AND sa.body_id = ?) OR (rel.parent_id = ? AND sa.body_id = ?)",
+             WHERE (rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0)) OR (rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0)) OR (rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0))",
           Array [
+            "37375",
+            "180",
             "38911",
             "180",
             "38912",
@@ -189,15 +212,17 @@ describe("Item", () => {
           ],
         ],
         Array [
-          "SELECT * FROM zones WHERE id IN (?,?)",
+          "SELECT * FROM zones WHERE id IN (?,?,?)",
           Array [
+            "3",
             "40",
             "26",
           ],
         ],
         Array [
-          "SELECT * FROM zone_translations WHERE zone_id IN (?,?) AND locale = \\"en\\"",
+          "SELECT * FROM zone_translations WHERE zone_id IN (?,?,?) AND locale = \\"en\\"",
           Array [
+            "3",
             "40",
             "26",
           ],

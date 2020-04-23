@@ -57,7 +57,9 @@ const buildSwfAssetLoader = (db) =>
     const conditions = [];
     const values = [];
     for (const { itemId, bodyId } of itemAndBodyPairs) {
-      conditions.push("(rel.parent_id = ? AND sa.body_id = ?)");
+      conditions.push(
+        "(rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0))"
+      );
       values.push(itemId, bodyId);
     }
 
@@ -73,7 +75,10 @@ const buildSwfAssetLoader = (db) =>
     const entities = rows.map(normalizeRow);
 
     return itemAndBodyPairs.map(({ itemId, bodyId }) =>
-      entities.filter((e) => e.parentId === itemId && e.bodyId === bodyId)
+      entities.filter(
+        (e) =>
+          e.parentId === itemId && (e.bodyId === bodyId || e.bodyId === "0")
+      )
     );
   });
 
