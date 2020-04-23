@@ -1,7 +1,7 @@
 const { gql } = require("apollo-server");
 
 const connectToDb = require("./db");
-const loaders = require("./loaders");
+const buildLoaders = require("./loaders");
 
 const typeDefs = gql`
   enum LayerImageSize {
@@ -14,14 +14,14 @@ const typeDefs = gql`
     id: ID!
     name: String!
     thumbnailUrl: String!
-    appearanceOn(speciesId: ID!, colorId: ID!): ItemAppearance
+    appearanceOn(speciesId: ID!, colorId: ID!): Appearance
   }
 
-  type ItemAppearance {
-    layers: [ItemAppearanceLayer!]!
+  type Appearance {
+    layers: [AppearanceLayer!]!
   }
 
-  type ItemAppearanceLayer {
+  type AppearanceLayer {
     id: ID!
     zone: Zone!
     imageUrl(size: LayerImageSize): String
@@ -35,6 +35,7 @@ const typeDefs = gql`
 
   type Query {
     items(ids: [ID!]!): [Item!]!
+    petAppearance(speciesId: ID!, colorId: ID!): Appearance
   }
 `;
 
@@ -44,26 +45,23 @@ const resolvers = {
       const translation = await itemTranslationLoader.load(item.id);
       return translation.name;
     },
-    appearanceOn: (item, { speciesId, colorId }) => ({
-      itemId: item.id,
-      speciesId,
-      colorId,
-    }),
-  },
-  ItemAppearance: {
-    layers: async (ia, _, { petTypeLoader, swfAssetLoader }) => {
+    appearanceOn: async (
+      item,
+      { speciesId, colorId },
+      { petTypeLoader, itemSwfAssetLoader }
+    ) => {
       const petType = await petTypeLoader.load({
-        speciesId: ia.speciesId,
-        colorId: ia.colorId,
+        speciesId: speciesId,
+        colorId: colorId,
       });
-      const swfAssets = await swfAssetLoader.load({
-        itemId: ia.itemId,
+      const swfAssets = await itemSwfAssetLoader.load({
+        itemId: item.id,
         bodyId: petType.bodyId,
       });
-      return swfAssets;
+      return { layers: swfAssets };
     },
   },
-  ItemAppearanceLayer: {
+  AppearanceLayer: {
     zone: async (layer, _, { zoneLoader }) => {
       const zone = await zoneLoader.load(layer.zoneId);
       return zone;
@@ -82,7 +80,10 @@ const resolvers = {
       const rid3 = paddedId.slice(6, 9);
       const time = Number(new Date(layer.convertedAt));
 
-      return `https://impress-asset-images.s3.amazonaws.com/object/${rid1}/${rid2}/${rid3}/${rid}/${sizeNum}x${sizeNum}.png?${time}`;
+      return (
+        `https://impress-asset-images.s3.amazonaws.com/${layer.type}` +
+        `/${rid1}/${rid2}/${rid3}/${rid}/${sizeNum}x${sizeNum}.png?${time}`
+      );
     },
   },
   Zone: {
@@ -92,9 +93,23 @@ const resolvers = {
     },
   },
   Query: {
-    items: async (_, { ids }, { db }) => {
-      const items = await loaders.loadItems(db, ids);
+    items: async (_, { ids }, { itemLoader }) => {
+      const items = await itemLoader.loadMany(ids);
       return items;
+    },
+    petAppearance: async (
+      _,
+      { speciesId, colorId },
+      { petTypeLoader, petStateLoader, petSwfAssetLoader }
+    ) => {
+      const petType = await petTypeLoader.load({
+        speciesId,
+        colorId,
+      });
+      const petStates = await petStateLoader.load(petType.id);
+      const petState = petStates[0]; // TODO
+      const swfAssets = await petSwfAssetLoader.load(petState.id);
+      return { layers: swfAssets };
     },
   },
 };
@@ -105,12 +120,7 @@ const config = {
   context: async () => {
     const db = await connectToDb();
     return {
-      db,
-      itemTranslationLoader: loaders.buildItemTranslationLoader(db),
-      petTypeLoader: loaders.buildPetTypeLoader(db),
-      swfAssetLoader: loaders.buildSwfAssetLoader(db),
-      zoneLoader: loaders.buildZoneLoader(db),
-      zoneTranslationLoader: loaders.buildZoneTranslationLoader(db),
+      ...buildLoaders(db),
     };
   },
 

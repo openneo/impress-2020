@@ -1,14 +1,21 @@
 const DataLoader = require("dataloader");
 
-async function loadItems(db, ids) {
-  const qs = ids.map((_) => "?").join(",");
-  const [rows, _] = await db.execute(
-    `SELECT * FROM items WHERE id IN (${qs})`,
-    ids
-  );
-  const entities = rows.map(normalizeRow);
-  return entities;
-}
+const buildItemsLoader = (db) =>
+  new DataLoader(async (ids) => {
+    const qs = ids.map((_) => "?").join(",");
+    const [rows, _] = await db.execute(
+      `SELECT * FROM items WHERE id IN (${qs})`,
+      ids
+    );
+
+    const entities = rows.map(normalizeRow);
+    const entitiesById = new Map(entities.map((e) => [e.id, e]));
+
+    return ids.map(
+      (id) =>
+        entitiesById.get(id) || new Error(`could not find item with ID: ${id}`)
+    );
+  });
 
 const buildItemTranslationLoader = (db) =>
   new DataLoader(async (itemIds) => {
@@ -52,7 +59,7 @@ const buildPetTypeLoader = (db) =>
     );
   });
 
-const buildSwfAssetLoader = (db) =>
+const buildItemSwfAssetLoader = (db) =>
   new DataLoader(async (itemAndBodyPairs) => {
     const conditions = [];
     const values = [];
@@ -82,21 +89,54 @@ const buildSwfAssetLoader = (db) =>
     );
   });
 
+const buildPetSwfAssetLoader = (db) =>
+  new DataLoader(async (petStateIds) => {
+    const qs = petStateIds.map((_) => "?").join(",");
+    const [rows, _] = await db.execute(
+      `SELECT sa.*, rel.parent_id FROM swf_assets sa
+       INNER JOIN parents_swf_assets rel ON
+         rel.parent_type = "PetState" AND
+         rel.swf_asset_id = sa.id
+       WHERE rel.parent_id IN (${qs})`,
+      petStateIds
+    );
+
+    const entities = rows.map(normalizeRow);
+
+    return petStateIds.map((petStateId) =>
+      entities.filter((e) => e.parentId === petStateId)
+    );
+  });
+
+const buildPetStateLoader = (db) =>
+  new DataLoader(async (petTypeIds) => {
+    const qs = petTypeIds.map((_) => "?").join(",");
+    const [rows, _] = await db.execute(
+      `SELECT * FROM pet_states WHERE pet_type_id IN (${qs})`,
+      petTypeIds
+    );
+
+    const entities = rows.map(normalizeRow);
+
+    return petTypeIds.map((petTypeId) =>
+      entities.filter((e) => e.petTypeId === petTypeId)
+    );
+  });
+
 const buildZoneLoader = (db) =>
-  new DataLoader(async (zoneIds) => {
-    const qs = zoneIds.map((_) => "?").join(",");
+  new DataLoader(async (ids) => {
+    const qs = ids.map((_) => "?").join(",");
     const [rows, _] = await db.execute(
       `SELECT * FROM zones WHERE id IN (${qs})`,
-      zoneIds
+      ids
     );
 
     const entities = rows.map(normalizeRow);
     const entitiesById = new Map(entities.map((e) => [e.id, e]));
 
-    return zoneIds.map(
-      (zoneId) =>
-        entitiesById.get(zoneId) ||
-        new Error(`could not find zone with ID: ${zoneId}`)
+    return ids.map(
+      (id) =>
+        entitiesById.get(id) || new Error(`could not find zone with ID: ${id}`)
     );
   });
 
@@ -130,11 +170,17 @@ function normalizeRow(row) {
   return normalizedRow;
 }
 
-module.exports = {
-  loadItems,
-  buildItemTranslationLoader,
-  buildPetTypeLoader,
-  buildSwfAssetLoader,
-  buildZoneLoader,
-  buildZoneTranslationLoader,
-};
+function buildLoaders(db) {
+  return {
+    itemLoader: buildItemsLoader(db),
+    itemTranslationLoader: buildItemTranslationLoader(db),
+    petTypeLoader: buildPetTypeLoader(db),
+    itemSwfAssetLoader: buildItemSwfAssetLoader(db),
+    petSwfAssetLoader: buildPetSwfAssetLoader(db),
+    petStateLoader: buildPetStateLoader(db),
+    zoneLoader: buildZoneLoader(db),
+    zoneTranslationLoader: buildZoneTranslationLoader(db),
+  };
+}
+
+module.exports = buildLoaders;
