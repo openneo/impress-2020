@@ -1,0 +1,17 @@
+.outfit-preview-layer-exit {
+  opacity: 1;
+}
+
+.outfit-preview-layer-exit-active {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.outfit-preview-layer-image {
+  opacity: 0.01;
+}
+
+.outfit-preview-layer-image[src] {
+  opacity: 1;
+  transition: opacity 0.2s;
+}

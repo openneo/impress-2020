@@ -1,9 +1,12 @@
 import React from "react";
+import { CSSTransition, TransitionGroup } from "react-transition-group";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
 import { Flex, Image, Spinner, Text, Icon, Box } from "@chakra-ui/core";
 
 import { Delay } from "./util";
+
+import "./OutfitPreview.css";
 
 function OutfitPreview({ itemIds, speciesId, colorId }) {
   const { loading, error, data } = useQuery(
@@ -45,7 +48,6 @@ function OutfitPreview({ itemIds, speciesId, colorId }) {
     `,
     {
       variables: { itemIds, speciesId, colorId },
-      returnPartialData: true,
     }
   );
 
@@ -63,16 +65,28 @@ function OutfitPreview({ itemIds, speciesId, colorId }) {
 
   return (
     <Box pos="relative" height="100%" width="100%">
-      {getVisibleLayers(data).map((layer) => (
-        <FullScreenCenter key={layer.id}>
-          <Image
-            src={layer.imageUrl}
-            objectFit="contain"
-            maxWidth="100%"
-            maxHeight="100%"
-          />
-        </FullScreenCenter>
-      ))}
+      <TransitionGroup>
+        {getVisibleLayers(data).map((layer) => (
+          <CSSTransition
+            key={layer.id}
+            classNames={{
+              exit: "outfit-preview-layer-exit",
+              exitActive: "outfit-preview-layer-exit-active",
+            }}
+            timeout={200}
+          >
+            <FullScreenCenter>
+              <Image
+                src={layer.imageUrl}
+                objectFit="contain"
+                maxWidth="100%"
+                maxHeight="100%"
+                className="outfit-preview-layer-image"
+              />
+            </FullScreenCenter>
+          </CSSTransition>
+        ))}
+      </TransitionGroup>
       {loading && (
         <Delay>
           <FullScreenCenter>
