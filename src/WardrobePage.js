@@ -44,56 +44,59 @@ function WardrobePage() {
   }, [error, toast]);
 
   return (
-    <Grid
-      // Fullscreen, split into a vertical stack on smaller screens
-      // or a horizontal stack on larger ones!
-      templateAreas={{
-        base: `"outfit"
+    <Box position="absolute" top="0" bottom="0" left="0" right="0">
+      <Grid
+        // Fullscreen, split into a vertical stack on smaller screens
+        // or a horizontal stack on larger ones!
+        templateAreas={{
+          base: `"outfit"
                "search"
                "items"`,
-        lg: `"outfit search"
+          lg: `"outfit search"
              "outfit items"`,
-      }}
-      templateRows={{
-        base: "minmax(100px, 1fr) auto minmax(300px, 1fr)",
-        lg: "auto 1fr",
-      }}
-      templateColumns={{
-        base: "100%",
-        lg: "50% 50%",
-      }}
-      position="absolute"
-      top="0"
-      bottom="0"
-      left="0"
-      right="0"
-    >
-      <Box gridArea="outfit" backgroundColor="gray.900">
-        <OutfitPreview itemIds={data.wornItemIds} speciesId="54" colorId="75" />
-      </Box>
-      <Box gridArea="search" boxShadow="sm">
-        <Box px="5" py="3">
-          <SearchToolbar query={searchQuery} onChange={setSearchQuery} />
+        }}
+        templateRows={{
+          base: "minmax(100px, 1fr) auto minmax(300px, 1fr)",
+          lg: "auto 1fr",
+        }}
+        templateColumns={{
+          base: "100%",
+          lg: "50% 50%",
+        }}
+        height="100%"
+        width="100%"
+      >
+        <Box gridArea="outfit" backgroundColor="gray.900">
+          <OutfitPreview
+            itemIds={data.wornItemIds}
+            speciesId="54"
+            colorId="75"
+          />
         </Box>
-      </Box>
-      <Box gridArea="items" overflow="auto">
-        <Box px="5" py="5">
-          {searchQuery ? (
-            <SearchPanel
-              query={searchQuery}
-              wornItemIds={data.wornItemIds}
-              onWearItem={wearItem}
-            />
-          ) : (
-            <ItemsPanel
-              zonesAndItems={data.zonesAndItems}
-              loading={loading}
-              onWearItem={wearItem}
-            />
-          )}
+        <Box gridArea="search" boxShadow="sm">
+          <Box px="5" py="3">
+            <SearchToolbar query={searchQuery} onChange={setSearchQuery} />
+          </Box>
         </Box>
-      </Box>
-    </Grid>
+        <Box gridArea="items" overflow="auto">
+          <Box px="5" py="5">
+            {searchQuery ? (
+              <SearchPanel
+                query={searchQuery}
+                wornItemIds={data.wornItemIds}
+                onWearItem={wearItem}
+              />
+            ) : (
+              <ItemsPanel
+                zonesAndItems={data.zonesAndItems}
+                loading={loading}
+                onWearItem={wearItem}
+              />
+            )}
+          </Box>
+        </Box>
+      </Grid>
+    </Box>
   );
 }
 
