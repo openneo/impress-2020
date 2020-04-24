@@ -1,7 +1,7 @@
 import React from "react";
 import { Box } from "@chakra-ui/core";
 
-export function Delay({ children, ms = 500 }) {
+export function Delay({ children, ms = 300 }) {
   const [isVisible, setIsVisible] = React.useState(false);
 
   React.useEffect(() => {

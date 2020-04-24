@@ -43,7 +43,10 @@ function OutfitPreview({ itemIds, speciesId, colorId }) {
         }
       }
     `,
-    { variables: { itemIds, speciesId, colorId } }
+    {
+      variables: { itemIds, speciesId, colorId },
+      returnPartialData: true,
+    }
   );
 
   if (error) {
@@ -62,7 +65,12 @@ function OutfitPreview({ itemIds, speciesId, colorId }) {
     <Box pos="relative" height="100%" width="100%">
       {getVisibleLayers(data).map((layer) => (
         <FullScreenCenter key={layer.id}>
-          <Image src={layer.imageUrl} maxWidth="100%" maxHeight="100%" />
+          <Image
+            src={layer.imageUrl}
+            objectFit="contain"
+            maxWidth="100%"
+            maxHeight="100%"
+          />
         </FullScreenCenter>
       ))}
       {loading && (
@@ -91,9 +99,16 @@ function getVisibleLayers(data) {
 
   const allAppearances = [
     data.petAppearance,
-    ...data.items.map((i) => i.appearanceOn),
-  ];
-  const allLayers = allAppearances.map((a) => a.layers).flat();
+    ...(data.items || []).map((i) => i.appearanceOn),
+  ].filter((a) => a);
+  let allLayers = allAppearances.map((a) => a.layers).flat();
+
+  // Clean up our data a bit, by ensuring only one layer per zone. This
+  // shouldn't happen in theory, but sometimes our database doesn't clean up
+  // after itself correctly :(
+  allLayers = allLayers.filter((l, i) => {
+    return allLayers.findIndex((l2) => l2.zone.id === l.zone.id) === i;
+  });
 
   const allRestrictedZoneIds = allAppearances
     .map((l) => l.restrictedZones)
