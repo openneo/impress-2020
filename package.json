@@ -20,6 +20,7 @@
     "graphql": "^15.0.0",
     "immer": "^6.0.3",
     "mysql2": "^2.1.0",
+    "node-fetch": "^2.6.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",

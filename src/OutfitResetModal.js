@@ -1,4 +1,6 @@
 import React from "react";
+import gql from "graphql-tag";
+import { useQuery } from "@apollo/react-hooks";
 import {
   Text,
   Modal,
@@ -17,24 +19,45 @@ import {
 
 function OutfitResetModal({ isOpen, onClose, dispatchToOutfit }) {
   const [petName, setPetName] = React.useState("");
+  const [submittedPetName, submitPetName] = React.useState("");
 
-  const onComplete = ({ custom_pet, object_info_registry }) => {
-    dispatchToOutfit({
-      type: "reset",
-      name: custom_pet.name,
-      speciesId: custom_pet.species_id,
-      colorId: custom_pet.color_id,
-      wornItemIds: Object.values(object_info_registry).map(
-        (o) => o.obj_info_id
-      ),
-      closetedItemIds: [],
-    });
-    onClose();
-    setPetName("");
-  };
-  const { loading, error, loadOutfitData } = useLoadOutfitData(
-    petName,
-    onComplete
+  const { loading, error } = useQuery(
+    gql`
+      query($petName: String!) {
+        petOnNeopetsDotCom(petName: $petName) {
+          color {
+            id
+          }
+          species {
+            id
+          }
+          items {
+            id
+          }
+        }
+      }
+    `,
+    {
+      variables: { petName: submittedPetName },
+      skip: !submittedPetName,
+      fetchPolicy: "network-only",
+      onCompleted: (data) => {
+        if (!data) return;
+
+        const { species, color, items } = data.petOnNeopetsDotCom;
+        dispatchToOutfit({
+          type: "reset",
+          name: petName,
+          speciesId: species.id,
+          colorId: color.id,
+          wornItemIds: items.map((i) => i.id),
+          closetedItemIds: [],
+        });
+        onClose();
+        setPetName("");
+        submitPetName("");
+      },
+    }
   );
 
   const clearOutfit = () => {
@@ -46,6 +69,7 @@ function OutfitResetModal({ isOpen, onClose, dispatchToOutfit }) {
     });
     onClose();
     setPetName("");
+    submitPetName("");
   };
 
   return (
@@ -55,7 +79,7 @@ function OutfitResetModal({ isOpen, onClose, dispatchToOutfit }) {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            loadOutfitData();
+            submitPetName(petName);
           }}
         >
           <ModalHeader>
@@ -108,40 +132,6 @@ function OutfitResetModal({ isOpen, onClose, dispatchToOutfit }) {
       </ModalContent>
     </Modal>
   );
-}
-
-function useLoadOutfitData(petName, onComplete) {
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState(null);
-
-  const loadOutfitData = async () => {
-    setLoading(true);
-    setError(null);
-
-    let json;
-    try {
-      const res = await fetch(
-        `http://www.neopets.com/amfphp/json.php/CustomPetService.getViewerData` +
-          `/${petName}`
-      );
-      if (!res.ok) {
-        throw new Error(res.statusText);
-      }
-      json = await res.json();
-      if (!json.custom_pet) {
-        throw new Error(`missing custom_pet data`);
-      }
-    } catch (e) {
-      setLoading(false);
-      setError(e);
-      return;
-    }
-
-    setLoading(false);
-    onComplete(json);
-  };
-
-  return { loading, error, loadOutfitData };
 }
 
 export default OutfitResetModal;

@@ -1680,6 +1680,32 @@ describe("SpeciesColorPair", () => {
   });
 });
 
+describe("Pet", () => {
+  it("looks up a pet", async () => {
+    const res = await query({
+      query: gql`
+        query {
+          petOnNeopetsDotCom(petName: "roopal27") {
+            species {
+              id
+            }
+            color {
+              id
+            }
+            items {
+              id
+            }
+          }
+        }
+      `,
+    });
+
+    expect(res).toHaveNoErrors();
+    expect(res.data).toMatchSnapshot();
+    expect(queryFn.mock.calls).toMatchInlineSnapshot(`Array []`);
+  });
+});
+
 expect.extend({
   toHaveNoErrors(res) {
     if (res.errors) {

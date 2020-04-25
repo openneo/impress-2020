@@ -1,5 +1,44 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Pet looks up a pet 1`] = `
+Object {
+  "petOnNeopetsDotCom": Object {
+    "color": Object {
+      "id": "75",
+    },
+    "items": Array [
+      Object {
+        "id": "37229",
+      },
+      Object {
+        "id": "37375",
+      },
+      Object {
+        "id": "38911",
+      },
+      Object {
+        "id": "38912",
+      },
+      Object {
+        "id": "38913",
+      },
+      Object {
+        "id": "43014",
+      },
+      Object {
+        "id": "43397",
+      },
+      Object {
+        "id": "48313",
+      },
+    ],
+    "species": Object {
+      "id": "54",
+    },
+  },
+}
+`;
+
 exports[`SpeciesColorPair gets them all 1`] = `
 Object {
   "allValidSpeciesColorPairs": Array [

@@ -2,6 +2,7 @@ const { gql } = require("apollo-server");
 
 const connectToDb = require("./db");
 const buildLoaders = require("./loaders");
+const neopets = require("./neopets");
 const { capitalize } = require("./util");
 
 const typeDefs = gql`
@@ -55,6 +56,12 @@ const typeDefs = gql`
     color: Color!
   }
 
+  type Outfit {
+    species: Species!
+    color: Color!
+    items: [Item!]!
+  }
+
   type Query {
     allColors: [Color!]!
     allSpecies: [Species!]!
@@ -70,6 +77,8 @@ const typeDefs = gql`
       limit: Int
     ): ItemSearchResult!
     petAppearance(speciesId: ID!, colorId: ID!): Appearance
+
+    petOnNeopetsDotCom(petName: String!): Outfit
   }
 `;
 
@@ -209,6 +218,17 @@ const resolvers = {
       const petState = petStates[0]; // TODO
       const swfAssets = await petSwfAssetLoader.load(petState.id);
       return { layers: swfAssets, restrictedZones: [] };
+    },
+    petOnNeopetsDotCom: async (_, { petName }) => {
+      const petData = await neopets.loadPetData(petName);
+      const outfit = {
+        species: { id: petData.custom_pet.species_id },
+        color: { id: petData.custom_pet.color_id },
+        items: Object.values(petData.object_info_registry).map((o) => ({
+          id: o.obj_info_id,
+        })),
+      };
+      return outfit;
     },
   },
 };
