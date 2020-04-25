@@ -95,7 +95,9 @@ function SearchResults({ query, outfitState, dispatchToOutfit }) {
           offset: items.length,
         },
         updateQuery: (prev, { fetchMoreResult }) => {
-          if (!fetchMoreResult) return prev;
+          if (!fetchMoreResult || fetchMoreResult.query !== prev.query) {
+            return prev;
+          }
 
           // Note: This is a bit awkward because, if the results count ends on
           // a multiple of 30, the user will see a flash of loading before

@@ -29,6 +29,21 @@ function useOutfitState() {
     }
   );
 
+  React.useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has("species")) {
+      dispatchToOutfit({
+        type: "reset",
+        name: urlParams.get("name"),
+        speciesId: urlParams.get("species"),
+        colorId: urlParams.get("color"),
+        wornItemIds: urlParams.getAll("objects[]"),
+        closetedItemIds: urlParams.getAll("closet[]"),
+      });
+    }
+    window.history.replaceState(null, "", window.location.href.split("?")[0]);
+  });
+
   const { name, speciesId, colorId } = state;
 
   // It's more convenient to manage these as a Set in state, but most callers
@@ -82,6 +97,7 @@ function useOutfitState() {
     zonesAndItems,
     name,
     wornItemIds,
+    closetedItemIds,
     allItemIds,
     speciesId,
     colorId,
@@ -150,10 +166,14 @@ const outfitStateReducer = (apolloClient) => (baseState, action) => {
       const { name, speciesId, colorId, wornItemIds, closetedItemIds } = action;
       return {
         name,
-        speciesId: String(speciesId || baseState.speciesId),
-        colorId: String(colorId || baseState.colorId),
-        wornItemIds: new Set(wornItemIds.map(String)),
-        closetedItemIds: new Set(closetedItemIds.map(String)),
+        speciesId: speciesId ? String(speciesId) : baseState.speciesId,
+        colorId: colorId ? String(colorId) : baseState.colorId,
+        wornItemIds: wornItemIds
+          ? new Set(wornItemIds.map(String))
+          : baseState.wornItemIds,
+        closetedItemIds: closetedItemIds
+          ? new Set(closetedItemIds.map(String))
+          : baseState.closetedItemIds,
       };
     default:
       throw new Error(`unexpected action ${JSON.stringify(action)}`);

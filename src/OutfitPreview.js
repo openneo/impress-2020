@@ -10,8 +10,10 @@ import {
   Image,
   PseudoBox,
   Spinner,
+  Stack,
   Text,
   Tooltip,
+  useClipboard,
 } from "@chakra-ui/core";
 
 import { Delay } from "./util";
@@ -67,6 +69,8 @@ function OutfitPreview({ outfitState, dispatchToOutfit }) {
   const [downloadImageUrl, prepareDownload] = useDownloadableImage(
     visibleLayers
   );
+
+  const { onCopy, hasCopied } = useClipboard(getShareUrl(outfitState));
 
   if (error) {
     return (
@@ -133,9 +137,9 @@ function OutfitPreview({ outfitState, dispatchToOutfit }) {
         bottom={{ base: 2, lg: 6 }}
         // Grid layout for the content!
         display="grid"
-        gridTemplateAreas={`"space picker download"`}
+        gridTemplateAreas={`"space picker buttons"`}
         gridTemplateColumns="minmax(0, 1fr) auto 1fr"
-        alignItems="center"
+        alignItems="flex-end"
       >
         <Box gridArea="space"></Box>
         <PseudoBox
@@ -151,46 +155,83 @@ function OutfitPreview({ outfitState, dispatchToOutfit }) {
             onBlur={() => setHasFocus(false)}
           />
         </PseudoBox>
-        <Flex gridArea="download" justify="flex-end">
-          <Tooltip label="Download" placement="left">
-            <IconButton
-              icon="download"
-              aria-label="Download"
-              isRound
-              as="a"
-              // eslint-disable-next-line no-script-url
-              href={downloadImageUrl || "javascript:void 0"}
-              download={(outfitState.name || "Outfit") + ".png"}
-              onMouseEnter={prepareDownload}
-              onFocus={() => {
-                prepareDownload();
-                setHasFocus(true);
-              }}
-              onBlur={() => setHasFocus(false)}
-              cursor={!downloadImageUrl && "wait"}
-              variant="unstyled"
-              backgroundColor="gray.600"
-              color="gray.50"
-              boxShadow="md"
-              d="flex"
-              alignItems="center"
-              justifyContent="center"
-              opacity={hasFocus ? 1 : 0}
-              transition="all 0.2s"
-              _groupHover={{
-                opacity: 1,
-              }}
-              _focus={{
-                opacity: 1,
-                backgroundColor: "gray.500",
-              }}
-              _hover={{
-                backgroundColor: "gray.500",
-              }}
-              outline="initial"
-            />
-          </Tooltip>
-        </Flex>
+        <Stack gridArea="buttons" spacing="2" align="flex-end">
+          <Box>
+            <Tooltip
+              label={hasCopied ? "Copied!" : "Copy link"}
+              placement="left"
+            >
+              <IconButton
+                icon={hasCopied ? "check" : "link"}
+                aria-label="Copy link"
+                isRound
+                onClick={onCopy}
+                onFocus={() => setHasFocus(true)}
+                onBlur={() => setHasFocus(false)}
+                variant="unstyled"
+                backgroundColor="gray.600"
+                color="gray.50"
+                boxShadow="md"
+                d="flex"
+                alignItems="center"
+                justifyContent="center"
+                opacity={hasFocus ? 1 : 0}
+                transition="all 0.2s"
+                _groupHover={{
+                  opacity: 1,
+                }}
+                _focus={{
+                  opacity: 1,
+                  backgroundColor: "gray.500",
+                }}
+                _hover={{
+                  backgroundColor: "gray.500",
+                }}
+                outline="initial"
+              />
+            </Tooltip>
+          </Box>
+          <Box>
+            <Tooltip label="Download" placement="left">
+              <IconButton
+                icon="download"
+                aria-label="Download"
+                isRound
+                as="a"
+                // eslint-disable-next-line no-script-url
+                href={downloadImageUrl || "javascript:void 0"}
+                download={(outfitState.name || "Outfit") + ".png"}
+                onMouseEnter={prepareDownload}
+                onFocus={() => {
+                  prepareDownload();
+                  setHasFocus(true);
+                }}
+                onBlur={() => setHasFocus(false)}
+                cursor={!downloadImageUrl && "wait"}
+                variant="unstyled"
+                backgroundColor="gray.600"
+                color="gray.50"
+                boxShadow="md"
+                d="flex"
+                alignItems="center"
+                justifyContent="center"
+                opacity={hasFocus ? 1 : 0}
+                transition="all 0.2s"
+                _groupHover={{
+                  opacity: 1,
+                }}
+                _focus={{
+                  opacity: 1,
+                  backgroundColor: "gray.500",
+                }}
+                _hover={{
+                  backgroundColor: "gray.500",
+                }}
+                outline="initial"
+              />
+            </Tooltip>
+          </Box>
+        </Stack>
       </Box>
       <Box pos="absolute" left="3" top="3">
         <IconButton
@@ -313,6 +354,31 @@ function useDownloadableImage(visibleLayers) {
   }, [preparedForLayerIds, visibleLayers]);
 
   return [downloadImageUrl, prepareDownload];
+}
+
+function getShareUrl(outfitState) {
+  const {
+    name,
+    speciesId,
+    colorId,
+    wornItemIds,
+    closetedItemIds,
+  } = outfitState;
+
+  const params = new URLSearchParams();
+  params.append("name", name);
+  params.append("species", speciesId);
+  params.append("color", colorId);
+  for (const itemId of wornItemIds) {
+    params.append("objects[]", itemId);
+  }
+  for (const itemId of closetedItemIds) {
+    params.append("closet[]", itemId);
+  }
+
+  const { origin, pathname } = window.location;
+  const url = origin + pathname + "?" + params.toString();
+  return url;
 }
 
 export default OutfitPreview;
