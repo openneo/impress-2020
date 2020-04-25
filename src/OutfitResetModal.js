@@ -12,6 +12,7 @@ import {
   ModalFooter,
   FormErrorMessage,
   FormControl,
+  Box,
 } from "@chakra-ui/core";
 
 function OutfitResetModal({ isOpen, onClose, dispatchToOutfit }) {
@@ -36,6 +37,17 @@ function OutfitResetModal({ isOpen, onClose, dispatchToOutfit }) {
     onComplete
   );
 
+  const clearOutfit = () => {
+    dispatchToOutfit({
+      type: "reset",
+      name: "",
+      wornItemIds: [],
+      closetedItemIds: [],
+    });
+    onClose();
+    setPetName("");
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
@@ -56,10 +68,11 @@ function OutfitResetModal({ isOpen, onClose, dispatchToOutfit }) {
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Text mb={4}>
+            <Text>
               Choose a pet from Neopets.com, and we'll pull their outfit data
               into here for you to play with!
             </Text>
+            <Box height="4" />
             <FormControl isInvalid={error}>
               <Input
                 placeholder="Enter a pet's name…"
@@ -78,6 +91,15 @@ function OutfitResetModal({ isOpen, onClose, dispatchToOutfit }) {
             </FormControl>
           </ModalBody>
           <ModalFooter>
+            <Button
+              leftIcon="delete"
+              variant="outline"
+              variantColor="red"
+              onClick={clearOutfit}
+            >
+              Reset outfit
+            </Button>
+            <Box flex="1"></Box>
             <Button type="submit" variantColor="green" isLoading={loading}>
               Show me!
             </Button>

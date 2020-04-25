@@ -150,8 +150,8 @@ const outfitStateReducer = (apolloClient) => (baseState, action) => {
       const { name, speciesId, colorId, wornItemIds, closetedItemIds } = action;
       return {
         name,
-        speciesId: String(speciesId),
-        colorId: String(colorId),
+        speciesId: String(speciesId || baseState.speciesId),
+        colorId: String(colorId || baseState.colorId),
         wornItemIds: new Set(wornItemIds.map(String)),
         closetedItemIds: new Set(closetedItemIds.map(String)),
       };
