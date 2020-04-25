@@ -50,10 +50,10 @@ function WardrobePage() {
         // or a horizontal stack on larger ones!
         templateAreas={{
           base: `"outfit"
-               "search"
-               "items"`,
+                 "search"
+                 "items"`,
           lg: `"outfit search"
-             "outfit items"`,
+               "outfit items"`,
         }}
         templateRows={{
           base: "minmax(100px, 1fr) auto minmax(300px, 1fr)",
