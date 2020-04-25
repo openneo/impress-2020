@@ -28,7 +28,7 @@ function ItemsPanel({ outfitState, loading, dispatchToOutfit }) {
       <Flex direction="column">
         {loading &&
           [1, 2, 3].map((i) => (
-            <Box key={i}>
+            <Box key={i} mb="10">
               <Delay>
                 <Skeleton height="2.3rem" width="12rem" />
                 <ItemListSkeleton count={3} />

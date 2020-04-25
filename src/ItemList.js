@@ -42,13 +42,13 @@ function ItemList({ items, outfitState, dispatchToOutfit }) {
 
 function ItemListSkeleton({ count }) {
   return (
-    <Stack spacing="3">
+    <Flex direction="column">
       {Array.from({ length: count }).map((_, i) => (
-        <Box key={i}>
+        <Box key={i} mb="2" mt="2">
           <ItemSkeleton />
         </Box>
       ))}
-    </Stack>
+    </Flex>
   );
 }
 
