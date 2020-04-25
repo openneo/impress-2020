@@ -20,6 +20,7 @@ function WardrobePage() {
   const { loading, error, outfitState, dispatchToOutfit } = useOutfitState();
   const [searchQuery, setSearchQuery] = React.useState("");
   const toast = useToast();
+  const searchContainerRef = React.useRef();
 
   React.useEffect(() => {
     if (error) {
@@ -33,6 +34,12 @@ function WardrobePage() {
       });
     }
   }, [error, toast]);
+
+  React.useEffect(() => {
+    if (searchContainerRef.current) {
+      searchContainerRef.current.scrollTop = 0;
+    }
+  }, [searchQuery]);
 
   return (
     <Box position="absolute" top="0" bottom="0" left="0" right="0">
@@ -67,7 +74,12 @@ function WardrobePage() {
         </Box>
 
         {searchQuery ? (
-          <Box gridArea="items" overflow="auto" key="search-panel">
+          <Box
+            gridArea="items"
+            overflow="auto"
+            key="search-panel"
+            ref={searchContainerRef}
+          >
             <Box px="5" py="5">
               <SearchPanel
                 query={searchQuery}

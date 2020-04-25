@@ -30,8 +30,13 @@ function SearchResults({ query, outfitState, dispatchToOutfit }) {
   const { speciesId, colorId } = outfitState;
 
   const debouncedQuery = useDebounce(query, 300, { waitForFirstPause: true });
+  const [isEndOfResults, setIsEndOfResults] = React.useState(false);
 
-  const { loading, error, data, fetchMore, variables } = useQuery(
+  React.useEffect(() => {
+    setIsEndOfResults(false);
+  }, [query]);
+
+  const { loading, error, data, fetchMore } = useQuery(
     gql`
       query($query: String!, $speciesId: ID!, $colorId: ID!, $offset: Int!) {
         itemSearchToFit(
@@ -70,6 +75,12 @@ function SearchResults({ query, outfitState, dispatchToOutfit }) {
       variables: { query: debouncedQuery, speciesId, colorId, offset: 0 },
       skip: debouncedQuery === null,
       notifyOnNetworkStatusChange: true,
+      onCompleted: (d) => {
+        const items = d && d.itemSearchToFit && d.itemSearchToFit.items;
+        if (items && items.length < 30) {
+          setIsEndOfResults(true);
+        }
+      },
     }
   );
 
@@ -78,13 +89,27 @@ function SearchResults({ query, outfitState, dispatchToOutfit }) {
   const items = (result && result.items) || [];
 
   const onScrolledToBottom = React.useCallback(() => {
-    if (!loading) {
+    if (!loading && !isEndOfResults) {
       fetchMore({
         variables: {
           offset: items.length,
         },
         updateQuery: (prev, { fetchMoreResult }) => {
           if (!fetchMoreResult) return prev;
+
+          // Note: This is a bit awkward because, if the results count ends on
+          // a multiple of 30, the user will see a flash of loading before
+          // getting told it's actually the end. Ah well :/
+          //
+          // We could maybe make this more rigorous later with
+          // react-virtualized to have a better scrollbar anyway, and then
+          // we'd need to return the total result count... a bit annoying to
+          // potentially double the query runtime? We'd need to see how slow it
+          // actually makes things.
+          if (fetchMoreResult.itemSearchToFit.items.length < 30) {
+            setIsEndOfResults(true);
+          }
+
           return {
             ...prev,
             itemSearchToFit: {
@@ -98,7 +123,7 @@ function SearchResults({ query, outfitState, dispatchToOutfit }) {
         },
       });
     }
-  }, [loading, fetchMore, items.length]);
+  }, [loading, isEndOfResults, fetchMore, items.length]);
 
   if (resultQuery !== query || (loading && items.length === 0)) {
     return (
@@ -144,7 +169,7 @@ function SearchResults({ query, outfitState, dispatchToOutfit }) {
   );
 }
 
-function ScrollTracker({ children, threshold, onScrolledToBottom }) {
+function ScrollTracker({ children, query, threshold, onScrolledToBottom }) {
   const containerRef = React.useRef();
   const scrollParent = React.useRef();
 
@@ -167,7 +192,7 @@ function ScrollTracker({ children, threshold, onScrolledToBottom }) {
       return;
     }
     for (let el = containerRef.current; el.parentNode; el = el.parentNode) {
-      if (el.scrollHeight > el.clientHeight) {
+      if (getComputedStyle(el).overflow === "auto") {
         scrollParent.current = el;
         break;
       }
