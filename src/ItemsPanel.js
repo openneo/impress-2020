@@ -37,9 +37,9 @@ function ItemsPanel({ outfitState, loading, dispatchToOutfit }) {
           ))}
         {!loading && (
           <TransitionGroup component={null}>
-            {zonesAndItems.map(({ zone, items }) => (
+            {zonesAndItems.map(({ zoneLabel, items }) => (
               <CSSTransition
-                key={zone.id}
+                key={zoneLabel}
                 classNames="items-panel-zone"
                 timeout={500}
                 onExit={(e) => {
@@ -47,7 +47,7 @@ function ItemsPanel({ outfitState, loading, dispatchToOutfit }) {
                 }}
               >
                 <Box mb="10">
-                  <Heading2>{zone.label}</Heading2>
+                  <Heading2>{zoneLabel}</Heading2>
                   <ItemList
                     items={items}
                     outfitState={outfitState}

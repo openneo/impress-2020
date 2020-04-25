@@ -199,29 +199,31 @@ function getZonesAndItems(itemsById, wornItemIds, closetedItemIds) {
     .map((id) => itemsById[id])
     .filter((i) => i);
 
+  // We use zone label here, rather than ID, because some zones have the same
+  // label and we *want* to over-simplify that in this UI. (e.g. there are
+  // multiple Hat zones, and some items occupy different ones, but mostly let's
+  // just group them and if they don't conflict then all the better!)
   const allItems = [...wornItems, ...closetedItems];
-  const zonesById = new Map();
-  const itemsByZoneId = new Map();
+  const itemsByZoneLabel = new Map();
   for (const item of allItems) {
     for (const layer of item.appearanceOn.layers) {
-      const zoneId = layer.zone.id;
-      zonesById.set(zoneId, layer.zone);
+      const zoneLabel = layer.zone.label;
 
-      if (!itemsByZoneId.has(zoneId)) {
-        itemsByZoneId.set(zoneId, []);
+      if (!itemsByZoneLabel.has(zoneLabel)) {
+        itemsByZoneLabel.set(zoneLabel, []);
       }
-      itemsByZoneId.get(zoneId).push(item);
+      itemsByZoneLabel.get(zoneLabel).push(item);
     }
   }
 
-  const zonesAndItems = Array.from(itemsByZoneId.entries()).map(
-    ([zoneId, items]) => ({
-      zone: zonesById.get(zoneId),
+  const zonesAndItems = Array.from(itemsByZoneLabel.entries()).map(
+    ([zoneLabel, items]) => ({
+      zoneLabel: zoneLabel,
       items: [...items].sort((a, b) => a.name.localeCompare(b.name)),
     })
   );
 
-  zonesAndItems.sort((a, b) => a.zone.label.localeCompare(b.zone.label));
+  zonesAndItems.sort((a, b) => a.zoneLabel.localeCompare(b.zoneLabel));
 
   return zonesAndItems;
 }
