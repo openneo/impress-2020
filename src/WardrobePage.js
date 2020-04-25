@@ -132,6 +132,9 @@ function SearchToolbar({ query, onChange }) {
             variantColor="green"
             aria-label="Clear search"
             onClick={() => onChange("")}
+            // Big style hacks here!
+            height="calc(100% - 2px)"
+            marginRight="2px"
           />
         </InputRightElement>
       )}
