@@ -10,7 +10,7 @@ import { itemAppearanceFragment } from "./OutfitPreview";
 function SearchPanel({ query, outfitState, dispatchToOutfit }) {
   return (
     <Box color="green.800">
-      <Heading1 mb="6">Searching for "{query}"</Heading1>
+      <Heading1 mb="4">Searching for "{query}"</Heading1>
       <SearchResults
         query={query}
         outfitState={outfitState}
@@ -21,14 +21,18 @@ function SearchPanel({ query, outfitState, dispatchToOutfit }) {
 }
 
 function SearchResults({ query, outfitState, dispatchToOutfit }) {
-  const { wornItemIds, speciesId, colorId } = outfitState;
+  const { speciesId, colorId } = outfitState;
 
   const debouncedQuery = useDebounce(query, 300, { waitForFirstPause: true });
 
   const { loading, error, data, variables } = useQuery(
     gql`
       query($query: String!, $speciesId: ID!, $colorId: ID!) {
-        itemSearch(query: $query) {
+        itemSearchToFit(
+          query: $query
+          speciesId: $speciesId
+          colorId: $colorId
+        ) {
           # TODO: De-dupe this from useOutfitState?
           id
           name
@@ -77,7 +81,7 @@ function SearchResults({ query, outfitState, dispatchToOutfit }) {
     );
   }
 
-  const items = data.itemSearch;
+  const items = data.itemSearchToFit;
 
   if (items.length === 0) {
     return (

@@ -42,12 +42,41 @@ const buildItemSearchLoader = (db) =>
     const queryPromises = queries.map(async (query) => {
       const queryForMysql = "%" + query.replace(/_%/g, "\\$0") + "%";
       const [rows, _] = await db.execute(
-        `SELECT items.* FROM items
+        `SELECT items.*, t.name FROM items
          INNER JOIN item_translations t ON t.item_id = items.id
-         WHERE t.name LIKE ? AND locale="en"
+         WHERE t.name LIKE ? AND t.locale="en"
          ORDER BY t.name
          LIMIT 30`,
         [queryForMysql]
+      );
+
+      const entities = rows.map(normalizeRow);
+
+      return entities;
+    });
+
+    const responses = await Promise.all(queryPromises);
+
+    return responses;
+  });
+
+const buildItemSearchToFitLoader = (db) =>
+  new DataLoader(async (queryAndBodyIdPairs) => {
+    // This isn't actually optimized as a batch query, we're just using a
+    // DataLoader API consistency with our other loaders!
+    const queryPromises = queryAndBodyIdPairs.map(async ({ query, bodyId }) => {
+      const queryForMysql = "%" + query.replace(/_%/g, "\\$0") + "%";
+      const [rows, _] = await db.execute(
+        `SELECT items.*, t.name FROM items
+           INNER JOIN item_translations t ON t.item_id = items.id
+           INNER JOIN parents_swf_assets rel
+               ON rel.parent_type = "Item" AND rel.parent_id = items.id
+           INNER JOIN swf_assets ON rel.swf_asset_id = swf_assets.id
+           WHERE t.name LIKE ? AND t.locale="en" AND
+               (swf_assets.body_id = ? OR swf_assets.body_id = 0)
+           ORDER BY t.name
+           LIMIT 30`,
+        [queryForMysql, bodyId]
       );
 
       const entities = rows.map(normalizeRow);
@@ -200,6 +229,7 @@ function buildLoaders(db) {
     itemLoader: buildItemsLoader(db),
     itemTranslationLoader: buildItemTranslationLoader(db),
     itemSearchLoader: buildItemSearchLoader(db),
+    itemSearchToFitLoader: buildItemSearchToFitLoader(db),
     petTypeLoader: buildPetTypeLoader(db),
     itemSwfAssetLoader: buildItemSwfAssetLoader(db),
     petSwfAssetLoader: buildPetSwfAssetLoader(db),

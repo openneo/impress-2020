@@ -65,23 +65,28 @@ function WardrobePage() {
             <SearchToolbar query={searchQuery} onChange={setSearchQuery} />
           </Box>
         </Box>
-        <Box gridArea="items" overflow="auto">
-          <Box px="5" py="5">
-            {searchQuery ? (
+
+        {searchQuery ? (
+          <Box gridArea="items" overflow="auto" key="search-panel">
+            <Box px="5" py="5">
               <SearchPanel
                 query={searchQuery}
                 outfitState={outfitState}
                 dispatchToOutfit={dispatchToOutfit}
               />
-            ) : (
+            </Box>
+          </Box>
+        ) : (
+          <Box gridArea="items" overflow="auto" key="items-panel">
+            <Box px="5" py="5">
               <ItemsPanel
                 loading={loading}
                 outfitState={outfitState}
                 dispatchToOutfit={dispatchToOutfit}
               />
-            )}
+            </Box>
           </Box>
-        </Box>
+        )}
       </Grid>
     </Box>
   );

@@ -37,6 +37,7 @@ const typeDefs = gql`
   type Query {
     items(ids: [ID!]!): [Item!]!
     itemSearch(query: String!): [Item!]!
+    itemSearchToFit(query: String!, speciesId: ID!, colorId: ID!): [Item!]!
     petAppearance(speciesId: ID!, colorId: ID!): Appearance
   }
 `;
@@ -44,6 +45,9 @@ const typeDefs = gql`
 const resolvers = {
   Item: {
     name: async (item, _, { itemTranslationLoader }) => {
+      // Search queries pre-fill this!
+      if (item.name) return item.name;
+
       const translation = await itemTranslationLoader.load(item.id);
       return translation.name;
     },
@@ -110,6 +114,16 @@ const resolvers = {
     },
     itemSearch: async (_, { query }, { itemSearchLoader }) => {
       const items = await itemSearchLoader.load(query);
+      return items;
+    },
+    itemSearchToFit: async (
+      _,
+      { query, speciesId, colorId },
+      { petTypeLoader, itemSearchToFitLoader }
+    ) => {
+      const petType = await petTypeLoader.load({ speciesId, colorId });
+      const { bodyId } = petType;
+      const items = await itemSearchToFitLoader.load({ query, bodyId });
       return items;
     },
     petAppearance: async (

@@ -17,7 +17,7 @@ import ItemList, { ItemListSkeleton } from "./ItemList";
 import "./ItemsPanel.css";
 
 function ItemsPanel({ outfitState, loading, dispatchToOutfit }) {
-  const { zonesAndItems, wornItemIds } = outfitState;
+  const { zonesAndItems } = outfitState;
 
   return (
     <Box color="green.800">

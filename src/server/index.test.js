@@ -371,11 +371,11 @@ describe("PetAppearance", () => {
 });
 
 describe("Search", () => {
-  it("loads Zafara Agent items", async () => {
+  it("loads Neopian Times items", async () => {
     const res = await query({
       query: gql`
         query {
-          itemSearch(query: "Zafara Agent") {
+          itemSearch(query: "Neopian Times") {
             id
             name
           }
@@ -388,16 +388,52 @@ describe("Search", () => {
       Object {
         "itemSearch": Array [
           Object {
-            "id": "38913",
-            "name": "Zafara Agent Gloves",
+            "id": "40431",
+            "name": "Neopian Times Background",
           },
           Object {
-            "id": "38911",
-            "name": "Zafara Agent Hood",
+            "id": "59391",
+            "name": "Neopian Times Eyrie Hat",
           },
           Object {
-            "id": "38912",
-            "name": "Zafara Agent Robe",
+            "id": "59392",
+            "name": "Neopian Times Eyrie Shirt and Vest",
+          },
+          Object {
+            "id": "59394",
+            "name": "Neopian Times Eyrie Shoes",
+          },
+          Object {
+            "id": "59393",
+            "name": "Neopian Times Eyrie Trousers",
+          },
+          Object {
+            "id": "59390",
+            "name": "Neopian Times Eyries Paper",
+          },
+          Object {
+            "id": "51098",
+            "name": "Neopian Times Writing Quill",
+          },
+          Object {
+            "id": "61101",
+            "name": "Neopian Times Zafara Handkerchief",
+          },
+          Object {
+            "id": "61100",
+            "name": "Neopian Times Zafara Hat",
+          },
+          Object {
+            "id": "61102",
+            "name": "Neopian Times Zafara Shirt and Vest",
+          },
+          Object {
+            "id": "61104",
+            "name": "Neopian Times Zafara Shoes",
+          },
+          Object {
+            "id": "61103",
+            "name": "Neopian Times Zafara Trousers",
           },
         ],
       }
@@ -405,21 +441,92 @@ describe("Search", () => {
     expect(queryFn.mock.calls).toMatchInlineSnapshot(`
       Array [
         Array [
-          "SELECT items.* FROM items
+          "SELECT items.*, t.name FROM items
                INNER JOIN item_translations t ON t.item_id = items.id
-               WHERE t.name LIKE ? AND locale=\\"en\\"
+               WHERE t.name LIKE ? AND t.locale=\\"en\\"
                ORDER BY t.name
                LIMIT 30",
           Array [
-            "%Zafara Agent%",
+            "%Neopian Times%",
+          ],
+        ],
+      ]
+    `);
+  });
+
+  it("loads Neopian Times items that fit the Starry Zafara", async () => {
+    const res = await query({
+      query: gql`
+        query {
+          itemSearchToFit(
+            query: "Neopian Times"
+            speciesId: "54"
+            colorId: "75"
+          ) {
+            id
+            name
+          }
+        }
+      `,
+    });
+
+    expect(res).toHaveNoErrors();
+    expect(res.data).toMatchInlineSnapshot(`
+      Object {
+        "itemSearchToFit": Array [
+          Object {
+            "id": "40431",
+            "name": "Neopian Times Background",
+          },
+          Object {
+            "id": "51098",
+            "name": "Neopian Times Writing Quill",
+          },
+          Object {
+            "id": "61101",
+            "name": "Neopian Times Zafara Handkerchief",
+          },
+          Object {
+            "id": "61100",
+            "name": "Neopian Times Zafara Hat",
+          },
+          Object {
+            "id": "61102",
+            "name": "Neopian Times Zafara Shirt and Vest",
+          },
+          Object {
+            "id": "61104",
+            "name": "Neopian Times Zafara Shoes",
+          },
+          Object {
+            "id": "61103",
+            "name": "Neopian Times Zafara Trousers",
+          },
+        ],
+      }
+    `);
+    expect(queryFn.mock.calls).toMatchInlineSnapshot(`
+      Array [
+        Array [
+          "SELECT * FROM pet_types WHERE (species_id = ? AND color_id = ?)",
+          Array [
+            "54",
+            "75",
           ],
         ],
         Array [
-          "SELECT * FROM item_translations WHERE item_id IN (?,?,?) AND locale = \\"en\\"",
+          "SELECT items.*, t.name FROM items
+                 INNER JOIN item_translations t ON t.item_id = items.id
+                 INNER JOIN parents_swf_assets rel
+                     ON rel.parent_type = \\"Item\\" AND rel.parent_id = items.id
+                 INNER JOIN swf_assets ON rel.swf_asset_id = swf_assets.id
+                 WHERE t.name LIKE ? AND t.locale=\\"en\\" AND
+                     (swf_assets.body_id = ? OR swf_assets.body_id = 0)
+                 ORDER BY t.name
+                 LIMIT 30",
           Array [
-            "38913",
-            "38911",
-            "38912",
+            "%Neopian Times%",
+            "180",
           ],
         ],
       ]
