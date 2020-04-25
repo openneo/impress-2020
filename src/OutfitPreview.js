@@ -15,6 +15,7 @@ import {
 } from "@chakra-ui/core";
 
 import { Delay } from "./util";
+import OutfitResetModal from "./OutfitResetModal";
 import SpeciesColorPicker from "./SpeciesColorPicker";
 
 import "./OutfitPreview.css";
@@ -39,6 +40,7 @@ export const itemAppearanceFragment = gql`
 function OutfitPreview({ outfitState, dispatchToOutfit }) {
   const { wornItemIds, speciesId, colorId } = outfitState;
   const [hasFocus, setHasFocus] = React.useState(false);
+  const [showResetModal, setShowResetModal] = React.useState(false);
 
   const { loading, error, data } = useQuery(
     gql`
@@ -123,6 +125,25 @@ function OutfitPreview({ outfitState, dispatchToOutfit }) {
           </FullScreenCenter>
         </Delay>
       )}
+      <Box pos="absolute" left="2" top="2">
+        <IconButton
+          icon="arrow-back"
+          aria-label="Leave this outfit"
+          variant="unstyled"
+          d="flex"
+          alignItems="center"
+          justifyContent="center"
+          color="gray.50"
+          opacity={hasFocus ? 1 : 0}
+          transition="all 0.2s"
+          _groupHover={{
+            opacity: 1,
+          }}
+          onFocus={() => setHasFocus(true)}
+          onBlur={() => setHasFocus(false)}
+          onClick={() => setShowResetModal(true)}
+        />
+      </Box>
       <Box
         // Bottom toolbar on small screens, top on large screens
         pos="absolute"
@@ -191,6 +212,11 @@ function OutfitPreview({ outfitState, dispatchToOutfit }) {
           </Tooltip>
         </Flex>
       </Box>
+      <OutfitResetModal
+        isOpen={showResetModal}
+        onClose={() => setShowResetModal(false)}
+        dispatchToOutfit={dispatchToOutfit}
+      />
     </PseudoBox>
   );
 }

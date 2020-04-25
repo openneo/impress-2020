@@ -146,6 +146,15 @@ const outfitStateReducer = (apolloClient) => (baseState, action) => {
         wornItemIds.delete(itemId);
         closetedItemIds.delete(itemId);
       });
+    case "reset":
+      const { name, speciesId, colorId, wornItemIds, closetedItemIds } = action;
+      return {
+        name,
+        speciesId: String(speciesId),
+        colorId: String(colorId),
+        wornItemIds: new Set(wornItemIds.map(String)),
+        closetedItemIds: new Set(closetedItemIds.map(String)),
+      };
     default:
       throw new Error(`unexpected action ${JSON.stringify(action)}`);
   }
