@@ -12,6 +12,7 @@ function useOutfitState() {
   const [state, dispatchToOutfit] = React.useReducer(
     outfitStateReducer(apolloClient),
     {
+      name: "Zafara Agent (roopal27)",
       wornItemIds: new Set([
         "38913",
         "38911",
@@ -28,7 +29,7 @@ function useOutfitState() {
     }
   );
 
-  const { speciesId, colorId } = state;
+  const { name, speciesId, colorId } = state;
 
   // It's more convenient to manage these as a Set in state, but most callers
   // will find it more convenient to access them as arrays! e.g. for `.map()`
@@ -79,6 +80,7 @@ function useOutfitState() {
 
   const outfitState = {
     zonesAndItems,
+    name,
     wornItemIds,
     allItemIds,
     speciesId,
@@ -90,6 +92,8 @@ function useOutfitState() {
 
 const outfitStateReducer = (apolloClient) => (baseState, action) => {
   switch (action.type) {
+    case "rename":
+      return { ...baseState, name: action.outfitName };
     case "wearItem":
       return produce(baseState, (state) => {
         // A hack to work around https://github.com/immerjs/immer/issues/586

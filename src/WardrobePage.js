@@ -134,7 +134,10 @@ function ItemsPanel({ outfitState, loading, dispatchToOutfit }) {
 
   return (
     <Box color="green.800">
-      <OutfitHeading />
+      <OutfitHeading
+        outfitState={outfitState}
+        dispatchToOutfit={dispatchToOutfit}
+      />
       <Stack spacing="10">
         {loading &&
           [1, 2, 3].map((i) => (
@@ -163,12 +166,18 @@ function ItemsPanel({ outfitState, loading, dispatchToOutfit }) {
   );
 }
 
-function OutfitHeading() {
+function OutfitHeading({ outfitState, dispatchToOutfit }) {
   return (
     <Box>
-      <PseudoBox role="group" d="inline-block" position="relative">
+      <PseudoBox role="group" d="inline-block" position="relative" width="100%">
         <Heading1 mb="6">
-          <Editable defaultValue="Zafara Agent (roopal27)">
+          <Editable
+            value={outfitState.name}
+            placeholder="Untitled outfit (click to edit)"
+            onChange={(value) =>
+              dispatchToOutfit({ type: "rename", outfitName: value })
+            }
+          >
             {({ isEditing, onRequestEdit }) => (
               <>
                 <EditablePreview />

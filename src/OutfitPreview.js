@@ -12,6 +12,7 @@ import {
   Spinner,
   Text,
   Tooltip,
+  useToast,
 } from "@chakra-ui/core";
 
 import { Delay } from "./util";
@@ -37,6 +38,7 @@ export const itemAppearanceFragment = gql`
 
 function OutfitPreview({ outfitState }) {
   const { wornItemIds, speciesId, colorId } = outfitState;
+  const toast = useToast();
 
   const { loading, error, data } = useQuery(
     gql`
@@ -125,9 +127,17 @@ function OutfitPreview({ outfitState }) {
           as="a"
           // eslint-disable-next-line no-script-url
           href={downloadImageUrl || "javascript:void 0"}
-          download="Outfit.png"
+          download={(outfitState.name || "Outfit") + ".png"}
           onMouseEnter={prepareDownload}
           onFocus={prepareDownload}
+          onClick={() => {
+            if (!downloadImageUrl) {
+              toast({
+                title:
+                  "Just a second, try again when the image is done loading!",
+              });
+            }
+          }}
           variant="unstyled"
           color="gray.50"
           d="flex"
