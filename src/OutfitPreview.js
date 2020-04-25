@@ -15,6 +15,7 @@ import {
 } from "@chakra-ui/core";
 
 import { Delay } from "./util";
+import SpeciesColorPicker from "./SpeciesColorPicker";
 
 import "./OutfitPreview.css";
 
@@ -35,8 +36,9 @@ export const itemAppearanceFragment = gql`
   }
 `;
 
-function OutfitPreview({ outfitState }) {
+function OutfitPreview({ outfitState, dispatchToOutfit }) {
   const { wornItemIds, speciesId, colorId } = outfitState;
+  const [hasFocus, setHasFocus] = React.useState(false);
 
   const { loading, error, data } = useQuery(
     gql`
@@ -122,45 +124,72 @@ function OutfitPreview({ outfitState }) {
         </Delay>
       )}
       <Box
-        // Bottom-right in small screens, top-right on large screens
+        // Bottom toolbar on small screens, top on large screens
         pos="absolute"
-        right="2"
+        left="0"
+        right="0"
         bottom={{ base: "2", lg: "auto" }}
         top={{ base: "auto", lg: "2" }}
+        // Grid layout for the content!
+        display="grid"
+        gridTemplateAreas={`"space picker download"`}
+        gridTemplateColumns="minmax(0, 1fr) auto 1fr"
+        alignItems="center"
       >
-        <Tooltip label="Download" placement="left">
-          <IconButton
-            icon="download"
-            aria-label="Download"
-            isRound
-            as="a"
-            // eslint-disable-next-line no-script-url
-            href={downloadImageUrl || "javascript:void 0"}
-            download={(outfitState.name || "Outfit") + ".png"}
-            onMouseEnter={prepareDownload}
-            onFocus={prepareDownload}
-            cursor={!downloadImageUrl && "wait"}
-            variant="unstyled"
-            backgroundColor="gray.600"
-            color="gray.50"
-            d="flex"
-            alignItems="center"
-            justifyContent="center"
-            opacity="0"
-            transition="all 0.2s"
-            _groupHover={{
-              opacity: 1,
-            }}
-            _focus={{
-              opacity: 1,
-              backgroundColor: "gray.500",
-            }}
-            _hover={{
-              backgroundColor: "gray.500",
-            }}
-            outline="initial"
+        <Box gridArea="space"></Box>
+        <PseudoBox
+          gridArea="picker"
+          opacity={hasFocus ? 1 : 0}
+          _groupHover={{ opacity: 1 }}
+          transition="opacity 0.2s"
+        >
+          <SpeciesColorPicker
+            outfitState={outfitState}
+            dispatchToOutfit={dispatchToOutfit}
+            onFocus={() => setHasFocus(true)}
+            onBlur={() => setHasFocus(false)}
           />
-        </Tooltip>
+        </PseudoBox>
+        <Flex gridArea="download" justify="flex-end">
+          <Tooltip label="Download" placement="left">
+            <IconButton
+              icon="download"
+              aria-label="Download"
+              isRound
+              as="a"
+              // eslint-disable-next-line no-script-url
+              href={downloadImageUrl || "javascript:void 0"}
+              download={(outfitState.name || "Outfit") + ".png"}
+              onMouseEnter={prepareDownload}
+              onFocus={() => {
+                prepareDownload();
+                setHasFocus(true);
+              }}
+              onBlur={() => setHasFocus(false)}
+              cursor={!downloadImageUrl && "wait"}
+              variant="unstyled"
+              backgroundColor="gray.600"
+              color="gray.50"
+              boxShadow="md"
+              d="flex"
+              alignItems="center"
+              justifyContent="center"
+              opacity={hasFocus ? 1 : 0}
+              transition="all 0.2s"
+              _groupHover={{
+                opacity: 1,
+              }}
+              _focus={{
+                opacity: 1,
+                backgroundColor: "gray.500",
+              }}
+              _hover={{
+                backgroundColor: "gray.500",
+              }}
+              outline="initial"
+            />
+          </Tooltip>
+        </Flex>
       </Box>
     </PseudoBox>
   );
@@ -218,13 +247,13 @@ function useDownloadableImage(visibleLayers) {
   const [preparedForLayerIds, setPreparedForLayerIds] = React.useState([]);
 
   const prepareDownload = React.useCallback(async () => {
-    setDownloadImageUrl(null);
-
     // Skip if the current image URL is already correct for these layers.
     const layerIds = visibleLayers.map((l) => l.id);
     if (layerIds.join(",") === preparedForLayerIds.join(",")) {
       return;
     }
+
+    setDownloadImageUrl(null);
 
     const imagePromises = visibleLayers.map(
       (layer) =>

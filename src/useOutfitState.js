@@ -94,6 +94,10 @@ const outfitStateReducer = (apolloClient) => (baseState, action) => {
   switch (action.type) {
     case "rename":
       return { ...baseState, name: action.outfitName };
+    case "changeColor":
+      return { ...baseState, colorId: action.colorId };
+    case "changeSpecies":
+      return { ...baseState, speciesId: action.speciesId };
     case "wearItem":
       return produce(baseState, (state) => {
         // A hack to work around https://github.com/immerjs/immer/issues/586
@@ -143,7 +147,7 @@ const outfitStateReducer = (apolloClient) => (baseState, action) => {
         closetedItemIds.delete(itemId);
       });
     default:
-      throw new Error(`unexpected action ${action}`);
+      throw new Error(`unexpected action ${JSON.stringify(action)}`);
   }
 };
 

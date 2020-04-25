@@ -65,7 +65,10 @@ function WardrobePage() {
         width="100%"
       >
         <Box gridArea="outfit" backgroundColor="gray.900">
-          <OutfitPreview outfitState={outfitState} />
+          <OutfitPreview
+            outfitState={outfitState}
+            dispatchToOutfit={dispatchToOutfit}
+          />
         </Box>
         <Box gridArea="search" boxShadow="sm">
           <Box px="5" py="3">

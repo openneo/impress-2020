@@ -1,7 +1,7 @@
 const DataLoader = require("dataloader");
 
 const loadAllColors = (db) => async () => {
-  const [rows, _] = await db.execute(`SELECT * FROM colors`);
+  const [rows, _] = await db.execute(`SELECT * FROM colors WHERE prank = 0`);
   const entities = rows.map(normalizeRow);
   return entities;
 };

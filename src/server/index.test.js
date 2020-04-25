@@ -769,223 +769,223 @@ describe("Species", () => {
         "allSpecies": Array [
           Object {
             "id": "1",
-            "name": "acara",
+            "name": "Acara",
           },
           Object {
             "id": "2",
-            "name": "aisha",
+            "name": "Aisha",
           },
           Object {
             "id": "3",
-            "name": "blumaroo",
+            "name": "Blumaroo",
           },
           Object {
             "id": "4",
-            "name": "bori",
+            "name": "Bori",
           },
           Object {
             "id": "5",
-            "name": "bruce",
+            "name": "Bruce",
           },
           Object {
             "id": "6",
-            "name": "buzz",
+            "name": "Buzz",
           },
           Object {
             "id": "7",
-            "name": "chia",
+            "name": "Chia",
           },
           Object {
             "id": "8",
-            "name": "chomby",
+            "name": "Chomby",
           },
           Object {
             "id": "9",
-            "name": "cybunny",
+            "name": "Cybunny",
           },
           Object {
             "id": "10",
-            "name": "draik",
+            "name": "Draik",
           },
           Object {
             "id": "11",
-            "name": "elephante",
+            "name": "Elephante",
           },
           Object {
             "id": "12",
-            "name": "eyrie",
+            "name": "Eyrie",
           },
           Object {
             "id": "13",
-            "name": "flotsam",
+            "name": "Flotsam",
           },
           Object {
             "id": "14",
-            "name": "gelert",
+            "name": "Gelert",
           },
           Object {
             "id": "15",
-            "name": "gnorbu",
+            "name": "Gnorbu",
           },
           Object {
             "id": "16",
-            "name": "grarrl",
+            "name": "Grarrl",
           },
           Object {
             "id": "17",
-            "name": "grundo",
+            "name": "Grundo",
           },
           Object {
             "id": "18",
-            "name": "hissi",
+            "name": "Hissi",
           },
           Object {
             "id": "19",
-            "name": "ixi",
+            "name": "Ixi",
           },
           Object {
             "id": "20",
-            "name": "jetsam",
+            "name": "Jetsam",
           },
           Object {
             "id": "21",
-            "name": "jubjub",
+            "name": "Jubjub",
           },
           Object {
             "id": "22",
-            "name": "kacheek",
+            "name": "Kacheek",
           },
           Object {
             "id": "23",
-            "name": "kau",
+            "name": "Kau",
           },
           Object {
             "id": "24",
-            "name": "kiko",
+            "name": "Kiko",
           },
           Object {
             "id": "25",
-            "name": "koi",
+            "name": "Koi",
           },
           Object {
             "id": "26",
-            "name": "korbat",
+            "name": "Korbat",
           },
           Object {
             "id": "27",
-            "name": "kougra",
+            "name": "Kougra",
           },
           Object {
             "id": "28",
-            "name": "krawk",
+            "name": "Krawk",
           },
           Object {
             "id": "29",
-            "name": "kyrii",
+            "name": "Kyrii",
           },
           Object {
             "id": "30",
-            "name": "lenny",
+            "name": "Lenny",
           },
           Object {
             "id": "31",
-            "name": "lupe",
+            "name": "Lupe",
           },
           Object {
             "id": "32",
-            "name": "lutari",
+            "name": "Lutari",
           },
           Object {
             "id": "33",
-            "name": "meerca",
+            "name": "Meerca",
           },
           Object {
             "id": "34",
-            "name": "moehog",
+            "name": "Moehog",
           },
           Object {
             "id": "35",
-            "name": "mynci",
+            "name": "Mynci",
           },
           Object {
             "id": "36",
-            "name": "nimmo",
+            "name": "Nimmo",
           },
           Object {
             "id": "37",
-            "name": "ogrin",
+            "name": "Ogrin",
           },
           Object {
             "id": "38",
-            "name": "peophin",
+            "name": "Peophin",
           },
           Object {
             "id": "39",
-            "name": "poogle",
+            "name": "Poogle",
           },
           Object {
             "id": "40",
-            "name": "pteri",
+            "name": "Pteri",
           },
           Object {
             "id": "41",
-            "name": "quiggle",
+            "name": "Quiggle",
           },
           Object {
             "id": "42",
-            "name": "ruki",
+            "name": "Ruki",
           },
           Object {
             "id": "43",
-            "name": "scorchio",
+            "name": "Scorchio",
           },
           Object {
             "id": "44",
-            "name": "shoyru",
+            "name": "Shoyru",
           },
           Object {
             "id": "45",
-            "name": "skeith",
+            "name": "Skeith",
           },
           Object {
             "id": "46",
-            "name": "techo",
+            "name": "Techo",
           },
           Object {
             "id": "47",
-            "name": "tonu",
+            "name": "Tonu",
           },
           Object {
             "id": "48",
-            "name": "tuskaninny",
+            "name": "Tuskaninny",
           },
           Object {
             "id": "49",
-            "name": "uni",
+            "name": "Uni",
           },
           Object {
             "id": "50",
-            "name": "usul",
+            "name": "Usul",
           },
           Object {
             "id": "51",
-            "name": "wocky",
+            "name": "Wocky",
           },
           Object {
             "id": "52",
-            "name": "xweetok",
+            "name": "Xweetok",
           },
           Object {
             "id": "53",
-            "name": "yurble",
+            "name": "Yurble",
           },
           Object {
             "id": "54",
-            "name": "zafara",
+            "name": "Zafara",
           },
           Object {
             "id": "55",
-            "name": "vandagyre",
+            "name": "Vandagyre",
           },
         ],
       }
@@ -1079,372 +1079,368 @@ describe("Color", () => {
       Object {
         "allColors": Array [
           Object {
-            "id": "-1",
-            "name": "nebula",
-          },
-          Object {
             "id": "1",
-            "name": "alien",
+            "name": "Alien",
           },
           Object {
             "id": "2",
-            "name": "apple",
+            "name": "Apple",
           },
           Object {
             "id": "3",
-            "name": "asparagus",
+            "name": "Asparagus",
           },
           Object {
             "id": "4",
-            "name": "aubergine",
+            "name": "Aubergine",
           },
           Object {
             "id": "5",
-            "name": "avocado",
+            "name": "Avocado",
           },
           Object {
             "id": "6",
-            "name": "baby",
+            "name": "Baby",
           },
           Object {
             "id": "7",
-            "name": "biscuit",
+            "name": "Biscuit",
           },
           Object {
             "id": "8",
-            "name": "blue",
+            "name": "Blue",
           },
           Object {
             "id": "9",
-            "name": "blueberry",
+            "name": "Blueberry",
           },
           Object {
             "id": "10",
-            "name": "brown",
+            "name": "Brown",
           },
           Object {
             "id": "11",
-            "name": "camouflage",
+            "name": "Camouflage",
           },
           Object {
             "id": "12",
-            "name": "carrot",
+            "name": "Carrot",
           },
           Object {
             "id": "13",
-            "name": "checkered",
+            "name": "Checkered",
           },
           Object {
             "id": "14",
-            "name": "chocolate",
+            "name": "Chocolate",
           },
           Object {
             "id": "15",
-            "name": "chokato",
+            "name": "Chokato",
           },
           Object {
             "id": "16",
-            "name": "christmas",
+            "name": "Christmas",
           },
           Object {
             "id": "17",
-            "name": "clay",
+            "name": "Clay",
           },
           Object {
             "id": "18",
-            "name": "cloud",
+            "name": "Cloud",
           },
           Object {
             "id": "19",
-            "name": "coconut",
+            "name": "Coconut",
           },
           Object {
             "id": "20",
-            "name": "custard",
+            "name": "Custard",
           },
           Object {
             "id": "21",
-            "name": "darigan",
+            "name": "Darigan",
           },
           Object {
             "id": "22",
-            "name": "desert",
+            "name": "Desert",
           },
           Object {
             "id": "23",
-            "name": "disco",
+            "name": "Disco",
           },
           Object {
             "id": "24",
-            "name": "durian",
+            "name": "Durian",
           },
           Object {
             "id": "25",
-            "name": "electric",
+            "name": "Electric",
           },
           Object {
             "id": "26",
-            "name": "faerie",
+            "name": "Faerie",
           },
           Object {
             "id": "27",
-            "name": "fire",
+            "name": "Fire",
           },
           Object {
             "id": "28",
-            "name": "garlic",
+            "name": "Garlic",
           },
           Object {
             "id": "29",
-            "name": "ghost",
+            "name": "Ghost",
           },
           Object {
             "id": "30",
-            "name": "glowing",
+            "name": "Glowing",
           },
           Object {
             "id": "31",
-            "name": "gold",
+            "name": "Gold",
           },
           Object {
             "id": "32",
-            "name": "gooseberry",
+            "name": "Gooseberry",
           },
           Object {
             "id": "33",
-            "name": "grape",
+            "name": "Grape",
           },
           Object {
             "id": "34",
-            "name": "green",
+            "name": "Green",
           },
           Object {
             "id": "35",
-            "name": "grey",
+            "name": "Grey",
           },
           Object {
             "id": "36",
-            "name": "halloween",
+            "name": "Halloween",
           },
           Object {
             "id": "37",
-            "name": "ice",
+            "name": "Ice",
           },
           Object {
             "id": "38",
-            "name": "invisible",
+            "name": "Invisible",
           },
           Object {
             "id": "39",
-            "name": "island",
+            "name": "Island",
           },
           Object {
             "id": "40",
-            "name": "jelly",
+            "name": "Jelly",
           },
           Object {
             "id": "41",
-            "name": "lemon",
+            "name": "Lemon",
           },
           Object {
             "id": "42",
-            "name": "lime",
+            "name": "Lime",
           },
           Object {
             "id": "43",
-            "name": "mallow",
+            "name": "Mallow",
           },
           Object {
             "id": "44",
-            "name": "maraquan",
+            "name": "Maraquan",
           },
           Object {
             "id": "45",
-            "name": "msp",
+            "name": "Msp",
           },
           Object {
             "id": "46",
-            "name": "mutant",
+            "name": "Mutant",
           },
           Object {
             "id": "47",
-            "name": "orange",
+            "name": "Orange",
           },
           Object {
             "id": "48",
-            "name": "pea",
+            "name": "Pea",
           },
           Object {
             "id": "49",
-            "name": "peach",
+            "name": "Peach",
           },
           Object {
             "id": "50",
-            "name": "pear",
+            "name": "Pear",
           },
           Object {
             "id": "51",
-            "name": "pepper",
+            "name": "Pepper",
           },
           Object {
             "id": "52",
-            "name": "pineapple",
+            "name": "Pineapple",
           },
           Object {
             "id": "53",
-            "name": "pink",
+            "name": "Pink",
           },
           Object {
             "id": "54",
-            "name": "pirate",
+            "name": "Pirate",
           },
           Object {
             "id": "55",
-            "name": "plum",
+            "name": "Plum",
           },
           Object {
             "id": "56",
-            "name": "plushie",
+            "name": "Plushie",
           },
           Object {
             "id": "57",
-            "name": "purple",
+            "name": "Purple",
           },
           Object {
             "id": "58",
-            "name": "quigukiboy",
+            "name": "Quigukiboy",
           },
           Object {
             "id": "59",
-            "name": "quigukigirl",
+            "name": "Quigukigirl",
           },
           Object {
             "id": "60",
-            "name": "rainbow",
+            "name": "Rainbow",
           },
           Object {
             "id": "61",
-            "name": "red",
+            "name": "Red",
           },
           Object {
             "id": "62",
-            "name": "robot",
+            "name": "Robot",
           },
           Object {
             "id": "63",
-            "name": "royalboy",
+            "name": "Royalboy",
           },
           Object {
             "id": "64",
-            "name": "royalgirl",
+            "name": "Royalgirl",
           },
           Object {
             "id": "65",
-            "name": "shadow",
+            "name": "Shadow",
           },
           Object {
             "id": "66",
-            "name": "silver",
+            "name": "Silver",
           },
           Object {
             "id": "67",
-            "name": "sketch",
+            "name": "Sketch",
           },
           Object {
             "id": "68",
-            "name": "skunk",
+            "name": "Skunk",
           },
           Object {
             "id": "69",
-            "name": "snot",
+            "name": "Snot",
           },
           Object {
             "id": "70",
-            "name": "snow",
+            "name": "Snow",
           },
           Object {
             "id": "71",
-            "name": "speckled",
+            "name": "Speckled",
           },
           Object {
             "id": "72",
-            "name": "split",
+            "name": "Split",
           },
           Object {
             "id": "73",
-            "name": "sponge",
+            "name": "Sponge",
           },
           Object {
             "id": "74",
-            "name": "spotted",
+            "name": "Spotted",
           },
           Object {
             "id": "75",
-            "name": "starry",
+            "name": "Starry",
           },
           Object {
             "id": "76",
-            "name": "strawberry",
+            "name": "Strawberry",
           },
           Object {
             "id": "77",
-            "name": "striped",
+            "name": "Striped",
           },
           Object {
             "id": "78",
-            "name": "thornberry",
+            "name": "Thornberry",
           },
           Object {
             "id": "79",
-            "name": "tomato",
+            "name": "Tomato",
           },
           Object {
             "id": "80",
-            "name": "tyrannian",
+            "name": "Tyrannian",
           },
           Object {
             "id": "81",
-            "name": "usuki boy",
+            "name": "Usuki boy",
           },
           Object {
             "id": "82",
-            "name": "usuki girl",
+            "name": "Usuki girl",
           },
           Object {
             "id": "83",
-            "name": "white",
+            "name": "White",
           },
           Object {
             "id": "84",
-            "name": "yellow",
+            "name": "Yellow",
           },
           Object {
             "id": "85",
-            "name": "zombie",
+            "name": "Zombie",
           },
           Object {
             "id": "86",
-            "name": "onion",
+            "name": "Onion",
           },
           Object {
             "id": "87",
-            "name": "magma",
+            "name": "Magma",
           },
           Object {
             "id": "88",
-            "name": "relic",
+            "name": "Relic",
           },
           Object {
             "id": "89",
-            "name": "woodland",
+            "name": "Woodland",
           },
           Object {
             "id": "90",
-            "name": "transparent",
+            "name": "Transparent",
           },
           Object {
             "id": "91",
-            "name": "maractite",
+            "name": "Maractite",
           },
           Object {
             "id": "92",
@@ -1452,47 +1448,47 @@ describe("Color", () => {
           },
           Object {
             "id": "93",
-            "name": "swamp gas",
+            "name": "Swamp gas",
           },
           Object {
             "id": "94",
-            "name": "water",
+            "name": "Water",
           },
           Object {
             "id": "95",
-            "name": "wraith",
+            "name": "Wraith",
           },
           Object {
             "id": "96",
-            "name": "eventide",
+            "name": "Eventide",
           },
           Object {
             "id": "97",
-            "name": "elderlyboy",
+            "name": "Elderlyboy",
           },
           Object {
             "id": "98",
-            "name": "elderlygirl",
+            "name": "Elderlygirl",
           },
           Object {
             "id": "99",
-            "name": "stealthy",
+            "name": "Stealthy",
           },
           Object {
             "id": "100",
-            "name": "dimensional",
+            "name": "Dimensional",
           },
           Object {
             "id": "101",
-            "name": "agueena",
+            "name": "Agueena",
           },
           Object {
             "id": "102",
-            "name": "pastel",
+            "name": "Pastel",
           },
           Object {
             "id": "103",
-            "name": "ummagine",
+            "name": "Ummagine",
           },
           Object {
             "id": "104",
@@ -1504,7 +1500,7 @@ describe("Color", () => {
           },
           Object {
             "id": "106",
-            "name": "marble",
+            "name": "Marble",
           },
           Object {
             "id": "107",
@@ -1536,13 +1532,12 @@ describe("Color", () => {
     expect(queryFn.mock.calls).toMatchInlineSnapshot(`
       Array [
         Array [
-          "SELECT * FROM colors",
+          "SELECT * FROM colors WHERE prank = 0",
         ],
         Array [
           "SELECT * FROM color_translations
-             WHERE color_id IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) AND locale = \\"en\\"",
+             WHERE color_id IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) AND locale = \\"en\\"",
           Array [
-            "-1",
             "1",
             "2",
             "3",

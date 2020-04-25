@@ -2,6 +2,7 @@ const { gql } = require("apollo-server");
 
 const connectToDb = require("./db");
 const buildLoaders = require("./loaders");
+const { capitalize } = require("./util");
 
 const typeDefs = gql`
   enum LayerImageSize {
@@ -140,7 +141,7 @@ const resolvers = {
   Color: {
     name: async (color, _, { colorTranslationLoader }) => {
       const colorTranslation = await colorTranslationLoader.load(color.id);
-      return colorTranslation.name;
+      return capitalize(colorTranslation.name);
     },
   },
   Species: {
@@ -148,7 +149,7 @@ const resolvers = {
       const speciesTranslation = await speciesTranslationLoader.load(
         species.id
       );
-      return speciesTranslation.name;
+      return capitalize(speciesTranslation.name);
     },
   },
   Query: {
