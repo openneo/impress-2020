@@ -125,32 +125,12 @@ function OutfitPreview({ outfitState, dispatchToOutfit }) {
           </FullScreenCenter>
         </Delay>
       )}
-      <Box pos="absolute" left="2" top="2">
-        <IconButton
-          icon="arrow-back"
-          aria-label="Leave this outfit"
-          variant="unstyled"
-          d="flex"
-          alignItems="center"
-          justifyContent="center"
-          color="gray.50"
-          opacity={hasFocus ? 1 : 0}
-          transition="all 0.2s"
-          _groupHover={{
-            opacity: 1,
-          }}
-          onFocus={() => setHasFocus(true)}
-          onBlur={() => setHasFocus(false)}
-          onClick={() => setShowResetModal(true)}
-        />
-      </Box>
       <Box
         // Bottom toolbar on small screens, top on large screens
         pos="absolute"
-        left="2"
-        right="2"
-        bottom={{ base: "2", lg: "auto" }}
-        top={{ base: "auto", lg: "2" }}
+        left={{ base: 2, lg: 6 }}
+        right={{ base: 2, lg: 6 }}
+        bottom={{ base: 2, lg: 6 }}
         // Grid layout for the content!
         display="grid"
         gridTemplateAreas={`"space picker download"`}
@@ -211,6 +191,26 @@ function OutfitPreview({ outfitState, dispatchToOutfit }) {
             />
           </Tooltip>
         </Flex>
+      </Box>
+      <Box pos="absolute" left="3" top="3">
+        <IconButton
+          icon="arrow-back"
+          aria-label="Leave this outfit"
+          variant="unstyled"
+          isRound={true}
+          d="flex"
+          alignItems="center"
+          justifyContent="center"
+          color="gray.50"
+          opacity={hasFocus ? 1 : 0}
+          transition="all 0.2s"
+          _groupHover={{
+            opacity: 1,
+          }}
+          onFocus={() => setHasFocus(true)}
+          onBlur={() => setHasFocus(false)}
+          onClick={() => setShowResetModal(true)}
+        />
       </Box>
       <OutfitResetModal
         isOpen={showResetModal}
