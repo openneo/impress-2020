@@ -9,21 +9,24 @@ enableMapSet();
 
 function useOutfitState() {
   const apolloClient = useApolloClient();
-  const [state, dispatch] = React.useReducer(outfitStateReducer(apolloClient), {
-    wornItemIds: new Set([
-      "38913",
-      "38911",
-      "38912",
-      "37375",
-      "48313",
-      "37229",
-      "43014",
-      "43397",
-    ]),
-    closetedItemIds: new Set(["74166"]),
-    speciesId: "54", // Starry
-    colorId: "75", // Zafara
-  });
+  const [state, dispatchToOutfit] = React.useReducer(
+    outfitStateReducer(apolloClient),
+    {
+      wornItemIds: new Set([
+        "38913",
+        "38911",
+        "38912",
+        "37375",
+        "48313",
+        "37229",
+        "43014",
+        "43397",
+      ]),
+      closetedItemIds: new Set(["74166", "68626", "40319"]),
+      speciesId: "54", // Starry
+      colorId: "75", // Zafara
+    }
+  );
 
   const { speciesId, colorId } = state;
 
@@ -45,16 +48,22 @@ function useOutfitState() {
     closetedItemIds
   );
 
-  const data = { zonesAndItems, wornItemIds, speciesId, colorId };
+  const outfitState = {
+    zonesAndItems,
+    wornItemIds,
+    allItemIds,
+    speciesId,
+    colorId,
+  };
 
-  return { loading, error, data, dispatch };
+  return { loading, error, outfitState, dispatchToOutfit };
 }
 
 const outfitStateReducer = (apolloClient) => (baseState, action) => {
   switch (action.type) {
     case "wearItem":
       return produce(baseState, (state) => {
-        const { wornItemIds, closetedItemIds, speciesId, colorId } = state;
+        const { wornItemIds, closetedItemIds } = state;
         const { itemId } = action;
 
         // Move the item out of the closet.
@@ -131,6 +140,7 @@ function findItemConflicts(itemIdToAdd, state, apolloClient) {
   return conflictingIds;
 }
 
+// TODO: Get this out of here, tbh...
 function getZonesAndItems(itemsById, wornItemIds, closetedItemIds) {
   const wornItems = wornItemIds.map((id) => itemsById[id]).filter((i) => i);
   const closetedItems = closetedItemIds
@@ -138,17 +148,28 @@ function getZonesAndItems(itemsById, wornItemIds, closetedItemIds) {
     .filter((i) => i);
 
   const allItems = [...wornItems, ...closetedItems];
-  const allZoneNames = [...new Set(allItems.map((item) => item.zoneName))];
-  allZoneNames.sort();
+  const zonesById = new Map();
+  const itemsByZoneId = new Map();
+  for (const item of allItems) {
+    for (const layer of item.appearanceOn.layers) {
+      const zoneId = layer.zone.id;
+      zonesById.set(zoneId, layer.zone);
 
-  const zonesAndItems = allZoneNames.map((zoneName) => {
-    const items = allItems.filter((item) => item.zoneName === zoneName);
-    items.sort((a, b) => a.name.localeCompare(b.name));
-    const wornItemId =
-      items.map((item) => item.id).find((id) => wornItemIds.includes(id)) ||
-      null;
-    return { zoneName, items, wornItemId };
-  });
+      if (!itemsByZoneId.has(zoneId)) {
+        itemsByZoneId.set(zoneId, []);
+      }
+      itemsByZoneId.get(zoneId).push(item);
+    }
+  }
+
+  const zonesAndItems = Array.from(itemsByZoneId.entries()).map(
+    ([zoneId, items]) => ({
+      zone: zonesById.get(zoneId),
+      items: [...items].sort((a, b) => a.name.localeCompare(b.name)),
+    })
+  );
+
+  zonesAndItems.sort((a, b) => a.zone.label.localeCompare(b.zone.label));
 
   return zonesAndItems;
 }

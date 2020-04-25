@@ -1,8 +1,6 @@
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
 
-import { ITEMS } from "./data";
-
 function useItemData(itemIds, speciesId, colorId) {
   const { loading, error, data } = useQuery(
     gql`
@@ -12,12 +10,13 @@ function useItemData(itemIds, speciesId, colorId) {
           name
           thumbnailUrl
 
-          # This is used for wearItem actions, to resolve conflicts. We don't
-          # use it directly; we just expect it to be in the cache!
+          # This is used to group items by zone, and to detect conflicts when
+          # wearing a new item.
           appearanceOn(speciesId: $speciesId, colorId: $colorId) {
             layers {
               zone {
                 id
+                label
               }
             }
           }
@@ -30,11 +29,7 @@ function useItemData(itemIds, speciesId, colorId) {
   const items = (data && data.items) || [];
   const itemsById = {};
   for (const item of items) {
-    const hardcodedItem = ITEMS.find((i) => i.id === item.id);
-    itemsById[item.id] = {
-      ...hardcodedItem,
-      ...item,
-    };
+    itemsById[item.id] = item;
   }
 
   return { loading, error, itemsById };

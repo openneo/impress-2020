@@ -19,7 +19,6 @@ import {
   useToast,
 } from "@chakra-ui/core";
 
-import { ITEMS } from "./data";
 import ItemList, { ItemListSkeleton } from "./ItemList";
 import useItemData from "./useItemData";
 import useOutfitState from "./useOutfitState.js";
@@ -27,7 +26,7 @@ import OutfitPreview from "./OutfitPreview";
 import { Delay } from "./util";
 
 function WardrobePage() {
-  const { loading, error, data, dispatch: dispatchToOutfit } = useOutfitState();
+  const { loading, error, outfitState, dispatchToOutfit } = useOutfitState();
   const [searchQuery, setSearchQuery] = React.useState("");
   const toast = useToast();
 
@@ -67,11 +66,7 @@ function WardrobePage() {
         width="100%"
       >
         <Box gridArea="outfit" backgroundColor="gray.900">
-          <OutfitPreview
-            itemIds={data.wornItemIds}
-            speciesId={data.speciesId}
-            colorId={data.colorId}
-          />
+          <OutfitPreview outfitState={outfitState} />
         </Box>
         <Box gridArea="search" boxShadow="sm">
           <Box px="5" py="3">
@@ -83,13 +78,13 @@ function WardrobePage() {
             {searchQuery ? (
               <SearchPanel
                 query={searchQuery}
-                wornItemIds={data.wornItemIds}
+                outfitState={outfitState}
                 dispatchToOutfit={dispatchToOutfit}
               />
             ) : (
               <ItemsPanel
-                zonesAndItems={data.zonesAndItems}
                 loading={loading}
+                outfitState={outfitState}
                 dispatchToOutfit={dispatchToOutfit}
               />
             )}
@@ -135,8 +130,13 @@ function SearchToolbar({ query, onChange }) {
   );
 }
 
-function SearchPanel({ query, wornItemIds, dispatchToOutfit }) {
-  const { loading, error, itemsById } = useItemData(ITEMS.map((i) => i.id));
+function SearchPanel({ query, outfitState, dispatchToOutfit }) {
+  const { allItemIds, wornItemIds, speciesId, colorId } = outfitState;
+  const { loading, error, itemsById } = useItemData(
+    allItemIds,
+    speciesId,
+    colorId
+  );
 
   const normalize = (s) => s.toLowerCase();
   const results = Object.values(itemsById).filter((item) =>
@@ -172,7 +172,7 @@ function SearchResults({
   if (error) {
     return (
       <Text color="green.500">
-        We hit an error trying to load your search results
+        We hit an error trying to load your search results{" "}
         <span role="img" aria-label="(sweat emoji)">
           😓
         </span>{" "}
@@ -202,7 +202,9 @@ function SearchResults({
   );
 }
 
-function ItemsPanel({ zonesAndItems, loading, dispatchToOutfit }) {
+function ItemsPanel({ outfitState, loading, dispatchToOutfit }) {
+  const { zonesAndItems, wornItemIds } = outfitState;
+
   return (
     <Box color="green.800">
       <OutfitHeading />
@@ -217,12 +219,14 @@ function ItemsPanel({ zonesAndItems, loading, dispatchToOutfit }) {
             </Box>
           ))}
         {!loading &&
-          zonesAndItems.map(({ zoneName, items, wornItemId }) => (
-            <Box key={zoneName}>
-              <Heading2 mb="3">{zoneName}</Heading2>
+          zonesAndItems.map(({ zone, items }) => (
+            <Box key={zone.id}>
+              <Heading2 mb="3">{zone.label}</Heading2>
               <ItemList
                 items={items}
-                wornItemIds={[wornItemId]}
+                wornItemIds={items
+                  .map((i) => i.id)
+                  .filter((id) => wornItemIds.includes(id))}
                 dispatchToOutfit={dispatchToOutfit}
               />
             </Box>

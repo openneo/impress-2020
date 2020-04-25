@@ -8,10 +8,12 @@ import { Delay } from "./util";
 
 import "./OutfitPreview.css";
 
-function OutfitPreview({ itemIds, speciesId, colorId }) {
+function OutfitPreview({ outfitState }) {
+  const { wornItemIds, speciesId, colorId } = outfitState;
+
   const { loading, error, data } = useQuery(
     gql`
-      query($itemIds: [ID!]!, $speciesId: ID!, $colorId: ID!) {
+      query($wornItemIds: [ID!]!, $speciesId: ID!, $colorId: ID!) {
         petAppearance(speciesId: $speciesId, colorId: $colorId) {
           layers {
             id
@@ -27,7 +29,7 @@ function OutfitPreview({ itemIds, speciesId, colorId }) {
           }
         }
 
-        items(ids: $itemIds) {
+        items(ids: $wornItemIds) {
           id
           appearanceOn(speciesId: $speciesId, colorId: $colorId) {
             layers {
@@ -47,7 +49,7 @@ function OutfitPreview({ itemIds, speciesId, colorId }) {
       }
     `,
     {
-      variables: { itemIds, speciesId, colorId },
+      variables: { wornItemIds, speciesId, colorId },
     }
   );
 
