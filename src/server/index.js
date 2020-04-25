@@ -96,6 +96,10 @@ const resolvers = {
         bodyId: petType.bodyId,
       });
 
+      if (swfAssets.length === 0) {
+        return null;
+      }
+
       const restrictedZones = [];
       for (const [i, bit] of Array.from(item.zonesRestrict).entries()) {
         if (bit === "1") {

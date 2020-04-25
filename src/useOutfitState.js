@@ -210,6 +210,10 @@ function getZonesAndItems(itemsById, wornItemIds, closetedItemIds) {
   const allItems = [...wornItems, ...closetedItems];
   const itemsByZoneLabel = new Map();
   for (const item of allItems) {
+    if (!item.appearanceOn) {
+      continue;
+    }
+
     for (const layer of item.appearanceOn.layers) {
       const zoneLabel = layer.zone.label;
 
