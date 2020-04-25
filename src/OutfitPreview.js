@@ -147,8 +147,8 @@ function OutfitPreview({ outfitState, dispatchToOutfit }) {
       <Box
         // Bottom toolbar on small screens, top on large screens
         pos="absolute"
-        left="0"
-        right="0"
+        left="2"
+        right="2"
         bottom={{ base: "2", lg: "auto" }}
         top={{ base: "auto", lg: "2" }}
         // Grid layout for the content!
