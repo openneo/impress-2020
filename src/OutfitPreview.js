@@ -8,6 +8,23 @@ import { Delay } from "./util";
 
 import "./OutfitPreview.css";
 
+export const itemAppearanceFragment = gql`
+  fragment AppearanceForOutfitPreview on Appearance {
+    layers {
+      id
+      imageUrl(size: SIZE_600)
+      zone {
+        id
+        depth
+      }
+    }
+
+    restrictedZones {
+      id
+    }
+  }
+`;
+
 function OutfitPreview({ outfitState }) {
   const { wornItemIds, speciesId, colorId } = outfitState;
 
@@ -15,38 +32,17 @@ function OutfitPreview({ outfitState }) {
     gql`
       query($wornItemIds: [ID!]!, $speciesId: ID!, $colorId: ID!) {
         petAppearance(speciesId: $speciesId, colorId: $colorId) {
-          layers {
-            id
-            imageUrl(size: SIZE_600)
-            zone {
-              id
-              depth
-            }
-          }
-
-          restrictedZones {
-            id
-          }
+          ...AppearanceForOutfitPreview
         }
 
         items(ids: $wornItemIds) {
           id
           appearanceOn(speciesId: $speciesId, colorId: $colorId) {
-            layers {
-              id
-              imageUrl(size: SIZE_600)
-              zone {
-                id
-                depth
-              }
-            }
-
-            restrictedZones {
-              id
-            }
+            ...AppearanceForOutfitPreview
           }
         }
       }
+      ${itemAppearanceFragment}
     `,
     {
       variables: { wornItemIds, speciesId, colorId },

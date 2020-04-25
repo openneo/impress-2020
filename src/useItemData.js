@@ -1,6 +1,8 @@
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
 
+import { itemAppearanceFragment } from "./OutfitPreview";
+
 function useItemData(itemIds, speciesId, colorId) {
   const { loading, error, data } = useQuery(
     gql`
@@ -10,9 +12,12 @@ function useItemData(itemIds, speciesId, colorId) {
           name
           thumbnailUrl
 
-          # This is used to group items by zone, and to detect conflicts when
-          # wearing a new item.
           appearanceOn(speciesId: $speciesId, colorId: $colorId) {
+            # This enables us to quickly show the item when the user clicks it!
+            ...AppearanceForOutfitPreview
+
+            # This is used to group items by zone, and to detect conflicts when
+            # wearing a new item.
             layers {
               zone {
                 id
@@ -22,6 +27,7 @@ function useItemData(itemIds, speciesId, colorId) {
           }
         }
       }
+      ${itemAppearanceFragment}
     `,
     { variables: { itemIds, speciesId, colorId } }
   );
