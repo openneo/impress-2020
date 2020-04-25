@@ -1,4 +1,5 @@
 import React from "react";
+import { css } from "emotion";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import {
   Box,
@@ -8,6 +9,7 @@ import {
   PseudoBox,
   Skeleton,
   Tooltip,
+  useTheme,
 } from "@chakra-ui/core";
 
 import "./ItemList.css";
@@ -39,7 +41,11 @@ function ItemList({ items, outfitState, dispatchToOutfit }) {
   );
 }
 
-function ItemListSkeleton({ count }) {
+export function ItemListContainer({ children }) {
+  return <Flex direction="column">{children}</Flex>;
+}
+
+export function ItemListSkeleton({ count }) {
   return (
     <Flex direction="column">
       {Array.from({ length: count }).map((_, i) => (
@@ -51,28 +57,39 @@ function ItemListSkeleton({ count }) {
   );
 }
 
-function Item({ item, outfitState, dispatchToOutfit }) {
-  const { wornItemIds, allItemIds } = outfitState;
-
-  const isWorn = wornItemIds.includes(item.id);
+export function Item({ item, outfitState, dispatchToOutfit }) {
+  const { allItemIds } = outfitState;
   const isInOutfit = allItemIds.includes(item.id);
+  const theme = useTheme();
 
   return (
-    <PseudoBox
+    <Box
       role="group"
+      mb="1"
+      mt="1"
+      p="1"
+      rounded="lg"
       d="flex"
       alignItems="center"
       cursor="pointer"
-      onClick={() =>
-        dispatchToOutfit({
-          type: isWorn ? "unwearItem" : "wearItem",
-          itemId: item.id,
-        })
+      border="1px"
+      borderColor="transparent"
+      className={
+        "item-container " +
+        css`
+          input:active + & {
+            border-color: ${theme.colors.green["800"]};
+          }
+          input:focus + & {
+            border-style: dotted;
+            border-color: ${theme.colors.gray["400"]};
+          }
+        `
       }
     >
-      <ItemThumbnail src={item.thumbnailUrl} isWorn={isWorn} />
+      <ItemThumbnail src={item.thumbnailUrl} />
       <Box width="3" />
-      <ItemName isWorn={isWorn}>{item.name}</ItemName>
+      <ItemName>{item.name}</ItemName>
       <Box flexGrow="1" />
       {isInOutfit && (
         <Tooltip label="Remove" placement="top">
@@ -105,7 +122,7 @@ function Item({ item, outfitState, dispatchToOutfit }) {
           />
         </Tooltip>
       )}
-    </PseudoBox>
+    </Box>
   );
 }
 
@@ -119,53 +136,61 @@ function ItemSkeleton() {
   );
 }
 
-function ItemThumbnail({ src, isWorn }) {
+function ItemThumbnail({ src }) {
+  const theme = useTheme();
   return (
-    <PseudoBox
+    <Box
       rounded="lg"
       boxShadow="md"
       border="1px"
-      borderColor={isWorn ? "green.700" : "green.700"}
-      opacity={isWorn ? 1 : 0.7}
+      borderColor="green.700"
       width="50px"
       height="50px"
       overflow="hidden"
       transition="all 0.15s"
       transformOrigin="center"
-      transform={isWorn ? null : "scale(0.8)"}
-      _groupHover={
-        !isWorn && {
-          opacity: 0.9,
-          transform: "scale(0.9)",
-          borderColor: "green.600",
+      transform="scale(0.8)"
+      className={css`
+        .item-container:hover & {
+          opacity: 0.9;
+          transform: scale(0.9);
+          bordercolor: ${theme.colors.green["600"]};
         }
-      }
+
+        input:checked + .item-container & {
+          opacity: 1;
+          transform: none;
+        }
+      `}
     >
       <Image src={src} />
-    </PseudoBox>
+    </Box>
   );
 }
 
-function ItemName({ children, isWorn }) {
+function ItemName({ children }) {
+  const theme = useTheme();
+
   return (
-    <PseudoBox
+    <Box
       fontSize="md"
-      fontWeight={isWorn && "bold"}
       color="green.800"
       transition="all 0.15s"
-      opacity={isWorn ? 1 : 0.8}
-      _groupHover={
-        !isWorn && {
-          color: "green.800",
-          fontWeight: "medium",
-          opacity: 0.9,
+      className={css`
+        .item-container:hover & {
+          opacity: 0.9;
+          font-weight: ${theme.fontWeights.medium};
         }
-      }
+
+        input:checked + .item-container & {
+          opacity: 1;
+          font-weight: ${theme.fontWeights.bold};
+        }
+      `}
     >
       {children}
-    </PseudoBox>
+    </Box>
   );
 }
 
 export default ItemList;
-export { ItemListSkeleton };
