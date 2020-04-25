@@ -94,7 +94,7 @@ function SearchResults({ query, outfitState, dispatchToOutfit }) {
   return (
     <ItemList
       items={items}
-      wornItemIds={wornItemIds}
+      outfitState={outfitState}
       dispatchToOutfit={dispatchToOutfit}
     />
   );

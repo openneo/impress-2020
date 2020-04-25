@@ -1,9 +1,6 @@
 import React from "react";
 import {
   Box,
-  Editable,
-  EditablePreview,
-  EditableInput,
   Grid,
   Icon,
   IconButton,
@@ -11,14 +8,10 @@ import {
   InputGroup,
   InputLeftElement,
   InputRightElement,
-  PseudoBox,
-  Skeleton,
-  Stack,
   useToast,
 } from "@chakra-ui/core";
 
-import { Delay, Heading1, Heading2 } from "./util";
-import ItemList, { ItemListSkeleton } from "./ItemList";
+import ItemsPanel from "./ItemsPanel";
 import OutfitPreview from "./OutfitPreview";
 import SearchPanel from "./SearchPanel";
 import useOutfitState from "./useOutfitState.js";
@@ -126,92 +119,6 @@ function SearchToolbar({ query, onChange }) {
         </InputRightElement>
       )}
     </InputGroup>
-  );
-}
-
-function ItemsPanel({ outfitState, loading, dispatchToOutfit }) {
-  const { zonesAndItems, wornItemIds } = outfitState;
-
-  return (
-    <Box color="green.800">
-      <OutfitHeading
-        outfitState={outfitState}
-        dispatchToOutfit={dispatchToOutfit}
-      />
-      <Stack spacing="10">
-        {loading &&
-          [1, 2, 3].map((i) => (
-            <Box key={i}>
-              <Delay>
-                <Skeleton height="2.3rem" width="12rem" mb="3" />
-                <ItemListSkeleton count={3} />
-              </Delay>
-            </Box>
-          ))}
-        {!loading &&
-          zonesAndItems.map(({ zone, items }) => (
-            <Box key={zone.id}>
-              <Heading2 mb="3">{zone.label}</Heading2>
-              <ItemList
-                items={items}
-                wornItemIds={items
-                  .map((i) => i.id)
-                  .filter((id) => wornItemIds.includes(id))}
-                dispatchToOutfit={dispatchToOutfit}
-              />
-            </Box>
-          ))}
-      </Stack>
-    </Box>
-  );
-}
-
-function OutfitHeading({ outfitState, dispatchToOutfit }) {
-  return (
-    <Box>
-      <PseudoBox role="group" d="inline-block" position="relative" width="100%">
-        <Heading1 mb="6">
-          <Editable
-            value={outfitState.name}
-            placeholder="Untitled outfit (click to edit)"
-            onChange={(value) =>
-              dispatchToOutfit({ type: "rename", outfitName: value })
-            }
-          >
-            {({ isEditing, onRequestEdit }) => (
-              <>
-                <EditablePreview />
-                <EditableInput />
-                {!isEditing && (
-                  <OutfitNameEditButton onRequestEdit={onRequestEdit} />
-                )}
-              </>
-            )}
-          </Editable>
-        </Heading1>
-      </PseudoBox>
-    </Box>
-  );
-}
-
-function OutfitNameEditButton({ onRequestEdit }) {
-  return (
-    <PseudoBox
-      d="inline-block"
-      opacity="0"
-      transition="opacity 0.5s"
-      _groupHover={{ opacity: "1" }}
-      onClick={onRequestEdit}
-      position="absolute"
-    >
-      <IconButton
-        icon="edit"
-        variant="link"
-        color="green.600"
-        aria-label="Edit outfit name"
-        title="Edit outfit name"
-      />
-    </PseudoBox>
   );
 }
 

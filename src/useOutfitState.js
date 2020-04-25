@@ -133,6 +133,15 @@ const outfitStateReducer = (apolloClient) => (baseState, action) => {
         wornItemIds.delete(itemId);
         closetedItemIds.add(itemId);
       });
+    case "removeItem":
+      return produce(baseState, (state) => {
+        const { wornItemIds, closetedItemIds } = state;
+        const { itemId } = action;
+
+        // Remove this item from both the worn set and the closet.
+        wornItemIds.delete(itemId);
+        closetedItemIds.delete(itemId);
+      });
     default:
       throw new Error(`unexpected action ${action}`);
   }

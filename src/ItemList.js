@@ -1,19 +1,42 @@
 import React from "react";
-import { Box, Image, PseudoBox, Stack, Skeleton } from "@chakra-ui/core";
+import { CSSTransition, TransitionGroup } from "react-transition-group";
+import {
+  Box,
+  Flex,
+  IconButton,
+  Image,
+  PseudoBox,
+  Stack,
+  Skeleton,
+  Tooltip,
+} from "@chakra-ui/core";
 
-function ItemList({ items, wornItemIds, dispatchToOutfit }) {
+import "./ItemList.css";
+
+function ItemList({ items, outfitState, dispatchToOutfit }) {
   return (
-    <Stack spacing="3">
-      {items.map((item) => (
-        <Box key={item.id}>
-          <Item
-            item={item}
-            isWorn={wornItemIds.includes(item.id)}
-            dispatchToOutfit={dispatchToOutfit}
-          />
-        </Box>
-      ))}
-    </Stack>
+    <Flex direction="column">
+      <TransitionGroup component={null}>
+        {items.map((item) => (
+          <CSSTransition
+            key={item.id}
+            classNames="item-list-row"
+            timeout={500}
+            onExit={(e) => {
+              e.style.height = e.offsetHeight + "px";
+            }}
+          >
+            <PseudoBox mb="2" mt="2">
+              <Item
+                item={item}
+                outfitState={outfitState}
+                dispatchToOutfit={dispatchToOutfit}
+              />
+            </PseudoBox>
+          </CSSTransition>
+        ))}
+      </TransitionGroup>
+    </Flex>
   );
 }
 
@@ -29,7 +52,12 @@ function ItemListSkeleton({ count }) {
   );
 }
 
-function Item({ item, isWorn, dispatchToOutfit }) {
+function Item({ item, outfitState, dispatchToOutfit }) {
+  const { wornItemIds, allItemIds } = outfitState;
+
+  const isWorn = wornItemIds.includes(item.id);
+  const isInOutfit = allItemIds.includes(item.id);
+
   return (
     <PseudoBox
       role="group"
@@ -46,6 +74,38 @@ function Item({ item, isWorn, dispatchToOutfit }) {
       <ItemThumbnail src={item.thumbnailUrl} isWorn={isWorn} />
       <Box width="3" />
       <ItemName isWorn={isWorn}>{item.name}</ItemName>
+      <Box flexGrow="1" />
+      {isInOutfit && (
+        <Tooltip label="Remove" placement="top">
+          <IconButton
+            icon="delete"
+            aria-label="Remove from outfit"
+            variant="ghost"
+            color="gray.400"
+            onClick={(e) => {
+              e.stopPropagation();
+              dispatchToOutfit({ type: "removeItem", itemId: item.id });
+            }}
+            opacity="0"
+            transitionProperty="opacity color"
+            transitionDuration="0.2s"
+            _groupHover={{
+              opacity: 1,
+              transitionDuration: "0.5s",
+            }}
+            _hover={{
+              opacity: 1,
+              color: "gray.800",
+              backgroundColor: "gray.200",
+            }}
+            _focus={{
+              opacity: 1,
+              color: "gray.800",
+              backgroundColor: "gray.200",
+            }}
+          />
+        </Tooltip>
+      )}
     </PseudoBox>
   );
 }
