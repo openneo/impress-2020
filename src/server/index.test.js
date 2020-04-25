@@ -376,8 +376,11 @@ describe("Search", () => {
       query: gql`
         query {
           itemSearch(query: "Neopian Times") {
-            id
-            name
+            query
+            items {
+              id
+              name
+            }
           }
         }
       `,
@@ -386,56 +389,59 @@ describe("Search", () => {
     expect(res).toHaveNoErrors();
     expect(res.data).toMatchInlineSnapshot(`
       Object {
-        "itemSearch": Array [
-          Object {
-            "id": "40431",
-            "name": "Neopian Times Background",
-          },
-          Object {
-            "id": "59391",
-            "name": "Neopian Times Eyrie Hat",
-          },
-          Object {
-            "id": "59392",
-            "name": "Neopian Times Eyrie Shirt and Vest",
-          },
-          Object {
-            "id": "59394",
-            "name": "Neopian Times Eyrie Shoes",
-          },
-          Object {
-            "id": "59393",
-            "name": "Neopian Times Eyrie Trousers",
-          },
-          Object {
-            "id": "59390",
-            "name": "Neopian Times Eyries Paper",
-          },
-          Object {
-            "id": "51098",
-            "name": "Neopian Times Writing Quill",
-          },
-          Object {
-            "id": "61101",
-            "name": "Neopian Times Zafara Handkerchief",
-          },
-          Object {
-            "id": "61100",
-            "name": "Neopian Times Zafara Hat",
-          },
-          Object {
-            "id": "61102",
-            "name": "Neopian Times Zafara Shirt and Vest",
-          },
-          Object {
-            "id": "61104",
-            "name": "Neopian Times Zafara Shoes",
-          },
-          Object {
-            "id": "61103",
-            "name": "Neopian Times Zafara Trousers",
-          },
-        ],
+        "itemSearch": Object {
+          "items": Array [
+            Object {
+              "id": "40431",
+              "name": "Neopian Times Background",
+            },
+            Object {
+              "id": "59391",
+              "name": "Neopian Times Eyrie Hat",
+            },
+            Object {
+              "id": "59392",
+              "name": "Neopian Times Eyrie Shirt and Vest",
+            },
+            Object {
+              "id": "59394",
+              "name": "Neopian Times Eyrie Shoes",
+            },
+            Object {
+              "id": "59393",
+              "name": "Neopian Times Eyrie Trousers",
+            },
+            Object {
+              "id": "59390",
+              "name": "Neopian Times Eyries Paper",
+            },
+            Object {
+              "id": "51098",
+              "name": "Neopian Times Writing Quill",
+            },
+            Object {
+              "id": "61101",
+              "name": "Neopian Times Zafara Handkerchief",
+            },
+            Object {
+              "id": "61100",
+              "name": "Neopian Times Zafara Hat",
+            },
+            Object {
+              "id": "61102",
+              "name": "Neopian Times Zafara Shirt and Vest",
+            },
+            Object {
+              "id": "61104",
+              "name": "Neopian Times Zafara Shoes",
+            },
+            Object {
+              "id": "61103",
+              "name": "Neopian Times Zafara Trousers",
+            },
+          ],
+          "query": "Neopian Times",
+        },
       }
     `);
     expect(queryFn.mock.calls).toMatchInlineSnapshot(`
@@ -463,8 +469,11 @@ describe("Search", () => {
             speciesId: "54"
             colorId: "75"
           ) {
-            id
-            name
+            query
+            items {
+              id
+              name
+            }
           }
         }
       `,
@@ -473,36 +482,39 @@ describe("Search", () => {
     expect(res).toHaveNoErrors();
     expect(res.data).toMatchInlineSnapshot(`
       Object {
-        "itemSearchToFit": Array [
-          Object {
-            "id": "40431",
-            "name": "Neopian Times Background",
-          },
-          Object {
-            "id": "51098",
-            "name": "Neopian Times Writing Quill",
-          },
-          Object {
-            "id": "61101",
-            "name": "Neopian Times Zafara Handkerchief",
-          },
-          Object {
-            "id": "61100",
-            "name": "Neopian Times Zafara Hat",
-          },
-          Object {
-            "id": "61102",
-            "name": "Neopian Times Zafara Shirt and Vest",
-          },
-          Object {
-            "id": "61104",
-            "name": "Neopian Times Zafara Shoes",
-          },
-          Object {
-            "id": "61103",
-            "name": "Neopian Times Zafara Trousers",
-          },
-        ],
+        "itemSearchToFit": Object {
+          "items": Array [
+            Object {
+              "id": "40431",
+              "name": "Neopian Times Background",
+            },
+            Object {
+              "id": "51098",
+              "name": "Neopian Times Writing Quill",
+            },
+            Object {
+              "id": "61101",
+              "name": "Neopian Times Zafara Handkerchief",
+            },
+            Object {
+              "id": "61100",
+              "name": "Neopian Times Zafara Hat",
+            },
+            Object {
+              "id": "61102",
+              "name": "Neopian Times Zafara Shirt and Vest",
+            },
+            Object {
+              "id": "61104",
+              "name": "Neopian Times Zafara Shoes",
+            },
+            Object {
+              "id": "61103",
+              "name": "Neopian Times Zafara Trousers",
+            },
+          ],
+          "query": "Neopian Times",
+        },
       }
     `);
     expect(queryFn.mock.calls).toMatchInlineSnapshot(`
@@ -523,10 +535,214 @@ describe("Search", () => {
                  WHERE t.name LIKE ? AND t.locale=\\"en\\" AND
                      (swf_assets.body_id = ? OR swf_assets.body_id = 0)
                  ORDER BY t.name
-                 LIMIT 30",
+                 LIMIT ? OFFSET ?",
           Array [
             "%Neopian Times%",
             "180",
+            30,
+            0,
+          ],
+        ],
+      ]
+    `);
+  });
+
+  it("loads the first 10 hats that fit the Starry Zafara", async () => {
+    const res = await query({
+      query: gql`
+        query {
+          itemSearchToFit(
+            query: "hat"
+            speciesId: "54"
+            colorId: "75"
+            offset: 0
+            limit: 10
+          ) {
+            query
+            items {
+              id
+              name
+            }
+          }
+        }
+      `,
+    });
+
+    expect(res).toHaveNoErrors();
+    expect(res.data).toMatchInlineSnapshot(`
+      Object {
+        "itemSearchToFit": Object {
+          "items": Array [
+            Object {
+              "id": "74967",
+              "name": "17th Birthday Party Hat",
+            },
+            Object {
+              "id": "49026",
+              "name": "Abominable Snowman Hat",
+            },
+            Object {
+              "id": "67242",
+              "name": "Accessories Shop Wig and Hat",
+            },
+            Object {
+              "id": "67242",
+              "name": "Accessories Shop Wig and Hat",
+            },
+            Object {
+              "id": "64177",
+              "name": "Acorn Hat",
+            },
+            Object {
+              "id": "69995",
+              "name": "Adventure in Pastel Hat and Wig",
+            },
+            Object {
+              "id": "69995",
+              "name": "Adventure in Pastel Hat and Wig",
+            },
+            Object {
+              "id": "62375",
+              "name": "Altador Cup Trophy Hat",
+            },
+            Object {
+              "id": "56654",
+              "name": "Altador Team Hat",
+            },
+            Object {
+              "id": "62322",
+              "name": "Altador Team Jester Hat",
+            },
+          ],
+          "query": "hat",
+        },
+      }
+    `);
+    expect(queryFn.mock.calls).toMatchInlineSnapshot(`
+      Array [
+        Array [
+          "SELECT * FROM pet_types WHERE (species_id = ? AND color_id = ?)",
+          Array [
+            "54",
+            "75",
+          ],
+        ],
+        Array [
+          "SELECT items.*, t.name FROM items
+                 INNER JOIN item_translations t ON t.item_id = items.id
+                 INNER JOIN parents_swf_assets rel
+                     ON rel.parent_type = \\"Item\\" AND rel.parent_id = items.id
+                 INNER JOIN swf_assets ON rel.swf_asset_id = swf_assets.id
+                 WHERE t.name LIKE ? AND t.locale=\\"en\\" AND
+                     (swf_assets.body_id = ? OR swf_assets.body_id = 0)
+                 ORDER BY t.name
+                 LIMIT ? OFFSET ?",
+          Array [
+            "%hat%",
+            "180",
+            10,
+            0,
+          ],
+        ],
+      ]
+    `);
+  });
+
+  it("loads the next 10 hats that fit the Starry Zafara", async () => {
+    const res = await query({
+      query: gql`
+        query {
+          itemSearchToFit(
+            query: "hat"
+            speciesId: "54"
+            colorId: "75"
+            offset: 10
+            limit: 10
+          ) {
+            query
+            items {
+              id
+              name
+            }
+          }
+        }
+      `,
+    });
+
+    expect(res).toHaveNoErrors();
+    expect(res.data).toMatchInlineSnapshot(`
+      Object {
+        "itemSearchToFit": Object {
+          "items": Array [
+            Object {
+              "id": "58733",
+              "name": "Apple Bobbing Bart Hat",
+            },
+            Object {
+              "id": "80401",
+              "name": "Aurricks Finest Hat",
+            },
+            Object {
+              "id": "80401",
+              "name": "Aurricks Finest Hat",
+            },
+            Object {
+              "id": "50168",
+              "name": "Babaa Hat",
+            },
+            Object {
+              "id": "78311",
+              "name": "Backwards Hat and Wig",
+            },
+            Object {
+              "id": "78311",
+              "name": "Backwards Hat and Wig",
+            },
+            Object {
+              "id": "66653",
+              "name": "Bagel Hat Wig",
+            },
+            Object {
+              "id": "66653",
+              "name": "Bagel Hat Wig",
+            },
+            Object {
+              "id": "51366",
+              "name": "Balloon Sculpture Hat",
+            },
+            Object {
+              "id": "51366",
+              "name": "Balloon Sculpture Hat",
+            },
+          ],
+          "query": "hat",
+        },
+      }
+    `);
+    expect(queryFn.mock.calls).toMatchInlineSnapshot(`
+      Array [
+        Array [
+          "SELECT * FROM pet_types WHERE (species_id = ? AND color_id = ?)",
+          Array [
+            "54",
+            "75",
+          ],
+        ],
+        Array [
+          "SELECT items.*, t.name FROM items
+                 INNER JOIN item_translations t ON t.item_id = items.id
+                 INNER JOIN parents_swf_assets rel
+                     ON rel.parent_type = \\"Item\\" AND rel.parent_id = items.id
+                 INNER JOIN swf_assets ON rel.swf_asset_id = swf_assets.id
+                 WHERE t.name LIKE ? AND t.locale=\\"en\\" AND
+                     (swf_assets.body_id = ? OR swf_assets.body_id = 0)
+                 ORDER BY t.name
+                 LIMIT ? OFFSET ?",
+          Array [
+            "%hat%",
+            "180",
+            10,
+            10,
           ],
         ],
       ]
