@@ -305,22 +305,15 @@ describe("PetAppearance", () => {
               },
             },
             Object {
-              "id": "19549",
-              "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/028/28548/600x600.png?v2-1345719457000",
+              "id": "19784",
+              "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/028/28892/600x600.png?v2-1313418652000",
               "zone": Object {
                 "depth": 37,
               },
             },
             Object {
-              "id": "19550",
-              "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/028/28549/600x600.png?v2-0",
-              "zone": Object {
-                "depth": 38,
-              },
-            },
-            Object {
-              "id": "163528",
-              "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/028/28549/600x600.png?v2-1326455337000",
+              "id": "178150",
+              "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/036/36887/600x600.png?v2-1354240708000",
               "zone": Object {
                 "depth": 38,
               },
@@ -339,7 +332,8 @@ describe("PetAppearance", () => {
           ],
         ],
         Array [
-          "SELECT * FROM pet_states WHERE pet_type_id IN (?)",
+          "SELECT * FROM pet_states WHERE pet_type_id IN (?)
+             ORDER BY glitched ASC, (mood_id = 1) DESC",
           Array [
             "2",
           ],
@@ -351,7 +345,7 @@ describe("PetAppearance", () => {
                rel.swf_asset_id = sa.id
              WHERE rel.parent_id IN (?)",
           Array [
-            "2",
+            "17723",
           ],
         ],
         Array [

@@ -229,7 +229,8 @@ const buildPetStateLoader = (db) =>
   new DataLoader(async (petTypeIds) => {
     const qs = petTypeIds.map((_) => "?").join(",");
     const [rows, _] = await db.execute(
-      `SELECT * FROM pet_states WHERE pet_type_id IN (${qs})`,
+      `SELECT * FROM pet_states WHERE pet_type_id IN (${qs})
+       ORDER BY glitched ASC, (mood_id = 1) DESC`,
       petTypeIds
     );
 
