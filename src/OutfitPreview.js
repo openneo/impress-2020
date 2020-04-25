@@ -120,46 +120,54 @@ function OutfitPreview({ outfitState }) {
           </FullScreenCenter>
         </Delay>
       )}
-      <Tooltip label="Download" placement="left" showDelay={200}>
-        <IconButton
-          icon="download"
-          aria-label="Download"
-          as="a"
-          // eslint-disable-next-line no-script-url
-          href={downloadImageUrl || "javascript:void 0"}
-          download={(outfitState.name || "Outfit") + ".png"}
-          onMouseEnter={prepareDownload}
-          onFocus={prepareDownload}
-          onClick={() => {
-            if (!downloadImageUrl) {
-              toast({
-                title:
-                  "Just a second, try again when the image is done loading!",
-              });
-            }
-          }}
-          variant="unstyled"
-          color="gray.50"
-          d="flex"
-          alignItems="center"
-          justifyContent="center"
-          opacity="0"
-          transition="all 0.2s"
-          _hover={{
-            backgroundColor: "gray.600",
-          }}
-          _focus={{
-            opacity: 1,
-            backgroundColor: "gray.600",
-          }}
-          _groupHover={{
-            opacity: 1,
-          }}
-          pos="absolute"
-          right="1"
-          top="1"
-        />
-      </Tooltip>
+      <Box
+        // Bottom-right in small screens, top-right on large screens
+        pos="absolute"
+        right="2"
+        bottom={{ base: "2", lg: "auto" }}
+        top={{ base: "auto", lg: "2" }}
+      >
+        <Tooltip label="Download" placement="left">
+          <IconButton
+            icon="download"
+            aria-label="Download"
+            isRound
+            as="a"
+            // eslint-disable-next-line no-script-url
+            href={downloadImageUrl || "javascript:void 0"}
+            download={(outfitState.name || "Outfit") + ".png"}
+            onMouseEnter={prepareDownload}
+            onFocus={prepareDownload}
+            onClick={() => {
+              if (!downloadImageUrl) {
+                toast({
+                  title:
+                    "Just a second, try again when the image is done loading!",
+                });
+              }
+            }}
+            variant="unstyled"
+            backgroundColor="gray.600"
+            color="gray.50"
+            d="flex"
+            alignItems="center"
+            justifyContent="center"
+            opacity="0"
+            transition="all 0.2s"
+            _groupHover={{
+              opacity: 1,
+            }}
+            _focus={{
+              opacity: 1,
+              backgroundColor: "gray.500",
+            }}
+            _hover={{
+              backgroundColor: "gray.500",
+            }}
+            outline="initial"
+          />
+        </Tooltip>
+      </Box>
     </PseudoBox>
   );
 }
