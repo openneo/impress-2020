@@ -93,7 +93,7 @@ const resolvers = {
 
       return (
         `https://impress-asset-images.s3.amazonaws.com/${layer.type}` +
-        `/${rid1}/${rid2}/${rid3}/${rid}/${sizeNum}x${sizeNum}.png?${time}`
+        `/${rid1}/${rid2}/${rid3}/${rid}/${sizeNum}x${sizeNum}.png?v2-${time}`
       );
     },
   },

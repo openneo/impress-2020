@@ -80,6 +80,7 @@ function OutfitPreview({ outfitState }) {
                 maxWidth="100%"
                 maxHeight="100%"
                 className="outfit-preview-layer-image"
+                crossOrigin="anonymous"
               />
             </FullScreenCenter>
           </CSSTransition>

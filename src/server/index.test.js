@@ -122,7 +122,7 @@ describe("Item", () => {
               "layers": Array [
                 Object {
                   "id": "37128",
-                  "imageUrl": "https://impress-asset-images.s3.amazonaws.com/object/000/000/014/14856/600x600.png?1587653266000",
+                  "imageUrl": "https://impress-asset-images.s3.amazonaws.com/object/000/000/014/14856/600x600.png?v2-1587653266000",
                   "zone": Object {
                     "depth": 30,
                     "id": "26",
@@ -147,7 +147,7 @@ describe("Item", () => {
               "layers": Array [
                 Object {
                   "id": "37129",
-                  "imageUrl": "https://impress-asset-images.s3.amazonaws.com/object/000/000/014/14857/600x600.png?0",
+                  "imageUrl": "https://impress-asset-images.s3.amazonaws.com/object/000/000/014/14857/600x600.png?v2-0",
                   "zone": Object {
                     "depth": 44,
                     "id": "40",
@@ -172,7 +172,7 @@ describe("Item", () => {
               "layers": Array [
                 Object {
                   "id": "30203",
-                  "imageUrl": "https://impress-asset-images.s3.amazonaws.com/object/000/000/006/6829/600x600.png?0",
+                  "imageUrl": "https://impress-asset-images.s3.amazonaws.com/object/000/000/006/6829/600x600.png?v2-0",
                   "zone": Object {
                     "depth": 3,
                     "id": "3",
@@ -278,49 +278,49 @@ describe("PetAppearance", () => {
           "layers": Array [
             Object {
               "id": "5995",
-              "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7941/600x600.png?0",
+              "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7941/600x600.png?v2-0",
               "zone": Object {
                 "depth": 18,
               },
             },
             Object {
               "id": "5996",
-              "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7942/600x600.png?0",
+              "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7942/600x600.png?v2-0",
               "zone": Object {
                 "depth": 7,
               },
             },
             Object {
               "id": "6000",
-              "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7946/600x600.png?0",
+              "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7946/600x600.png?v2-0",
               "zone": Object {
                 "depth": 40,
               },
             },
             Object {
               "id": "16467",
-              "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/024/24008/600x600.png?0",
+              "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/024/24008/600x600.png?v2-0",
               "zone": Object {
                 "depth": 34,
               },
             },
             Object {
               "id": "19549",
-              "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/028/28548/600x600.png?1345719457000",
+              "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/028/28548/600x600.png?v2-1345719457000",
               "zone": Object {
                 "depth": 37,
               },
             },
             Object {
               "id": "19550",
-              "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/028/28549/600x600.png?0",
+              "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/028/28549/600x600.png?v2-0",
               "zone": Object {
                 "depth": 38,
               },
             },
             Object {
               "id": "163528",
-              "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/028/28549/600x600.png?1326455337000",
+              "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/028/28549/600x600.png?v2-1326455337000",
               "zone": Object {
                 "depth": 38,
               },
