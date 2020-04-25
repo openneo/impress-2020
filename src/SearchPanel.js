@@ -60,7 +60,7 @@ function SearchResults({ query, outfitState, dispatchToOutfit }) {
   if (loading || variables.query !== query) {
     return (
       <Delay ms={500}>
-        <ItemListSkeleton />
+        <ItemListSkeleton count={8} />
       </Delay>
     );
   }

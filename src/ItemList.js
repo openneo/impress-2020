@@ -17,18 +17,14 @@ function ItemList({ items, wornItemIds, dispatchToOutfit }) {
   );
 }
 
-function ItemListSkeleton() {
+function ItemListSkeleton({ count }) {
   return (
     <Stack spacing="3">
-      <Box>
-        <ItemSkeleton />
-      </Box>
-      <Box>
-        <ItemSkeleton />
-      </Box>
-      <Box>
-        <ItemSkeleton />
-      </Box>
+      {Array.from({ length: count }).map((_, i) => (
+        <Box key={i}>
+          <ItemSkeleton />
+        </Box>
+      ))}
     </Stack>
   );
 }

@@ -141,7 +141,7 @@ function ItemsPanel({ outfitState, loading, dispatchToOutfit }) {
             <Box key={i}>
               <Delay>
                 <Skeleton height="2.3rem" width="12rem" mb="3" />
-                <ItemListSkeleton />
+                <ItemListSkeleton count={3} />
               </Delay>
             </Box>
           ))}
