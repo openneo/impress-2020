@@ -1,9 +1,9 @@
 import React from "react";
 import gql from "graphql-tag";
 import produce, { enableMapSet } from "immer";
-import { useApolloClient } from "@apollo/react-hooks";
+import { useQuery, useApolloClient } from "@apollo/react-hooks";
 
-import useItemData from "./useItemData";
+import { itemAppearanceFragment } from "./OutfitPreview";
 
 enableMapSet();
 
@@ -36,11 +36,40 @@ function useOutfitState() {
   const closetedItemIds = Array.from(state.closetedItemIds);
 
   const allItemIds = [...state.wornItemIds, ...state.closetedItemIds];
-  const { loading, error, itemsById } = useItemData(
-    allItemIds,
-    speciesId,
-    colorId
+  const { loading, error, data } = useQuery(
+    gql`
+      query($allItemIds: [ID!]!, $speciesId: ID!, $colorId: ID!) {
+        items(ids: $allItemIds) {
+          # TODO: De-dupe this from SearchPanel?
+          id
+          name
+          thumbnailUrl
+
+          appearanceOn(speciesId: $speciesId, colorId: $colorId) {
+            # This enables us to quickly show the item when the user clicks it!
+            ...AppearanceForOutfitPreview
+
+            # This is used to group items by zone, and to detect conflicts when
+            # wearing a new item.
+            layers {
+              zone {
+                id
+                label
+              }
+            }
+          }
+        }
+      }
+      ${itemAppearanceFragment}
+    `,
+    { variables: { allItemIds, speciesId, colorId } }
   );
+
+  const items = (data && data.items) || [];
+  const itemsById = {};
+  for (const item of items) {
+    itemsById[item.id] = item;
+  }
 
   const zonesAndItems = getZonesAndItems(
     itemsById,

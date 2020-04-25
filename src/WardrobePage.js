@@ -5,7 +5,6 @@ import {
   EditablePreview,
   EditableInput,
   Grid,
-  Heading,
   Icon,
   IconButton,
   Input,
@@ -15,15 +14,14 @@ import {
   PseudoBox,
   Skeleton,
   Stack,
-  Text,
   useToast,
 } from "@chakra-ui/core";
 
+import { Delay, Heading1, Heading2 } from "./util";
 import ItemList, { ItemListSkeleton } from "./ItemList";
-import useItemData from "./useItemData";
-import useOutfitState from "./useOutfitState.js";
 import OutfitPreview from "./OutfitPreview";
-import { Delay } from "./util";
+import SearchPanel from "./SearchPanel";
+import useOutfitState from "./useOutfitState.js";
 
 function WardrobePage() {
   const { loading, error, outfitState, dispatchToOutfit } = useOutfitState();
@@ -32,12 +30,13 @@ function WardrobePage() {
 
   React.useEffect(() => {
     if (error) {
+      console.log(error);
       toast({
         title: "We couldn't load this outfit 😖",
         description: "Please reload the page to try again. Sorry!",
         status: "error",
         isClosable: true,
-        duration: Infinity,
+        duration: 999999999,
       });
     }
   }, [error, toast]);
@@ -130,78 +129,6 @@ function SearchToolbar({ query, onChange }) {
   );
 }
 
-function SearchPanel({ query, outfitState, dispatchToOutfit }) {
-  const { allItemIds, wornItemIds, speciesId, colorId } = outfitState;
-  const { loading, error, itemsById } = useItemData(
-    allItemIds,
-    speciesId,
-    colorId
-  );
-
-  const normalize = (s) => s.toLowerCase();
-  const results = Object.values(itemsById).filter((item) =>
-    normalize(item.name).includes(normalize(query))
-  );
-  results.sort((a, b) => a.name.localeCompare(b.name));
-
-  return (
-    <Box color="green.800">
-      <Heading1 mb="6">Searching for "{query}"</Heading1>
-      <SearchResults
-        loading={loading}
-        error={error}
-        results={results}
-        wornItemIds={wornItemIds}
-        dispatchToOutfit={dispatchToOutfit}
-      />
-    </Box>
-  );
-}
-
-function SearchResults({
-  loading,
-  error,
-  results,
-  wornItemIds,
-  dispatchToOutfit,
-}) {
-  if (loading) {
-    return <ItemListSkeleton />;
-  }
-
-  if (error) {
-    return (
-      <Text color="green.500">
-        We hit an error trying to load your search results{" "}
-        <span role="img" aria-label="(sweat emoji)">
-          😓
-        </span>{" "}
-        Try again?
-      </Text>
-    );
-  }
-
-  if (results.length === 0) {
-    return (
-      <Text color="green.500">
-        We couldn't find any matching items{" "}
-        <span role="img" aria-label="(thinking emoji)">
-          🤔
-        </span>{" "}
-        Try again?
-      </Text>
-    );
-  }
-
-  return (
-    <ItemList
-      items={results}
-      wornItemIds={wornItemIds}
-      dispatchToOutfit={dispatchToOutfit}
-    />
-  );
-}
-
 function ItemsPanel({ outfitState, loading, dispatchToOutfit }) {
   const { zonesAndItems, wornItemIds } = outfitState;
 
@@ -276,22 +203,6 @@ function OutfitNameEditButton({ onRequestEdit }) {
         title="Edit outfit name"
       />
     </PseudoBox>
-  );
-}
-
-function Heading1({ children, ...props }) {
-  return (
-    <Heading fontFamily="Delicious" fontWeight="800" size="2xl" {...props}>
-      {children}
-    </Heading>
-  );
-}
-
-function Heading2({ children, ...props }) {
-  return (
-    <Heading size="xl" color="green.800" fontFamily="Delicious" {...props}>
-      {children}
-    </Heading>
   );
 }
 

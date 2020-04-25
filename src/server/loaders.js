@@ -35,6 +35,31 @@ const buildItemTranslationLoader = (db) =>
     );
   });
 
+const buildItemSearchLoader = (db) =>
+  new DataLoader(async (queries) => {
+    // This isn't actually optimized as a batch query, we're just using a
+    // DataLoader API consistency with our other loaders!
+    const queryPromises = queries.map(async (query) => {
+      const queryForMysql = "%" + query.replace(/_%/g, "\\$0") + "%";
+      const [rows, _] = await db.execute(
+        `SELECT items.* FROM items
+         INNER JOIN item_translations t ON t.item_id = items.id
+         WHERE t.name LIKE ? AND locale="en"
+         ORDER BY t.name
+         LIMIT 30`,
+        [queryForMysql]
+      );
+
+      const entities = rows.map(normalizeRow);
+
+      return entities;
+    });
+
+    const responses = await Promise.all(queryPromises);
+
+    return responses;
+  });
+
 const buildPetTypeLoader = (db) =>
   new DataLoader(async (speciesAndColorPairs) => {
     const conditions = [];
@@ -174,6 +199,7 @@ function buildLoaders(db) {
   return {
     itemLoader: buildItemsLoader(db),
     itemTranslationLoader: buildItemTranslationLoader(db),
+    itemSearchLoader: buildItemSearchLoader(db),
     petTypeLoader: buildPetTypeLoader(db),
     itemSwfAssetLoader: buildItemSwfAssetLoader(db),
     petSwfAssetLoader: buildPetSwfAssetLoader(db),

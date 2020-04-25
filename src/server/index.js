@@ -36,6 +36,7 @@ const typeDefs = gql`
 
   type Query {
     items(ids: [ID!]!): [Item!]!
+    itemSearch(query: String!): [Item!]!
     petAppearance(speciesId: ID!, colorId: ID!): Appearance
   }
 `;
@@ -105,6 +106,10 @@ const resolvers = {
   Query: {
     items: async (_, { ids }, { itemLoader }) => {
       const items = await itemLoader.loadMany(ids);
+      return items;
+    },
+    itemSearch: async (_, { query }, { itemSearchLoader }) => {
+      const items = await itemSearchLoader.load(query);
       return items;
     },
     petAppearance: async (

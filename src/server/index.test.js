@@ -370,6 +370,63 @@ describe("PetAppearance", () => {
   });
 });
 
+describe("Search", () => {
+  it("loads Zafara Agent items", async () => {
+    const res = await query({
+      query: gql`
+        query {
+          itemSearch(query: "Zafara Agent") {
+            id
+            name
+          }
+        }
+      `,
+    });
+
+    expect(res).toHaveNoErrors();
+    expect(res.data).toMatchInlineSnapshot(`
+      Object {
+        "itemSearch": Array [
+          Object {
+            "id": "38913",
+            "name": "Zafara Agent Gloves",
+          },
+          Object {
+            "id": "38911",
+            "name": "Zafara Agent Hood",
+          },
+          Object {
+            "id": "38912",
+            "name": "Zafara Agent Robe",
+          },
+        ],
+      }
+    `);
+    expect(queryFn.mock.calls).toMatchInlineSnapshot(`
+      Array [
+        Array [
+          "SELECT items.* FROM items
+               INNER JOIN item_translations t ON t.item_id = items.id
+               WHERE t.name LIKE ? AND locale=\\"en\\"
+               ORDER BY t.name
+               LIMIT 30",
+          Array [
+            "%Zafara Agent%",
+          ],
+        ],
+        Array [
+          "SELECT * FROM item_translations WHERE item_id IN (?,?,?) AND locale = \\"en\\"",
+          Array [
+            "38913",
+            "38911",
+            "38912",
+          ],
+        ],
+      ]
+    `);
+  });
+});
+
 expect.extend({
   toHaveNoErrors(res) {
     if (res.errors) {

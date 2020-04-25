@@ -1,1 +1,3 @@
 * Use accessible click targets for item lists! Honestly, can they be checkboxes?
+* Pagination for search queries, right now we LIMIT 30
+* Search needs to restrict by fit!
