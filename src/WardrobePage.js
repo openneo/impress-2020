@@ -27,7 +27,7 @@ import OutfitPreview from "./OutfitPreview";
 import { Delay } from "./util";
 
 function WardrobePage() {
-  const { loading, error, data, wearItem } = useOutfitState();
+  const { loading, error, data, dispatch: dispatchToOutfit } = useOutfitState();
   const [searchQuery, setSearchQuery] = React.useState("");
   const toast = useToast();
 
@@ -69,8 +69,8 @@ function WardrobePage() {
         <Box gridArea="outfit" backgroundColor="gray.900">
           <OutfitPreview
             itemIds={data.wornItemIds}
-            speciesId="54"
-            colorId="75"
+            speciesId={data.speciesId}
+            colorId={data.colorId}
           />
         </Box>
         <Box gridArea="search" boxShadow="sm">
@@ -84,13 +84,13 @@ function WardrobePage() {
               <SearchPanel
                 query={searchQuery}
                 wornItemIds={data.wornItemIds}
-                onWearItem={wearItem}
+                dispatchToOutfit={dispatchToOutfit}
               />
             ) : (
               <ItemsPanel
                 zonesAndItems={data.zonesAndItems}
                 loading={loading}
-                onWearItem={wearItem}
+                dispatchToOutfit={dispatchToOutfit}
               />
             )}
           </Box>
@@ -135,7 +135,7 @@ function SearchToolbar({ query, onChange }) {
   );
 }
 
-function SearchPanel({ query, wornItemIds, onWearItem }) {
+function SearchPanel({ query, wornItemIds, dispatchToOutfit }) {
   const { loading, error, itemsById } = useItemData(ITEMS.map((i) => i.id));
 
   const normalize = (s) => s.toLowerCase();
@@ -152,13 +152,19 @@ function SearchPanel({ query, wornItemIds, onWearItem }) {
         error={error}
         results={results}
         wornItemIds={wornItemIds}
-        onWearItem={onWearItem}
+        dispatchToOutfit={dispatchToOutfit}
       />
     </Box>
   );
 }
 
-function SearchResults({ loading, error, results, wornItemIds, onWearItem }) {
+function SearchResults({
+  loading,
+  error,
+  results,
+  wornItemIds,
+  dispatchToOutfit,
+}) {
   if (loading) {
     return <ItemListSkeleton />;
   }
@@ -191,12 +197,12 @@ function SearchResults({ loading, error, results, wornItemIds, onWearItem }) {
     <ItemList
       items={results}
       wornItemIds={wornItemIds}
-      onWearItem={onWearItem}
+      dispatchToOutfit={dispatchToOutfit}
     />
   );
 }
 
-function ItemsPanel({ zonesAndItems, loading, onWearItem }) {
+function ItemsPanel({ zonesAndItems, loading, dispatchToOutfit }) {
   return (
     <Box color="green.800">
       <OutfitHeading />
@@ -217,7 +223,7 @@ function ItemsPanel({ zonesAndItems, loading, onWearItem }) {
               <ItemList
                 items={items}
                 wornItemIds={[wornItemId]}
-                onWearItem={onWearItem}
+                dispatchToOutfit={dispatchToOutfit}
               />
             </Box>
           ))}

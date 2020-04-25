@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Image, PseudoBox, Stack, Skeleton } from "@chakra-ui/core";
 
-function ItemList({ items, wornItemIds, onWearItem }) {
+function ItemList({ items, wornItemIds, dispatchToOutfit }) {
   return (
     <Stack spacing="3">
       {items.map((item) => (
@@ -9,7 +9,7 @@ function ItemList({ items, wornItemIds, onWearItem }) {
           <Item
             item={item}
             isWorn={wornItemIds.includes(item.id)}
-            onWear={() => onWearItem(item.id)}
+            dispatchToOutfit={dispatchToOutfit}
           />
         </Box>
       ))}
@@ -33,14 +33,14 @@ function ItemListSkeleton() {
   );
 }
 
-function Item({ item, isWorn, onWear }) {
+function Item({ item, isWorn, dispatchToOutfit }) {
   return (
     <PseudoBox
       role="group"
       d="flex"
       alignItems="center"
       cursor="pointer"
-      onClick={onWear}
+      onClick={() => dispatchToOutfit({ type: "wearItem", itemId: item.id })}
     >
       <ItemThumbnail src={item.thumbnailUrl} isWorn={isWorn} />
       <Box width="3" />
