@@ -63,11 +63,11 @@ const outfitStateReducer = (apolloClient) => (baseState, action) => {
   switch (action.type) {
     case "wearItem":
       return produce(baseState, (state) => {
+        // A hack to work around https://github.com/immerjs/immer/issues/586
+        state.wornItemIds.add("fake-id-immer#586").delete("fake-id-immer#586");
+
         const { wornItemIds, closetedItemIds } = state;
         const { itemId } = action;
-
-        // Move the item out of the closet.
-        closetedItemIds.delete(itemId);
 
         // Move conflicting items to the closet.
         //
@@ -87,8 +87,18 @@ const outfitStateReducer = (apolloClient) => (baseState, action) => {
           closetedItemIds.add(conflictingId);
         }
 
-        // Add this item to the worn set.
+        // Move this item from the closet to the worn set.
+        closetedItemIds.delete(itemId);
         wornItemIds.add(itemId);
+      });
+    case "unwearItem":
+      return produce(baseState, (state) => {
+        const { wornItemIds, closetedItemIds } = state;
+        const { itemId } = action;
+
+        // Move this item from the worn set to the closet.
+        wornItemIds.delete(itemId);
+        closetedItemIds.add(itemId);
       });
     default:
       throw new Error(`unexpected action ${action}`);

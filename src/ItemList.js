@@ -40,7 +40,12 @@ function Item({ item, isWorn, dispatchToOutfit }) {
       d="flex"
       alignItems="center"
       cursor="pointer"
-      onClick={() => dispatchToOutfit({ type: "wearItem", itemId: item.id })}
+      onClick={() =>
+        dispatchToOutfit({
+          type: isWorn ? "unwearItem" : "wearItem",
+          itemId: item.id,
+        })
+      }
     >
       <ItemThumbnail src={item.thumbnailUrl} isWorn={isWorn} />
       <Box width="3" />
