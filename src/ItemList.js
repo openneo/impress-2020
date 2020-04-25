@@ -6,7 +6,6 @@ import {
   IconButton,
   Image,
   PseudoBox,
-  Stack,
   Skeleton,
   Tooltip,
 } from "@chakra-ui/core";

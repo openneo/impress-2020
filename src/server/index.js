@@ -39,7 +39,26 @@ const typeDefs = gql`
     items: [Item!]!
   }
 
+  type Color {
+    id: ID!
+    name: String!
+  }
+
+  type Species {
+    id: ID!
+    name: String!
+  }
+
+  type SpeciesColorPair {
+    species: Species!
+    color: Color!
+  }
+
   type Query {
+    allColors: [Color!]!
+    allSpecies: [Species!]!
+    allValidSpeciesColorPairs: [SpeciesColorPair!]!
+
     items(ids: [ID!]!): [Item!]!
     itemSearch(query: String!): ItemSearchResult!
     itemSearchToFit(
@@ -118,7 +137,37 @@ const resolvers = {
       return zoneTranslation.label;
     },
   },
+  Color: {
+    name: async (color, _, { colorTranslationLoader }) => {
+      const colorTranslation = await colorTranslationLoader.load(color.id);
+      return colorTranslation.name;
+    },
+  },
+  Species: {
+    name: async (species, _, { speciesTranslationLoader }) => {
+      const speciesTranslation = await speciesTranslationLoader.load(
+        species.id
+      );
+      return speciesTranslation.name;
+    },
+  },
   Query: {
+    allColors: async (_, { ids }, { loadAllColors }) => {
+      const allColors = await loadAllColors();
+      return allColors;
+    },
+    allSpecies: async (_, { ids }, { loadAllSpecies }) => {
+      const allSpecies = await loadAllSpecies();
+      return allSpecies;
+    },
+    allValidSpeciesColorPairs: async (_, __, { loadAllPetTypes }) => {
+      const allPetTypes = await loadAllPetTypes();
+      const allPairs = allPetTypes.map((pt) => ({
+        color: { id: pt.colorId },
+        species: { id: pt.speciesId },
+      }));
+      return allPairs;
+    },
     items: async (_, { ids }, { itemLoader }) => {
       const items = await itemLoader.loadMany(ids);
       return items;

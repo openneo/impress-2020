@@ -750,6 +750,947 @@ describe("Search", () => {
   });
 });
 
+describe("Species", () => {
+  it("loads all species", async () => {
+    const res = await query({
+      query: gql`
+        query {
+          allSpecies {
+            id
+            name
+          }
+        }
+      `,
+    });
+
+    expect(res).toHaveNoErrors();
+    expect(res.data).toMatchInlineSnapshot(`
+      Object {
+        "allSpecies": Array [
+          Object {
+            "id": "1",
+            "name": "acara",
+          },
+          Object {
+            "id": "2",
+            "name": "aisha",
+          },
+          Object {
+            "id": "3",
+            "name": "blumaroo",
+          },
+          Object {
+            "id": "4",
+            "name": "bori",
+          },
+          Object {
+            "id": "5",
+            "name": "bruce",
+          },
+          Object {
+            "id": "6",
+            "name": "buzz",
+          },
+          Object {
+            "id": "7",
+            "name": "chia",
+          },
+          Object {
+            "id": "8",
+            "name": "chomby",
+          },
+          Object {
+            "id": "9",
+            "name": "cybunny",
+          },
+          Object {
+            "id": "10",
+            "name": "draik",
+          },
+          Object {
+            "id": "11",
+            "name": "elephante",
+          },
+          Object {
+            "id": "12",
+            "name": "eyrie",
+          },
+          Object {
+            "id": "13",
+            "name": "flotsam",
+          },
+          Object {
+            "id": "14",
+            "name": "gelert",
+          },
+          Object {
+            "id": "15",
+            "name": "gnorbu",
+          },
+          Object {
+            "id": "16",
+            "name": "grarrl",
+          },
+          Object {
+            "id": "17",
+            "name": "grundo",
+          },
+          Object {
+            "id": "18",
+            "name": "hissi",
+          },
+          Object {
+            "id": "19",
+            "name": "ixi",
+          },
+          Object {
+            "id": "20",
+            "name": "jetsam",
+          },
+          Object {
+            "id": "21",
+            "name": "jubjub",
+          },
+          Object {
+            "id": "22",
+            "name": "kacheek",
+          },
+          Object {
+            "id": "23",
+            "name": "kau",
+          },
+          Object {
+            "id": "24",
+            "name": "kiko",
+          },
+          Object {
+            "id": "25",
+            "name": "koi",
+          },
+          Object {
+            "id": "26",
+            "name": "korbat",
+          },
+          Object {
+            "id": "27",
+            "name": "kougra",
+          },
+          Object {
+            "id": "28",
+            "name": "krawk",
+          },
+          Object {
+            "id": "29",
+            "name": "kyrii",
+          },
+          Object {
+            "id": "30",
+            "name": "lenny",
+          },
+          Object {
+            "id": "31",
+            "name": "lupe",
+          },
+          Object {
+            "id": "32",
+            "name": "lutari",
+          },
+          Object {
+            "id": "33",
+            "name": "meerca",
+          },
+          Object {
+            "id": "34",
+            "name": "moehog",
+          },
+          Object {
+            "id": "35",
+            "name": "mynci",
+          },
+          Object {
+            "id": "36",
+            "name": "nimmo",
+          },
+          Object {
+            "id": "37",
+            "name": "ogrin",
+          },
+          Object {
+            "id": "38",
+            "name": "peophin",
+          },
+          Object {
+            "id": "39",
+            "name": "poogle",
+          },
+          Object {
+            "id": "40",
+            "name": "pteri",
+          },
+          Object {
+            "id": "41",
+            "name": "quiggle",
+          },
+          Object {
+            "id": "42",
+            "name": "ruki",
+          },
+          Object {
+            "id": "43",
+            "name": "scorchio",
+          },
+          Object {
+            "id": "44",
+            "name": "shoyru",
+          },
+          Object {
+            "id": "45",
+            "name": "skeith",
+          },
+          Object {
+            "id": "46",
+            "name": "techo",
+          },
+          Object {
+            "id": "47",
+            "name": "tonu",
+          },
+          Object {
+            "id": "48",
+            "name": "tuskaninny",
+          },
+          Object {
+            "id": "49",
+            "name": "uni",
+          },
+          Object {
+            "id": "50",
+            "name": "usul",
+          },
+          Object {
+            "id": "51",
+            "name": "wocky",
+          },
+          Object {
+            "id": "52",
+            "name": "xweetok",
+          },
+          Object {
+            "id": "53",
+            "name": "yurble",
+          },
+          Object {
+            "id": "54",
+            "name": "zafara",
+          },
+          Object {
+            "id": "55",
+            "name": "vandagyre",
+          },
+        ],
+      }
+    `);
+    expect(queryFn.mock.calls).toMatchInlineSnapshot(`
+      Array [
+        Array [
+          "SELECT * FROM species",
+        ],
+        Array [
+          "SELECT * FROM species_translations
+             WHERE species_id IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) AND locale = \\"en\\"",
+          Array [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20",
+            "21",
+            "22",
+            "23",
+            "24",
+            "25",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "31",
+            "32",
+            "33",
+            "34",
+            "35",
+            "36",
+            "37",
+            "38",
+            "39",
+            "40",
+            "41",
+            "42",
+            "43",
+            "44",
+            "45",
+            "46",
+            "47",
+            "48",
+            "49",
+            "50",
+            "51",
+            "52",
+            "53",
+            "54",
+            "55",
+          ],
+        ],
+      ]
+    `);
+  });
+});
+
+describe("Color", () => {
+  it("loads all colors", async () => {
+    const res = await query({
+      query: gql`
+        query {
+          allColors {
+            id
+            name
+          }
+        }
+      `,
+    });
+
+    expect(res).toHaveNoErrors();
+    expect(res.data).toMatchInlineSnapshot(`
+      Object {
+        "allColors": Array [
+          Object {
+            "id": "-1",
+            "name": "nebula",
+          },
+          Object {
+            "id": "1",
+            "name": "alien",
+          },
+          Object {
+            "id": "2",
+            "name": "apple",
+          },
+          Object {
+            "id": "3",
+            "name": "asparagus",
+          },
+          Object {
+            "id": "4",
+            "name": "aubergine",
+          },
+          Object {
+            "id": "5",
+            "name": "avocado",
+          },
+          Object {
+            "id": "6",
+            "name": "baby",
+          },
+          Object {
+            "id": "7",
+            "name": "biscuit",
+          },
+          Object {
+            "id": "8",
+            "name": "blue",
+          },
+          Object {
+            "id": "9",
+            "name": "blueberry",
+          },
+          Object {
+            "id": "10",
+            "name": "brown",
+          },
+          Object {
+            "id": "11",
+            "name": "camouflage",
+          },
+          Object {
+            "id": "12",
+            "name": "carrot",
+          },
+          Object {
+            "id": "13",
+            "name": "checkered",
+          },
+          Object {
+            "id": "14",
+            "name": "chocolate",
+          },
+          Object {
+            "id": "15",
+            "name": "chokato",
+          },
+          Object {
+            "id": "16",
+            "name": "christmas",
+          },
+          Object {
+            "id": "17",
+            "name": "clay",
+          },
+          Object {
+            "id": "18",
+            "name": "cloud",
+          },
+          Object {
+            "id": "19",
+            "name": "coconut",
+          },
+          Object {
+            "id": "20",
+            "name": "custard",
+          },
+          Object {
+            "id": "21",
+            "name": "darigan",
+          },
+          Object {
+            "id": "22",
+            "name": "desert",
+          },
+          Object {
+            "id": "23",
+            "name": "disco",
+          },
+          Object {
+            "id": "24",
+            "name": "durian",
+          },
+          Object {
+            "id": "25",
+            "name": "electric",
+          },
+          Object {
+            "id": "26",
+            "name": "faerie",
+          },
+          Object {
+            "id": "27",
+            "name": "fire",
+          },
+          Object {
+            "id": "28",
+            "name": "garlic",
+          },
+          Object {
+            "id": "29",
+            "name": "ghost",
+          },
+          Object {
+            "id": "30",
+            "name": "glowing",
+          },
+          Object {
+            "id": "31",
+            "name": "gold",
+          },
+          Object {
+            "id": "32",
+            "name": "gooseberry",
+          },
+          Object {
+            "id": "33",
+            "name": "grape",
+          },
+          Object {
+            "id": "34",
+            "name": "green",
+          },
+          Object {
+            "id": "35",
+            "name": "grey",
+          },
+          Object {
+            "id": "36",
+            "name": "halloween",
+          },
+          Object {
+            "id": "37",
+            "name": "ice",
+          },
+          Object {
+            "id": "38",
+            "name": "invisible",
+          },
+          Object {
+            "id": "39",
+            "name": "island",
+          },
+          Object {
+            "id": "40",
+            "name": "jelly",
+          },
+          Object {
+            "id": "41",
+            "name": "lemon",
+          },
+          Object {
+            "id": "42",
+            "name": "lime",
+          },
+          Object {
+            "id": "43",
+            "name": "mallow",
+          },
+          Object {
+            "id": "44",
+            "name": "maraquan",
+          },
+          Object {
+            "id": "45",
+            "name": "msp",
+          },
+          Object {
+            "id": "46",
+            "name": "mutant",
+          },
+          Object {
+            "id": "47",
+            "name": "orange",
+          },
+          Object {
+            "id": "48",
+            "name": "pea",
+          },
+          Object {
+            "id": "49",
+            "name": "peach",
+          },
+          Object {
+            "id": "50",
+            "name": "pear",
+          },
+          Object {
+            "id": "51",
+            "name": "pepper",
+          },
+          Object {
+            "id": "52",
+            "name": "pineapple",
+          },
+          Object {
+            "id": "53",
+            "name": "pink",
+          },
+          Object {
+            "id": "54",
+            "name": "pirate",
+          },
+          Object {
+            "id": "55",
+            "name": "plum",
+          },
+          Object {
+            "id": "56",
+            "name": "plushie",
+          },
+          Object {
+            "id": "57",
+            "name": "purple",
+          },
+          Object {
+            "id": "58",
+            "name": "quigukiboy",
+          },
+          Object {
+            "id": "59",
+            "name": "quigukigirl",
+          },
+          Object {
+            "id": "60",
+            "name": "rainbow",
+          },
+          Object {
+            "id": "61",
+            "name": "red",
+          },
+          Object {
+            "id": "62",
+            "name": "robot",
+          },
+          Object {
+            "id": "63",
+            "name": "royalboy",
+          },
+          Object {
+            "id": "64",
+            "name": "royalgirl",
+          },
+          Object {
+            "id": "65",
+            "name": "shadow",
+          },
+          Object {
+            "id": "66",
+            "name": "silver",
+          },
+          Object {
+            "id": "67",
+            "name": "sketch",
+          },
+          Object {
+            "id": "68",
+            "name": "skunk",
+          },
+          Object {
+            "id": "69",
+            "name": "snot",
+          },
+          Object {
+            "id": "70",
+            "name": "snow",
+          },
+          Object {
+            "id": "71",
+            "name": "speckled",
+          },
+          Object {
+            "id": "72",
+            "name": "split",
+          },
+          Object {
+            "id": "73",
+            "name": "sponge",
+          },
+          Object {
+            "id": "74",
+            "name": "spotted",
+          },
+          Object {
+            "id": "75",
+            "name": "starry",
+          },
+          Object {
+            "id": "76",
+            "name": "strawberry",
+          },
+          Object {
+            "id": "77",
+            "name": "striped",
+          },
+          Object {
+            "id": "78",
+            "name": "thornberry",
+          },
+          Object {
+            "id": "79",
+            "name": "tomato",
+          },
+          Object {
+            "id": "80",
+            "name": "tyrannian",
+          },
+          Object {
+            "id": "81",
+            "name": "usuki boy",
+          },
+          Object {
+            "id": "82",
+            "name": "usuki girl",
+          },
+          Object {
+            "id": "83",
+            "name": "white",
+          },
+          Object {
+            "id": "84",
+            "name": "yellow",
+          },
+          Object {
+            "id": "85",
+            "name": "zombie",
+          },
+          Object {
+            "id": "86",
+            "name": "onion",
+          },
+          Object {
+            "id": "87",
+            "name": "magma",
+          },
+          Object {
+            "id": "88",
+            "name": "relic",
+          },
+          Object {
+            "id": "89",
+            "name": "woodland",
+          },
+          Object {
+            "id": "90",
+            "name": "transparent",
+          },
+          Object {
+            "id": "91",
+            "name": "maractite",
+          },
+          Object {
+            "id": "92",
+            "name": "8-bit",
+          },
+          Object {
+            "id": "93",
+            "name": "swamp gas",
+          },
+          Object {
+            "id": "94",
+            "name": "water",
+          },
+          Object {
+            "id": "95",
+            "name": "wraith",
+          },
+          Object {
+            "id": "96",
+            "name": "eventide",
+          },
+          Object {
+            "id": "97",
+            "name": "elderlyboy",
+          },
+          Object {
+            "id": "98",
+            "name": "elderlygirl",
+          },
+          Object {
+            "id": "99",
+            "name": "stealthy",
+          },
+          Object {
+            "id": "100",
+            "name": "dimensional",
+          },
+          Object {
+            "id": "101",
+            "name": "agueena",
+          },
+          Object {
+            "id": "102",
+            "name": "pastel",
+          },
+          Object {
+            "id": "103",
+            "name": "ummagine",
+          },
+          Object {
+            "id": "104",
+            "name": "Polka Dot",
+          },
+          Object {
+            "id": "105",
+            "name": "Candy",
+          },
+          Object {
+            "id": "106",
+            "name": "marble",
+          },
+          Object {
+            "id": "107",
+            "name": "Steampunk",
+          },
+          Object {
+            "id": "108",
+            "name": "Toy",
+          },
+          Object {
+            "id": "109",
+            "name": "Origami",
+          },
+          Object {
+            "id": "110",
+            "name": "Oil Paint",
+          },
+          Object {
+            "id": "111",
+            "name": "Mosaic",
+          },
+          Object {
+            "id": "112",
+            "name": "Burlap",
+          },
+        ],
+      }
+    `);
+    expect(queryFn.mock.calls).toMatchInlineSnapshot(`
+      Array [
+        Array [
+          "SELECT * FROM colors",
+        ],
+        Array [
+          "SELECT * FROM color_translations
+             WHERE color_id IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) AND locale = \\"en\\"",
+          Array [
+            "-1",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20",
+            "21",
+            "22",
+            "23",
+            "24",
+            "25",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "31",
+            "32",
+            "33",
+            "34",
+            "35",
+            "36",
+            "37",
+            "38",
+            "39",
+            "40",
+            "41",
+            "42",
+            "43",
+            "44",
+            "45",
+            "46",
+            "47",
+            "48",
+            "49",
+            "50",
+            "51",
+            "52",
+            "53",
+            "54",
+            "55",
+            "56",
+            "57",
+            "58",
+            "59",
+            "60",
+            "61",
+            "62",
+            "63",
+            "64",
+            "65",
+            "66",
+            "67",
+            "68",
+            "69",
+            "70",
+            "71",
+            "72",
+            "73",
+            "74",
+            "75",
+            "76",
+            "77",
+            "78",
+            "79",
+            "80",
+            "81",
+            "82",
+            "83",
+            "84",
+            "85",
+            "86",
+            "87",
+            "88",
+            "89",
+            "90",
+            "91",
+            "92",
+            "93",
+            "94",
+            "95",
+            "96",
+            "97",
+            "98",
+            "99",
+            "100",
+            "101",
+            "102",
+            "103",
+            "104",
+            "105",
+            "106",
+            "107",
+            "108",
+            "109",
+            "110",
+            "111",
+            "112",
+          ],
+        ],
+      ]
+    `);
+  });
+});
+
+describe("SpeciesColorPair", () => {
+  it("gets them all", async () => {
+    const res = await query({
+      query: gql`
+        query {
+          allValidSpeciesColorPairs {
+            color {
+              id
+            }
+            species {
+              id
+            }
+          }
+        }
+      `,
+    });
+
+    expect(res).toHaveNoErrors();
+    expect(res.data).toMatchSnapshot();
+    expect(queryFn.mock.calls).toMatchInlineSnapshot(`
+      Array [
+        Array [
+          "SELECT species_id, color_id FROM pet_types",
+        ],
+      ]
+    `);
+  });
+});
+
 expect.extend({
   toHaveNoErrors(res) {
     if (res.errors) {
