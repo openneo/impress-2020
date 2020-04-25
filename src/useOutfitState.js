@@ -176,6 +176,9 @@ function findItemConflicts(itemIdToAdd, state, apolloClient) {
     },
   });
   const itemToAdd = items.find((i) => i.id === itemIdToAdd);
+  if (!itemToAdd.appearanceOn) {
+    return [];
+  }
   const itemToAddZoneIds = itemToAdd.appearanceOn.layers.map((l) => l.zone.id);
   const wornItems = Array.from(wornItemIds).map((id) =>
     items.find((i) => i.id === id)
@@ -183,6 +186,9 @@ function findItemConflicts(itemIdToAdd, state, apolloClient) {
 
   const conflictingIds = [];
   for (const wornItem of wornItems) {
+    if (!wornItem.appearanceOn) {
+      continue;
+    }
     const wornItemZoneIds = wornItem.appearanceOn.layers.map((l) => l.zone.id);
 
     const hasConflict = wornItemZoneIds.some((zid) =>
