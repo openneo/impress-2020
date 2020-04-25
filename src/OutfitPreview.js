@@ -12,7 +12,6 @@ import {
   Spinner,
   Text,
   Tooltip,
-  useToast,
 } from "@chakra-ui/core";
 
 import { Delay } from "./util";
@@ -38,7 +37,6 @@ export const itemAppearanceFragment = gql`
 
 function OutfitPreview({ outfitState }) {
   const { wornItemIds, speciesId, colorId } = outfitState;
-  const toast = useToast();
 
   const { loading, error, data } = useQuery(
     gql`
@@ -99,7 +97,10 @@ function OutfitPreview({ outfitState }) {
                 className="outfit-preview-layer-image"
                 // This sets up the cache to not need to reload images during
                 // download!
-                crossOrigin="Anonymous"
+                // TODO: Re-enable this once we get our change into Chakra
+                // main. For now, this will make Downloads a bit slower, which
+                // is fine!
+                // crossOrigin="Anonymous"
               />
             </FullScreenCenter>
           </CSSTransition>
@@ -138,14 +139,7 @@ function OutfitPreview({ outfitState }) {
             download={(outfitState.name || "Outfit") + ".png"}
             onMouseEnter={prepareDownload}
             onFocus={prepareDownload}
-            onClick={() => {
-              if (!downloadImageUrl) {
-                toast({
-                  title:
-                    "Just a second, try again when the image is done loading!",
-                });
-              }
-            }}
+            cursor={!downloadImageUrl && "wait"}
             variant="unstyled"
             backgroundColor="gray.600"
             color="gray.50"
@@ -224,6 +218,8 @@ function useDownloadableImage(visibleLayers) {
   const [preparedForLayerIds, setPreparedForLayerIds] = React.useState([]);
 
   const prepareDownload = React.useCallback(async () => {
+    setDownloadImageUrl(null);
+
     // Skip if the current image URL is already correct for these layers.
     const layerIds = visibleLayers.map((l) => l.id);
     if (layerIds.join(",") === preparedForLayerIds.join(",")) {
@@ -237,7 +233,7 @@ function useDownloadableImage(visibleLayers) {
           image.crossOrigin = "Anonymous"; // Requires S3 CORS config!
           image.addEventListener("load", () => resolve(image), false);
           image.addEventListener("error", (e) => reject(e), false);
-          image.src = layer.imageUrl;
+          image.src = layer.imageUrl + "&xoxo";
         })
     );
 
