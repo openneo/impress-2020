@@ -2,7 +2,17 @@ import React from "react";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
-import { Flex, Image, Spinner, Text, Icon, Box } from "@chakra-ui/core";
+import {
+  Box,
+  Flex,
+  Icon,
+  IconButton,
+  Image,
+  PseudoBox,
+  Spinner,
+  Text,
+  Tooltip,
+} from "@chakra-ui/core";
 
 import { Delay } from "./util";
 
@@ -49,6 +59,11 @@ function OutfitPreview({ outfitState }) {
     }
   );
 
+  const visibleLayers = getVisibleLayers(data);
+  const [downloadImageUrl, prepareDownload] = useDownloadableImage(
+    visibleLayers
+  );
+
   if (error) {
     return (
       <FullScreenCenter>
@@ -62,9 +77,9 @@ function OutfitPreview({ outfitState }) {
   }
 
   return (
-    <Box pos="relative" height="100%" width="100%">
+    <PseudoBox role="group" pos="relative" height="100%" width="100%">
       <TransitionGroup>
-        {getVisibleLayers(data).map((layer) => (
+        {visibleLayers.map((layer) => (
           <CSSTransition
             key={layer.id}
             classNames={{
@@ -80,7 +95,9 @@ function OutfitPreview({ outfitState }) {
                 maxWidth="100%"
                 maxHeight="100%"
                 className="outfit-preview-layer-image"
-                crossOrigin="anonymous"
+                // This sets up the cache to not need to reload images during
+                // download!
+                crossOrigin="Anonymous"
               />
             </FullScreenCenter>
           </CSSTransition>
@@ -101,7 +118,39 @@ function OutfitPreview({ outfitState }) {
           </FullScreenCenter>
         </Delay>
       )}
-    </Box>
+      <Tooltip label="Download" placement="left" showDelay={200}>
+        <IconButton
+          icon="download"
+          aria-label="Download"
+          as="a"
+          // eslint-disable-next-line no-script-url
+          href={downloadImageUrl || "javascript:void 0"}
+          download="Outfit.png"
+          onMouseEnter={prepareDownload}
+          onFocus={prepareDownload}
+          variant="unstyled"
+          color="gray.50"
+          d="flex"
+          alignItems="center"
+          justifyContent="center"
+          opacity="0"
+          transition="all 0.2s"
+          _hover={{
+            backgroundColor: "gray.600",
+          }}
+          _focus={{
+            opacity: 1,
+            backgroundColor: "gray.600",
+          }}
+          _groupHover={{
+            opacity: 1,
+          }}
+          pos="absolute"
+          right="1"
+          top="1"
+        />
+      </Tooltip>
+    </PseudoBox>
   );
 }
 
@@ -150,6 +199,51 @@ function FullScreenCenter({ children }) {
       {children}
     </Flex>
   );
+}
+
+function useDownloadableImage(visibleLayers) {
+  const [downloadImageUrl, setDownloadImageUrl] = React.useState(null);
+  const [preparedForLayerIds, setPreparedForLayerIds] = React.useState([]);
+
+  const prepareDownload = React.useCallback(async () => {
+    // Skip if the current image URL is already correct for these layers.
+    const layerIds = visibleLayers.map((l) => l.id);
+    if (layerIds.join(",") === preparedForLayerIds.join(",")) {
+      return;
+    }
+
+    const imagePromises = visibleLayers.map(
+      (layer) =>
+        new Promise((resolve, reject) => {
+          const image = new window.Image();
+          image.crossOrigin = "Anonymous"; // Requires S3 CORS config!
+          image.addEventListener("load", () => resolve(image), false);
+          image.addEventListener("error", (e) => reject(e), false);
+          image.src = layer.imageUrl;
+        })
+    );
+
+    const images = await Promise.all(imagePromises);
+
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    canvas.width = 600;
+    canvas.height = 600;
+
+    for (const image of images) {
+      context.drawImage(image, 0, 0);
+    }
+
+    console.log(
+      "Generated image for download",
+      layerIds,
+      canvas.toDataURL("image/png")
+    );
+    setDownloadImageUrl(canvas.toDataURL("image/png"));
+    setPreparedForLayerIds(layerIds);
+  }, [preparedForLayerIds, visibleLayers]);
+
+  return [downloadImageUrl, prepareDownload];
 }
 
 export default OutfitPreview;
