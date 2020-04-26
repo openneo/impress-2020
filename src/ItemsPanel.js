@@ -14,7 +14,7 @@ import {
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 
 import { Delay, Heading1, Heading2 } from "./util";
-import { ItemListContainer, Item, ItemListSkeleton } from "./ItemList";
+import { Item, ItemListContainer, ItemListSkeleton } from "./Item";
 
 function ItemsPanel({ outfitState, loading, dispatchToOutfit }) {
   const { zonesAndItems } = outfitState;
