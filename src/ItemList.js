@@ -52,8 +52,9 @@ export function Item({ item, itemNameId, outfitState, dispatchToOutfit }) {
             transitionProperty="opacity color"
             transitionDuration="0.2s"
             className={css`
-              &:hover,
               &:focus,
+              &:hover,
+              .item-container:hover &,
               input:focus + .item-container & {
                 opacity: 1;
                 color: ${theme.colors.gray["800"]};
