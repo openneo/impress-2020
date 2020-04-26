@@ -46,6 +46,19 @@ export function Item({ item, itemNameId, outfitState, dispatchToOutfit }) {
 }
 
 /**
+ * ItemSkeleton is a placeholder for when an Item is loading.
+ */
+function ItemSkeleton() {
+  return (
+    <ItemContainer>
+      <Skeleton width="50px" height="50px" />
+      <Box width="3" />
+      <Skeleton height="1.5rem" width="12rem" />
+    </ItemContainer>
+  );
+}
+
+/**
  * ItemContainer is the outermost element of an `Item`.
  *
  * It provides spacing, but also is responsible for a number of hover/focus/etc
@@ -205,18 +218,14 @@ export function ItemListContainer({ children }) {
 }
 
 /**
- * ItemListSkeleton is a loading placeholder for an `ItemListContainer` and the
- * `Item`s inside!
+ * ItemListSkeleton is a placeholder for when an ItemListContainer and its
+ * Items are loading.
  */
 export function ItemListSkeleton({ count }) {
   return (
     <ItemListContainer>
       {Array.from({ length: count }).map((_, i) => (
-        <ItemContainer key={i}>
-          <Skeleton width="50px" height="50px" />
-          <Box width="3" />
-          <Skeleton height="1.5rem" width="12rem" />
-        </ItemContainer>
+        <ItemSkeleton key={i} />
       ))}
     </ItemListContainer>
   );

@@ -16,6 +16,19 @@ import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { Delay, Heading1, Heading2 } from "./util";
 import { Item, ItemListContainer, ItemListSkeleton } from "./Item";
 
+/**
+ * ItemsPanel shows the items in the current outfit, and lets the user toggle
+ * between them! It also shows an editable outfit name, to help set context.
+ *
+ * Note that this component provides an effective 1 unit of padding around
+ * itself, which is uncommon in this app: we usually prefer to let parents
+ * control the spacing!
+ *
+ * This is because Item has padding, but it's generally not visible; so, to
+ * *look* aligned with the other elements like the headings, the headings need
+ * to have extra padding. Essentially: while the Items _do_ stretch out the
+ * full width of the container, it doesn't look like it!
+ */
 function ItemsPanel({ outfitState, loading, dispatchToOutfit }) {
   const { zonesAndItems } = outfitState;
 
@@ -28,53 +41,23 @@ function ItemsPanel({ outfitState, loading, dispatchToOutfit }) {
         />
       </Box>
       <Flex direction="column">
-        {loading &&
-          [1, 2, 3].map((i) => (
-            <Box key={i} mb="10">
-              <Delay>
-                <Box px="1">
-                  <Skeleton height="2.3rem" width="12rem" />
-                </Box>
-                <ItemListSkeleton count={3} />
-              </Delay>
-            </Box>
-          ))}
-        {!loading && (
+        {loading ? (
+          <>
+            <ItemZoneGroupSkeleton />
+            <ItemZoneGroupSkeleton />
+            <ItemZoneGroupSkeleton />
+          </>
+        ) : (
           <TransitionGroup component={null}>
             {zonesAndItems.map(({ zoneLabel, items }) => (
-              <CSSTransition
-                key={zoneLabel}
-                classNames={css`
-                  &-exit {
-                    opacity: 1;
-                    height: auto;
-                  }
-
-                  &-exit-active {
-                    opacity: 0;
-                    height: 0 !important;
-                    margin-top: 0 !important;
-                    margin-bottom: 0 !important;
-                    transition: all 0.5s;
-                  }
-                `}
-                timeout={500}
-                onExit={(e) => {
-                  e.style.height = e.offsetHeight + "px";
-                }}
-              >
-                <Box mb="10">
-                  <Box px="1">
-                    <Heading2>{zoneLabel}</Heading2>
-                  </Box>
-                  <ItemRadioList
-                    name={zoneLabel}
-                    items={items}
-                    outfitState={outfitState}
-                    dispatchToOutfit={dispatchToOutfit}
-                  />
-                </Box>
-              </CSSTransition>
+              <ItemZoneGroupTransitioner key={zoneLabel}>
+                <ItemZoneGroup
+                  zoneLabel={zoneLabel}
+                  items={items}
+                  outfitState={outfitState}
+                  dispatchToOutfit={dispatchToOutfit}
+                />
+              </ItemZoneGroupTransitioner>
             ))}
           </TransitionGroup>
         )}
@@ -83,15 +66,24 @@ function ItemsPanel({ outfitState, loading, dispatchToOutfit }) {
   );
 }
 
-function ItemRadioList({ name, items, outfitState, dispatchToOutfit }) {
+/**
+ * ItemZoneGroup shows the items for a particular zone, and lets the user
+ * toggle between them.
+ *
+ * For each item, it renders a <label> with a visually-hidden radio button and
+ * the Item component (which will visually reflect the radio's state). This
+ * makes the list screen-reader- and keyboard-accessible!
+ */
+function ItemZoneGroup({ zoneLabel, items, outfitState, dispatchToOutfit }) {
+  // onChange is fired when the radio button becomes checked, not unchecked!
   const onChange = (e) => {
     const itemId = e.target.value;
     dispatchToOutfit({ type: "wearItem", itemId });
   };
 
-  const onToggle = (e) => {
-    // Clicking the radio button when already selected deselects it - this is
-    // how you can select none!
+  // Clicking the radio button when already selected deselects it - this is how
+  // you can select none!
+  const onClick = (e) => {
     const itemId = e.target.value;
     if (outfitState.wornItemIds.includes(itemId)) {
       // We need the event handler to finish before this, so that simulated
@@ -104,60 +96,60 @@ function ItemRadioList({ name, items, outfitState, dispatchToOutfit }) {
   };
 
   return (
-    <ItemListContainer>
-      <TransitionGroup component={null}>
-        {items.map((item) => (
-          <CSSTransition
-            key={item.id}
-            classNames={css`
-              &-exit {
-                opacity: 1;
-                height: auto;
-              }
-
-              &-exit-active {
-                opacity: 0;
-                height: 0 !important;
-                margin-top: 0 !important;
-                margin-bottom: 0 !important;
-                transition: all 0.5s;
-              }
-            `}
-            timeout={500}
-            onExit={(e) => {
-              e.style.height = e.offsetHeight + "px";
-            }}
-          >
-            <label>
-              <VisuallyHidden
-                as="input"
-                type="radio"
-                aria-labelledby={`${name}-item-${item.id}-name`}
-                name={name}
-                value={item.id}
-                checked={outfitState.wornItemIds.includes(item.id)}
-                onChange={onChange}
-                onClick={onToggle}
-                onKeyUp={(e) => {
-                  if (e.key === " ") {
-                    onToggle(e);
-                  }
-                }}
-              />
-              <Item
-                item={item}
-                itemNameId={`${name}-item-${item.id}-name`}
-                outfitState={outfitState}
-                dispatchToOutfit={dispatchToOutfit}
-              />
-            </label>
-          </CSSTransition>
-        ))}
-      </TransitionGroup>
-    </ItemListContainer>
+    <Box mb="10">
+      <Heading2 mx="1">{zoneLabel}</Heading2>
+      <ItemListContainer>
+        <TransitionGroup component={null}>
+          {items.map((item) => (
+            <ItemTransitioner key={item.id}>
+              <label>
+                <VisuallyHidden
+                  as="input"
+                  type="radio"
+                  aria-labelledby={`${zoneLabel}-item-${item.id}-name`}
+                  name={zoneLabel}
+                  value={item.id}
+                  checked={outfitState.wornItemIds.includes(item.id)}
+                  onChange={onChange}
+                  onClick={onClick}
+                  onKeyUp={(e) => {
+                    if (e.key === " ") {
+                      onClick(e);
+                    }
+                  }}
+                />
+                <Item
+                  item={item}
+                  itemNameId={`${zoneLabel}-item-${item.id}-name`}
+                  outfitState={outfitState}
+                  dispatchToOutfit={dispatchToOutfit}
+                />
+              </label>
+            </ItemTransitioner>
+          ))}
+        </TransitionGroup>
+      </ItemListContainer>
+    </Box>
   );
 }
 
+/**
+ * ItemZoneGroupSkeleton is a placeholder for when an ItemZoneGroup is loading.
+ */
+function ItemZoneGroupSkeleton() {
+  return (
+    <Box mb="10">
+      <Delay>
+        <Skeleton mx="1" height="2.3rem" width="12rem" />
+        <ItemListSkeleton count={3} />
+      </Delay>
+    </Box>
+  );
+}
+
+/**
+ * OutfitHeading is an editable outfit name, as a big pretty page heading!
+ */
 function OutfitHeading({ outfitState, dispatchToOutfit }) {
   return (
     <Box>
@@ -175,7 +167,20 @@ function OutfitHeading({ outfitState, dispatchToOutfit }) {
                 <EditablePreview />
                 <EditableInput />
                 {!isEditing && (
-                  <OutfitNameEditButton onRequestEdit={onRequestEdit} />
+                  <PseudoBox
+                    opacity="0"
+                    transition="opacity 0.5s"
+                    _groupHover={{ opacity: "1" }}
+                    onClick={onRequestEdit}
+                  >
+                    <IconButton
+                      icon="edit"
+                      variant="link"
+                      color="green.600"
+                      aria-label="Edit outfit name"
+                      title="Edit outfit name"
+                    />
+                  </PseudoBox>
                 )}
               </Flex>
             )}
@@ -186,22 +191,65 @@ function OutfitHeading({ outfitState, dispatchToOutfit }) {
   );
 }
 
-function OutfitNameEditButton({ onRequestEdit }) {
+/**
+ * ItemZoneGroupTransitioner manages the fade-out transition when an
+ * ItemZoneGroup is removed. See react-transition-group docs for more info!
+ */
+function ItemZoneGroupTransitioner({ children }) {
   return (
-    <PseudoBox
-      opacity="0"
-      transition="opacity 0.5s"
-      _groupHover={{ opacity: "1" }}
-      onClick={onRequestEdit}
+    <CSSTransition
+      classNames={css`
+        &-exit {
+          opacity: 1;
+          height: auto;
+        }
+
+        &-exit-active {
+          opacity: 0;
+          height: 0 !important;
+          margin-top: 0 !important;
+          margin-bottom: 0 !important;
+          transition: all 0.5s;
+        }
+      `}
+      timeout={500}
+      onExit={(e) => {
+        e.style.height = e.offsetHeight + "px";
+      }}
     >
-      <IconButton
-        icon="edit"
-        variant="link"
-        color="green.600"
-        aria-label="Edit outfit name"
-        title="Edit outfit name"
-      />
-    </PseudoBox>
+      {children}
+    </CSSTransition>
+  );
+}
+
+/**
+ * ItemTransitioner manages the fade-out transition when an Item is removed.
+ * See react-transition-group docs for more info!
+ */
+function ItemTransitioner({ children }) {
+  return (
+    <CSSTransition
+      classNames={css`
+        &-exit {
+          opacity: 1;
+          height: auto;
+        }
+
+        &-exit-active {
+          opacity: 0;
+          height: 0 !important;
+          margin-top: 0 !important;
+          margin-bottom: 0 !important;
+          transition: all 0.5s;
+        }
+      `}
+      timeout={500}
+      onExit={(e) => {
+        e.style.height = e.offsetHeight + "px";
+      }}
+    >
+      {children}
+    </CSSTransition>
   );
 }
 
