@@ -55,8 +55,12 @@ export function Item({ item, itemNameId, outfitState, dispatchToOutfit }) {
               .item-container:hover &,
               input:focus + .item-container & {
                 opacity: 1;
-                color: ${theme.colors.gray["800"]};
-                backgroundcolor: ${theme.colors.gray["200"]};
+              }
+
+              &:focus,
+              &:hover {
+                background-color: ${theme.colors.gray["300"]};
+                color: ${theme.colors.gray["700"]};
               }
             `}
           />
