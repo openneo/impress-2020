@@ -1,0 +1,101 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Item loads appearance data 1`] = `
+Object {
+  "items": Array [
+    Object {
+      "appearanceOn": Object {
+        "layers": Array [
+          Object {
+            "id": "37128",
+            "imageUrl": "https://impress-asset-images.s3.amazonaws.com/object/000/000/014/14856/600x600.png?v2-1587653266000",
+            "zone": Object {
+              "depth": 30,
+              "id": "26",
+              "label": "Jacket",
+            },
+          },
+        ],
+        "restrictedZones": Array [
+          Object {
+            "id": "20",
+          },
+          Object {
+            "id": "22",
+          },
+        ],
+      },
+      "id": "38912",
+      "name": "Zafara Agent Robe",
+    },
+    Object {
+      "appearanceOn": Object {
+        "layers": Array [
+          Object {
+            "id": "37129",
+            "imageUrl": "https://impress-asset-images.s3.amazonaws.com/object/000/000/014/14857/600x600.png?v2-0",
+            "zone": Object {
+              "depth": 44,
+              "id": "40",
+              "label": "Hat",
+            },
+          },
+        ],
+        "restrictedZones": Array [
+          Object {
+            "id": "37",
+          },
+          Object {
+            "id": "38",
+          },
+        ],
+      },
+      "id": "38911",
+      "name": "Zafara Agent Hood",
+    },
+    Object {
+      "appearanceOn": Object {
+        "layers": Array [
+          Object {
+            "id": "30203",
+            "imageUrl": "https://impress-asset-images.s3.amazonaws.com/object/000/000/006/6829/600x600.png?v2-0",
+            "zone": Object {
+              "depth": 3,
+              "id": "3",
+              "label": "Background",
+            },
+          },
+        ],
+        "restrictedZones": Array [],
+      },
+      "id": "37375",
+      "name": "Moon and Stars Background",
+    },
+  ],
+}
+`;
+
+exports[`Item loads metadata 1`] = `
+Object {
+  "items": Array [
+    Object {
+      "description": "Dont leave any trace that you were there with these gloves.",
+      "id": "38913",
+      "name": "Zafara Agent Gloves",
+      "thumbnailUrl": "http://images.neopets.com/items/clo_zafara_agent_gloves.gif",
+    },
+    Object {
+      "description": "Hide your face and hair so no one can recognise you.",
+      "id": "38911",
+      "name": "Zafara Agent Hood",
+      "thumbnailUrl": "http://images.neopets.com/items/clo_zafara_agent_hood.gif",
+    },
+    Object {
+      "description": "This robe is great for being stealthy.",
+      "id": "38912",
+      "name": "Zafara Agent Robe",
+      "thumbnailUrl": "http://images.neopets.com/items/clo_zafara_agent_robe.gif",
+    },
+  ],
+}
+`;

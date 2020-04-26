@@ -1,0 +1,228 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Species loads all species 1`] = `
+Object {
+  "allSpecies": Array [
+    Object {
+      "id": "1",
+      "name": "Acara",
+    },
+    Object {
+      "id": "2",
+      "name": "Aisha",
+    },
+    Object {
+      "id": "3",
+      "name": "Blumaroo",
+    },
+    Object {
+      "id": "4",
+      "name": "Bori",
+    },
+    Object {
+      "id": "5",
+      "name": "Bruce",
+    },
+    Object {
+      "id": "6",
+      "name": "Buzz",
+    },
+    Object {
+      "id": "7",
+      "name": "Chia",
+    },
+    Object {
+      "id": "8",
+      "name": "Chomby",
+    },
+    Object {
+      "id": "9",
+      "name": "Cybunny",
+    },
+    Object {
+      "id": "10",
+      "name": "Draik",
+    },
+    Object {
+      "id": "11",
+      "name": "Elephante",
+    },
+    Object {
+      "id": "12",
+      "name": "Eyrie",
+    },
+    Object {
+      "id": "13",
+      "name": "Flotsam",
+    },
+    Object {
+      "id": "14",
+      "name": "Gelert",
+    },
+    Object {
+      "id": "15",
+      "name": "Gnorbu",
+    },
+    Object {
+      "id": "16",
+      "name": "Grarrl",
+    },
+    Object {
+      "id": "17",
+      "name": "Grundo",
+    },
+    Object {
+      "id": "18",
+      "name": "Hissi",
+    },
+    Object {
+      "id": "19",
+      "name": "Ixi",
+    },
+    Object {
+      "id": "20",
+      "name": "Jetsam",
+    },
+    Object {
+      "id": "21",
+      "name": "Jubjub",
+    },
+    Object {
+      "id": "22",
+      "name": "Kacheek",
+    },
+    Object {
+      "id": "23",
+      "name": "Kau",
+    },
+    Object {
+      "id": "24",
+      "name": "Kiko",
+    },
+    Object {
+      "id": "25",
+      "name": "Koi",
+    },
+    Object {
+      "id": "26",
+      "name": "Korbat",
+    },
+    Object {
+      "id": "27",
+      "name": "Kougra",
+    },
+    Object {
+      "id": "28",
+      "name": "Krawk",
+    },
+    Object {
+      "id": "29",
+      "name": "Kyrii",
+    },
+    Object {
+      "id": "30",
+      "name": "Lenny",
+    },
+    Object {
+      "id": "31",
+      "name": "Lupe",
+    },
+    Object {
+      "id": "32",
+      "name": "Lutari",
+    },
+    Object {
+      "id": "33",
+      "name": "Meerca",
+    },
+    Object {
+      "id": "34",
+      "name": "Moehog",
+    },
+    Object {
+      "id": "35",
+      "name": "Mynci",
+    },
+    Object {
+      "id": "36",
+      "name": "Nimmo",
+    },
+    Object {
+      "id": "37",
+      "name": "Ogrin",
+    },
+    Object {
+      "id": "38",
+      "name": "Peophin",
+    },
+    Object {
+      "id": "39",
+      "name": "Poogle",
+    },
+    Object {
+      "id": "40",
+      "name": "Pteri",
+    },
+    Object {
+      "id": "41",
+      "name": "Quiggle",
+    },
+    Object {
+      "id": "42",
+      "name": "Ruki",
+    },
+    Object {
+      "id": "43",
+      "name": "Scorchio",
+    },
+    Object {
+      "id": "44",
+      "name": "Shoyru",
+    },
+    Object {
+      "id": "45",
+      "name": "Skeith",
+    },
+    Object {
+      "id": "46",
+      "name": "Techo",
+    },
+    Object {
+      "id": "47",
+      "name": "Tonu",
+    },
+    Object {
+      "id": "48",
+      "name": "Tuskaninny",
+    },
+    Object {
+      "id": "49",
+      "name": "Uni",
+    },
+    Object {
+      "id": "50",
+      "name": "Usul",
+    },
+    Object {
+      "id": "51",
+      "name": "Wocky",
+    },
+    Object {
+      "id": "52",
+      "name": "Xweetok",
+    },
+    Object {
+      "id": "53",
+      "name": "Yurble",
+    },
+    Object {
+      "id": "54",
+      "name": "Zafara",
+    },
+    Object {
+      "id": "55",
+      "name": "Vandagyre",
+    },
+  ],
+}
+`;

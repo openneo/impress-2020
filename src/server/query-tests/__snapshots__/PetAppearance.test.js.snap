@@ -1,0 +1,52 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PetAppearance loads for species and color 1`] = `
+Object {
+  "petAppearance": Object {
+    "layers": Array [
+      Object {
+        "id": "5995",
+        "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7941/600x600.png?v2-0",
+        "zone": Object {
+          "depth": 18,
+        },
+      },
+      Object {
+        "id": "5996",
+        "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7942/600x600.png?v2-0",
+        "zone": Object {
+          "depth": 7,
+        },
+      },
+      Object {
+        "id": "6000",
+        "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7946/600x600.png?v2-0",
+        "zone": Object {
+          "depth": 40,
+        },
+      },
+      Object {
+        "id": "16467",
+        "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/024/24008/600x600.png?v2-0",
+        "zone": Object {
+          "depth": 34,
+        },
+      },
+      Object {
+        "id": "19784",
+        "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/028/28892/600x600.png?v2-1313418652000",
+        "zone": Object {
+          "depth": 37,
+        },
+      },
+      Object {
+        "id": "178150",
+        "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/036/36887/600x600.png?v2-1354240708000",
+        "zone": Object {
+          "depth": 38,
+        },
+      },
+    ],
+  },
+}
+`;

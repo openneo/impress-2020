@@ -1,0 +1,456 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Color loads all colors 1`] = `
+Object {
+  "allColors": Array [
+    Object {
+      "id": "1",
+      "name": "Alien",
+    },
+    Object {
+      "id": "2",
+      "name": "Apple",
+    },
+    Object {
+      "id": "3",
+      "name": "Asparagus",
+    },
+    Object {
+      "id": "4",
+      "name": "Aubergine",
+    },
+    Object {
+      "id": "5",
+      "name": "Avocado",
+    },
+    Object {
+      "id": "6",
+      "name": "Baby",
+    },
+    Object {
+      "id": "7",
+      "name": "Biscuit",
+    },
+    Object {
+      "id": "8",
+      "name": "Blue",
+    },
+    Object {
+      "id": "9",
+      "name": "Blueberry",
+    },
+    Object {
+      "id": "10",
+      "name": "Brown",
+    },
+    Object {
+      "id": "11",
+      "name": "Camouflage",
+    },
+    Object {
+      "id": "12",
+      "name": "Carrot",
+    },
+    Object {
+      "id": "13",
+      "name": "Checkered",
+    },
+    Object {
+      "id": "14",
+      "name": "Chocolate",
+    },
+    Object {
+      "id": "15",
+      "name": "Chokato",
+    },
+    Object {
+      "id": "16",
+      "name": "Christmas",
+    },
+    Object {
+      "id": "17",
+      "name": "Clay",
+    },
+    Object {
+      "id": "18",
+      "name": "Cloud",
+    },
+    Object {
+      "id": "19",
+      "name": "Coconut",
+    },
+    Object {
+      "id": "20",
+      "name": "Custard",
+    },
+    Object {
+      "id": "21",
+      "name": "Darigan",
+    },
+    Object {
+      "id": "22",
+      "name": "Desert",
+    },
+    Object {
+      "id": "23",
+      "name": "Disco",
+    },
+    Object {
+      "id": "24",
+      "name": "Durian",
+    },
+    Object {
+      "id": "25",
+      "name": "Electric",
+    },
+    Object {
+      "id": "26",
+      "name": "Faerie",
+    },
+    Object {
+      "id": "27",
+      "name": "Fire",
+    },
+    Object {
+      "id": "28",
+      "name": "Garlic",
+    },
+    Object {
+      "id": "29",
+      "name": "Ghost",
+    },
+    Object {
+      "id": "30",
+      "name": "Glowing",
+    },
+    Object {
+      "id": "31",
+      "name": "Gold",
+    },
+    Object {
+      "id": "32",
+      "name": "Gooseberry",
+    },
+    Object {
+      "id": "33",
+      "name": "Grape",
+    },
+    Object {
+      "id": "34",
+      "name": "Green",
+    },
+    Object {
+      "id": "35",
+      "name": "Grey",
+    },
+    Object {
+      "id": "36",
+      "name": "Halloween",
+    },
+    Object {
+      "id": "37",
+      "name": "Ice",
+    },
+    Object {
+      "id": "38",
+      "name": "Invisible",
+    },
+    Object {
+      "id": "39",
+      "name": "Island",
+    },
+    Object {
+      "id": "40",
+      "name": "Jelly",
+    },
+    Object {
+      "id": "41",
+      "name": "Lemon",
+    },
+    Object {
+      "id": "42",
+      "name": "Lime",
+    },
+    Object {
+      "id": "43",
+      "name": "Mallow",
+    },
+    Object {
+      "id": "44",
+      "name": "Maraquan",
+    },
+    Object {
+      "id": "45",
+      "name": "Msp",
+    },
+    Object {
+      "id": "46",
+      "name": "Mutant",
+    },
+    Object {
+      "id": "47",
+      "name": "Orange",
+    },
+    Object {
+      "id": "48",
+      "name": "Pea",
+    },
+    Object {
+      "id": "49",
+      "name": "Peach",
+    },
+    Object {
+      "id": "50",
+      "name": "Pear",
+    },
+    Object {
+      "id": "51",
+      "name": "Pepper",
+    },
+    Object {
+      "id": "52",
+      "name": "Pineapple",
+    },
+    Object {
+      "id": "53",
+      "name": "Pink",
+    },
+    Object {
+      "id": "54",
+      "name": "Pirate",
+    },
+    Object {
+      "id": "55",
+      "name": "Plum",
+    },
+    Object {
+      "id": "56",
+      "name": "Plushie",
+    },
+    Object {
+      "id": "57",
+      "name": "Purple",
+    },
+    Object {
+      "id": "58",
+      "name": "Quigukiboy",
+    },
+    Object {
+      "id": "59",
+      "name": "Quigukigirl",
+    },
+    Object {
+      "id": "60",
+      "name": "Rainbow",
+    },
+    Object {
+      "id": "61",
+      "name": "Red",
+    },
+    Object {
+      "id": "62",
+      "name": "Robot",
+    },
+    Object {
+      "id": "63",
+      "name": "Royalboy",
+    },
+    Object {
+      "id": "64",
+      "name": "Royalgirl",
+    },
+    Object {
+      "id": "65",
+      "name": "Shadow",
+    },
+    Object {
+      "id": "66",
+      "name": "Silver",
+    },
+    Object {
+      "id": "67",
+      "name": "Sketch",
+    },
+    Object {
+      "id": "68",
+      "name": "Skunk",
+    },
+    Object {
+      "id": "69",
+      "name": "Snot",
+    },
+    Object {
+      "id": "70",
+      "name": "Snow",
+    },
+    Object {
+      "id": "71",
+      "name": "Speckled",
+    },
+    Object {
+      "id": "72",
+      "name": "Split",
+    },
+    Object {
+      "id": "73",
+      "name": "Sponge",
+    },
+    Object {
+      "id": "74",
+      "name": "Spotted",
+    },
+    Object {
+      "id": "75",
+      "name": "Starry",
+    },
+    Object {
+      "id": "76",
+      "name": "Strawberry",
+    },
+    Object {
+      "id": "77",
+      "name": "Striped",
+    },
+    Object {
+      "id": "78",
+      "name": "Thornberry",
+    },
+    Object {
+      "id": "79",
+      "name": "Tomato",
+    },
+    Object {
+      "id": "80",
+      "name": "Tyrannian",
+    },
+    Object {
+      "id": "81",
+      "name": "Usuki boy",
+    },
+    Object {
+      "id": "82",
+      "name": "Usuki girl",
+    },
+    Object {
+      "id": "83",
+      "name": "White",
+    },
+    Object {
+      "id": "84",
+      "name": "Yellow",
+    },
+    Object {
+      "id": "85",
+      "name": "Zombie",
+    },
+    Object {
+      "id": "86",
+      "name": "Onion",
+    },
+    Object {
+      "id": "87",
+      "name": "Magma",
+    },
+    Object {
+      "id": "88",
+      "name": "Relic",
+    },
+    Object {
+      "id": "89",
+      "name": "Woodland",
+    },
+    Object {
+      "id": "90",
+      "name": "Transparent",
+    },
+    Object {
+      "id": "91",
+      "name": "Maractite",
+    },
+    Object {
+      "id": "92",
+      "name": "8-bit",
+    },
+    Object {
+      "id": "93",
+      "name": "Swamp gas",
+    },
+    Object {
+      "id": "94",
+      "name": "Water",
+    },
+    Object {
+      "id": "95",
+      "name": "Wraith",
+    },
+    Object {
+      "id": "96",
+      "name": "Eventide",
+    },
+    Object {
+      "id": "97",
+      "name": "Elderlyboy",
+    },
+    Object {
+      "id": "98",
+      "name": "Elderlygirl",
+    },
+    Object {
+      "id": "99",
+      "name": "Stealthy",
+    },
+    Object {
+      "id": "100",
+      "name": "Dimensional",
+    },
+    Object {
+      "id": "101",
+      "name": "Agueena",
+    },
+    Object {
+      "id": "102",
+      "name": "Pastel",
+    },
+    Object {
+      "id": "103",
+      "name": "Ummagine",
+    },
+    Object {
+      "id": "104",
+      "name": "Polka Dot",
+    },
+    Object {
+      "id": "105",
+      "name": "Candy",
+    },
+    Object {
+      "id": "106",
+      "name": "Marble",
+    },
+    Object {
+      "id": "107",
+      "name": "Steampunk",
+    },
+    Object {
+      "id": "108",
+      "name": "Toy",
+    },
+    Object {
+      "id": "109",
+      "name": "Origami",
+    },
+    Object {
+      "id": "110",
+      "name": "Oil Paint",
+    },
+    Object {
+      "id": "111",
+      "name": "Mosaic",
+    },
+    Object {
+      "id": "112",
+      "name": "Burlap",
+    },
+  ],
+}
+`;
