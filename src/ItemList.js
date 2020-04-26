@@ -49,9 +49,7 @@ export function ItemListSkeleton({ count }) {
   return (
     <Flex direction="column">
       {Array.from({ length: count }).map((_, i) => (
-        <Box key={i} mb="2" mt="2">
-          <ItemSkeleton />
-        </Box>
+        <ItemSkeleton key={i} />
       ))}
     </Flex>
   );
@@ -63,33 +61,7 @@ export function Item({ item, outfitState, dispatchToOutfit }) {
   const theme = useTheme();
 
   return (
-    <Box
-      mb="1"
-      mt="1"
-      p="1"
-      rounded="lg"
-      d="flex"
-      alignItems="center"
-      cursor="pointer"
-      border="1px"
-      borderColor="transparent"
-      className={
-        "item-container " +
-        css`
-          &:hover,
-          input:focus + & {
-            background-color: ${theme.colors.gray["100"]};
-          }
-
-          input:active + & {
-            border-color: ${theme.colors.green["400"]};
-          }
-          input:checked:focus + & {
-            border-color: ${theme.colors.green["800"]};
-          }
-        `
-      }
-    >
+    <ItemContainer>
       <ItemThumbnail src={item.thumbnailUrl} />
       <Box width="3" />
       <ItemName>{item.name}</ItemName>
@@ -120,16 +92,54 @@ export function Item({ item, outfitState, dispatchToOutfit }) {
           />
         </Tooltip>
       )}
-    </Box>
+    </ItemContainer>
   );
 }
 
 function ItemSkeleton() {
   return (
-    <Box d="flex" alignItems="center">
-      <Skeleton width="50px" height="50px" />
-      <Box width="3" />
-      <Skeleton height="1.5rem" width="12rem" />
+    <ItemContainer>
+      <Box d="flex" alignItems="center">
+        <Skeleton width="50px" height="50px" />
+        <Box width="3" />
+        <Skeleton height="1.5rem" width="12rem" />
+      </Box>
+    </ItemContainer>
+  );
+}
+
+function ItemContainer({ children }) {
+  const theme = useTheme();
+
+  return (
+    <Box
+      p="1"
+      mb="1"
+      mt="1"
+      rounded="lg"
+      d="flex"
+      alignItems="center"
+      cursor="pointer"
+      border="1px"
+      borderColor="transparent"
+      className={
+        "item-container " +
+        css`
+          &:hover,
+          input:focus + & {
+            background-color: ${theme.colors.gray["100"]};
+          }
+
+          input:active + & {
+            border-color: ${theme.colors.green["400"]};
+          }
+          input:checked:focus + & {
+            border-color: ${theme.colors.green["800"]};
+          }
+        `
+      }
+    >
+      {children}
     </Box>
   );
 }
