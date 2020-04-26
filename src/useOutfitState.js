@@ -12,20 +12,26 @@ function useOutfitState() {
   const [state, dispatchToOutfit] = React.useReducer(
     outfitStateReducer(apolloClient),
     {
-      name: "Zafara Agent (roopal27)",
-      wornItemIds: new Set([
-        "38913",
-        "38911",
-        "38912",
-        "37375",
-        "48313",
-        "37229",
-        "43014",
-        "43397",
+      name: "Dress to Impress demo 💖",
+      wornItemIds: new Set(["51054", "35779", "35780", "37830"]),
+      closetedItemIds: new Set([
+        "76732",
+        "54393",
+        "80087",
+        "75997",
+        "57632",
+        "80052",
+        "67617",
+        "50861",
+        "77778",
+        "51164",
+        "62215",
+        "70660",
+        "74546",
+        "57997",
       ]),
-      closetedItemIds: new Set(["74166", "68626", "40319"]),
-      speciesId: "54", // Starry
-      colorId: "75", // Zafara
+      speciesId: "24", // Starry
+      colorId: "62", // Zafara
     }
   );
 
