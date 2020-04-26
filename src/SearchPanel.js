@@ -196,7 +196,6 @@ function SearchResults({
     }
   };
 
-  console.log(firstSearchResultRef);
   return (
     <ScrollTracker threshold={300} onScrolledToBottom={onScrolledToBottom}>
       <ItemListContainer>
@@ -211,7 +210,6 @@ function SearchResults({
               ref={index === 0 ? firstSearchResultRef : null}
               onChange={onChange}
               onKeyDown={(e) => {
-                console.log(e.key);
                 if (e.key === "ArrowUp") {
                   goToPrevItem(e);
                 } else if (e.key === "ArrowDown") {

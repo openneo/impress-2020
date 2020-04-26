@@ -45,8 +45,8 @@ export function Item({ item, itemNameId, outfitState, dispatchToOutfit }) {
             variant="ghost"
             color="gray.400"
             onClick={(e) => {
-              e.stopPropagation();
               dispatchToOutfit({ type: "removeItem", itemId: item.id });
+              e.preventDefault();
             }}
             opacity="0"
             transitionProperty="opacity color"
