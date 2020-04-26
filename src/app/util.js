@@ -1,6 +1,17 @@
 import React from "react";
 import { Box, Heading } from "@chakra-ui/core";
 
+/**
+ * Delay hides its content and first, then shows it after the given delay.
+ *
+ * This is useful for loading states: it can be disruptive to see a spinner or
+ * skeleton element for only a brief flash, we'd rather just show them if
+ * loading is genuinely taking a while!
+ *
+ * 300ms is a pretty good default: that's about when perception shifts from "it
+ * wasn't instant" to "the process took time".
+ * https://developers.google.com/web/fundamentals/performance/rail
+ */
 export function Delay({ children, ms = 300 }) {
   const [isVisible, setIsVisible] = React.useState(false);
 
@@ -16,6 +27,10 @@ export function Delay({ children, ms = 300 }) {
   );
 }
 
+/**
+ * Heading1 is a large, page-title-ish heading, with our DTI-brand-y Delicious
+ * font and some special typographical styles!
+ */
 export function Heading1({ children, ...props }) {
   return (
     <Heading fontFamily="Delicious" fontWeight="800" size="2xl" {...props}>
@@ -24,6 +39,10 @@ export function Heading1({ children, ...props }) {
   );
 }
 
+/**
+ * Heading2 is a major subheading, with our DTI-brand-y Delicious font and some
+ * special typographical styles!!
+ */
 export function Heading2({ children, ...props }) {
   return (
     <Heading size="xl" color="green.800" fontFamily="Delicious" {...props}>
@@ -32,7 +51,16 @@ export function Heading2({ children, ...props }) {
   );
 }
 
-// From https://usehooks.com/useDebounce/
+/**
+ * useDebounce helps make a rapidly-changing value change less! It waits for a
+ * pause in the incoming data before outputting the latest value.
+ *
+ * We use it in search: when the user types rapidly, we don't want to update
+ * our query and send a new request every keystroke. We want to wait for it to
+ * seem like they might be done, while still feeling responsive!
+ *
+ * Adapted from https://usehooks.com/useDebounce/
+ */
 export function useDebounce(value, delay, { waitForFirstPause = false } = {}) {
   // State and setters for debounced value
   const initialValue = waitForFirstPause ? null : value;
