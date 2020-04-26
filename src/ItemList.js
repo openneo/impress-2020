@@ -1,45 +1,16 @@
 import React from "react";
 import { css } from "emotion";
-import { CSSTransition, TransitionGroup } from "react-transition-group";
 import {
   Box,
   Flex,
   IconButton,
   Image,
-  PseudoBox,
   Skeleton,
   Tooltip,
   useTheme,
 } from "@chakra-ui/core";
 
 import "./ItemList.css";
-
-function ItemList({ items, outfitState, dispatchToOutfit }) {
-  return (
-    <Flex direction="column">
-      <TransitionGroup component={null}>
-        {items.map((item) => (
-          <CSSTransition
-            key={item.id}
-            classNames="item-list-row"
-            timeout={500}
-            onExit={(e) => {
-              e.style.height = e.offsetHeight + "px";
-            }}
-          >
-            <PseudoBox mb="2" mt="2">
-              <Item
-                item={item}
-                outfitState={outfitState}
-                dispatchToOutfit={dispatchToOutfit}
-              />
-            </PseudoBox>
-          </CSSTransition>
-        ))}
-      </TransitionGroup>
-    </Flex>
-  );
-}
 
 export function ItemListContainer({ children }) {
   return <Flex direction="column">{children}</Flex>;
@@ -55,7 +26,7 @@ export function ItemListSkeleton({ count }) {
   );
 }
 
-export function Item({ item, outfitState, dispatchToOutfit }) {
+export function Item({ item, itemNameId, outfitState, dispatchToOutfit }) {
   const { allItemIds } = outfitState;
   const isInOutfit = allItemIds.includes(item.id);
   const theme = useTheme();
@@ -64,7 +35,7 @@ export function Item({ item, outfitState, dispatchToOutfit }) {
     <ItemContainer>
       <ItemThumbnail src={item.thumbnailUrl} />
       <Box width="3" />
-      <ItemName>{item.name}</ItemName>
+      <ItemName id={itemNameId}>{item.name}</ItemName>
       <Box flexGrow="1" />
       {isInOutfit && (
         <Tooltip label="Remove" placement="top">
@@ -175,7 +146,7 @@ function ItemThumbnail({ src }) {
   );
 }
 
-function ItemName({ children }) {
+function ItemName({ children, ...props }) {
   const theme = useTheme();
 
   return (
@@ -194,10 +165,9 @@ function ItemName({ children }) {
           font-weight: ${theme.fontWeights.bold};
         }
       `}
+      {...props}
     >
       {children}
     </Box>
   );
 }
-
-export default ItemList;

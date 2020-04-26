@@ -1,17 +1,18 @@
 import React from "react";
 import gql from "graphql-tag";
-import { Box, Text } from "@chakra-ui/core";
+import { Box, Text, VisuallyHidden } from "@chakra-ui/core";
 import { useQuery } from "@apollo/react-hooks";
 
 import { Delay, Heading1, useDebounce } from "./util";
-import ItemList, { ItemListSkeleton } from "./ItemList";
+import { ItemListContainer, ItemListSkeleton, Item } from "./ItemList";
 import { itemAppearanceFragment } from "./OutfitPreview";
 
 function SearchPanel({
   query,
   outfitState,
   dispatchToOutfit,
-  getScrollParent,
+  firstSearchResultRef,
+  onMoveFocusUpToQuery,
 }) {
   return (
     <Box color="green.800">
@@ -20,13 +21,20 @@ function SearchPanel({
         query={query}
         outfitState={outfitState}
         dispatchToOutfit={dispatchToOutfit}
-        getScrollParent={getScrollParent}
+        firstSearchResultRef={firstSearchResultRef}
+        onMoveFocusUpToQuery={onMoveFocusUpToQuery}
       />
     </Box>
   );
 }
 
-function SearchResults({ query, outfitState, dispatchToOutfit }) {
+function SearchResults({
+  query,
+  outfitState,
+  dispatchToOutfit,
+  firstSearchResultRef,
+  onMoveFocusUpToQuery,
+}) {
   const { speciesId, colorId } = outfitState;
 
   const debouncedQuery = useDebounce(query, 300, { waitForFirstPause: true });
@@ -159,19 +167,74 @@ function SearchResults({ query, outfitState, dispatchToOutfit }) {
     );
   }
 
+  const onChange = (e) => {
+    const itemId = e.target.value;
+    const willBeWorn = e.target.checked;
+    if (willBeWorn) {
+      dispatchToOutfit({ type: "wearItem", itemId });
+    } else {
+      dispatchToOutfit({ type: "unwearItem", itemId });
+    }
+  };
+
+  const goToPrevItem = (e) => {
+    const prevLabel = e.target.closest("label").previousSibling;
+    if (prevLabel) {
+      prevLabel.querySelector("input[type=checkbox]").focus();
+      e.preventDefault();
+    } else {
+      // If we're at the top of the list, move back up to the search box!
+      onMoveFocusUpToQuery(e);
+    }
+  };
+
+  const goToNextItem = (e) => {
+    const nextLabel = e.target.closest("label").nextSibling;
+    if (nextLabel) {
+      nextLabel.querySelector("input[type=checkbox]").focus();
+      e.preventDefault();
+    }
+  };
+
+  console.log(firstSearchResultRef);
   return (
     <ScrollTracker threshold={300} onScrolledToBottom={onScrolledToBottom}>
-      <ItemList
-        items={items}
-        outfitState={outfitState}
-        dispatchToOutfit={dispatchToOutfit}
-      />
+      <ItemListContainer>
+        {items.map((item, index) => (
+          <label key={item.id}>
+            <VisuallyHidden
+              as="input"
+              type="checkbox"
+              aria-label={`Wear "${item.name}"`}
+              value={item.id}
+              checked={outfitState.wornItemIds.includes(item.id)}
+              ref={index === 0 ? firstSearchResultRef : null}
+              onChange={onChange}
+              onKeyDown={(e) => {
+                console.log(e.key);
+                if (e.key === "ArrowUp") {
+                  goToPrevItem(e);
+                } else if (e.key === "ArrowDown") {
+                  goToNextItem(e);
+                } else if (e.key === "Escape") {
+                  onMoveFocusUpToQuery(e);
+                }
+              }}
+            />
+            <Item
+              item={item}
+              outfitState={outfitState}
+              dispatchToOutfit={dispatchToOutfit}
+            />
+          </label>
+        ))}
+      </ItemListContainer>
       {items && loading && <ItemListSkeleton count={8} />}
     </ScrollTracker>
   );
 }
 
-function ScrollTracker({ children, query, threshold, onScrolledToBottom }) {
+function ScrollTracker({ children, threshold, onScrolledToBottom }) {
   const containerRef = React.useRef();
   const scrollParent = React.useRef();
 
@@ -209,7 +272,7 @@ function ScrollTracker({ children, query, threshold, onScrolledToBottom }) {
     };
   }, [onScroll]);
 
-  return <Box ref={containerRef}>{children}</Box>;
+  return <div ref={containerRef}>{children}</div>;
 }
 
 export default SearchPanel;

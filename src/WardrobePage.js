@@ -21,6 +21,8 @@ function WardrobePage() {
   const [searchQuery, setSearchQuery] = React.useState("");
   const toast = useToast();
   const searchContainerRef = React.useRef();
+  const searchQueryRef = React.useRef();
+  const firstSearchResultRef = React.useRef();
 
   React.useEffect(() => {
     if (error) {
@@ -72,13 +74,24 @@ function WardrobePage() {
         </Box>
         <Box gridArea="search" boxShadow="sm">
           <Box px="5" py="3">
-            <SearchToolbar query={searchQuery} onChange={setSearchQuery} />
+            <SearchToolbar
+              query={searchQuery}
+              queryRef={searchQueryRef}
+              onChange={setSearchQuery}
+              onMoveFocusDownToResults={(e) => {
+                if (firstSearchResultRef.current) {
+                  firstSearchResultRef.current.focus();
+                  e.preventDefault();
+                }
+              }}
+            />
           </Box>
         </Box>
 
         {searchQuery ? (
           <Box
             gridArea="items"
+            position="relative"
             overflow="auto"
             key="search-panel"
             ref={searchContainerRef}
@@ -88,11 +101,23 @@ function WardrobePage() {
                 query={searchQuery}
                 outfitState={outfitState}
                 dispatchToOutfit={dispatchToOutfit}
+                firstSearchResultRef={firstSearchResultRef}
+                onMoveFocusUpToQuery={(e) => {
+                  if (searchQueryRef.current) {
+                    searchQueryRef.current.focus();
+                    e.preventDefault();
+                  }
+                }}
               />
             </Box>
           </Box>
         ) : (
-          <Box gridArea="items" overflow="auto" key="items-panel">
+          <Box
+            gridArea="items"
+            position="relative"
+            overflow="auto"
+            key="items-panel"
+          >
             <Box px="5" py="5">
               <ItemsPanel
                 loading={loading}
@@ -107,7 +132,12 @@ function WardrobePage() {
   );
 }
 
-function SearchToolbar({ query, onChange }) {
+function SearchToolbar({
+  query,
+  queryRef,
+  onChange,
+  onMoveFocusDownToResults,
+}) {
   return (
     <InputGroup>
       <InputLeftElement>
@@ -118,11 +148,14 @@ function SearchToolbar({ query, onChange }) {
         focusBorderColor="green.600"
         color="green.800"
         value={query}
+        ref={queryRef}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Escape") {
             onChange("");
             e.target.blur();
+          } else if (e.key === "ArrowDown") {
+            onMoveFocusDownToResults(e);
           }
         }}
       />

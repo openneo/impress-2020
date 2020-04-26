@@ -21,7 +21,7 @@ function ItemsPanel({ outfitState, loading, dispatchToOutfit }) {
   const { zonesAndItems } = outfitState;
 
   return (
-    <Box color="green.800" position="relative">
+    <Box color="green.800">
       <Box px="1">
         <OutfitHeading
           outfitState={outfitState}
@@ -107,6 +107,7 @@ function ItemRadioList({ name, items, outfitState, dispatchToOutfit }) {
               <VisuallyHidden
                 as="input"
                 type="radio"
+                aria-labelledby={`${name}-item-${item.id}-name`}
                 name={name}
                 value={item.id}
                 checked={outfitState.wornItemIds.includes(item.id)}
@@ -120,6 +121,7 @@ function ItemRadioList({ name, items, outfitState, dispatchToOutfit }) {
               />
               <Item
                 item={item}
+                itemNameId={`${name}-item-${item.id}-name`}
                 outfitState={outfitState}
                 dispatchToOutfit={dispatchToOutfit}
               />
