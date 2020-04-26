@@ -10,6 +10,7 @@ import {
   InputRightElement,
   useToast,
 } from "@chakra-ui/core";
+import { Helmet } from "react-helmet";
 
 import ItemsPanel from "./ItemsPanel";
 import OutfitPreview from "./OutfitPreview";
@@ -44,91 +45,98 @@ function WardrobePage() {
   }, [searchQuery]);
 
   return (
-    <Box position="absolute" top="0" bottom="0" left="0" right="0">
-      <Grid
-        // Fullscreen, split into a vertical stack on smaller screens
-        // or a horizontal stack on larger ones!
-        templateAreas={{
-          base: `"outfit"
+    <>
+      <Helmet>
+        <title>
+          {outfitState.name || "Untitled outfit"} | Dress to Impress
+        </title>
+      </Helmet>
+      <Box position="absolute" top="0" bottom="0" left="0" right="0">
+        <Grid
+          // Fullscreen, split into a vertical stack on smaller screens
+          // or a horizontal stack on larger ones!
+          templateAreas={{
+            base: `"outfit"
                  "search"
                  "items"`,
-          lg: `"outfit search"
+            lg: `"outfit search"
                "outfit items"`,
-        }}
-        templateRows={{
-          base: "minmax(100px, 1fr) auto minmax(300px, 1fr)",
-          lg: "auto 1fr",
-        }}
-        templateColumns={{
-          base: "100%",
-          lg: "50% 50%",
-        }}
-        height="100%"
-        width="100%"
-      >
-        <Box gridArea="outfit" backgroundColor="gray.900">
-          <OutfitPreview
-            outfitState={outfitState}
-            dispatchToOutfit={dispatchToOutfit}
-          />
-        </Box>
-        <Box gridArea="search" boxShadow="sm">
-          <Box px="5" py="3">
-            <SearchToolbar
-              query={searchQuery}
-              queryRef={searchQueryRef}
-              onChange={setSearchQuery}
-              onMoveFocusDownToResults={(e) => {
-                if (firstSearchResultRef.current) {
-                  firstSearchResultRef.current.focus();
-                  e.preventDefault();
-                }
-              }}
+          }}
+          templateRows={{
+            base: "minmax(100px, 1fr) auto minmax(300px, 1fr)",
+            lg: "auto 1fr",
+          }}
+          templateColumns={{
+            base: "100%",
+            lg: "50% 50%",
+          }}
+          height="100%"
+          width="100%"
+        >
+          <Box gridArea="outfit" backgroundColor="gray.900">
+            <OutfitPreview
+              outfitState={outfitState}
+              dispatchToOutfit={dispatchToOutfit}
             />
           </Box>
-        </Box>
-
-        {searchQuery ? (
-          <Box
-            gridArea="items"
-            position="relative"
-            overflow="auto"
-            key="search-panel"
-            ref={searchContainerRef}
-          >
-            <Box px="4" py="5">
-              <SearchPanel
+          <Box gridArea="search" boxShadow="sm">
+            <Box px="5" py="3">
+              <SearchToolbar
                 query={searchQuery}
-                outfitState={outfitState}
-                dispatchToOutfit={dispatchToOutfit}
-                firstSearchResultRef={firstSearchResultRef}
-                onMoveFocusUpToQuery={(e) => {
-                  if (searchQueryRef.current) {
-                    searchQueryRef.current.focus();
+                queryRef={searchQueryRef}
+                onChange={setSearchQuery}
+                onMoveFocusDownToResults={(e) => {
+                  if (firstSearchResultRef.current) {
+                    firstSearchResultRef.current.focus();
                     e.preventDefault();
                   }
                 }}
               />
             </Box>
           </Box>
-        ) : (
-          <Box
-            gridArea="items"
-            position="relative"
-            overflow="auto"
-            key="items-panel"
-          >
-            <Box px="5" py="5">
-              <ItemsPanel
-                loading={loading}
-                outfitState={outfitState}
-                dispatchToOutfit={dispatchToOutfit}
-              />
+
+          {searchQuery ? (
+            <Box
+              gridArea="items"
+              position="relative"
+              overflow="auto"
+              key="search-panel"
+              ref={searchContainerRef}
+            >
+              <Box px="4" py="5">
+                <SearchPanel
+                  query={searchQuery}
+                  outfitState={outfitState}
+                  dispatchToOutfit={dispatchToOutfit}
+                  firstSearchResultRef={firstSearchResultRef}
+                  onMoveFocusUpToQuery={(e) => {
+                    if (searchQueryRef.current) {
+                      searchQueryRef.current.focus();
+                      e.preventDefault();
+                    }
+                  }}
+                />
+              </Box>
             </Box>
-          </Box>
-        )}
-      </Grid>
-    </Box>
+          ) : (
+            <Box
+              gridArea="items"
+              position="relative"
+              overflow="auto"
+              key="items-panel"
+            >
+              <Box px="5" py="5">
+                <ItemsPanel
+                  loading={loading}
+                  outfitState={outfitState}
+                  dispatchToOutfit={dispatchToOutfit}
+                />
+              </Box>
+            </Box>
+          )}
+        </Grid>
+      </Box>
+    </>
   );
 }
 
