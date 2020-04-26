@@ -146,13 +146,13 @@ function OutfitHeading({ outfitState, dispatchToOutfit }) {
             }
           >
             {({ isEditing, onRequestEdit }) => (
-              <>
+              <Flex align="flex-top">
                 <EditablePreview />
                 <EditableInput />
                 {!isEditing && (
                   <OutfitNameEditButton onRequestEdit={onRequestEdit} />
                 )}
-              </>
+              </Flex>
             )}
           </Editable>
         </Heading1>
@@ -164,12 +164,10 @@ function OutfitHeading({ outfitState, dispatchToOutfit }) {
 function OutfitNameEditButton({ onRequestEdit }) {
   return (
     <PseudoBox
-      d="inline-block"
       opacity="0"
       transition="opacity 0.5s"
       _groupHover={{ opacity: "1" }}
       onClick={onRequestEdit}
-      position="absolute"
     >
       <IconButton
         icon="edit"
