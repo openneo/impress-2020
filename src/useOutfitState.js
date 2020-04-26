@@ -194,6 +194,10 @@ function findItemConflicts(itemIdToAdd, state, apolloClient) {
                 id
               }
             }
+
+            restrictedZones {
+              id
+            }
           }
         }
       }
@@ -208,7 +212,10 @@ function findItemConflicts(itemIdToAdd, state, apolloClient) {
   if (!itemToAdd.appearanceOn) {
     return [];
   }
-  const itemToAddZoneIds = itemToAdd.appearanceOn.layers.map((l) => l.zone.id);
+  const itemToAddZoneIds = [
+    ...itemToAdd.appearanceOn.layers.map((l) => l.zone.id),
+    ...itemToAdd.appearanceOn.restrictedZones.map((z) => z.id),
+  ];
   const wornItems = Array.from(wornItemIds).map((id) =>
     items.find((i) => i.id === id)
   );
@@ -218,7 +225,10 @@ function findItemConflicts(itemIdToAdd, state, apolloClient) {
     if (!wornItem.appearanceOn) {
       continue;
     }
-    const wornItemZoneIds = wornItem.appearanceOn.layers.map((l) => l.zone.id);
+    const wornItemZoneIds = [
+      ...wornItem.appearanceOn.layers.map((l) => l.zone.id),
+      ...wornItem.appearanceOn.restrictedZones.map((z) => z.id),
+    ];
 
     const hasConflict = wornItemZoneIds.some((zid) =>
       itemToAddZoneIds.includes(zid)
