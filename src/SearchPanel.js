@@ -15,7 +15,14 @@ function SearchPanel({
   onMoveFocusUpToQuery,
 }) {
   return (
-    <Box color="green.800">
+    <Box
+      color="green.800"
+      onKeyDown={(e) => {
+        if (e.key === "Escape") {
+          onMoveFocusUpToQuery(e);
+        }
+      }}
+    >
       <Heading1 mb="4">Searching for "{query}"</Heading1>
       <SearchResults
         query={query}
@@ -210,12 +217,12 @@ function SearchResults({
               ref={index === 0 ? firstSearchResultRef : null}
               onChange={onChange}
               onKeyDown={(e) => {
-                if (e.key === "ArrowUp") {
+                if (e.key === "Enter") {
+                  e.target.click();
+                } else if (e.key === "ArrowUp") {
                   goToPrevItem(e);
                 } else if (e.key === "ArrowDown") {
                   goToNextItem(e);
-                } else if (e.key === "Escape") {
-                  onMoveFocusUpToQuery(e);
                 }
               }}
             />
