@@ -21,7 +21,7 @@ function ItemsPanel({ outfitState, loading, dispatchToOutfit }) {
   const { zonesAndItems } = outfitState;
 
   return (
-    <Box color="green.800">
+    <Box color="green.800" position="relative">
       <Box px="1">
         <OutfitHeading
           outfitState={outfitState}
