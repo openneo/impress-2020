@@ -8,11 +8,12 @@ import {
   IconButton,
   PseudoBox,
   Skeleton,
+  VisuallyHidden,
 } from "@chakra-ui/core";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 
 import { Delay, Heading1, Heading2 } from "./util";
-import ItemList, { ItemListSkeleton } from "./ItemList";
+import { ItemListContainer, Item, ItemListSkeleton } from "./ItemList";
 
 import "./ItemsPanel.css";
 
@@ -21,16 +22,20 @@ function ItemsPanel({ outfitState, loading, dispatchToOutfit }) {
 
   return (
     <Box color="green.800">
-      <OutfitHeading
-        outfitState={outfitState}
-        dispatchToOutfit={dispatchToOutfit}
-      />
+      <Box px="1">
+        <OutfitHeading
+          outfitState={outfitState}
+          dispatchToOutfit={dispatchToOutfit}
+        />
+      </Box>
       <Flex direction="column">
         {loading &&
           [1, 2, 3].map((i) => (
             <Box key={i} mb="10">
               <Delay>
-                <Skeleton height="2.3rem" width="12rem" />
+                <Box px="1">
+                  <Skeleton height="2.3rem" width="12rem" />
+                </Box>
                 <ItemListSkeleton count={3} />
               </Delay>
             </Box>
@@ -47,8 +52,11 @@ function ItemsPanel({ outfitState, loading, dispatchToOutfit }) {
                 }}
               >
                 <Box mb="10">
-                  <Heading2>{zoneLabel}</Heading2>
-                  <ItemList
+                  <Box px="1">
+                    <Heading2>{zoneLabel}</Heading2>
+                  </Box>
+                  <ItemRadioList
+                    name={zoneLabel}
                     items={items}
                     outfitState={outfitState}
                     dispatchToOutfit={dispatchToOutfit}
@@ -60,6 +68,68 @@ function ItemsPanel({ outfitState, loading, dispatchToOutfit }) {
         )}
       </Flex>
     </Box>
+  );
+}
+
+function ItemRadioList({ name, items, outfitState, dispatchToOutfit }) {
+  const onChange = (e) => {
+    const itemId = e.target.value;
+    dispatchToOutfit({ type: "wearItem", itemId });
+  };
+
+  const onToggle = (e) => {
+    // Clicking the radio button when already selected deselects it - this is
+    // how you can select none!
+    const itemId = e.target.value;
+    if (outfitState.wornItemIds.includes(itemId)) {
+      // We need the event handler to finish before this, so that simulated
+      // events don't just come back around and undo it - but we can't just
+      // solve that with `preventDefault`, because it breaks the radio's
+      // intended visual updates when we unwear. So, we `setTimeout` to do it
+      // after all event handlers resolve!
+      setTimeout(() => dispatchToOutfit({ type: "unwearItem", itemId }), 0);
+    }
+  };
+
+  return (
+    <ItemListContainer>
+      <TransitionGroup component={null}>
+        {items.map((item) => (
+          <CSSTransition
+            key={item.id}
+            classNames="item-list-row"
+            timeout={500}
+            onExit={(e) => {
+              e.style.height = e.offsetHeight + "px";
+            }}
+          >
+            <label>
+              <VisuallyHidden
+                as="input"
+                type="radio"
+                aria-labelledby={`${name}-item-${item.id}-name`}
+                name={name}
+                value={item.id}
+                checked={outfitState.wornItemIds.includes(item.id)}
+                onChange={onChange}
+                onClick={onToggle}
+                onKeyUp={(e) => {
+                  if (e.key === " ") {
+                    onToggle(e);
+                  }
+                }}
+              />
+              <Item
+                item={item}
+                itemNameId={`${name}-item-${item.id}-name`}
+                outfitState={outfitState}
+                dispatchToOutfit={dispatchToOutfit}
+              />
+            </label>
+          </CSSTransition>
+        ))}
+      </TransitionGroup>
+    </ItemListContainer>
   );
 }
 

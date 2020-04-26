@@ -74,7 +74,6 @@ function SpeciesColorPicker({
     if (allValidSpeciesColorPairs.has(pair)) {
       dispatchToOutfit({ type: "changeColor", colorId: e.target.value });
     } else {
-      console.log(pair, Array.from(allValidSpeciesColorPairs));
       const species = allSpecies.find((s) => s.id === speciesId);
       const color = allColors.find((c) => c.id === colorId);
       toast({
@@ -91,7 +90,6 @@ function SpeciesColorPicker({
     if (allValidSpeciesColorPairs.has(pair)) {
       dispatchToOutfit({ type: "changeSpecies", speciesId: e.target.value });
     } else {
-      console.log(pair, Array.from(allValidSpeciesColorPairs));
       const species = allSpecies.find((s) => s.id === speciesId);
       const color = allColors.find((c) => c.id === colorId);
       toast({
