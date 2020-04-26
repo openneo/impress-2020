@@ -22,16 +22,20 @@ function ItemsPanel({ outfitState, loading, dispatchToOutfit }) {
 
   return (
     <Box color="green.800">
-      <OutfitHeading
-        outfitState={outfitState}
-        dispatchToOutfit={dispatchToOutfit}
-      />
+      <Box px="1">
+        <OutfitHeading
+          outfitState={outfitState}
+          dispatchToOutfit={dispatchToOutfit}
+        />
+      </Box>
       <Flex direction="column">
         {loading &&
           [1, 2, 3].map((i) => (
             <Box key={i} mb="10">
               <Delay>
-                <Skeleton height="2.3rem" width="12rem" />
+                <Box px="1">
+                  <Skeleton height="2.3rem" width="12rem" />
+                </Box>
                 <ItemListSkeleton count={3} />
               </Delay>
             </Box>
@@ -48,7 +52,9 @@ function ItemsPanel({ outfitState, loading, dispatchToOutfit }) {
                 }}
               >
                 <Box mb="10">
-                  <Heading2>{zoneLabel}</Heading2>
+                  <Box px="1">
+                    <Heading2>{zoneLabel}</Heading2>
+                  </Box>
                   <ItemRadioList
                     name={zoneLabel}
                     items={items}

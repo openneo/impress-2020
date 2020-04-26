@@ -114,8 +114,7 @@ function ItemContainer({ children }) {
   return (
     <Box
       p="1"
-      mb="1"
-      mt="1"
+      my="1"
       rounded="lg"
       d="flex"
       alignItems="center"

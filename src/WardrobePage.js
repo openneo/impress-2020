@@ -83,7 +83,7 @@ function WardrobePage() {
             key="search-panel"
             ref={searchContainerRef}
           >
-            <Box px="5" py="5">
+            <Box px="4" py="5">
               <SearchPanel
                 query={searchQuery}
                 outfitState={outfitState}
