@@ -1,5 +1,560 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Color loads all colors 1`] = `
+Object {
+  "allColors": Array [
+    Object {
+      "id": "1",
+      "name": "Alien",
+    },
+    Object {
+      "id": "2",
+      "name": "Apple",
+    },
+    Object {
+      "id": "3",
+      "name": "Asparagus",
+    },
+    Object {
+      "id": "4",
+      "name": "Aubergine",
+    },
+    Object {
+      "id": "5",
+      "name": "Avocado",
+    },
+    Object {
+      "id": "6",
+      "name": "Baby",
+    },
+    Object {
+      "id": "7",
+      "name": "Biscuit",
+    },
+    Object {
+      "id": "8",
+      "name": "Blue",
+    },
+    Object {
+      "id": "9",
+      "name": "Blueberry",
+    },
+    Object {
+      "id": "10",
+      "name": "Brown",
+    },
+    Object {
+      "id": "11",
+      "name": "Camouflage",
+    },
+    Object {
+      "id": "12",
+      "name": "Carrot",
+    },
+    Object {
+      "id": "13",
+      "name": "Checkered",
+    },
+    Object {
+      "id": "14",
+      "name": "Chocolate",
+    },
+    Object {
+      "id": "15",
+      "name": "Chokato",
+    },
+    Object {
+      "id": "16",
+      "name": "Christmas",
+    },
+    Object {
+      "id": "17",
+      "name": "Clay",
+    },
+    Object {
+      "id": "18",
+      "name": "Cloud",
+    },
+    Object {
+      "id": "19",
+      "name": "Coconut",
+    },
+    Object {
+      "id": "20",
+      "name": "Custard",
+    },
+    Object {
+      "id": "21",
+      "name": "Darigan",
+    },
+    Object {
+      "id": "22",
+      "name": "Desert",
+    },
+    Object {
+      "id": "23",
+      "name": "Disco",
+    },
+    Object {
+      "id": "24",
+      "name": "Durian",
+    },
+    Object {
+      "id": "25",
+      "name": "Electric",
+    },
+    Object {
+      "id": "26",
+      "name": "Faerie",
+    },
+    Object {
+      "id": "27",
+      "name": "Fire",
+    },
+    Object {
+      "id": "28",
+      "name": "Garlic",
+    },
+    Object {
+      "id": "29",
+      "name": "Ghost",
+    },
+    Object {
+      "id": "30",
+      "name": "Glowing",
+    },
+    Object {
+      "id": "31",
+      "name": "Gold",
+    },
+    Object {
+      "id": "32",
+      "name": "Gooseberry",
+    },
+    Object {
+      "id": "33",
+      "name": "Grape",
+    },
+    Object {
+      "id": "34",
+      "name": "Green",
+    },
+    Object {
+      "id": "35",
+      "name": "Grey",
+    },
+    Object {
+      "id": "36",
+      "name": "Halloween",
+    },
+    Object {
+      "id": "37",
+      "name": "Ice",
+    },
+    Object {
+      "id": "38",
+      "name": "Invisible",
+    },
+    Object {
+      "id": "39",
+      "name": "Island",
+    },
+    Object {
+      "id": "40",
+      "name": "Jelly",
+    },
+    Object {
+      "id": "41",
+      "name": "Lemon",
+    },
+    Object {
+      "id": "42",
+      "name": "Lime",
+    },
+    Object {
+      "id": "43",
+      "name": "Mallow",
+    },
+    Object {
+      "id": "44",
+      "name": "Maraquan",
+    },
+    Object {
+      "id": "45",
+      "name": "Msp",
+    },
+    Object {
+      "id": "46",
+      "name": "Mutant",
+    },
+    Object {
+      "id": "47",
+      "name": "Orange",
+    },
+    Object {
+      "id": "48",
+      "name": "Pea",
+    },
+    Object {
+      "id": "49",
+      "name": "Peach",
+    },
+    Object {
+      "id": "50",
+      "name": "Pear",
+    },
+    Object {
+      "id": "51",
+      "name": "Pepper",
+    },
+    Object {
+      "id": "52",
+      "name": "Pineapple",
+    },
+    Object {
+      "id": "53",
+      "name": "Pink",
+    },
+    Object {
+      "id": "54",
+      "name": "Pirate",
+    },
+    Object {
+      "id": "55",
+      "name": "Plum",
+    },
+    Object {
+      "id": "56",
+      "name": "Plushie",
+    },
+    Object {
+      "id": "57",
+      "name": "Purple",
+    },
+    Object {
+      "id": "58",
+      "name": "Quigukiboy",
+    },
+    Object {
+      "id": "59",
+      "name": "Quigukigirl",
+    },
+    Object {
+      "id": "60",
+      "name": "Rainbow",
+    },
+    Object {
+      "id": "61",
+      "name": "Red",
+    },
+    Object {
+      "id": "62",
+      "name": "Robot",
+    },
+    Object {
+      "id": "63",
+      "name": "Royalboy",
+    },
+    Object {
+      "id": "64",
+      "name": "Royalgirl",
+    },
+    Object {
+      "id": "65",
+      "name": "Shadow",
+    },
+    Object {
+      "id": "66",
+      "name": "Silver",
+    },
+    Object {
+      "id": "67",
+      "name": "Sketch",
+    },
+    Object {
+      "id": "68",
+      "name": "Skunk",
+    },
+    Object {
+      "id": "69",
+      "name": "Snot",
+    },
+    Object {
+      "id": "70",
+      "name": "Snow",
+    },
+    Object {
+      "id": "71",
+      "name": "Speckled",
+    },
+    Object {
+      "id": "72",
+      "name": "Split",
+    },
+    Object {
+      "id": "73",
+      "name": "Sponge",
+    },
+    Object {
+      "id": "74",
+      "name": "Spotted",
+    },
+    Object {
+      "id": "75",
+      "name": "Starry",
+    },
+    Object {
+      "id": "76",
+      "name": "Strawberry",
+    },
+    Object {
+      "id": "77",
+      "name": "Striped",
+    },
+    Object {
+      "id": "78",
+      "name": "Thornberry",
+    },
+    Object {
+      "id": "79",
+      "name": "Tomato",
+    },
+    Object {
+      "id": "80",
+      "name": "Tyrannian",
+    },
+    Object {
+      "id": "81",
+      "name": "Usuki boy",
+    },
+    Object {
+      "id": "82",
+      "name": "Usuki girl",
+    },
+    Object {
+      "id": "83",
+      "name": "White",
+    },
+    Object {
+      "id": "84",
+      "name": "Yellow",
+    },
+    Object {
+      "id": "85",
+      "name": "Zombie",
+    },
+    Object {
+      "id": "86",
+      "name": "Onion",
+    },
+    Object {
+      "id": "87",
+      "name": "Magma",
+    },
+    Object {
+      "id": "88",
+      "name": "Relic",
+    },
+    Object {
+      "id": "89",
+      "name": "Woodland",
+    },
+    Object {
+      "id": "90",
+      "name": "Transparent",
+    },
+    Object {
+      "id": "91",
+      "name": "Maractite",
+    },
+    Object {
+      "id": "92",
+      "name": "8-bit",
+    },
+    Object {
+      "id": "93",
+      "name": "Swamp gas",
+    },
+    Object {
+      "id": "94",
+      "name": "Water",
+    },
+    Object {
+      "id": "95",
+      "name": "Wraith",
+    },
+    Object {
+      "id": "96",
+      "name": "Eventide",
+    },
+    Object {
+      "id": "97",
+      "name": "Elderlyboy",
+    },
+    Object {
+      "id": "98",
+      "name": "Elderlygirl",
+    },
+    Object {
+      "id": "99",
+      "name": "Stealthy",
+    },
+    Object {
+      "id": "100",
+      "name": "Dimensional",
+    },
+    Object {
+      "id": "101",
+      "name": "Agueena",
+    },
+    Object {
+      "id": "102",
+      "name": "Pastel",
+    },
+    Object {
+      "id": "103",
+      "name": "Ummagine",
+    },
+    Object {
+      "id": "104",
+      "name": "Polka Dot",
+    },
+    Object {
+      "id": "105",
+      "name": "Candy",
+    },
+    Object {
+      "id": "106",
+      "name": "Marble",
+    },
+    Object {
+      "id": "107",
+      "name": "Steampunk",
+    },
+    Object {
+      "id": "108",
+      "name": "Toy",
+    },
+    Object {
+      "id": "109",
+      "name": "Origami",
+    },
+    Object {
+      "id": "110",
+      "name": "Oil Paint",
+    },
+    Object {
+      "id": "111",
+      "name": "Mosaic",
+    },
+    Object {
+      "id": "112",
+      "name": "Burlap",
+    },
+  ],
+}
+`;
+
+exports[`Item loads appearance data 1`] = `
+Object {
+  "items": Array [
+    Object {
+      "appearanceOn": Object {
+        "layers": Array [
+          Object {
+            "id": "37128",
+            "imageUrl": "https://impress-asset-images.s3.amazonaws.com/object/000/000/014/14856/600x600.png?v2-1587653266000",
+            "zone": Object {
+              "depth": 30,
+              "id": "26",
+              "label": "Jacket",
+            },
+          },
+        ],
+        "restrictedZones": Array [
+          Object {
+            "id": "20",
+          },
+          Object {
+            "id": "22",
+          },
+        ],
+      },
+      "id": "38912",
+      "name": "Zafara Agent Robe",
+    },
+    Object {
+      "appearanceOn": Object {
+        "layers": Array [
+          Object {
+            "id": "37129",
+            "imageUrl": "https://impress-asset-images.s3.amazonaws.com/object/000/000/014/14857/600x600.png?v2-0",
+            "zone": Object {
+              "depth": 44,
+              "id": "40",
+              "label": "Hat",
+            },
+          },
+        ],
+        "restrictedZones": Array [
+          Object {
+            "id": "37",
+          },
+          Object {
+            "id": "38",
+          },
+        ],
+      },
+      "id": "38911",
+      "name": "Zafara Agent Hood",
+    },
+    Object {
+      "appearanceOn": Object {
+        "layers": Array [
+          Object {
+            "id": "30203",
+            "imageUrl": "https://impress-asset-images.s3.amazonaws.com/object/000/000/006/6829/600x600.png?v2-0",
+            "zone": Object {
+              "depth": 3,
+              "id": "3",
+              "label": "Background",
+            },
+          },
+        ],
+        "restrictedZones": Array [],
+      },
+      "id": "37375",
+      "name": "Moon and Stars Background",
+    },
+  ],
+}
+`;
+
+exports[`Item loads metadata 1`] = `
+Object {
+  "items": Array [
+    Object {
+      "description": "Dont leave any trace that you were there with these gloves.",
+      "id": "38913",
+      "name": "Zafara Agent Gloves",
+      "thumbnailUrl": "http://images.neopets.com/items/clo_zafara_agent_gloves.gif",
+    },
+    Object {
+      "description": "Hide your face and hair so no one can recognise you.",
+      "id": "38911",
+      "name": "Zafara Agent Hood",
+      "thumbnailUrl": "http://images.neopets.com/items/clo_zafara_agent_hood.gif",
+    },
+    Object {
+      "description": "This robe is great for being stealthy.",
+      "id": "38912",
+      "name": "Zafara Agent Robe",
+      "thumbnailUrl": "http://images.neopets.com/items/clo_zafara_agent_robe.gif",
+    },
+  ],
+}
+`;
+
 exports[`Pet looks up a pet 1`] = `
 Object {
   "petOnNeopetsDotCom": Object {
@@ -36,6 +591,480 @@ Object {
       "id": "54",
     },
   },
+}
+`;
+
+exports[`PetAppearance loads for species and color 1`] = `
+Object {
+  "petAppearance": Object {
+    "layers": Array [
+      Object {
+        "id": "5995",
+        "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7941/600x600.png?v2-0",
+        "zone": Object {
+          "depth": 18,
+        },
+      },
+      Object {
+        "id": "5996",
+        "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7942/600x600.png?v2-0",
+        "zone": Object {
+          "depth": 7,
+        },
+      },
+      Object {
+        "id": "6000",
+        "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7946/600x600.png?v2-0",
+        "zone": Object {
+          "depth": 40,
+        },
+      },
+      Object {
+        "id": "16467",
+        "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/024/24008/600x600.png?v2-0",
+        "zone": Object {
+          "depth": 34,
+        },
+      },
+      Object {
+        "id": "19784",
+        "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/028/28892/600x600.png?v2-1313418652000",
+        "zone": Object {
+          "depth": 37,
+        },
+      },
+      Object {
+        "id": "178150",
+        "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/036/36887/600x600.png?v2-1354240708000",
+        "zone": Object {
+          "depth": 38,
+        },
+      },
+    ],
+  },
+}
+`;
+
+exports[`Search loads Neopian Times items 1`] = `
+Object {
+  "itemSearch": Object {
+    "items": Array [
+      Object {
+        "id": "40431",
+        "name": "Neopian Times Background",
+      },
+      Object {
+        "id": "59391",
+        "name": "Neopian Times Eyrie Hat",
+      },
+      Object {
+        "id": "59392",
+        "name": "Neopian Times Eyrie Shirt and Vest",
+      },
+      Object {
+        "id": "59394",
+        "name": "Neopian Times Eyrie Shoes",
+      },
+      Object {
+        "id": "59393",
+        "name": "Neopian Times Eyrie Trousers",
+      },
+      Object {
+        "id": "59390",
+        "name": "Neopian Times Eyries Paper",
+      },
+      Object {
+        "id": "51098",
+        "name": "Neopian Times Writing Quill",
+      },
+      Object {
+        "id": "61101",
+        "name": "Neopian Times Zafara Handkerchief",
+      },
+      Object {
+        "id": "61100",
+        "name": "Neopian Times Zafara Hat",
+      },
+      Object {
+        "id": "61102",
+        "name": "Neopian Times Zafara Shirt and Vest",
+      },
+      Object {
+        "id": "61104",
+        "name": "Neopian Times Zafara Shoes",
+      },
+      Object {
+        "id": "61103",
+        "name": "Neopian Times Zafara Trousers",
+      },
+    ],
+    "query": "Neopian Times",
+  },
+}
+`;
+
+exports[`Search loads Neopian Times items that fit the Starry Zafara 1`] = `
+Object {
+  "itemSearchToFit": Object {
+    "items": Array [
+      Object {
+        "id": "40431",
+        "name": "Neopian Times Background",
+      },
+      Object {
+        "id": "51098",
+        "name": "Neopian Times Writing Quill",
+      },
+      Object {
+        "id": "61101",
+        "name": "Neopian Times Zafara Handkerchief",
+      },
+      Object {
+        "id": "61100",
+        "name": "Neopian Times Zafara Hat",
+      },
+      Object {
+        "id": "61102",
+        "name": "Neopian Times Zafara Shirt and Vest",
+      },
+      Object {
+        "id": "61104",
+        "name": "Neopian Times Zafara Shoes",
+      },
+      Object {
+        "id": "61103",
+        "name": "Neopian Times Zafara Trousers",
+      },
+    ],
+    "query": "Neopian Times",
+  },
+}
+`;
+
+exports[`Search loads the first 10 hats that fit the Starry Zafara 1`] = `
+Object {
+  "itemSearchToFit": Object {
+    "items": Array [
+      Object {
+        "id": "74967",
+        "name": "17th Birthday Party Hat",
+      },
+      Object {
+        "id": "49026",
+        "name": "Abominable Snowman Hat",
+      },
+      Object {
+        "id": "67242",
+        "name": "Accessories Shop Wig and Hat",
+      },
+      Object {
+        "id": "64177",
+        "name": "Acorn Hat",
+      },
+      Object {
+        "id": "69995",
+        "name": "Adventure in Pastel Hat and Wig",
+      },
+      Object {
+        "id": "62375",
+        "name": "Altador Cup Trophy Hat",
+      },
+      Object {
+        "id": "56654",
+        "name": "Altador Team Hat",
+      },
+      Object {
+        "id": "62322",
+        "name": "Altador Team Jester Hat",
+      },
+      Object {
+        "id": "58733",
+        "name": "Apple Bobbing Bart Hat",
+      },
+      Object {
+        "id": "80401",
+        "name": "Aurricks Finest Hat",
+      },
+    ],
+    "query": "hat",
+  },
+}
+`;
+
+exports[`Search loads the next 10 hats that fit the Starry Zafara 1`] = `
+Object {
+  "itemSearchToFit": Object {
+    "items": Array [
+      Object {
+        "id": "50168",
+        "name": "Babaa Hat",
+      },
+      Object {
+        "id": "78311",
+        "name": "Backwards Hat and Wig",
+      },
+      Object {
+        "id": "66653",
+        "name": "Bagel Hat Wig",
+      },
+      Object {
+        "id": "51366",
+        "name": "Balloon Sculpture Hat",
+      },
+      Object {
+        "id": "66236",
+        "name": "Banker Hat and Wig",
+      },
+      Object {
+        "id": "52733",
+        "name": "Battlefield Legends Hat",
+      },
+      Object {
+        "id": "57617",
+        "name": "Big Black Lace Pirate Hat",
+      },
+      Object {
+        "id": "44451",
+        "name": "Big Fuzzy Hat",
+      },
+      Object {
+        "id": "58318",
+        "name": "Bigsby Shadingtons Hat",
+      },
+      Object {
+        "id": "39883",
+        "name": "Bird Nest Hat",
+      },
+    ],
+    "query": "hat",
+  },
+}
+`;
+
+exports[`Species loads all species 1`] = `
+Object {
+  "allSpecies": Array [
+    Object {
+      "id": "1",
+      "name": "Acara",
+    },
+    Object {
+      "id": "2",
+      "name": "Aisha",
+    },
+    Object {
+      "id": "3",
+      "name": "Blumaroo",
+    },
+    Object {
+      "id": "4",
+      "name": "Bori",
+    },
+    Object {
+      "id": "5",
+      "name": "Bruce",
+    },
+    Object {
+      "id": "6",
+      "name": "Buzz",
+    },
+    Object {
+      "id": "7",
+      "name": "Chia",
+    },
+    Object {
+      "id": "8",
+      "name": "Chomby",
+    },
+    Object {
+      "id": "9",
+      "name": "Cybunny",
+    },
+    Object {
+      "id": "10",
+      "name": "Draik",
+    },
+    Object {
+      "id": "11",
+      "name": "Elephante",
+    },
+    Object {
+      "id": "12",
+      "name": "Eyrie",
+    },
+    Object {
+      "id": "13",
+      "name": "Flotsam",
+    },
+    Object {
+      "id": "14",
+      "name": "Gelert",
+    },
+    Object {
+      "id": "15",
+      "name": "Gnorbu",
+    },
+    Object {
+      "id": "16",
+      "name": "Grarrl",
+    },
+    Object {
+      "id": "17",
+      "name": "Grundo",
+    },
+    Object {
+      "id": "18",
+      "name": "Hissi",
+    },
+    Object {
+      "id": "19",
+      "name": "Ixi",
+    },
+    Object {
+      "id": "20",
+      "name": "Jetsam",
+    },
+    Object {
+      "id": "21",
+      "name": "Jubjub",
+    },
+    Object {
+      "id": "22",
+      "name": "Kacheek",
+    },
+    Object {
+      "id": "23",
+      "name": "Kau",
+    },
+    Object {
+      "id": "24",
+      "name": "Kiko",
+    },
+    Object {
+      "id": "25",
+      "name": "Koi",
+    },
+    Object {
+      "id": "26",
+      "name": "Korbat",
+    },
+    Object {
+      "id": "27",
+      "name": "Kougra",
+    },
+    Object {
+      "id": "28",
+      "name": "Krawk",
+    },
+    Object {
+      "id": "29",
+      "name": "Kyrii",
+    },
+    Object {
+      "id": "30",
+      "name": "Lenny",
+    },
+    Object {
+      "id": "31",
+      "name": "Lupe",
+    },
+    Object {
+      "id": "32",
+      "name": "Lutari",
+    },
+    Object {
+      "id": "33",
+      "name": "Meerca",
+    },
+    Object {
+      "id": "34",
+      "name": "Moehog",
+    },
+    Object {
+      "id": "35",
+      "name": "Mynci",
+    },
+    Object {
+      "id": "36",
+      "name": "Nimmo",
+    },
+    Object {
+      "id": "37",
+      "name": "Ogrin",
+    },
+    Object {
+      "id": "38",
+      "name": "Peophin",
+    },
+    Object {
+      "id": "39",
+      "name": "Poogle",
+    },
+    Object {
+      "id": "40",
+      "name": "Pteri",
+    },
+    Object {
+      "id": "41",
+      "name": "Quiggle",
+    },
+    Object {
+      "id": "42",
+      "name": "Ruki",
+    },
+    Object {
+      "id": "43",
+      "name": "Scorchio",
+    },
+    Object {
+      "id": "44",
+      "name": "Shoyru",
+    },
+    Object {
+      "id": "45",
+      "name": "Skeith",
+    },
+    Object {
+      "id": "46",
+      "name": "Techo",
+    },
+    Object {
+      "id": "47",
+      "name": "Tonu",
+    },
+    Object {
+      "id": "48",
+      "name": "Tuskaninny",
+    },
+    Object {
+      "id": "49",
+      "name": "Uni",
+    },
+    Object {
+      "id": "50",
+      "name": "Usul",
+    },
+    Object {
+      "id": "51",
+      "name": "Wocky",
+    },
+    Object {
+      "id": "52",
+      "name": "Xweetok",
+    },
+    Object {
+      "id": "53",
+      "name": "Yurble",
+    },
+    Object {
+      "id": "54",
+      "name": "Zafara",
+    },
+    Object {
+      "id": "55",
+      "name": "Vandagyre",
+    },
+  ],
 }
 `;
 

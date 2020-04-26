@@ -15,6 +15,7 @@ const typeDefs = gql`
   type Item {
     id: ID!
     name: String!
+    description: String!
     thumbnailUrl: String!
     appearanceOn(speciesId: ID!, colorId: ID!): Appearance
   }
@@ -90,6 +91,10 @@ const resolvers = {
 
       const translation = await itemTranslationLoader.load(item.id);
       return translation.name;
+    },
+    description: async (item, _, { itemTranslationLoader }) => {
+      const translation = await itemTranslationLoader.load(item.id);
+      return translation.description;
     },
     appearanceOn: async (
       item,
