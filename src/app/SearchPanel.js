@@ -7,6 +7,13 @@ import { Delay, Heading1, useDebounce } from "./util";
 import { Item, ItemListContainer, ItemListSkeleton } from "./Item";
 import { itemAppearanceFragment } from "./OutfitPreview";
 
+/**
+ * SearchPanel shows item search results to the user, so they can preview them
+ * and add them to their outfit!
+ *
+ * It's tightly coordinated with SearchToolbar, using refs to control special
+ * keyboard and focus interactions.
+ */
 function SearchPanel({
   query,
   outfitState,
@@ -22,6 +29,7 @@ function SearchPanel({
     }
   }, [query, scrollContainerRef]);
 
+  // Sometimes we want to give focus back to the search field!
   const onMoveFocusUpToQuery = (e) => {
     if (searchQueryRef.current) {
       searchQueryRef.current.focus();
@@ -33,6 +41,8 @@ function SearchPanel({
     <Box
       color="green.800"
       onKeyDown={(e) => {
+        // This will catch any Escape presses when the user's focus is inside
+        // the SearchPanel.
         if (e.key === "Escape") {
           onMoveFocusUpToQuery(e);
         }
@@ -51,6 +61,14 @@ function SearchPanel({
   );
 }
 
+/**
+ * SearchResults loads the search results from the user's query, renders them,
+ * and tracks the scroll container for infinite scrolling.
+ *
+ * For each item, we render a <label> with a visually-hidden checkbox and the
+ * Item component (which will visually reflect the radio's state). This makes
+ * the list screen-reader- and keyboard-accessible!
+ */
 function SearchResults({
   query,
   outfitState,
@@ -59,16 +77,138 @@ function SearchResults({
   firstSearchResultRef,
   onMoveFocusUpToQuery,
 }) {
-  const { speciesId, colorId } = outfitState;
+  const { loading, loadingMore, error, items, fetchMore } = useSearchResults(
+    query,
+    outfitState
+  );
+  useScrollTracker(scrollContainerRef, 300, fetchMore);
 
-  const debouncedQuery = useDebounce(query, 300, { waitForFirstPause: true });
+  // When the checkbox changes, we should wear/unwear the item!
+  const onChange = (e) => {
+    const itemId = e.target.value;
+    const willBeWorn = e.target.checked;
+    if (willBeWorn) {
+      dispatchToOutfit({ type: "wearItem", itemId });
+    } else {
+      dispatchToOutfit({ type: "unwearItem", itemId });
+    }
+  };
+
+  // You can use UpArrow/DownArrow to navigate between items, and even back up
+  // to the search field!
+  const goToPrevItem = (e) => {
+    const prevLabel = e.target.closest("label").previousSibling;
+    if (prevLabel) {
+      prevLabel.querySelector("input[type=checkbox]").focus();
+      prevLabel.scrollIntoView({ block: "center" });
+      e.preventDefault();
+    } else {
+      // If we're at the top of the list, move back up to the search box!
+      onMoveFocusUpToQuery(e);
+    }
+  };
+  const goToNextItem = (e) => {
+    const nextLabel = e.target.closest("label").nextSibling;
+    if (nextLabel) {
+      nextLabel.querySelector("input[type=checkbox]").focus();
+      nextLabel.scrollIntoView({ block: "center" });
+      e.preventDefault();
+    }
+  };
+
+  // If the results aren't ready, we have some special case UI!
+  if (loading) {
+    return (
+      <Delay ms={500}>
+        <ItemListSkeleton count={8} />
+      </Delay>
+    );
+  } else if (error) {
+    return (
+      <Text color="green.500">
+        We hit an error trying to load your search results{" "}
+        <span role="img" aria-label="(sweat emoji)">
+          😓
+        </span>{" "}
+        Try again?
+      </Text>
+    );
+  } else if (items.length === 0) {
+    return (
+      <Text color="green.500">
+        We couldn't find any matching items{" "}
+        <span role="img" aria-label="(thinking emoji)">
+          🤔
+        </span>{" "}
+        Try again?
+      </Text>
+    );
+  }
+
+  // Finally, render the item list, with checkboxes and Item components!
+  // We also render some extra skeleton items at the bottom during infinite
+  // scroll loading.
+  return (
+    <>
+      <ItemListContainer>
+        {items.map((item, index) => (
+          <label key={item.id}>
+            <VisuallyHidden
+              as="input"
+              type="checkbox"
+              aria-label={`Wear "${item.name}"`}
+              value={item.id}
+              checked={outfitState.wornItemIds.includes(item.id)}
+              ref={index === 0 ? firstSearchResultRef : null}
+              onChange={onChange}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.target.click();
+                } else if (e.key === "ArrowUp") {
+                  goToPrevItem(e);
+                } else if (e.key === "ArrowDown") {
+                  goToNextItem(e);
+                }
+              }}
+            />
+            <Item
+              item={item}
+              outfitState={outfitState}
+              dispatchToOutfit={dispatchToOutfit}
+            />
+          </label>
+        ))}
+      </ItemListContainer>
+      {loadingMore && <ItemListSkeleton count={8} />}
+    </>
+  );
+}
+
+/**
+ * useSearchResults manages the actual querying and state management of search!
+ * It's hefty, infinite-scroll pagination is a bit of a thing!
+ */
+function useSearchResults(query, outfitState) {
+  const { speciesId, colorId } = outfitState;
   const [isEndOfResults, setIsEndOfResults] = React.useState(false);
 
+  // We debounce the search query, so that we don't resend a new query whenever
+  // the user types anything.
+  const debouncedQuery = useDebounce(query, 300, { waitForFirstPause: true });
+
+  // When the query changes, we should update our impression of whether we've
+  // reached the end!
   React.useEffect(() => {
     setIsEndOfResults(false);
   }, [query]);
 
-  const { loading, error, data, fetchMore } = useQuery(
+  // Here's the actual GQL query! At the bottom we have more config than usual!
+  const {
+    loading: loadingGQL,
+    error,
+    data,
+    fetchMore: fetchMoreGQL,
+  } = useQuery(
     gql`
       query($query: String!, $speciesId: ID!, $colorId: ID!, $offset: Int!) {
         itemSearchToFit(
@@ -108,6 +248,10 @@ function SearchResults({
       skip: debouncedQuery === null,
       notifyOnNetworkStatusChange: true,
       onCompleted: (d) => {
+        // This is called each time the query completes, including on
+        // `fetchMore`, with the extended results. But, on the first time, this
+        // logic can tell us whether we're at the end of the list, by counting
+        // whether there was <30. We also have to check in `fetchMore`!
         const items = d && d.itemSearchToFit && d.itemSearchToFit.items;
         if (items && items.length < 30) {
           setIsEndOfResults(true);
@@ -116,13 +260,34 @@ function SearchResults({
     }
   );
 
+  // Smooth over the data a bit, so that we can use key fields with confidence!
   const result = data && data.itemSearchToFit;
   const resultQuery = result && result.query;
   const items = (result && result.items) || [];
 
-  const onScrolledToBottom = React.useCallback(() => {
-    if (!loading && !isEndOfResults) {
-      fetchMore({
+  // Okay, what kind of loading state is this?
+  let loading;
+  let loadingMore;
+  if ((loadingGQL && items.length === 0) || resultQuery !== query) {
+    // If it's our first run, or the first run _since the query changed_, we're
+    // `loading`.
+    loading = true;
+    loadingMore = false;
+  } else if (loadingGQL) {
+    // Or, if we're loading GQL but it's not our first run, we're `loadingMore`.
+    loading = false;
+    loadingMore = true;
+  } else {
+    // Otherwise, we're not loading at all!
+    loading = false;
+    loadingMore = false;
+  }
+
+  // When SearchResults calls this, we'll resend the query, with the `offset`
+  // increased. We'll append the results to the original query!
+  const fetchMore = React.useCallback(() => {
+    if (!loadingGQL && !isEndOfResults) {
+      fetchMoreGQL({
         variables: {
           offset: items.length,
         },
@@ -157,114 +322,16 @@ function SearchResults({
         },
       });
     }
-  }, [loading, isEndOfResults, fetchMore, items.length]);
+  }, [loadingGQL, isEndOfResults, fetchMoreGQL, items.length]);
 
-  useScrollTracker({ threshold: 300, scrollContainerRef, onScrolledToBottom });
-
-  if (resultQuery !== query || (loading && items.length === 0)) {
-    return (
-      <Delay ms={500}>
-        <ItemListSkeleton count={8} />
-      </Delay>
-    );
-  }
-
-  if (error) {
-    return (
-      <Text color="green.500">
-        We hit an error trying to load your search results{" "}
-        <span role="img" aria-label="(sweat emoji)">
-          😓
-        </span>{" "}
-        Try again?
-      </Text>
-    );
-  }
-
-  if (items.length === 0) {
-    return (
-      <Text color="green.500">
-        We couldn't find any matching items{" "}
-        <span role="img" aria-label="(thinking emoji)">
-          🤔
-        </span>{" "}
-        Try again?
-      </Text>
-    );
-  }
-
-  const onChange = (e) => {
-    const itemId = e.target.value;
-    const willBeWorn = e.target.checked;
-    if (willBeWorn) {
-      dispatchToOutfit({ type: "wearItem", itemId });
-    } else {
-      dispatchToOutfit({ type: "unwearItem", itemId });
-    }
-  };
-
-  const goToPrevItem = (e) => {
-    const prevLabel = e.target.closest("label").previousSibling;
-    if (prevLabel) {
-      prevLabel.querySelector("input[type=checkbox]").focus();
-      prevLabel.scrollIntoView({ block: "center" });
-      e.preventDefault();
-    } else {
-      // If we're at the top of the list, move back up to the search box!
-      onMoveFocusUpToQuery(e);
-    }
-  };
-
-  const goToNextItem = (e) => {
-    const nextLabel = e.target.closest("label").nextSibling;
-    if (nextLabel) {
-      nextLabel.querySelector("input[type=checkbox]").focus();
-      nextLabel.scrollIntoView({ block: "center" });
-      e.preventDefault();
-    }
-  };
-
-  return (
-    <>
-      <ItemListContainer>
-        {items.map((item, index) => (
-          <label key={item.id}>
-            <VisuallyHidden
-              as="input"
-              type="checkbox"
-              aria-label={`Wear "${item.name}"`}
-              value={item.id}
-              checked={outfitState.wornItemIds.includes(item.id)}
-              ref={index === 0 ? firstSearchResultRef : null}
-              onChange={onChange}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.target.click();
-                } else if (e.key === "ArrowUp") {
-                  goToPrevItem(e);
-                } else if (e.key === "ArrowDown") {
-                  goToNextItem(e);
-                }
-              }}
-            />
-            <Item
-              item={item}
-              outfitState={outfitState}
-              dispatchToOutfit={dispatchToOutfit}
-            />
-          </label>
-        ))}
-      </ItemListContainer>
-      {items && loading && <ItemListSkeleton count={8} />}
-    </>
-  );
+  return { loading, loadingMore, error, items, fetchMore };
 }
 
-function useScrollTracker({
-  threshold,
-  scrollContainerRef,
-  onScrolledToBottom,
-}) {
+/**
+ * useScrollTracker watches for the given scroll container to scroll near the
+ * bottom, then fires a callback. We use this to fetch more search results!
+ */
+function useScrollTracker(scrollContainerRef, threshold, onScrolledToBottom) {
   const onScroll = React.useCallback(
     (e) => {
       const topEdgeScrollPosition = e.target.scrollTop;
