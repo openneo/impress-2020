@@ -64,7 +64,6 @@ export function Item({ item, outfitState, dispatchToOutfit }) {
 
   return (
     <Box
-      role="group"
       mb="1"
       mt="1"
       p="1"
@@ -77,12 +76,16 @@ export function Item({ item, outfitState, dispatchToOutfit }) {
       className={
         "item-container " +
         css`
-          input:active + & {
-            border-color: ${theme.colors.green["800"]};
-          }
+          &:hover,
           input:focus + & {
-            border-style: dotted;
-            border-color: ${theme.colors.gray["400"]};
+            background-color: ${theme.colors.gray["100"]};
+          }
+
+          input:active + & {
+            border-color: ${theme.colors.green["400"]};
+          }
+          input:checked:focus + & {
+            border-color: ${theme.colors.green["800"]};
           }
         `
       }
@@ -105,20 +108,15 @@ export function Item({ item, outfitState, dispatchToOutfit }) {
             opacity="0"
             transitionProperty="opacity color"
             transitionDuration="0.2s"
-            _groupHover={{
-              opacity: 1,
-              transitionDuration: "0.5s",
-            }}
-            _hover={{
-              opacity: 1,
-              color: "gray.800",
-              backgroundColor: "gray.200",
-            }}
-            _focus={{
-              opacity: 1,
-              color: "gray.800",
-              backgroundColor: "gray.200",
-            }}
+            className={css`
+              &:hover,
+              &:focus,
+              input:focus + .item-container & {
+                opacity: 1;
+                color: ${theme.colors.gray["800"]};
+                backgroundcolor: ${theme.colors.gray["200"]};
+              }
+            `}
           />
         </Tooltip>
       )}
