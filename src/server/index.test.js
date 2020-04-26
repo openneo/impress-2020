@@ -521,7 +521,7 @@ describe("Search", () => {
           ],
         ],
         Array [
-          "SELECT items.*, t.name FROM items
+          "SELECT DISTINCT items.*, t.name FROM items
                  INNER JOIN item_translations t ON t.item_id = items.id
                  INNER JOIN parents_swf_assets rel
                      ON rel.parent_type = \\"Item\\" AND rel.parent_id = items.id
@@ -580,16 +580,8 @@ describe("Search", () => {
               "name": "Accessories Shop Wig and Hat",
             },
             Object {
-              "id": "67242",
-              "name": "Accessories Shop Wig and Hat",
-            },
-            Object {
               "id": "64177",
               "name": "Acorn Hat",
-            },
-            Object {
-              "id": "69995",
-              "name": "Adventure in Pastel Hat and Wig",
             },
             Object {
               "id": "69995",
@@ -607,6 +599,14 @@ describe("Search", () => {
               "id": "62322",
               "name": "Altador Team Jester Hat",
             },
+            Object {
+              "id": "58733",
+              "name": "Apple Bobbing Bart Hat",
+            },
+            Object {
+              "id": "80401",
+              "name": "Aurricks Finest Hat",
+            },
           ],
           "query": "hat",
         },
@@ -622,7 +622,7 @@ describe("Search", () => {
           ],
         ],
         Array [
-          "SELECT items.*, t.name FROM items
+          "SELECT DISTINCT items.*, t.name FROM items
                  INNER JOIN item_translations t ON t.item_id = items.id
                  INNER JOIN parents_swf_assets rel
                      ON rel.parent_type = \\"Item\\" AND rel.parent_id = items.id
@@ -669,18 +669,6 @@ describe("Search", () => {
         "itemSearchToFit": Object {
           "items": Array [
             Object {
-              "id": "58733",
-              "name": "Apple Bobbing Bart Hat",
-            },
-            Object {
-              "id": "80401",
-              "name": "Aurricks Finest Hat",
-            },
-            Object {
-              "id": "80401",
-              "name": "Aurricks Finest Hat",
-            },
-            Object {
               "id": "50168",
               "name": "Babaa Hat",
             },
@@ -689,14 +677,6 @@ describe("Search", () => {
               "name": "Backwards Hat and Wig",
             },
             Object {
-              "id": "78311",
-              "name": "Backwards Hat and Wig",
-            },
-            Object {
-              "id": "66653",
-              "name": "Bagel Hat Wig",
-            },
-            Object {
               "id": "66653",
               "name": "Bagel Hat Wig",
             },
@@ -705,8 +685,28 @@ describe("Search", () => {
               "name": "Balloon Sculpture Hat",
             },
             Object {
-              "id": "51366",
-              "name": "Balloon Sculpture Hat",
+              "id": "66236",
+              "name": "Banker Hat and Wig",
+            },
+            Object {
+              "id": "52733",
+              "name": "Battlefield Legends Hat",
+            },
+            Object {
+              "id": "57617",
+              "name": "Big Black Lace Pirate Hat",
+            },
+            Object {
+              "id": "44451",
+              "name": "Big Fuzzy Hat",
+            },
+            Object {
+              "id": "58318",
+              "name": "Bigsby Shadingtons Hat",
+            },
+            Object {
+              "id": "39883",
+              "name": "Bird Nest Hat",
             },
           ],
           "query": "hat",
@@ -723,7 +723,7 @@ describe("Search", () => {
           ],
         ],
         Array [
-          "SELECT items.*, t.name FROM items
+          "SELECT DISTINCT items.*, t.name FROM items
                  INNER JOIN item_translations t ON t.item_id = items.id
                  INNER JOIN parents_swf_assets rel
                      ON rel.parent_type = \\"Item\\" AND rel.parent_id = items.id

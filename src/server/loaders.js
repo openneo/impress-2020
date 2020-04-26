@@ -129,7 +129,7 @@ const buildItemSearchToFitLoader = (db) =>
 
         const queryForMysql = "%" + query.replace(/_%/g, "\\$0") + "%";
         const [rows, _] = await db.execute(
-          `SELECT items.*, t.name FROM items
+          `SELECT DISTINCT items.*, t.name FROM items
            INNER JOIN item_translations t ON t.item_id = items.id
            INNER JOIN parents_swf_assets rel
                ON rel.parent_type = "Item" AND rel.parent_id = items.id
