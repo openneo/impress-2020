@@ -17,6 +17,11 @@ import {
   Box,
 } from "@chakra-ui/core";
 
+/**
+ * OutfitResetModal gives the user the ability to reset their outfit, by either
+ * clearing out most of the data, or letting them type in a pet name to load
+ * from Neopets.com!
+ */
 function OutfitResetModal({ isOpen, onClose, dispatchToOutfit }) {
   const [petName, setPetName] = React.useState("");
   const [submittedPetName, submitPetName] = React.useState("");
