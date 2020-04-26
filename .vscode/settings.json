@@ -2,5 +2,7 @@
     "editor.formatOnSave": true,
     "editor.tabSize": 2,
     "jest.pathToJest": "yarn test",
-    "jest.autoEnable": false
+    "jest.autoEnable": false,
+    "javascript.suggest.completeJSDocs": false,
+    "typescript.suggest.completeJSDocs": false
 }

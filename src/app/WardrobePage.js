@@ -1,30 +1,28 @@
 import React from "react";
-import {
-  Box,
-  Grid,
-  Icon,
-  IconButton,
-  Input,
-  InputGroup,
-  InputLeftElement,
-  InputRightElement,
-  useToast,
-} from "@chakra-ui/core";
+import { Box, Grid, useToast } from "@chakra-ui/core";
 import { Helmet } from "react-helmet";
 
-import ItemsPanel from "./ItemsPanel";
+import ItemsAndSearchPanels from "./ItemsAndSearchPanels";
 import OutfitPreview from "./OutfitPreview";
-import SearchPanel from "./SearchPanel";
 import useOutfitState from "./useOutfitState.js";
 
+/**
+ * WardrobePage is the most fun page on the site - it's where you create
+ * outfits!
+ *
+ * This page has two sections: the OutfitPreview, where we show the outfit as a
+ * big image; and the ItemsAndSearchPanels, which let you manage which items
+ * are in the outfit and find new ones.
+ *
+ * This component manages shared outfit state, and the fullscreen responsive
+ * page layout.
+ */
 function WardrobePage() {
-  const { loading, error, outfitState, dispatchToOutfit } = useOutfitState();
-  const [searchQuery, setSearchQuery] = React.useState("");
   const toast = useToast();
-  const searchContainerRef = React.useRef();
-  const searchQueryRef = React.useRef();
-  const firstSearchResultRef = React.useRef();
+  const { loading, error, outfitState, dispatchToOutfit } = useOutfitState();
 
+  // TODO: I haven't found a great place for this error UI yet, and this case
+  // isn't very common, so this lil toast notification seems good enough!
   React.useEffect(() => {
     if (error) {
       console.log(error);
@@ -38,12 +36,6 @@ function WardrobePage() {
     }
   }, [error, toast]);
 
-  React.useEffect(() => {
-    if (searchContainerRef.current) {
-      searchContainerRef.current.scrollTop = 0;
-    }
-  }, [searchQuery]);
-
   return (
     <>
       <Helmet>
@@ -53,18 +45,14 @@ function WardrobePage() {
       </Helmet>
       <Box position="absolute" top="0" bottom="0" left="0" right="0">
         <Grid
-          // Fullscreen, split into a vertical stack on smaller screens
-          // or a horizontal stack on larger ones!
           templateAreas={{
-            base: `"outfit"
-                 "search"
-                 "items"`,
-            lg: `"outfit search"
-               "outfit items"`,
+            base: `"preview"
+                   "itemsAndSearch"`,
+            lg: `"preview itemsAndSearch"`,
           }}
           templateRows={{
-            base: "minmax(100px, 1fr) auto minmax(300px, 1fr)",
-            lg: "auto 1fr",
+            base: "minmax(100px, 45%) minmax(300px, 55%)",
+            lg: "100%",
           }}
           templateColumns={{
             base: "100%",
@@ -73,116 +61,22 @@ function WardrobePage() {
           height="100%"
           width="100%"
         >
-          <Box gridArea="outfit" backgroundColor="gray.900">
+          <Box gridArea="preview" backgroundColor="gray.900">
             <OutfitPreview
               outfitState={outfitState}
               dispatchToOutfit={dispatchToOutfit}
             />
           </Box>
-          <Box gridArea="search" boxShadow="sm">
-            <Box px="5" py="3">
-              <SearchToolbar
-                query={searchQuery}
-                queryRef={searchQueryRef}
-                onChange={setSearchQuery}
-                onMoveFocusDownToResults={(e) => {
-                  if (firstSearchResultRef.current) {
-                    firstSearchResultRef.current.focus();
-                    e.preventDefault();
-                  }
-                }}
-              />
-            </Box>
+          <Box gridArea="itemsAndSearch">
+            <ItemsAndSearchPanels
+              loading={loading}
+              outfitState={outfitState}
+              dispatchToOutfit={dispatchToOutfit}
+            />
           </Box>
-
-          {searchQuery ? (
-            <Box
-              gridArea="items"
-              position="relative"
-              overflow="auto"
-              key="search-panel"
-              ref={searchContainerRef}
-            >
-              <Box px="4" py="5">
-                <SearchPanel
-                  query={searchQuery}
-                  outfitState={outfitState}
-                  dispatchToOutfit={dispatchToOutfit}
-                  firstSearchResultRef={firstSearchResultRef}
-                  onMoveFocusUpToQuery={(e) => {
-                    if (searchQueryRef.current) {
-                      searchQueryRef.current.focus();
-                      e.preventDefault();
-                    }
-                  }}
-                />
-              </Box>
-            </Box>
-          ) : (
-            <Box
-              gridArea="items"
-              position="relative"
-              overflow="auto"
-              key="items-panel"
-            >
-              <Box px="5" py="5">
-                <ItemsPanel
-                  loading={loading}
-                  outfitState={outfitState}
-                  dispatchToOutfit={dispatchToOutfit}
-                />
-              </Box>
-            </Box>
-          )}
         </Grid>
       </Box>
     </>
-  );
-}
-
-function SearchToolbar({
-  query,
-  queryRef,
-  onChange,
-  onMoveFocusDownToResults,
-}) {
-  return (
-    <InputGroup>
-      <InputLeftElement>
-        <Icon name="search" color="gray.400" />
-      </InputLeftElement>
-      <Input
-        placeholder="Search for items to add…"
-        focusBorderColor="green.600"
-        color="green.800"
-        value={query}
-        ref={queryRef}
-        onChange={(e) => onChange(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Escape") {
-            onChange("");
-            e.target.blur();
-          } else if (e.key === "ArrowDown") {
-            onMoveFocusDownToResults(e);
-          }
-        }}
-      />
-      {query && (
-        <InputRightElement>
-          <IconButton
-            icon="close"
-            color="gray.400"
-            variant="ghost"
-            variantColor="green"
-            aria-label="Clear search"
-            onClick={() => onChange("")}
-            // Big style hacks here!
-            height="calc(100% - 2px)"
-            marginRight="2px"
-          />
-        </InputRightElement>
-      )}
-    </InputGroup>
   );
 }
 

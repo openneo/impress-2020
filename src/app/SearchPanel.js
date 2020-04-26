@@ -11,9 +11,24 @@ function SearchPanel({
   query,
   outfitState,
   dispatchToOutfit,
+  scrollContainerRef,
+  searchQueryRef,
   firstSearchResultRef,
-  onMoveFocusUpToQuery,
 }) {
+  // Whenever the search query changes, scroll back up to the top!
+  React.useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
+    }
+  }, [query, scrollContainerRef]);
+
+  const onMoveFocusUpToQuery = (e) => {
+    if (searchQueryRef.current) {
+      searchQueryRef.current.focus();
+      e.preventDefault();
+    }
+  };
+
   return (
     <Box
       color="green.800"
@@ -28,6 +43,7 @@ function SearchPanel({
         query={query}
         outfitState={outfitState}
         dispatchToOutfit={dispatchToOutfit}
+        scrollContainerRef={scrollContainerRef}
         firstSearchResultRef={firstSearchResultRef}
         onMoveFocusUpToQuery={onMoveFocusUpToQuery}
       />
@@ -39,6 +55,7 @@ function SearchResults({
   query,
   outfitState,
   dispatchToOutfit,
+  scrollContainerRef,
   firstSearchResultRef,
   onMoveFocusUpToQuery,
 }) {
@@ -142,6 +159,8 @@ function SearchResults({
     }
   }, [loading, isEndOfResults, fetchMore, items.length]);
 
+  useScrollTracker({ threshold: 300, scrollContainerRef, onScrolledToBottom });
+
   if (resultQuery !== query || (loading && items.length === 0)) {
     return (
       <Delay ms={500}>
@@ -206,7 +225,7 @@ function SearchResults({
   };
 
   return (
-    <ScrollTracker threshold={300} onScrolledToBottom={onScrolledToBottom}>
+    <>
       <ItemListContainer>
         {items.map((item, index) => (
           <label key={item.id}>
@@ -237,14 +256,15 @@ function SearchResults({
         ))}
       </ItemListContainer>
       {items && loading && <ItemListSkeleton count={8} />}
-    </ScrollTracker>
+    </>
   );
 }
 
-function ScrollTracker({ children, threshold, onScrolledToBottom }) {
-  const containerRef = React.useRef();
-  const scrollParent = React.useRef();
-
+function useScrollTracker({
+  threshold,
+  scrollContainerRef,
+  onScrolledToBottom,
+}) {
   const onScroll = React.useCallback(
     (e) => {
       const topEdgeScrollPosition = e.target.scrollTop;
@@ -260,31 +280,20 @@ function ScrollTracker({ children, threshold, onScrolledToBottom }) {
   );
 
   React.useLayoutEffect(() => {
-    if (!containerRef.current) {
+    const scrollContainer = scrollContainerRef.current;
+
+    if (!scrollContainer) {
       return;
     }
 
-    scrollParent.current = getScrollParent(containerRef.current);
-    scrollParent.current.addEventListener("scroll", onScroll);
+    scrollContainer.addEventListener("scroll", onScroll);
 
     return () => {
-      if (scrollParent.current) {
-        scrollParent.current.removeEventListener("scroll", onScroll);
+      if (scrollContainer) {
+        scrollContainer.removeEventListener("scroll", onScroll);
       }
     };
-  }, [onScroll]);
-
-  return <div ref={containerRef}>{children}</div>;
-}
-
-function getScrollParent(target) {
-  for (let el = target; el.parentNode; el = el.parentNode) {
-    if (getComputedStyle(el).overflow === "auto") {
-      return el;
-    }
-  }
-
-  throw new Error(`found no scroll parent`);
+  }, [onScroll, scrollContainerRef]);
 }
 
 export default SearchPanel;
