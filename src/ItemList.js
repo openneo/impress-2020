@@ -10,8 +10,6 @@ import {
   useTheme,
 } from "@chakra-ui/core";
 
-import "./ItemList.css";
-
 export function ItemListContainer({ children }) {
   return <Flex direction="column">{children}</Flex>;
 }

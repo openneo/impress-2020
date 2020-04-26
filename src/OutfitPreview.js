@@ -1,4 +1,5 @@
 import React from "react";
+import { css } from "emotion";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
@@ -19,8 +20,6 @@ import {
 import { Delay } from "./util";
 import OutfitResetModal from "./OutfitResetModal";
 import SpeciesColorPicker from "./SpeciesColorPicker";
-
-import "./OutfitPreview.css";
 
 export const itemAppearanceFragment = gql`
   fragment AppearanceForOutfitPreview on Appearance {
@@ -90,10 +89,16 @@ function OutfitPreview({ outfitState, dispatchToOutfit }) {
         {visibleLayers.map((layer) => (
           <CSSTransition
             key={layer.id}
-            classNames={{
-              exit: "outfit-preview-layer-exit",
-              exitActive: "outfit-preview-layer-exit-active",
-            }}
+            classNames={css`
+              &-exit {
+                opacity: 1;
+              }
+
+              &-exit-active {
+                opacity: 0;
+                transition: opacity 0.2s;
+              }
+            `}
             timeout={200}
           >
             <FullScreenCenter>
@@ -102,7 +107,14 @@ function OutfitPreview({ outfitState, dispatchToOutfit }) {
                 objectFit="contain"
                 maxWidth="100%"
                 maxHeight="100%"
-                className="outfit-preview-layer-image"
+                className={css`
+                  opacity: 0.01;
+
+                  &[src] {
+                    opacity: 1;
+                    transition: opacity 0.2s;
+                  }
+                `}
                 // This sets up the cache to not need to reload images during
                 // download!
                 // TODO: Re-enable this once we get our change into Chakra

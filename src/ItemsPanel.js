@@ -1,4 +1,5 @@
 import React from "react";
+import { css } from "emotion";
 import {
   Box,
   Editable,
@@ -14,8 +15,6 @@ import { CSSTransition, TransitionGroup } from "react-transition-group";
 
 import { Delay, Heading1, Heading2 } from "./util";
 import { ItemListContainer, Item, ItemListSkeleton } from "./ItemList";
-
-import "./ItemsPanel.css";
 
 function ItemsPanel({ outfitState, loading, dispatchToOutfit }) {
   const { zonesAndItems } = outfitState;
@@ -45,7 +44,20 @@ function ItemsPanel({ outfitState, loading, dispatchToOutfit }) {
             {zonesAndItems.map(({ zoneLabel, items }) => (
               <CSSTransition
                 key={zoneLabel}
-                classNames="items-panel-zone"
+                classNames={css`
+                  &-exit {
+                    opacity: 1;
+                    height: auto;
+                  }
+
+                  &-exit-active {
+                    opacity: 0;
+                    height: 0 !important;
+                    margin-top: 0 !important;
+                    margin-bottom: 0 !important;
+                    transition: all 0.5s;
+                  }
+                `}
                 timeout={500}
                 onExit={(e) => {
                   e.style.height = e.offsetHeight + "px";
@@ -97,7 +109,20 @@ function ItemRadioList({ name, items, outfitState, dispatchToOutfit }) {
         {items.map((item) => (
           <CSSTransition
             key={item.id}
-            classNames="item-list-row"
+            classNames={css`
+              &-exit {
+                opacity: 1;
+                height: auto;
+              }
+
+              &-exit-active {
+                opacity: 0;
+                height: 0 !important;
+                margin-top: 0 !important;
+                margin-bottom: 0 !important;
+                transition: all 0.5s;
+              }
+            `}
             timeout={500}
             onExit={(e) => {
               e.style.height = e.offsetHeight + "px";
