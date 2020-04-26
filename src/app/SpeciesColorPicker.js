@@ -5,6 +5,12 @@ import { Box, Flex, Select, Text, useToast } from "@chakra-ui/core";
 
 import { Delay } from "./util";
 
+/**
+ * SpeciesColorPicker lets the user pick the species/color of their pet.
+ *
+ * It preloads all species, colors, and valid species/color pairs; and then
+ * ensures that the outfit is always in a valid state.
+ */
 function SpeciesColorPicker({
   outfitState,
   dispatchToOutfit,
@@ -39,6 +45,8 @@ function SpeciesColorPicker({
   allColors.sort((a, b) => a.name.localeCompare(b.name));
   const allSpecies = (data && [...data.allSpecies]) || [];
   allSpecies.sort((a, b) => a.name.localeCompare(b.name));
+
+  // Build a large Set where we can quickly look up species/color pairs!
   const allValidSpeciesColorPairs = React.useMemo(
     () =>
       new Set(
@@ -67,6 +75,8 @@ function SpeciesColorPicker({
     );
   }
 
+  // When the color changes, check if the new pair is valid, and update the
+  // outfit if so!
   const onChangeColor = (e) => {
     const speciesId = outfitState.speciesId;
     const colorId = e.target.value;
@@ -83,6 +93,8 @@ function SpeciesColorPicker({
     }
   };
 
+  // When the species changes, check if the new pair is valid, and update the
+  // outfit if so!
   const onChangeSpecies = (e) => {
     const colorId = outfitState.colorId;
     const speciesId = e.target.value;
