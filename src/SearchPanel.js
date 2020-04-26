@@ -188,6 +188,7 @@ function SearchResults({
     const prevLabel = e.target.closest("label").previousSibling;
     if (prevLabel) {
       prevLabel.querySelector("input[type=checkbox]").focus();
+      prevLabel.scrollIntoView({ block: "center" });
       e.preventDefault();
     } else {
       // If we're at the top of the list, move back up to the search box!
@@ -199,6 +200,7 @@ function SearchResults({
     const nextLabel = e.target.closest("label").nextSibling;
     if (nextLabel) {
       nextLabel.querySelector("input[type=checkbox]").focus();
+      nextLabel.scrollIntoView({ block: "center" });
       e.preventDefault();
     }
   };
@@ -261,13 +263,8 @@ function ScrollTracker({ children, threshold, onScrolledToBottom }) {
     if (!containerRef.current) {
       return;
     }
-    for (let el = containerRef.current; el.parentNode; el = el.parentNode) {
-      if (getComputedStyle(el).overflow === "auto") {
-        scrollParent.current = el;
-        break;
-      }
-    }
 
+    scrollParent.current = getScrollParent(containerRef.current);
     scrollParent.current.addEventListener("scroll", onScroll);
 
     return () => {
@@ -278,6 +275,16 @@ function ScrollTracker({ children, threshold, onScrolledToBottom }) {
   }, [onScroll]);
 
   return <div ref={containerRef}>{children}</div>;
+}
+
+function getScrollParent(target) {
+  for (let el = target; el.parentNode; el = el.parentNode) {
+    if (getComputedStyle(el).overflow === "auto") {
+      return el;
+    }
+  }
+
+  throw new Error(`found no scroll parent`);
 }
 
 export default SearchPanel;
