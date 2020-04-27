@@ -218,33 +218,52 @@ function findItemConflicts(itemIdToAdd, state, apolloClient) {
   if (!itemToAdd.appearanceOn) {
     return [];
   }
-  const itemToAddZoneIds = [
-    ...itemToAdd.appearanceOn.layers.map((l) => l.zone.id),
-    ...itemToAdd.appearanceOn.restrictedZones.map((z) => z.id),
-  ];
   const wornItems = Array.from(wornItemIds).map((id) =>
     items.find((i) => i.id === id)
   );
+
+  const itemToAddZoneSets = getItemZones(itemToAdd);
 
   const conflictingIds = [];
   for (const wornItem of wornItems) {
     if (!wornItem.appearanceOn) {
       continue;
     }
-    const wornItemZoneIds = [
-      ...wornItem.appearanceOn.layers.map((l) => l.zone.id),
-      ...wornItem.appearanceOn.restrictedZones.map((z) => z.id),
-    ];
 
-    const hasConflict = wornItemZoneIds.some((zid) =>
-      itemToAddZoneIds.includes(zid)
-    );
-    if (hasConflict) {
+    const wornItemZoneSets = getItemZones(wornItem);
+
+    const itemsConflict =
+      setsIntersect(
+        itemToAddZoneSets.occupies,
+        wornItemZoneSets.occupiesOrRestricts
+      ) ||
+      setsIntersect(
+        wornItemZoneSets.occupies,
+        itemToAddZoneSets.occupiesOrRestricts
+      );
+
+    if (itemsConflict) {
       conflictingIds.push(wornItem.id);
     }
   }
 
   return conflictingIds;
+}
+
+function getItemZones(item) {
+  const occupies = new Set(item.appearanceOn.layers.map((l) => l.zone.id));
+  const restricts = new Set(item.appearanceOn.restrictedZones.map((z) => z.id));
+  const occupiesOrRestricts = new Set([...occupies, ...restricts]);
+  return { occupies, occupiesOrRestricts };
+}
+
+function setsIntersect(a, b) {
+  for (const el of a) {
+    if (b.has(el)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 // TODO: Get this out of here, tbh...
