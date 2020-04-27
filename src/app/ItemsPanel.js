@@ -50,14 +50,14 @@ function ItemsPanel({ outfitState, loading, dispatchToOutfit }) {
         ) : (
           <TransitionGroup component={null}>
             {zonesAndItems.map(({ zoneLabel, items }) => (
-              <ItemZoneGroupTransitioner key={zoneLabel}>
+              <CSSTransition key={zoneLabel} {...fadeOutAndRollUpTransition}>
                 <ItemZoneGroup
                   zoneLabel={zoneLabel}
                   items={items}
                   outfitState={outfitState}
                   dispatchToOutfit={dispatchToOutfit}
                 />
-              </ItemZoneGroupTransitioner>
+              </CSSTransition>
             ))}
           </TransitionGroup>
         )}
@@ -101,7 +101,7 @@ function ItemZoneGroup({ zoneLabel, items, outfitState, dispatchToOutfit }) {
       <ItemListContainer>
         <TransitionGroup component={null}>
           {items.map((item) => (
-            <ItemTransitioner key={item.id}>
+            <CSSTransition key={item.id} {...fadeOutAndRollUpTransition}>
               <label>
                 <VisuallyHidden
                   as="input"
@@ -125,7 +125,7 @@ function ItemZoneGroup({ zoneLabel, items, outfitState, dispatchToOutfit }) {
                   dispatchToOutfit={dispatchToOutfit}
                 />
               </label>
-            </ItemTransitioner>
+            </CSSTransition>
           ))}
         </TransitionGroup>
       </ItemListContainer>
@@ -192,65 +192,34 @@ function OutfitHeading({ outfitState, dispatchToOutfit }) {
 }
 
 /**
- * ItemZoneGroupTransitioner manages the fade-out transition when an
- * ItemZoneGroup is removed. See react-transition-group docs for more info!
- */
-function ItemZoneGroupTransitioner({ children }) {
-  return (
-    <CSSTransition
-      classNames={css`
-        &-exit {
-          opacity: 1;
-          height: auto;
-        }
-
-        &-exit-active {
-          opacity: 0;
-          height: 0 !important;
-          margin-top: 0 !important;
-          margin-bottom: 0 !important;
-          transition: all 0.5s;
-        }
-      `}
-      timeout={500}
-      onExit={(e) => {
-        e.style.height = e.offsetHeight + "px";
-      }}
-    >
-      {children}
-    </CSSTransition>
-  );
-}
-
-/**
- * ItemTransitioner manages the fade-out transition when an Item is removed.
+ * fadeOutAndRollUpTransition is the props for a CSSTransition, to manage the
+ * fade-out and height decrease when an Item or ItemZoneGroup is removed.
+ *
+ * Note that this _cannot_ be implemented as a wrapper component that returns a
+ * CSSTransition. This is because the CSSTransition must be the direct child of
+ * the TransitionGroup, and a wrapper breaks the parent-child relationship.
+ *
  * See react-transition-group docs for more info!
  */
-function ItemTransitioner({ children }) {
-  return (
-    <CSSTransition
-      classNames={css`
-        &-exit {
-          opacity: 1;
-          height: auto;
-        }
+const fadeOutAndRollUpTransition = {
+  classNames: css`
+    &-exit {
+      opacity: 1;
+      height: auto;
+    }
 
-        &-exit-active {
-          opacity: 0;
-          height: 0 !important;
-          margin-top: 0 !important;
-          margin-bottom: 0 !important;
-          transition: all 0.5s;
-        }
-      `}
-      timeout={500}
-      onExit={(e) => {
-        e.style.height = e.offsetHeight + "px";
-      }}
-    >
-      {children}
-    </CSSTransition>
-  );
-}
+    &-exit-active {
+      opacity: 0;
+      height: 0 !important;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+      transition: all 0.5s;
+    }
+  `,
+  timeout: 500,
+  onExit: (e) => {
+    e.style.height = e.offsetHeight + "px";
+  },
+};
 
 export default ItemsPanel;
