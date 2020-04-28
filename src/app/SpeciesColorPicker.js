@@ -120,6 +120,7 @@ function SpeciesColorPicker({
         color="gray.50"
         border="none"
         boxShadow="md"
+        width="auto"
         onFocus={onFocus}
         onBlur={onBlur}
       >
@@ -129,7 +130,7 @@ function SpeciesColorPicker({
           </option>
         ))}
       </Select>
-      <Box width="8" />
+      <Box width="4" />
       <Select
         aria-label="Pet species"
         value={outfitState.speciesId}
@@ -138,6 +139,7 @@ function SpeciesColorPicker({
         color="gray.50"
         border="none"
         boxShadow="md"
+        width="auto"
         onFocus={onFocus}
         onBlur={onBlur}
       >

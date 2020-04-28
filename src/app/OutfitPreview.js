@@ -142,67 +142,46 @@ function OutfitPreview({ outfitState, dispatchToOutfit }) {
         </Delay>
       )}
       <Box
-        // Bottom toolbar on small screens, top on large screens
         pos="absolute"
-        left={{ base: 2, lg: 6 }}
-        right={{ base: 2, lg: 6 }}
-        bottom={{ base: 2, lg: 6 }}
-        // Grid layout for the content!
+        left="0"
+        right="0"
+        top="0"
+        bottom="0"
+        padding={{ base: 2, lg: 6 }}
         display="grid"
-        gridTemplateAreas={`"space picker buttons"`}
-        gridTemplateColumns="minmax(0, 1fr) auto 1fr"
-        alignItems="flex-end"
+        overflow="auto"
+        gridTemplateAreas={`"back sharing"
+                            "space space"
+                            "picker picker"`}
+        gridTemplateRows="auto minmax(1rem, 1fr) auto"
       >
-        <Box gridArea="space"></Box>
-        <PseudoBox
-          gridArea="picker"
-          opacity={hasFocus ? 1 : 0}
-          _groupHover={{ opacity: 1 }}
-          transition="opacity 0.2s"
-        >
-          <SpeciesColorPicker
-            outfitState={outfitState}
-            dispatchToOutfit={dispatchToOutfit}
+        <Box gridArea="back">
+          <IconButton
+            icon="arrow-back"
+            aria-label="Leave this outfit"
+            variant="unstyled"
+            backgroundColor="gray.600"
+            isRound={true}
+            d="flex"
+            alignItems="center"
+            justifyContent="center"
+            color="gray.50"
+            opacity={hasFocus ? 1 : 0}
+            transition="all 0.2s"
+            _groupHover={{
+              opacity: 1,
+            }}
             onFocus={() => setHasFocus(true)}
             onBlur={() => setHasFocus(false)}
+            onClick={() => setShowResetModal(true)}
           />
-        </PseudoBox>
-        <Stack gridArea="buttons" spacing="2" align="flex-end">
-          <Box>
-            <Tooltip
-              label={hasCopied ? "Copied!" : "Copy link"}
-              placement="left"
-            >
-              <IconButton
-                icon={hasCopied ? "check" : "link"}
-                aria-label="Copy link"
-                isRound
-                onClick={onCopy}
-                onFocus={() => setHasFocus(true)}
-                onBlur={() => setHasFocus(false)}
-                variant="unstyled"
-                backgroundColor="gray.600"
-                color="gray.50"
-                boxShadow="md"
-                d="flex"
-                alignItems="center"
-                justifyContent="center"
-                opacity={hasFocus ? 1 : 0}
-                transition="all 0.2s"
-                _groupHover={{
-                  opacity: 1,
-                }}
-                _focus={{
-                  opacity: 1,
-                  backgroundColor: "gray.500",
-                }}
-                _hover={{
-                  backgroundColor: "gray.500",
-                }}
-                outline="initial"
-              />
-            </Tooltip>
-          </Box>
+        </Box>
+        <Stack
+          gridArea="sharing"
+          alignSelf="flex-end"
+          spacing={{ base: "2", lg: "4" }}
+          align="flex-end"
+        >
           <Box>
             <Tooltip label="Download" placement="left">
               <IconButton
@@ -243,27 +222,58 @@ function OutfitPreview({ outfitState, dispatchToOutfit }) {
               />
             </Tooltip>
           </Box>
+          <Box>
+            <Tooltip
+              label={hasCopied ? "Copied!" : "Copy link"}
+              placement="left"
+            >
+              <IconButton
+                icon={hasCopied ? "check" : "link"}
+                aria-label="Copy link"
+                isRound
+                onClick={onCopy}
+                onFocus={() => setHasFocus(true)}
+                onBlur={() => setHasFocus(false)}
+                variant="unstyled"
+                backgroundColor="gray.600"
+                color="gray.50"
+                boxShadow="md"
+                d="flex"
+                alignItems="center"
+                justifyContent="center"
+                opacity={hasFocus ? 1 : 0}
+                transition="all 0.2s"
+                _groupHover={{
+                  opacity: 1,
+                }}
+                _focus={{
+                  opacity: 1,
+                  backgroundColor: "gray.500",
+                }}
+                _hover={{
+                  backgroundColor: "gray.500",
+                }}
+                outline="initial"
+              />
+            </Tooltip>
+          </Box>
         </Stack>
-      </Box>
-      <Box pos="absolute" left="3" top="3">
-        <IconButton
-          icon="arrow-back"
-          aria-label="Leave this outfit"
-          variant="unstyled"
-          isRound={true}
-          d="flex"
-          alignItems="center"
-          justifyContent="center"
-          color="gray.50"
+        <Box gridArea="space"></Box>
+        <PseudoBox
+          gridArea="picker"
           opacity={hasFocus ? 1 : 0}
-          transition="all 0.2s"
-          _groupHover={{
-            opacity: 1,
-          }}
-          onFocus={() => setHasFocus(true)}
-          onBlur={() => setHasFocus(false)}
-          onClick={() => setShowResetModal(true)}
-        />
+          _groupHover={{ opacity: 1 }}
+          transition="opacity 0.2s"
+          display="flex"
+          justifyContent="center"
+        >
+          <SpeciesColorPicker
+            outfitState={outfitState}
+            dispatchToOutfit={dispatchToOutfit}
+            onFocus={() => setHasFocus(true)}
+            onBlur={() => setHasFocus(false)}
+          />
+        </PseudoBox>
       </Box>
       <OutfitResetModal
         isOpen={showResetModal}
