@@ -34,7 +34,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "setup-mysql-user": "mysql -h impress.openneo.net -u matchu -p < setup-mysql-user.sql",
-    "mysql": "mysql --host=impress.openneo.net --user=$(dotenv -p IMPRESS_MYSQL_USER) --password=$(dotenv -p IMPRESS_MYSQL_PASSWORD)"
+    "mysql": "mysql --host=impress.openneo.net --user=$(dotenv -p IMPRESS_MYSQL_USER) --password=$(dotenv -p IMPRESS_MYSQL_PASSWORD) --database=openneo_impress"
   },
   "eslintConfig": {
     "extends": "react-app"
