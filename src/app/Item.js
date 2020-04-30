@@ -28,21 +28,27 @@ export function Item({ item, itemNameId, outfitState, dispatchToOutfit }) {
 
   return (
     <ItemContainer>
-      <ItemThumbnail
-        src={`/api/assetProxy?url=${encodeURIComponent(item.thumbnailUrl)}`}
-        isWorn={isWorn}
-      />
+      <Box>
+        <ItemThumbnail
+          src={`/api/assetProxy?url=${encodeURIComponent(item.thumbnailUrl)}`}
+          isWorn={isWorn}
+        />
+      </Box>
       <Box width="3" />
-      <ItemName id={itemNameId} isWorn={isWorn}>
-        {item.name}
-      </ItemName>
+      <Box>
+        <ItemName id={itemNameId} isWorn={isWorn}>
+          {item.name}
+        </ItemName>
+      </Box>
       <Box flexGrow="1" />
       {isInOutfit && (
-        <RemoveItemButton
-          onClick={() =>
-            dispatchToOutfit({ type: "removeItem", itemId: item.id })
-          }
-        />
+        <Box>
+          <RemoveItemButton
+            onClick={() =>
+              dispatchToOutfit({ type: "removeItem", itemId: item.id })
+            }
+          />
+        </Box>
       )}
     </ItemContainer>
   );
@@ -115,14 +121,16 @@ function ItemThumbnail({ src, isWorn }) {
       rounded="lg"
       boxShadow="md"
       border="1px"
-      borderColor="green.700"
       width="50px"
       height="50px"
       overflow="hidden"
       transition="all 0.15s"
       transformOrigin="center"
-      transform="scale(0.8)"
       className={css([
+        {
+          borderColor: theme.colors.green["700"],
+          transform: "scale(0.8)",
+        },
         !isWorn && {
           [containerHasFocus]: {
             opacity: "0.9",
