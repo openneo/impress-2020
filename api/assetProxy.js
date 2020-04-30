@@ -33,5 +33,8 @@ export default async (req, res) => {
   );
 
   res.status(proxyRes.status);
+  if (proxyRes.ok) {
+    res.setHeader("Cache-Control", "public, max-age=86400"); // 1 day
+  }
   streamPipeline(proxyRes.body, res);
 };
