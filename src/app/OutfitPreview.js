@@ -69,7 +69,7 @@ function OutfitPreview({ outfitState, dispatchToOutfit }) {
     visibleLayers
   );
 
-  const { onCopy, hasCopied } = useClipboard(getShareUrl(outfitState));
+  const { onCopy, hasCopied } = useClipboard(outfitState.url);
 
   if (error) {
     return (
@@ -376,31 +376,6 @@ function useDownloadableImage(visibleLayers) {
   }, [preparedForLayerIds, visibleLayers]);
 
   return [downloadImageUrl, prepareDownload];
-}
-
-function getShareUrl(outfitState) {
-  const {
-    name,
-    speciesId,
-    colorId,
-    wornItemIds,
-    closetedItemIds,
-  } = outfitState;
-
-  const params = new URLSearchParams();
-  params.append("name", name);
-  params.append("species", speciesId);
-  params.append("color", colorId);
-  for (const itemId of wornItemIds) {
-    params.append("objects[]", itemId);
-  }
-  for (const itemId of closetedItemIds) {
-    params.append("closet[]", itemId);
-  }
-
-  const { origin, pathname } = window.location;
-  const url = origin + pathname + "?" + params.toString();
-  return url;
 }
 
 export default OutfitPreview;

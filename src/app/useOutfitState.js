@@ -35,21 +35,6 @@ function useOutfitState() {
     }
   );
 
-  React.useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has("species")) {
-      dispatchToOutfit({
-        type: "reset",
-        name: urlParams.get("name"),
-        speciesId: urlParams.get("species"),
-        colorId: urlParams.get("color"),
-        wornItemIds: urlParams.getAll("objects[]"),
-        closetedItemIds: urlParams.getAll("closet[]"),
-      });
-    }
-    window.history.replaceState(null, "", window.location.href.split("?")[0]);
-  });
-
   const { name, speciesId, colorId } = state;
 
   // It's more convenient to manage these as a Set in state, but most callers
@@ -99,6 +84,8 @@ function useOutfitState() {
     closetedItemIds
   );
 
+  const url = buildOutfitUrl(state);
+
   const outfitState = {
     zonesAndItems,
     name,
@@ -107,7 +94,28 @@ function useOutfitState() {
     allItemIds,
     speciesId,
     colorId,
+    url,
   };
+
+  // Get the state from the URL the first time we load.
+  React.useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has("species")) {
+      dispatchToOutfit({
+        type: "reset",
+        name: urlParams.get("name"),
+        speciesId: urlParams.get("species"),
+        colorId: urlParams.get("color"),
+        wornItemIds: urlParams.getAll("objects[]"),
+        closetedItemIds: urlParams.getAll("closet[]"),
+      });
+    }
+  }, []);
+
+  // Afterwards, keep the URL up-to-date, but don't listen to it anymore.
+  React.useEffect(() => {
+    window.history.replaceState(null, "", url);
+  }, [url]);
 
   return { loading, error, outfitState, dispatchToOutfit };
 }
@@ -304,6 +312,25 @@ function getZonesAndItems(itemsById, wornItemIds, closetedItemIds) {
   zonesAndItems.sort((a, b) => a.zoneLabel.localeCompare(b.zoneLabel));
 
   return zonesAndItems;
+}
+
+function buildOutfitUrl(state) {
+  const { name, speciesId, colorId, wornItemIds, closetedItemIds } = state;
+
+  const params = new URLSearchParams();
+  params.append("name", name);
+  params.append("species", speciesId);
+  params.append("color", colorId);
+  for (const itemId of wornItemIds) {
+    params.append("objects[]", itemId);
+  }
+  for (const itemId of closetedItemIds) {
+    params.append("closet[]", itemId);
+  }
+
+  const { origin, pathname } = window.location;
+  const url = origin + pathname + "?" + params.toString();
+  return url;
 }
 
 export default useOutfitState;
