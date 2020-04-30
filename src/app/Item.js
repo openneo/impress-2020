@@ -28,7 +28,10 @@ export function Item({ item, itemNameId, outfitState, dispatchToOutfit }) {
 
   return (
     <ItemContainer>
-      <ItemThumbnail src={item.thumbnailUrl} isWorn={isWorn} />
+      <ItemThumbnail
+        src={`/api/assetProxy?url=${encodeURIComponent(item.thumbnailUrl)}`}
+        isWorn={isWorn}
+      />
       <Box width="3" />
       <ItemName id={itemNameId} isWorn={isWorn}>
         {item.name}
