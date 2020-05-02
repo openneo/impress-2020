@@ -50,3 +50,408 @@ Object {
   },
 }
 `;
+
+exports[`PetAppearance loads multiple for species and color 1`] = `
+Object {
+  "petAppearances": Array [
+    Object {
+      "emotion": "HAPPY",
+      "genderPresentation": "FEMININE",
+      "layers": Array [
+        Object {
+          "id": "5995",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7941/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 18,
+          },
+        },
+        Object {
+          "id": "5996",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7942/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 7,
+          },
+        },
+        Object {
+          "id": "6000",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7946/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 40,
+          },
+        },
+        Object {
+          "id": "16467",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/024/24008/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 34,
+          },
+        },
+        Object {
+          "id": "19784",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/028/28892/600x600.png?v2-1313418652000",
+          "zone": Object {
+            "depth": 37,
+          },
+        },
+        Object {
+          "id": "178150",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/036/36887/600x600.png?v2-1354240708000",
+          "zone": Object {
+            "depth": 38,
+          },
+        },
+      ],
+    },
+    Object {
+      "emotion": "HAPPY",
+      "genderPresentation": "MASCULINE",
+      "layers": Array [
+        Object {
+          "id": "5995",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7941/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 18,
+          },
+        },
+        Object {
+          "id": "5996",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7942/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 7,
+          },
+        },
+        Object {
+          "id": "6000",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7946/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 40,
+          },
+        },
+        Object {
+          "id": "16467",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/024/24008/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 34,
+          },
+        },
+        Object {
+          "id": "19549",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/028/28548/600x600.png?v2-1345719457000",
+          "zone": Object {
+            "depth": 37,
+          },
+        },
+        Object {
+          "id": "178150",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/036/36887/600x600.png?v2-1354240708000",
+          "zone": Object {
+            "depth": 38,
+          },
+        },
+      ],
+    },
+    Object {
+      "emotion": "SICK",
+      "genderPresentation": "FEMININE",
+      "layers": Array [
+        Object {
+          "id": "5995",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7941/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 18,
+          },
+        },
+        Object {
+          "id": "5996",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7942/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 7,
+          },
+        },
+        Object {
+          "id": "6000",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7946/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 40,
+          },
+        },
+        Object {
+          "id": "14791",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/021/21059/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 38,
+          },
+        },
+        Object {
+          "id": "14795",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/021/21066/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 37,
+          },
+        },
+        Object {
+          "id": "16467",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/024/24008/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 34,
+          },
+        },
+      ],
+    },
+    Object {
+      "emotion": "SICK",
+      "genderPresentation": "MASCULINE",
+      "layers": Array [
+        Object {
+          "id": "5995",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7941/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 18,
+          },
+        },
+        Object {
+          "id": "5996",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7942/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 7,
+          },
+        },
+        Object {
+          "id": "6000",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7946/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 40,
+          },
+        },
+        Object {
+          "id": "14791",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/021/21059/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 38,
+          },
+        },
+        Object {
+          "id": "14794",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/021/21064/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 37,
+          },
+        },
+        Object {
+          "id": "16467",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/024/24008/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 34,
+          },
+        },
+      ],
+    },
+    Object {
+      "emotion": "SAD",
+      "genderPresentation": "FEMININE",
+      "layers": Array [
+        Object {
+          "id": "5995",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7941/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 18,
+          },
+        },
+        Object {
+          "id": "5996",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7942/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 7,
+          },
+        },
+        Object {
+          "id": "6000",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7946/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 40,
+          },
+        },
+        Object {
+          "id": "14790",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/021/21057/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 38,
+          },
+        },
+        Object {
+          "id": "14793",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/021/21061/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 37,
+          },
+        },
+        Object {
+          "id": "16467",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/024/24008/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 34,
+          },
+        },
+      ],
+    },
+    Object {
+      "emotion": "SAD",
+      "genderPresentation": "MASCULINE",
+      "layers": Array [
+        Object {
+          "id": "5995",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7941/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 18,
+          },
+        },
+        Object {
+          "id": "5996",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7942/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 7,
+          },
+        },
+        Object {
+          "id": "6000",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7946/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 40,
+          },
+        },
+        Object {
+          "id": "14790",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/021/21057/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 38,
+          },
+        },
+        Object {
+          "id": "14792",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/021/21060/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 37,
+          },
+        },
+        Object {
+          "id": "16467",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/024/24008/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 34,
+          },
+        },
+      ],
+    },
+    Object {
+      "emotion": null,
+      "genderPresentation": null,
+      "layers": Array [
+        Object {
+          "id": "5995",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7941/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 18,
+          },
+        },
+        Object {
+          "id": "5996",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7942/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 7,
+          },
+        },
+        Object {
+          "id": "6000",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7946/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 40,
+          },
+        },
+        Object {
+          "id": "16467",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/024/24008/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 34,
+          },
+        },
+        Object {
+          "id": "19549",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/028/28548/600x600.png?v2-1345719457000",
+          "zone": Object {
+            "depth": 37,
+          },
+        },
+        Object {
+          "id": "19550",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/028/28549/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 38,
+          },
+        },
+        Object {
+          "id": "163528",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/028/28549/600x600.png?v2-1326455337000",
+          "zone": Object {
+            "depth": 38,
+          },
+        },
+      ],
+    },
+    Object {
+      "emotion": null,
+      "genderPresentation": null,
+      "layers": Array [
+        Object {
+          "id": "5995",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7941/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 18,
+          },
+        },
+        Object {
+          "id": "5996",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7942/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 7,
+          },
+        },
+        Object {
+          "id": "6000",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7946/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 40,
+          },
+        },
+        Object {
+          "id": "16467",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/024/24008/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 34,
+          },
+        },
+        Object {
+          "id": "19550",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/028/28549/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 38,
+          },
+        },
+        Object {
+          "id": "19784",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/028/28892/600x600.png?v2-1313418652000",
+          "zone": Object {
+            "depth": 37,
+          },
+        },
+        Object {
+          "id": "163528",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/028/28549/600x600.png?v2-1326455337000",
+          "zone": Object {
+            "depth": 38,
+          },
+        },
+      ],
+    },
+  ],
+}
+`;

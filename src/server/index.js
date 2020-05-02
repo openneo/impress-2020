@@ -12,15 +12,47 @@ const typeDefs = gql`
     SIZE_150
   }
 
+  """
+  A pet's gender presentation: masculine or feminine.
+
+  Neopets calls these "male" and "female", and I think that's silly and not wise
+  to propagate further, especially in the context of a strictly visual app like
+  Dress to Impress! This description isn't altogether correct either, but idk
+  what's better :/
+  """
+  enum GenderPresentation {
+    MASCULINE
+    FEMININE
+  }
+
+  """
+  A pet's emotion: happy, sad, or sick.
+
+  Note that we don't ever show the angry emotion on Dress to Impress, because
+  we don't have the data: it's impossible for a pet's passive emotion on the
+  pet lookup to be angry!
+  """
+  enum Emotion {
+    HAPPY
+    SAD
+    SICK
+  }
+
   type Item {
     id: ID!
     name: String!
     description: String!
     thumbnailUrl: String!
-    appearanceOn(speciesId: ID!, colorId: ID!): Appearance
+    appearanceOn(speciesId: ID!, colorId: ID!): ItemAppearance
   }
 
-  type Appearance {
+  type PetAppearance {
+    genderPresentation: GenderPresentation
+    emotion: Emotion
+    layers: [AppearanceLayer!]!
+  }
+
+  type ItemAppearance {
     layers: [AppearanceLayer!]!
     restrictedZones: [Zone!]!
   }
@@ -77,7 +109,8 @@ const typeDefs = gql`
       offset: Int
       limit: Int
     ): ItemSearchResult!
-    petAppearance(speciesId: ID!, colorId: ID!): Appearance
+    petAppearance(speciesId: ID!, colorId: ID!): PetAppearance
+    petAppearances(speciesId: ID!, colorId: ID!): [PetAppearance!]!
 
     petOnNeopetsDotCom(petName: String!): Outfit
   }
@@ -123,6 +156,40 @@ const resolvers = {
       }
 
       return { layers: swfAssets, restrictedZones };
+    },
+  },
+  PetAppearance: {
+    genderPresentation: ({ petState }) => {
+      if (petState.female === 1) {
+        return "FEMININE";
+      } else if (petState.female === 0) {
+        return "MASCULINE";
+      } else if (petState.female === null) {
+        return null;
+      } else {
+        throw new Error(
+          `unrecognized gender value ${JSON.stringify(petState.female)}`
+        );
+      }
+    },
+    emotion: ({ petState }) => {
+      if (petState.moodId === "1") {
+        return "HAPPY";
+      } else if (petState.moodId === "2") {
+        return "SAD";
+      } else if (petState.moodId === "4") {
+        return "SICK";
+      } else if (petState.moodId === null) {
+        return null;
+      } else {
+        throw new Error(
+          `unrecognized moodId ${JSON.stringify(petState.moodId)}`
+        );
+      }
+    },
+    layers: async ({ petState }, _, { petSwfAssetLoader }) => {
+      const swfAssets = await petSwfAssetLoader.load(petState.id);
+      return swfAssets;
     },
   },
   AppearanceLayer: {
@@ -220,9 +287,19 @@ const resolvers = {
         colorId,
       });
       const petStates = await petStateLoader.load(petType.id);
-      const petState = petStates[0]; // TODO
-      const swfAssets = await petSwfAssetLoader.load(petState.id);
-      return { layers: swfAssets, restrictedZones: [] };
+      return { petState: petStates[0] };
+    },
+    petAppearances: async (
+      _,
+      { speciesId, colorId },
+      { petTypeLoader, petStateLoader, petSwfAssetLoader }
+    ) => {
+      const petType = await petTypeLoader.load({
+        speciesId,
+        colorId,
+      });
+      const petStates = await petStateLoader.load(petType.id);
+      return petStates.map((petState) => ({ petState }));
     },
     petOnNeopetsDotCom: async (_, { petName }) => {
       const petData = await neopets.loadPetData(petName);

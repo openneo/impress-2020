@@ -280,7 +280,7 @@ function normalizeRow(row) {
   const normalizedRow = {};
   for (let [key, value] of Object.entries(row)) {
     key = key.replace(/_([a-z])/gi, (m) => m[1].toUpperCase());
-    if (key === "id" || key.endsWith("Id")) {
+    if ((key === "id" || key.endsWith("Id")) && typeof value === "number") {
       value = String(value);
     }
     normalizedRow[key] = value;
