@@ -14,6 +14,13 @@ import {
 
 import { safeImageUrl } from "./util";
 
+// From https://twemoji.twitter.com/, thank you!
+import twemojiSmile from "../images/twemoji/smile.svg";
+import twemojiCry from "../images/twemoji/cry.svg";
+import twemojiSick from "../images/twemoji/sick.svg";
+import twemojiMasc from "../images/twemoji/masc.svg";
+import twemojiFem from "../images/twemoji/fem.svg";
+
 function PosePicker({ onLockFocus, onUnlockFocus }) {
   const theme = useTheme();
 
@@ -33,26 +40,28 @@ function PosePicker({ onLockFocus, onUnlockFocus }) {
               d="flex"
               alignItems="center"
               justifyContent="center"
-              border="2px solid transparent"
               _focus={{ borderColor: "gray.50" }}
               _hover={{ borderColor: "gray.50" }}
               outline="initial"
               className={cx(
                 css`
-                  border: 2px solid transparent;
+                  border: 1px solid transparent !important;
+                  transition: border-color 0.2s !important;
 
                   &:focus,
                   &:hover,
                   &.is-open {
-                    border-color: ${theme.colors.gray["50"]};
+                    border-color: ${theme.colors.gray["50"]} !important;
+                  }
+
+                  &.is-open {
+                    border-width: 2px !important;
                   }
                 `,
                 isOpen && "is-open"
               )}
             >
-              <span role="img" aria-label="Choose a pose">
-                😊
-              </span>
+              <EmojiImage src={twemojiSmile} aria-label="Choose a pose" />
             </Button>
           </PopoverTrigger>
           <PopoverContent>
@@ -61,45 +70,45 @@ function PosePicker({ onLockFocus, onUnlockFocus }) {
                 <thead>
                   <tr>
                     <th />
-                    <Box as="th" textAlign="center">
-                      😊
-                    </Box>
-                    <Box as="th" textAlign="center">
-                      😢
-                    </Box>
-                    <Box as="th" textAlign="center">
-                      🤒
-                    </Box>
+                    <Cell as="th">
+                      <EmojiImage src={twemojiSmile} aria-label="Happy" />
+                    </Cell>
+                    <Cell as="th">
+                      <EmojiImage src={twemojiCry} aria-label="Sad" />
+                    </Cell>
+                    <Cell as="th">
+                      <EmojiImage src={twemojiSick} aria-label="Sick" />
+                    </Cell>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <Box as="th" textAlign="right">
-                      🙍‍♂️
-                    </Box>
-                    <PoseCell>
+                    <Cell as="th">
+                      <EmojiImage src={twemojiMasc} aria-label="Masculine" />
+                    </Cell>
+                    <Cell as="td">
                       <PoseButton src="http://pets.neopets.com/cp/42j5q3zx/1/1.png" />
-                    </PoseCell>
-                    <PoseCell>
+                    </Cell>
+                    <Cell as="td">
                       <PoseButton src="http://pets.neopets.com/cp/42j5q3zx/2/1.png" />
-                    </PoseCell>
-                    <PoseCell>
+                    </Cell>
+                    <Cell as="td">
                       <PoseButton src="http://pets.neopets.com/cp/42j5q3zx/4/1.png" />
-                    </PoseCell>
+                    </Cell>
                   </tr>
                   <tr>
-                    <Box as="th" textAlign="right">
-                      🙍‍♀️
-                    </Box>
-                    <PoseCell>
+                    <Cell as="th">
+                      <EmojiImage src={twemojiFem} aria-label="Feminine" />
+                    </Cell>
+                    <Cell as="td">
                       <PoseButton src="http://pets.neopets.com/cp/xgnghng7/1/1.png" />
-                    </PoseCell>
-                    <PoseCell>
+                    </Cell>
+                    <Cell as="td">
                       <PoseButton src="http://pets.neopets.com/cp/xgnghng7/2/1.png" />
-                    </PoseCell>
-                    <PoseCell>
+                    </Cell>
+                    <Cell as="td">
                       <PoseButton src="http://pets.neopets.com/cp/xgnghng7/4/1.png" />
-                    </PoseCell>
+                    </Cell>
                   </tr>
                 </tbody>
               </table>
@@ -112,13 +121,14 @@ function PosePicker({ onLockFocus, onUnlockFocus }) {
   );
 }
 
-function PoseCell({ children }) {
+function Cell({ children, as }) {
+  const Tag = as;
   return (
-    <td>
+    <Tag>
       <Flex justify="center" p="1">
         {children}
       </Flex>
-    </td>
+    </Tag>
   );
 }
 
@@ -142,6 +152,10 @@ function PoseButton({ src }) {
       </Button>
     </Box>
   );
+}
+
+function EmojiImage({ src, "aria-label": ariaLabel }) {
+  return <Image src={src} aria-label={ariaLabel} width="16px" height="16px" />;
 }
 
 export default PosePicker;
