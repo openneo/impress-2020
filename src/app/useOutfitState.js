@@ -3,7 +3,7 @@ import gql from "graphql-tag";
 import produce, { enableMapSet } from "immer";
 import { useQuery, useApolloClient } from "@apollo/react-hooks";
 
-import { itemAppearanceFragment } from "./OutfitPreview";
+import { itemAppearanceFragment } from "./useOutfitAppearance";
 
 enableMapSet();
 

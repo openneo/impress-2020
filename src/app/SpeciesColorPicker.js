@@ -11,12 +11,7 @@ import { Delay } from "./util";
  * It preloads all species, colors, and valid species/color pairs; and then
  * ensures that the outfit is always in a valid state.
  */
-function SpeciesColorPicker({
-  outfitState,
-  dispatchToOutfit,
-  onFocus,
-  onBlur,
-}) {
+function SpeciesColorPicker({ outfitState, dispatchToOutfit }) {
   const toast = useToast();
   const { loading, error, data } = useQuery(gql`
     query {
@@ -121,8 +116,6 @@ function SpeciesColorPicker({
         border="none"
         boxShadow="md"
         width="auto"
-        onFocus={onFocus}
-        onBlur={onBlur}
       >
         {allColors.map((color) => (
           <option key={color.id} value={color.id}>
@@ -140,8 +133,6 @@ function SpeciesColorPicker({
         border="none"
         boxShadow="md"
         width="auto"
-        onFocus={onFocus}
-        onBlur={onBlur}
       >
         {allSpecies.map((species) => (
           <option key={species.id} value={species.id}>

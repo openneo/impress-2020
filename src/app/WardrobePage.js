@@ -3,6 +3,7 @@ import { Box, Grid, useToast } from "@chakra-ui/core";
 import { Helmet } from "react-helmet";
 
 import ItemsAndSearchPanels from "./ItemsAndSearchPanels";
+import OutfitControls from "./OutfitControls";
 import OutfitPreview from "./OutfitPreview";
 import useOutfitState from "./useOutfitState.js";
 
@@ -46,9 +47,9 @@ function WardrobePage() {
       <Box position="absolute" top="0" bottom="0" left="0" right="0">
         <Grid
           templateAreas={{
-            base: `"preview"
+            base: `"previewAndControls"
                    "itemsAndSearch"`,
-            lg: `"preview itemsAndSearch"`,
+            lg: `"previewAndControls itemsAndSearch"`,
           }}
           templateRows={{
             base: "minmax(100px, 45%) minmax(300px, 55%)",
@@ -61,11 +62,16 @@ function WardrobePage() {
           height="100%"
           width="100%"
         >
-          <Box gridArea="preview" backgroundColor="gray.900">
-            <OutfitPreview
-              outfitState={outfitState}
-              dispatchToOutfit={dispatchToOutfit}
-            />
+          <Box gridArea="previewAndControls" bg="gray.900" pos="relative">
+            <Box position="absolute" top="0" bottom="0" left="0" right="0">
+              <OutfitPreview outfitState={outfitState} />
+            </Box>
+            <Box position="absolute" top="0" bottom="0" left="0" right="0">
+              <OutfitControls
+                outfitState={outfitState}
+                dispatchToOutfit={dispatchToOutfit}
+              />
+            </Box>
           </Box>
           <Box gridArea="itemsAndSearch">
             <ItemsAndSearchPanels
