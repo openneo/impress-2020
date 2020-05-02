@@ -1,5 +1,5 @@
 import React from "react";
-import { css } from "emotion";
+import { css, cx } from "emotion";
 import {
   Box,
   Flex,
@@ -11,6 +11,7 @@ import {
 } from "@chakra-ui/core";
 
 import OutfitResetModal from "./OutfitResetModal";
+import PosePicker from "./PosePicker";
 import SpeciesColorPicker from "./SpeciesColorPicker";
 import useOutfitAppearance from "./useOutfitAppearance";
 
@@ -19,6 +20,8 @@ import useOutfitAppearance from "./useOutfitAppearance";
  * control things like species/color and sharing links!
  */
 function OutfitControls({ outfitState, dispatchToOutfit }) {
+  const [focusIsLocked, setFocusIsLocked] = React.useState(false);
+
   return (
     <PseudoBox
       role="group"
@@ -34,15 +37,19 @@ function OutfitControls({ outfitState, dispatchToOutfit }) {
                           "space space"
                           "picker picker"`}
       gridTemplateRows="auto minmax(1rem, 1fr) auto"
-      className={css`
-        opacity: 0;
-        transition: opacity 0.2s;
+      className={cx(
+        css`
+          opacity: 0;
+          transition: opacity 0.2s;
 
-        &:hover,
-        &:focus-within {
-          opacity: 1;
-        }
-      `}
+          &:hover,
+          &:focus-within,
+          &.focus-is-locked {
+            opacity: 1;
+          }
+        `,
+        focusIsLocked && "focus-is-locked"
+      )}
     >
       <Box gridArea="back">
         <BackButton dispatchToOutfit={dispatchToOutfit} />
@@ -62,10 +69,23 @@ function OutfitControls({ outfitState, dispatchToOutfit }) {
       </Stack>
       <Box gridArea="space" />
       <Flex gridArea="picker" justify="center">
-        <SpeciesColorPicker
-          outfitState={outfitState}
-          dispatchToOutfit={dispatchToOutfit}
-        />
+        {/**
+         * We try to center the species/color picker, but the left spacer will
+         * shrink more than the pose picker container if we run out of space!
+         */}
+        <Box flex="1 1 0" />
+        <Box flex="0 0 auto">
+          <SpeciesColorPicker
+            outfitState={outfitState}
+            dispatchToOutfit={dispatchToOutfit}
+          />
+        </Box>
+        <Flex flex="1 1 0" align="center" pl="4">
+          <PosePicker
+            onLockFocus={() => setFocusIsLocked(true)}
+            onUnlockFocus={() => setFocusIsLocked(false)}
+          />
+        </Flex>
       </Flex>
     </PseudoBox>
   );

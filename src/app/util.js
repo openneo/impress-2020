@@ -52,6 +52,13 @@ export function Heading2({ children, ...props }) {
 }
 
 /**
+ * safeImageUrl returns an HTTPS-safe image URL for Neopets assets!
+ */
+export function safeImageUrl(url) {
+  return `/api/assetProxy?url=${encodeURIComponent(url)}`;
+}
+
+/**
  * useDebounce helps make a rapidly-changing value change less! It waits for a
  * pause in the incoming data before outputting the latest value.
  *

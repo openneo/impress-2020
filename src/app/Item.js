@@ -10,6 +10,8 @@ import {
   useTheme,
 } from "@chakra-ui/core";
 
+import { safeImageUrl } from "./util";
+
 /**
  * Item show a basic summary of an item, in the context of the current outfit!
  *
@@ -29,10 +31,7 @@ export function Item({ item, itemNameId, outfitState, dispatchToOutfit }) {
   return (
     <ItemContainer>
       <Box>
-        <ItemThumbnail
-          src={`/api/assetProxy?url=${encodeURIComponent(item.thumbnailUrl)}`}
-          isWorn={isWorn}
-        />
+        <ItemThumbnail src={safeImageUrl(item.thumbnailUrl)} isWorn={isWorn} />
       </Box>
       <Box width="3" />
       <Box>
