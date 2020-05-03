@@ -41,13 +41,12 @@ function OutfitPreview({ outfitState }) {
 export function OutfitLayers({ loading, visibleLayers, doAnimations = false }) {
   return (
     <Box pos="relative" height="100%" width="100%">
-      <TransitionGroup>
+      <TransitionGroup enter={false} exit={doAnimations}>
         {visibleLayers.map((layer) => (
           // We manage the fade-in and fade-out separately! The fade-out
           // happens here, when the layer exits the DOM.
           <CSSTransition
             key={layer.id}
-            exit={doAnimations}
             classNames={css`
               &-exit {
                 opacity: 1;
