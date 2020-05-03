@@ -11,6 +11,7 @@ import {
   PopoverArrow,
   PopoverContent,
   PopoverTrigger,
+  VisuallyHidden,
   useTheme,
 } from "@chakra-ui/core";
 
@@ -23,16 +24,17 @@ import twemojiSick from "../images/twemoji/sick.svg";
 import twemojiMasc from "../images/twemoji/masc.svg";
 import twemojiFem from "../images/twemoji/fem.svg";
 import { OutfitLayers } from "./OutfitPreview";
-import { safeImageUrl } from "./util";
 
 function PosePicker({ outfitState, onLockFocus, onUnlockFocus }) {
   const theme = useTheme();
 
   const { speciesId, colorId } = outfitState;
-  const { loading, error, poses } = useAvailablePoses({
+  const { loading, error, poses, selectPose } = usePoses({
     speciesId,
     colorId,
   });
+
+  const checkedInputRef = React.useRef();
 
   if (loading) {
     return null;
@@ -52,10 +54,11 @@ function PosePicker({ outfitState, onLockFocus, onUnlockFocus }) {
 
   return (
     <Popover
-      placement="top-end"
+      placement="bottom-end"
       usePortal
       onOpen={onLockFocus}
       onClose={onUnlockFocus}
+      initialFocusRef={checkedInputRef}
     >
       {({ isOpen }) => (
         <>
@@ -92,7 +95,16 @@ function PosePicker({ outfitState, onLockFocus, onUnlockFocus }) {
           </PopoverTrigger>
           <PopoverContent>
             <Box p="4">
-              <table width="100%" borderSpacing="8px">
+              <table
+                width="100%"
+                borderSpacing="8px"
+                onChange={(e) => {
+                  const [emotion, genderPresentation] = e.target.value.split(
+                    "-"
+                  );
+                  selectPose({ emotion, genderPresentation });
+                }}
+              >
                 <thead>
                   <tr>
                     <th />
@@ -161,31 +173,96 @@ function Cell({ children, as }) {
   );
 }
 
+const EMOTION_STRINGS = {
+  HAPPY: "Happy",
+  SAD: "Sad",
+  SICK: "Sick",
+};
+
+const GENDER_PRESENTATION_STRINGS = {
+  MASCULINE: "Masculine",
+  FEMININE: "Feminine",
+};
+
 function PoseButton({ pose, speciesId }) {
+  const theme = useTheme();
+
   if (!pose) {
     return null;
   }
 
+  const genderPresentationStr =
+    GENDER_PRESENTATION_STRINGS[pose.genderPresentation];
+  const emotionStr = EMOTION_STRINGS[pose.emotion];
+
   return (
     <Box
-      rounded="full"
-      boxShadow="md"
-      overflow="hidden"
-      width="50px"
-      height="50px"
-      title={window.location.hostname.includes("localhost") && `#${pose.id}`}
+      as="label"
+      cursor="pointer"
+      onClick={(e) => {
+        // HACK: We need the timeout to beat the popover's focus stealing!
+        const input = e.currentTarget.querySelector("input");
+        setTimeout(() => input.focus(), 0);
+      }}
     >
-      <Button variant="unstyled" width="100%" height="100%">
+      <VisuallyHidden
+        as="input"
+        type="radio"
+        aria-label={`${emotionStr} and ${genderPresentationStr}`}
+        name="pose"
+        value={`${pose.emotion}-${pose.genderPresentation}`}
+        checked={pose.isSelected}
+      />
+      <Box
+        rounded="full"
+        boxShadow="md"
+        overflow="hidden"
+        width="50px"
+        height="50px"
+        title={window.location.hostname.includes("localhost") && `#${pose.id}`}
+        position="relative"
+        className={css`
+          transform: scale(0.8);
+          opacity: 0.8;
+          transition: all 0.2s;
+
+          input:checked + & {
+            transform: scale(1);
+            opacity: 1;
+          }
+        `}
+      >
         <Box
-          width="100%"
-          height="100%"
+          rounded="full"
+          position="absolute"
+          top="0"
+          bottom="0"
+          left="0"
+          right="0"
+          zIndex="2"
+          className={css`
+            border: 0px solid ${theme.colors.green["600"]};
+            transition: border-width 0.2s;
+
+            input:checked + * & {
+              border-width: 1px;
+            }
+
+            input:focus + * & {
+              border-width: 3px;
+            }
+          `}
+        />
+        <Box
+          width="50px"
+          height="50px"
           transform={
             transformsBySpeciesId[speciesId] || transformsBySpeciesId.default
           }
         >
           <OutfitLayers visibleLayers={getVisibleLayers(pose, [])} />
         </Box>
-      </Button>
+      </Box>
     </Box>
   );
 }
@@ -194,7 +271,12 @@ function EmojiImage({ src, "aria-label": ariaLabel }) {
   return <Image src={src} aria-label={ariaLabel} width="16px" height="16px" />;
 }
 
-function useAvailablePoses({ speciesId, colorId }) {
+function usePoses({ speciesId, colorId }) {
+  const [selectedPose, selectPose] = React.useState({
+    emotion: "HAPPY",
+    genderPresentation: "FEMININE",
+  });
+
   const { loading, error, data } = useQuery(
     gql`
       query PosePicker($speciesId: ID!, $colorId: ID!) {
@@ -212,21 +294,24 @@ function useAvailablePoses({ speciesId, colorId }) {
   );
 
   const petAppearances = data?.petAppearances || [];
-  const findAppearanceFor = (e, gp) =>
-    petAppearances.find(
+  const buildPose = (e, gp) => ({
+    ...petAppearances.find(
       (pa) => pa.emotion === e && pa.genderPresentation === gp
-    );
+    ),
+    isSelected:
+      selectedPose.emotion === e && selectedPose.genderPresentation === gp,
+  });
 
   const poses = {
-    happyMasc: findAppearanceFor("HAPPY", "MASCULINE"),
-    sadMasc: findAppearanceFor("SAD", "MASCULINE"),
-    sickMasc: findAppearanceFor("SICK", "MASCULINE"),
-    happyFem: findAppearanceFor("HAPPY", "FEMININE"),
-    sadFem: findAppearanceFor("SAD", "FEMININE"),
-    sickFem: findAppearanceFor("SICK", "FEMININE"),
+    happyMasc: buildPose("HAPPY", "MASCULINE"),
+    sadMasc: buildPose("SAD", "MASCULINE"),
+    sickMasc: buildPose("SICK", "MASCULINE"),
+    happyFem: buildPose("HAPPY", "FEMININE"),
+    sadFem: buildPose("SAD", "FEMININE"),
+    sickFem: buildPose("SICK", "FEMININE"),
   };
 
-  return { loading, error, poses };
+  return { loading, error, poses, selectPose };
 }
 
 const transformsBySpeciesId = {
