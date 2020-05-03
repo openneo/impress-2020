@@ -241,7 +241,12 @@ function PoseButton({ pose, onChange, inputRef }) {
         overflow="hidden"
         width="50px"
         height="50px"
-        title={window.location.hostname.includes("localhost") && `#${pose.id}`}
+        title={
+          // A lil debug output, so that we can quickly identify glitched
+          // PetStates and manually mark them as glitched!
+          window.location.hostname.includes("localhost") &&
+          `#${pose.petStateId}`
+        }
         position="relative"
         className={css`
           transform: scale(0.8);
@@ -295,13 +300,14 @@ function EmojiImage({ src, "aria-label": ariaLabel }) {
 }
 
 function usePoses(outfitState) {
-  const { speciesId, colorId, emotion, genderPresentation } = outfitState;
+  const { speciesId, colorId } = outfitState;
 
   const { loading, error, data } = useQuery(
     gql`
       query PosePicker($speciesId: ID!, $colorId: ID!) {
         petAppearances(speciesId: $speciesId, colorId: $colorId) {
           id
+          petStateId
           genderPresentation
           emotion
           approximateThumbnailUrl
