@@ -128,13 +128,22 @@ function PosePicker({ outfitState, onLockFocus, onUnlockFocus }) {
                       <PoseButton
                         pose={poses.happyMasc}
                         speciesId={speciesId}
+                        inputRef={poses.happyMasc.isSelected && checkedInputRef}
                       />
                     </Cell>
                     <Cell as="td">
-                      <PoseButton pose={poses.sadMasc} speciesId={speciesId} />
+                      <PoseButton
+                        pose={poses.sadMasc}
+                        speciesId={speciesId}
+                        inputRef={poses.sadMasc.isSelected && checkedInputRef}
+                      />
                     </Cell>
                     <Cell as="td">
-                      <PoseButton pose={poses.sickMasc} speciesId={speciesId} />
+                      <PoseButton
+                        pose={poses.sickMasc}
+                        speciesId={speciesId}
+                        inputRef={poses.sickMasc.isSelected && checkedInputRef}
+                      />
                     </Cell>
                   </tr>
                   <tr>
@@ -142,13 +151,25 @@ function PosePicker({ outfitState, onLockFocus, onUnlockFocus }) {
                       <EmojiImage src={twemojiFem} aria-label="Feminine" />
                     </Cell>
                     <Cell as="td">
-                      <PoseButton pose={poses.happyFem} speciesId={speciesId} />
+                      <PoseButton
+                        pose={poses.happyFem}
+                        speciesId={speciesId}
+                        inputRef={poses.happyFem.isSelected && checkedInputRef}
+                      />
                     </Cell>
                     <Cell as="td">
-                      <PoseButton pose={poses.sadFem} speciesId={speciesId} />
+                      <PoseButton
+                        pose={poses.sadFem}
+                        speciesId={speciesId}
+                        inputRef={poses.sadFem.isSelected && checkedInputRef}
+                      />
                     </Cell>
                     <Cell as="td">
-                      <PoseButton pose={poses.sickFem} speciesId={speciesId} />
+                      <PoseButton
+                        pose={poses.sickFem}
+                        speciesId={speciesId}
+                        inputRef={poses.sickFem.isSelected && checkedInputRef}
+                      />
                     </Cell>
                   </tr>
                 </tbody>
@@ -184,7 +205,7 @@ const GENDER_PRESENTATION_STRINGS = {
   FEMININE: "Feminine",
 };
 
-function PoseButton({ pose, speciesId }) {
+function PoseButton({ pose, speciesId, inputRef }) {
   const theme = useTheme();
 
   if (!pose) {
@@ -212,6 +233,7 @@ function PoseButton({ pose, speciesId }) {
         name="pose"
         value={`${pose.emotion}-${pose.genderPresentation}`}
         checked={pose.isSelected}
+        ref={inputRef || null}
       />
       <Box
         rounded="full"
