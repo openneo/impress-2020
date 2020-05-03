@@ -47,8 +47,10 @@ const typeDefs = gql`
   }
 
   type PetAppearance {
+    id: ID!
     genderPresentation: GenderPresentation
     emotion: Emotion
+    approximateThumbnailUrl: String!
     layers: [AppearanceLayer!]!
   }
 
@@ -159,6 +161,7 @@ const resolvers = {
     },
   },
   PetAppearance: {
+    id: ({ petState }) => petState.id,
     genderPresentation: ({ petState }) => {
       if (petState.female === 1) {
         return "FEMININE";
@@ -186,6 +189,9 @@ const resolvers = {
           `unrecognized moodId ${JSON.stringify(petState.moodId)}`
         );
       }
+    },
+    approximateThumbnailUrl: ({ petType, petState }) => {
+      return `http://pets.neopets.com/cp/${petType.basicImageHash}/${petState.moodId}/1.png`;
     },
     layers: async ({ petState }, _, { petSwfAssetLoader }) => {
       const swfAssets = await petSwfAssetLoader.load(petState.id);
@@ -280,26 +286,26 @@ const resolvers = {
     petAppearance: async (
       _,
       { speciesId, colorId },
-      { petTypeLoader, petStateLoader, petSwfAssetLoader }
+      { petTypeLoader, petStateLoader }
     ) => {
       const petType = await petTypeLoader.load({
         speciesId,
         colorId,
       });
       const petStates = await petStateLoader.load(petType.id);
-      return { petState: petStates[0] };
+      return { petType, petState: petStates[0] };
     },
     petAppearances: async (
       _,
       { speciesId, colorId },
-      { petTypeLoader, petStateLoader, petSwfAssetLoader }
+      { petTypeLoader, petStateLoader }
     ) => {
       const petType = await petTypeLoader.load({
         speciesId,
         colorId,
       });
       const petStates = await petStateLoader.load(petType.id);
-      return petStates.map((petState) => ({ petState }));
+      return petStates.map((petState) => ({ petType, petState }));
     },
     petOnNeopetsDotCom: async (_, { petName }) => {
       const petData = await neopets.loadPetData(petName);

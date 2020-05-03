@@ -55,8 +55,10 @@ exports[`PetAppearance loads multiple for species and color 1`] = `
 Object {
   "petAppearances": Array [
     Object {
+      "approximateThumbnailUrl": "http://pets.neopets.com/cp/vghhzlgf/1/1.png",
       "emotion": "HAPPY",
       "genderPresentation": "FEMININE",
+      "id": "17723",
       "layers": Array [
         Object {
           "id": "5995",
@@ -103,8 +105,10 @@ Object {
       ],
     },
     Object {
+      "approximateThumbnailUrl": "http://pets.neopets.com/cp/vghhzlgf/1/1.png",
       "emotion": "HAPPY",
       "genderPresentation": "MASCULINE",
+      "id": "17742",
       "layers": Array [
         Object {
           "id": "5995",
@@ -151,8 +155,10 @@ Object {
       ],
     },
     Object {
+      "approximateThumbnailUrl": "http://pets.neopets.com/cp/vghhzlgf/4/1.png",
       "emotion": "SICK",
       "genderPresentation": "FEMININE",
+      "id": "10014",
       "layers": Array [
         Object {
           "id": "5995",
@@ -199,8 +205,10 @@ Object {
       ],
     },
     Object {
+      "approximateThumbnailUrl": "http://pets.neopets.com/cp/vghhzlgf/4/1.png",
       "emotion": "SICK",
       "genderPresentation": "MASCULINE",
+      "id": "11089",
       "layers": Array [
         Object {
           "id": "5995",
@@ -247,8 +255,10 @@ Object {
       ],
     },
     Object {
+      "approximateThumbnailUrl": "http://pets.neopets.com/cp/vghhzlgf/2/1.png",
       "emotion": "SAD",
       "genderPresentation": "FEMININE",
+      "id": "5991",
       "layers": Array [
         Object {
           "id": "5995",
@@ -295,8 +305,10 @@ Object {
       ],
     },
     Object {
+      "approximateThumbnailUrl": "http://pets.neopets.com/cp/vghhzlgf/2/1.png",
       "emotion": "SAD",
       "genderPresentation": "MASCULINE",
+      "id": "436",
       "layers": Array [
         Object {
           "id": "5995",
@@ -343,8 +355,10 @@ Object {
       ],
     },
     Object {
+      "approximateThumbnailUrl": "http://pets.neopets.com/cp/vghhzlgf/null/1.png",
       "emotion": null,
       "genderPresentation": null,
+      "id": "2",
       "layers": Array [
         Object {
           "id": "5995",
@@ -398,8 +412,10 @@ Object {
       ],
     },
     Object {
+      "approximateThumbnailUrl": "http://pets.neopets.com/cp/vghhzlgf/null/1.png",
       "emotion": null,
       "genderPresentation": null,
+      "id": "4751",
       "layers": Array [
         Object {
           "id": "5995",

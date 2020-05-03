@@ -31,8 +31,9 @@ describe("PetAppearance", () => {
           ],
         ],
         Array [
-          "SELECT * FROM pet_states WHERE pet_type_id IN (?)
-             ORDER BY glitched ASC, (mood_id = 1) DESC",
+          "SELECT * FROM pet_states
+             WHERE pet_type_id IN (?) AND glitched = 0
+             ORDER BY (mood_id = 1) DESC",
           Array [
             "2",
           ],
@@ -67,8 +68,10 @@ describe("PetAppearance", () => {
       query: gql`
         query {
           petAppearances(speciesId: "54", colorId: "75") {
+            id
             genderPresentation
             emotion
+            approximateThumbnailUrl
             layers {
               id
               imageUrl(size: SIZE_600)
@@ -93,8 +96,9 @@ describe("PetAppearance", () => {
           ],
         ],
         Array [
-          "SELECT * FROM pet_states WHERE pet_type_id IN (?)
-             ORDER BY glitched ASC, (mood_id = 1) DESC",
+          "SELECT * FROM pet_states
+             WHERE pet_type_id IN (?) AND glitched = 0
+             ORDER BY (mood_id = 1) DESC",
           Array [
             "2",
           ],
