@@ -6,7 +6,6 @@ import {
   Box,
   Button,
   Flex,
-  Image,
   Popover,
   PopoverArrow,
   PopoverContent,

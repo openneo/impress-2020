@@ -1,5 +1,5 @@
 import React from "react";
-import { css } from "emotion";
+import { css, cx } from "emotion";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 
 import { Box, Flex, Icon, Image, Spinner, Text } from "@chakra-ui/core";
@@ -39,6 +39,10 @@ function OutfitPreview({ outfitState }) {
  * used both in the main outfit preview, and in other minor UIs!
  */
 export function OutfitLayers({ loading, visibleLayers, doAnimations = false }) {
+  // If we're fading in, we should use Image, to detect the load success. But
+  // if not, just use a plain img, so that we load instantly without a flicker!
+  const ImageTag = doAnimations ? Image : "img";
+
   return (
     <Box pos="relative" height="100%" width="100%">
       <TransitionGroup enter={false} exit={doAnimations}>
@@ -60,25 +64,28 @@ export function OutfitLayers({ loading, visibleLayers, doAnimations = false }) {
             timeout={200}
           >
             <FullScreenCenter>
-              <Image
+              <ImageTag
                 src={layer.imageUrl}
-                objectFit="contain"
-                maxWidth="100%"
-                maxHeight="100%"
                 // We manage the fade-in and fade-out separately! The fade-in
                 // happens here, when the <Image> finishes preloading and
                 // applies the src to the underlying <img>.
-                className={
-                  doAnimations &&
+                className={cx(
                   css`
-                    opacity: 0.01;
+                    object-fit: contain;
+                    max-width: 100%;
+                    max-height: 100%;
 
-                    &[src] {
-                      opacity: 1;
-                      transition: opacity 0.2s;
+                    transition: opacity 0.2s;
+                    &.do-animations {
+                      opacity: 0.01;
                     }
-                  `
-                }
+
+                    &.do-animations[src] {
+                      opacity: 1;
+                    }
+                  `,
+                  doAnimations && "do-animations"
+                )}
                 // This sets up the cache to not need to reload images during
                 // download!
                 // TODO: Re-enable this once we get our change into Chakra
