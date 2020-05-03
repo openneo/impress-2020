@@ -3,7 +3,7 @@ const { gql } = require("apollo-server");
 const connectToDb = require("./db");
 const buildLoaders = require("./loaders");
 const neopets = require("./neopets");
-const { capitalize } = require("./util");
+const { capitalize, getEmotion, getGenderPresentation } = require("./util");
 
 const typeDefs = gql`
   enum LayerImageSize {
@@ -111,7 +111,12 @@ const typeDefs = gql`
       offset: Int
       limit: Int
     ): ItemSearchResult!
-    petAppearance(speciesId: ID!, colorId: ID!): PetAppearance
+    petAppearance(
+      speciesId: ID!
+      colorId: ID!
+      emotion: Emotion!
+      genderPresentation: GenderPresentation!
+    ): PetAppearance
     petAppearances(speciesId: ID!, colorId: ID!): [PetAppearance!]!
 
     petOnNeopetsDotCom(petName: String!): Outfit
@@ -162,34 +167,9 @@ const resolvers = {
   },
   PetAppearance: {
     id: ({ petState }) => petState.id,
-    genderPresentation: ({ petState }) => {
-      if (petState.female === 1) {
-        return "FEMININE";
-      } else if (petState.female === 0) {
-        return "MASCULINE";
-      } else if (petState.female === null) {
-        return null;
-      } else {
-        throw new Error(
-          `unrecognized gender value ${JSON.stringify(petState.female)}`
-        );
-      }
-    },
-    emotion: ({ petState }) => {
-      if (petState.moodId === "1") {
-        return "HAPPY";
-      } else if (petState.moodId === "2") {
-        return "SAD";
-      } else if (petState.moodId === "4") {
-        return "SICK";
-      } else if (petState.moodId === null) {
-        return null;
-      } else {
-        throw new Error(
-          `unrecognized moodId ${JSON.stringify(petState.moodId)}`
-        );
-      }
-    },
+    genderPresentation: ({ petState }) =>
+      getGenderPresentation(petState.female),
+    emotion: ({ petState }) => getEmotion(petState.moodId),
     approximateThumbnailUrl: ({ petType, petState }) => {
       return `http://pets.neopets.com/cp/${petType.basicImageHash}/${petState.moodId}/1.png`;
     },
@@ -285,15 +265,26 @@ const resolvers = {
     },
     petAppearance: async (
       _,
-      { speciesId, colorId },
+      { speciesId, colorId, emotion, genderPresentation },
       { petTypeLoader, petStateLoader }
     ) => {
       const petType = await petTypeLoader.load({
         speciesId,
         colorId,
       });
+
       const petStates = await petStateLoader.load(petType.id);
-      return { petType, petState: petStates[0] };
+      // TODO: This could be optimized into the query condition 🤔
+      const petState = petStates.find(
+        (ps) =>
+          getEmotion(ps.moodId) === emotion &&
+          getGenderPresentation(ps.female) === genderPresentation
+      );
+      if (!petState) {
+        return null;
+      }
+
+      return { petType, petState };
     },
     petAppearances: async (
       _,

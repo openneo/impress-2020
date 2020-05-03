@@ -6,12 +6,29 @@ import { useQuery } from "@apollo/react-hooks";
  * visibleLayers for rendering.
  */
 export default function useOutfitAppearance(outfitState) {
-  const { wornItemIds, speciesId, colorId } = outfitState;
+  const {
+    wornItemIds,
+    speciesId,
+    colorId,
+    emotion,
+    genderPresentation,
+  } = outfitState;
 
   const { loading, error, data } = useQuery(
     gql`
-      query($wornItemIds: [ID!]!, $speciesId: ID!, $colorId: ID!) {
-        petAppearance(speciesId: $speciesId, colorId: $colorId) {
+      query(
+        $wornItemIds: [ID!]!
+        $speciesId: ID!
+        $colorId: ID!
+        $emotion: Emotion!
+        $genderPresentation: GenderPresentation!
+      ) {
+        petAppearance(
+          speciesId: $speciesId
+          colorId: $colorId
+          emotion: $emotion
+          genderPresentation: $genderPresentation
+        ) {
           ...PetAppearanceForOutfitPreview
         }
 
@@ -26,7 +43,13 @@ export default function useOutfitAppearance(outfitState) {
       ${petAppearanceFragment}
     `,
     {
-      variables: { wornItemIds, speciesId, colorId },
+      variables: {
+        wornItemIds,
+        speciesId,
+        colorId,
+        emotion,
+        genderPresentation,
+      },
     }
   );
 
@@ -41,7 +64,9 @@ export function getVisibleLayers(petAppearance, itemAppearances) {
     return [];
   }
 
-  const allAppearances = [petAppearance, ...itemAppearances].filter((a) => a);
+  const validItemAppearances = itemAppearances.filter((a) => a);
+
+  const allAppearances = [petAppearance, ...validItemAppearances];
   let allLayers = allAppearances.map((a) => a.layers).flat();
 
   // Clean up our data a bit, by ensuring only one layer per zone. This
@@ -51,7 +76,7 @@ export function getVisibleLayers(petAppearance, itemAppearances) {
     return allLayers.findIndex((l2) => l2.zone.id === l.zone.id) === i;
   });
 
-  const allRestrictedZoneIds = itemAppearances
+  const allRestrictedZoneIds = validItemAppearances
     .map((l) => l.restrictedZones)
     .flat()
     .map((z) => z.id);

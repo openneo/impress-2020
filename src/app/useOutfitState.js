@@ -183,21 +183,34 @@ const outfitStateReducer = (apolloClient) => (baseState, action) => {
         closetedItemIds.delete(itemId);
       });
     case "setPose":
-      const { emotion, genderPresentation } = action;
-      return { ...baseState, emotion, genderPresentation };
+      return produce(baseState, (state) => {
+        const { emotion, genderPresentation } = action;
+        state.emotion = emotion;
+        state.genderPresentation = genderPresentation;
+      });
     case "reset":
-      const { name, speciesId, colorId, wornItemIds, closetedItemIds } = action;
-      return {
-        name,
-        speciesId: speciesId ? String(speciesId) : baseState.speciesId,
-        colorId: colorId ? String(colorId) : baseState.colorId,
-        wornItemIds: wornItemIds
+      return produce(baseState, (state) => {
+        const {
+          name,
+          speciesId,
+          colorId,
+          emotion,
+          genderPresentation,
+          wornItemIds,
+          closetedItemIds,
+        } = action;
+        state.name = name;
+        state.speciesId = speciesId ? String(speciesId) : baseState.speciesId;
+        state.colorId = colorId ? String(colorId) : baseState.colorId;
+        state.emotion = emotion;
+        state.genderPresentation = genderPresentation;
+        state.wornItemIds = wornItemIds
           ? new Set(wornItemIds.map(String))
-          : baseState.wornItemIds,
-        closetedItemIds: closetedItemIds
+          : baseState.wornItemIds;
+        state.closetedItemIds = closetedItemIds
           ? new Set(closetedItemIds.map(String))
-          : baseState.closetedItemIds,
-      };
+          : baseState.closetedItemIds;
+      });
     default:
       throw new Error(`unexpected action ${JSON.stringify(action)}`);
   }
