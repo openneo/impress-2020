@@ -12,4 +12,3 @@ Tech/detail improvements:
   * Use react-virtualized instead of our own scroller, but we need total count known, and we need another solution for the CSS transitions in the outfit case
   * Restore good download behavior: use crossOrigin for everything, and remove cache-buster in the URL we use for canvas
   * Undo the local linking we did for @chakra-ui/core, react, and react-dom on Matchu's machine 😅
-  * validPetPoses should declare its own dimensions, so that misaligned caches won't misalign the data

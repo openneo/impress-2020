@@ -30,7 +30,9 @@ export default async function getValidPetPoses() {
   }
 
   const numPairs = numSpecies * numColors;
-  const buffer = Buffer.alloc(numPairs);
+  const buffer = Buffer.alloc(numPairs + 2);
+  buffer.writeUInt8(numSpecies, 0);
+  buffer.writeUInt8(numColors, 1);
 
   for (let speciesId = 1; speciesId <= numSpecies; speciesId++) {
     const speciesIndex = speciesId - 1;
@@ -53,7 +55,7 @@ export default async function getValidPetPoses() {
       byte <<= 1;
       byte += hasPose(speciesId, colorId, "HAPPY", "MASCULINE") ? 1 : 0;
 
-      buffer.writeUInt8(byte, speciesIndex * numColors + colorIndex);
+      buffer.writeUInt8(byte, speciesIndex * numColors + colorIndex + 2);
     }
   }
 

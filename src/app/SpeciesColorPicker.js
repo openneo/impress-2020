@@ -65,7 +65,7 @@ function SpeciesColorPicker({ outfitState, dispatchToOutfit }) {
   const onChangeColor = (e) => {
     const speciesId = outfitState.speciesId;
     const colorId = e.target.value;
-    if (pairIsValid(valids, meta, speciesId, colorId)) {
+    if (pairIsValid(valids, speciesId, colorId)) {
       dispatchToOutfit({ type: "changeColor", colorId: e.target.value });
     } else {
       const species = allSpecies.find((s) => s.id === speciesId);
@@ -82,7 +82,7 @@ function SpeciesColorPicker({ outfitState, dispatchToOutfit }) {
   const onChangeSpecies = (e) => {
     const colorId = outfitState.colorId;
     const speciesId = e.target.value;
-    if (pairIsValid(valids, meta, speciesId, colorId)) {
+    if (pairIsValid(valids, speciesId, colorId)) {
       dispatchToOutfit({ type: "changeSpecies", speciesId: e.target.value });
     } else {
       const species = allSpecies.find((s) => s.id === speciesId);
@@ -133,12 +133,12 @@ function SpeciesColorPicker({ outfitState, dispatchToOutfit }) {
   );
 }
 
-function pairIsValid(valids, meta, speciesId, colorId) {
+function pairIsValid(valids, speciesId, colorId) {
   // Reading a bit table, owo!
   const speciesIndex = speciesId - 1;
   const colorIndex = colorId - 1;
-  const numColors = meta.allColors.length;
-  const pairByteIndex = speciesIndex * numColors + colorIndex;
+  const numColors = valids.getUint8(1);
+  const pairByteIndex = speciesIndex * numColors + colorIndex + 2;
   const pairByte = valids.getUint8(pairByteIndex);
   return pairByte !== 0;
 }
