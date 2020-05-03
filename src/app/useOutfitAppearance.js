@@ -30,21 +30,18 @@ export default function useOutfitAppearance(outfitState) {
     }
   );
 
-  const visibleLayers = getVisibleLayers(data);
+  const itemAppearances = (data?.items || []).map((i) => i.appearanceOn);
+  const visibleLayers = getVisibleLayers(data?.petAppearance, itemAppearances);
 
   return { loading, error, visibleLayers };
 }
 
-function getVisibleLayers(data) {
-  if (!data) {
+export function getVisibleLayers(petAppearance, itemAppearances) {
+  if (!petAppearance) {
     return [];
   }
 
-  const itemAppearances = (data.items || []).map((i) => i.appearanceOn);
-
-  const allAppearances = [data.petAppearance, ...itemAppearances].filter(
-    (a) => a
-  );
+  const allAppearances = [petAppearance, ...itemAppearances].filter((a) => a);
   let allLayers = allAppearances.map((a) => a.layers).flat();
 
   // Clean up our data a bit, by ensuring only one layer per zone. This

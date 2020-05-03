@@ -14,8 +14,7 @@ import {
   useTheme,
 } from "@chakra-ui/core";
 
-import { petAppearanceFragment } from "./useOutfitAppearance";
-import { safeImageUrl } from "./util";
+import { getVisibleLayers, petAppearanceFragment } from "./useOutfitAppearance";
 
 // From https://twemoji.twitter.com/, thank you!
 import twemojiSmile from "../images/twemoji/smile.svg";
@@ -23,6 +22,8 @@ import twemojiCry from "../images/twemoji/cry.svg";
 import twemojiSick from "../images/twemoji/sick.svg";
 import twemojiMasc from "../images/twemoji/masc.svg";
 import twemojiFem from "../images/twemoji/fem.svg";
+import { OutfitLayers } from "./OutfitPreview";
+import { safeImageUrl } from "./util";
 
 function PosePicker({ outfitState, onLockFocus, onUnlockFocus }) {
   const theme = useTheme();
@@ -44,8 +45,7 @@ function PosePicker({ outfitState, onLockFocus, onUnlockFocus }) {
   }
 
   // If there's only one pose anyway, don't bother showing a picker!
-  const numAvailablePoses = Object.values(poses).filter((p) => p.isAvailable)
-    .length;
+  const numAvailablePoses = Object.values(poses).filter((p) => p).length;
   if (numAvailablePoses <= 1) {
     return null;
   }
@@ -113,13 +113,16 @@ function PosePicker({ outfitState, onLockFocus, onUnlockFocus }) {
                       <EmojiImage src={twemojiMasc} aria-label="Masculine" />
                     </Cell>
                     <Cell as="td">
-                      <PoseButton pose={poses.happyMasc} />
+                      <PoseButton
+                        pose={poses.happyMasc}
+                        speciesId={speciesId}
+                      />
                     </Cell>
                     <Cell as="td">
-                      <PoseButton pose={poses.sadMasc} />
+                      <PoseButton pose={poses.sadMasc} speciesId={speciesId} />
                     </Cell>
                     <Cell as="td">
-                      <PoseButton pose={poses.sickMasc} />
+                      <PoseButton pose={poses.sickMasc} speciesId={speciesId} />
                     </Cell>
                   </tr>
                   <tr>
@@ -127,13 +130,13 @@ function PosePicker({ outfitState, onLockFocus, onUnlockFocus }) {
                       <EmojiImage src={twemojiFem} aria-label="Feminine" />
                     </Cell>
                     <Cell as="td">
-                      <PoseButton pose={poses.happyFem} />
+                      <PoseButton pose={poses.happyFem} speciesId={speciesId} />
                     </Cell>
                     <Cell as="td">
-                      <PoseButton pose={poses.sadFem} />
+                      <PoseButton pose={poses.sadFem} speciesId={speciesId} />
                     </Cell>
                     <Cell as="td">
-                      <PoseButton pose={poses.sickFem} />
+                      <PoseButton pose={poses.sickFem} speciesId={speciesId} />
                     </Cell>
                   </tr>
                 </tbody>
@@ -158,27 +161,30 @@ function Cell({ children, as }) {
   );
 }
 
-function PoseButton({ pose }) {
-  if (!pose.isAvailable) {
+function PoseButton({ pose, speciesId }) {
+  if (!pose) {
     return null;
   }
 
   return (
-    <Box rounded="full" boxShadow="md" overflow="hidden">
-      <Button variant="unstyled" width="auto" height="auto">
-        <Image
-          src={safeImageUrl(pose.thumbnailUrl)}
-          width="50px"
-          height="50px"
-          className={css`
-            opacity: 0.01;
-
-            &[src] {
-              opacity: 1;
-              transition: opacity 0.2s;
-            }
-          `}
-        />
+    <Box
+      rounded="full"
+      boxShadow="md"
+      overflow="hidden"
+      width="50px"
+      height="50px"
+      title={window.location.hostname.includes("localhost") && `#${pose.id}`}
+    >
+      <Button variant="unstyled" width="100%" height="100%">
+        <Box
+          width="100%"
+          height="100%"
+          transform={
+            transformsBySpeciesId[speciesId] || transformsBySpeciesId.default
+          }
+        >
+          <OutfitLayers visibleLayers={getVisibleLayers(pose, [])} />
+        </Box>
       </Button>
     </Box>
   );
@@ -193,8 +199,10 @@ function useAvailablePoses({ speciesId, colorId }) {
     gql`
       query PosePicker($speciesId: ID!, $colorId: ID!) {
         petAppearances(speciesId: $speciesId, colorId: $colorId) {
+          id
           genderPresentation
           emotion
+          approximateThumbnailUrl
           ...PetAppearanceForOutfitPreview
         }
       }
@@ -204,39 +212,80 @@ function useAvailablePoses({ speciesId, colorId }) {
   );
 
   const petAppearances = data?.petAppearances || [];
-  const hasAppearanceFor = (e, gp) =>
-    petAppearances.some(
+  const findAppearanceFor = (e, gp) =>
+    petAppearances.find(
       (pa) => pa.emotion === e && pa.genderPresentation === gp
     );
 
   const poses = {
-    happyMasc: {
-      isAvailable: hasAppearanceFor("HAPPY", "MASCULINE"),
-      thumbnailUrl: "http://pets.neopets.com/cp/42j5q3zx/1/1.png",
-    },
-    sadMasc: {
-      isAvailable: hasAppearanceFor("SAD", "MASCULINE"),
-      thumbnailUrl: "http://pets.neopets.com/cp/42j5q3zx/2/1.png",
-    },
-    sickMasc: {
-      isAvailable: hasAppearanceFor("SICK", "MASCULINE"),
-      thumbnailUrl: "http://pets.neopets.com/cp/42j5q3zx/4/1.png",
-    },
-    happyFem: {
-      isAvailable: hasAppearanceFor("HAPPY", "FEMININE"),
-      thumbnailUrl: "http://pets.neopets.com/cp/xgnghng7/1/1.png",
-    },
-    sadFem: {
-      isAvailable: hasAppearanceFor("SAD", "FEMININE"),
-      thumbnailUrl: "http://pets.neopets.com/cp/xgnghng7/2/1.png",
-    },
-    sickFem: {
-      isAvailable: hasAppearanceFor("SICK", "FEMININE"),
-      thumbnailUrl: "http://pets.neopets.com/cp/xgnghng7/4/1.png",
-    },
+    happyMasc: findAppearanceFor("HAPPY", "MASCULINE"),
+    sadMasc: findAppearanceFor("SAD", "MASCULINE"),
+    sickMasc: findAppearanceFor("SICK", "MASCULINE"),
+    happyFem: findAppearanceFor("HAPPY", "FEMININE"),
+    sadFem: findAppearanceFor("SAD", "FEMININE"),
+    sickFem: findAppearanceFor("SICK", "FEMININE"),
   };
 
   return { loading, error, poses };
 }
+
+const transformsBySpeciesId = {
+  "1": "translate(-5px, 10px) scale(2.8)",
+  "2": "translate(-8px, 8px) scale(2.9)",
+  "3": "translate(-1px, 17px) scale(3)",
+  "4": "translate(-21px, 22px) scale(3.2)",
+  "5": "translate(2px, 15px) scale(3.3)",
+  "6": "translate(-14px, 28px) scale(3.4)",
+  "7": "translate(-4px, 8px) scale(2.9)",
+  "8": "translate(-26px, 30px) scale(3.0)",
+  "9": "translate(-4px, 8px) scale(3.1)",
+  "10": "translate(-14px, 18px) scale(3.0)",
+  "11": "translate(-7px, 24px) scale(2.9)",
+  "12": "translate(-16px, 20px) scale(3.5)",
+  "13": "translate(-11px, 18px) scale(3.0)",
+  "14": "translate(-14px, 26px) scale(3.5)",
+  "15": "translate(-13px, 24px) scale(3.1)",
+  "16": "translate(-6px, 29px) scale(3.1)",
+  "17": "translate(3px, 13px) scale(3.1)",
+  "18": "translate(2px, 27px) scale(3.4)",
+  "19": "translate(-7px, 16px) scale(3.1)",
+  "20": "translate(-2px, 15px) scale(3.0)",
+  "21": "translate(-2px, -17px) scale(3.0)",
+  "22": "translate(-14px, 16px) scale(3.6)",
+  "23": "translate(-16px, 16px) scale(3.2)",
+  "24": "translate(-2px, 6px) scale(3.2)",
+  "25": "translate(-3px, 6px) scale(3.7)",
+  "26": "translate(-7px, 19px) scale(5.2)",
+  "27": "translate(-16px, 20px) scale(3.5)",
+  "28": "translate(-3px, 24px) scale(3.2)",
+  "29": "translate(-9px, 15px) scale(3.4)",
+  "30": "translate(3px, 57px) scale(4.4)",
+  "31": "translate(-28px, 35px) scale(3.8)",
+  "32": "translate(-8px, 33px) scale(3.5)",
+  "33": "translate(-8px, -6px) scale(3.2)",
+  "34": "translate(-14px, 14px) scale(3.1)",
+  "35": "translate(-12px, 0px) scale(3.4)",
+  "36": "translate(6px, 23px) scale(3.3)",
+  "37": "translate(-20px, 25px) scale(3.6)",
+  "38": "translate(-16px, 28px) scale(4.0)",
+  "39": "translate(-8px, 11px) scale(3.0)",
+  "40": "translate(2px, 12px) scale(3.5)",
+  "41": "translate(-3px, 18px) scale(3.0)",
+  "42": "translate(-18px, 46px) scale(4.4)",
+  "43": "translate(-6px, 22px) scale(3.2)",
+  "44": "translate(-2px, 19px) scale(3.4)",
+  "45": "translate(-11px, 32px) scale(3.3)",
+  "46": "translate(-13px, 23px) scale(3.3)",
+  "47": "translate(-14px, 4px) scale(3.1)",
+  "48": "translate(-9px, 24px) scale(3.5)",
+  "49": "translate(-14px, 25px) scale(3.4)",
+  "50": "translate(-7px, 4px) scale(3.6)",
+  "51": "translate(-13px, 16px) scale(3.2)",
+  "52": "translate(-2px, 13px) scale(3.2)",
+  "53": "translate(-6px, 4px) scale(3.1)",
+  "54": "translate(-15px, 22px) scale(3.6)",
+  "55": "translate(1px, 14px) scale(3.1)",
+  default: "scale(2.5)",
+};
 
 export default PosePicker;

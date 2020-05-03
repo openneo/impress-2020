@@ -25,6 +25,14 @@ function OutfitPreview({ outfitState }) {
     );
   }
 
+  return <OutfitLayers loading={loading} visibleLayers={visibleLayers} />;
+}
+
+/**
+ * OutfitLayers is the raw UI component for rendering outfit layers. It's
+ * used both in the main outfit preview, and in other minor UIs!
+ */
+export function OutfitLayers({ loading, visibleLayers }) {
   return (
     <Box pos="relative" height="100%" width="100%">
       <TransitionGroup>
