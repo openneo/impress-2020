@@ -108,6 +108,7 @@ export const itemAppearanceFragment = gql`
 
 export const petAppearanceFragment = gql`
   fragment PetAppearanceForOutfitPreview on PetAppearance {
+    id
     layers {
       id
       imageUrl(size: SIZE_600)
