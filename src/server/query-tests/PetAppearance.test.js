@@ -74,6 +74,7 @@ describe("PetAppearance", () => {
         query {
           petAppearances(speciesId: "54", colorId: "75") {
             id
+            bodyId
             petStateId
             genderPresentation
             emotion

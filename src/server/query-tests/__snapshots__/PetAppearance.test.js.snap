@@ -56,6 +56,7 @@ Object {
   "petAppearances": Array [
     Object {
       "approximateThumbnailUrl": "http://pets.neopets.com/cp/vghhzlgf/1/1.png",
+      "bodyId": "180",
       "emotion": "HAPPY",
       "genderPresentation": "FEMININE",
       "id": "54-75-HAPPY-FEMININE",
@@ -107,6 +108,7 @@ Object {
     },
     Object {
       "approximateThumbnailUrl": "http://pets.neopets.com/cp/vghhzlgf/1/1.png",
+      "bodyId": "180",
       "emotion": "HAPPY",
       "genderPresentation": "MASCULINE",
       "id": "54-75-HAPPY-MASCULINE",
@@ -158,6 +160,7 @@ Object {
     },
     Object {
       "approximateThumbnailUrl": "http://pets.neopets.com/cp/vghhzlgf/4/1.png",
+      "bodyId": "180",
       "emotion": "SICK",
       "genderPresentation": "FEMININE",
       "id": "54-75-SICK-FEMININE",
@@ -209,6 +212,7 @@ Object {
     },
     Object {
       "approximateThumbnailUrl": "http://pets.neopets.com/cp/vghhzlgf/4/1.png",
+      "bodyId": "180",
       "emotion": "SICK",
       "genderPresentation": "MASCULINE",
       "id": "54-75-SICK-MASCULINE",
@@ -260,6 +264,7 @@ Object {
     },
     Object {
       "approximateThumbnailUrl": "http://pets.neopets.com/cp/vghhzlgf/2/1.png",
+      "bodyId": "180",
       "emotion": "SAD",
       "genderPresentation": "FEMININE",
       "id": "54-75-SAD-FEMININE",
@@ -311,6 +316,7 @@ Object {
     },
     Object {
       "approximateThumbnailUrl": "http://pets.neopets.com/cp/vghhzlgf/2/1.png",
+      "bodyId": "180",
       "emotion": "SAD",
       "genderPresentation": "MASCULINE",
       "id": "54-75-SAD-MASCULINE",
@@ -362,6 +368,7 @@ Object {
     },
     Object {
       "approximateThumbnailUrl": "http://pets.neopets.com/cp/vghhzlgf/null/1.png",
+      "bodyId": "180",
       "emotion": null,
       "genderPresentation": null,
       "id": "54-75-null-null",
@@ -420,6 +427,7 @@ Object {
     },
     Object {
       "approximateThumbnailUrl": "http://pets.neopets.com/cp/vghhzlgf/null/1.png",
+      "bodyId": "180",
       "emotion": null,
       "genderPresentation": null,
       "id": "54-75-null-null",

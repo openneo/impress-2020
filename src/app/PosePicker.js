@@ -306,8 +306,7 @@ function PoseButton({ pose, onChange, inputRef }) {
             width="50px"
             height="50px"
             transform={
-              transformsBySpeciesId[pose.speciesId] ||
-              transformsBySpeciesId.default
+              transformsByBodyId[pose.bodyId] || transformsByBodyId.default
             }
           >
             <OutfitLayers visibleLayers={getVisibleLayers(pose, [])} />
@@ -342,6 +341,7 @@ function usePoses(outfitState) {
         petAppearances(speciesId: $speciesId, colorId: $colorId) {
           id
           petStateId
+          bodyId
           genderPresentation
           emotion
           approximateThumbnailUrl
@@ -360,7 +360,6 @@ function usePoses(outfitState) {
     );
     return {
       ...appearance,
-      speciesId,
       isAvailable: Boolean(appearance),
       isSelected:
         outfitState.emotion === e && outfitState.genderPresentation === gp,
@@ -379,62 +378,62 @@ function usePoses(outfitState) {
   return { loading, error, poses };
 }
 
-const transformsBySpeciesId = {
-  "1": "translate(-5px, 10px) scale(2.8)",
-  "2": "translate(-8px, 8px) scale(2.9)",
-  "3": "translate(-1px, 17px) scale(3)",
-  "4": "translate(-21px, 22px) scale(3.2)",
-  "5": "translate(2px, 15px) scale(3.3)",
-  "6": "translate(-14px, 28px) scale(3.4)",
-  "7": "translate(-4px, 8px) scale(2.9)",
-  "8": "translate(-26px, 30px) scale(3.0)",
-  "9": "translate(-4px, 8px) scale(3.1)",
-  "10": "translate(-14px, 18px) scale(3.0)",
-  "11": "translate(-7px, 24px) scale(2.9)",
-  "12": "translate(-16px, 20px) scale(3.5)",
-  "13": "translate(-11px, 18px) scale(3.0)",
-  "14": "translate(-14px, 26px) scale(3.5)",
-  "15": "translate(-13px, 24px) scale(3.1)",
-  "16": "translate(-6px, 29px) scale(3.1)",
-  "17": "translate(3px, 13px) scale(3.1)",
-  "18": "translate(2px, 27px) scale(3.4)",
-  "19": "translate(-7px, 16px) scale(3.1)",
-  "20": "translate(-2px, 15px) scale(3.0)",
-  "21": "translate(-2px, -17px) scale(3.0)",
-  "22": "translate(-14px, 16px) scale(3.6)",
-  "23": "translate(-16px, 16px) scale(3.2)",
-  "24": "translate(-2px, 6px) scale(3.2)",
-  "25": "translate(-3px, 6px) scale(3.7)",
-  "26": "translate(-7px, 19px) scale(5.2)",
-  "27": "translate(-16px, 20px) scale(3.5)",
-  "28": "translate(-3px, 24px) scale(3.2)",
-  "29": "translate(-9px, 15px) scale(3.4)",
-  "30": "translate(3px, 57px) scale(4.4)",
-  "31": "translate(-28px, 35px) scale(3.8)",
-  "32": "translate(-8px, 33px) scale(3.5)",
-  "33": "translate(-8px, -6px) scale(3.2)",
-  "34": "translate(-14px, 14px) scale(3.1)",
-  "35": "translate(-12px, 0px) scale(3.4)",
-  "36": "translate(6px, 23px) scale(3.3)",
-  "37": "translate(-20px, 25px) scale(3.6)",
-  "38": "translate(-16px, 28px) scale(4.0)",
-  "39": "translate(-8px, 11px) scale(3.0)",
-  "40": "translate(2px, 12px) scale(3.5)",
-  "41": "translate(-3px, 18px) scale(3.0)",
-  "42": "translate(-18px, 46px) scale(4.4)",
-  "43": "translate(-6px, 22px) scale(3.2)",
-  "44": "translate(-2px, 19px) scale(3.4)",
-  "45": "translate(-11px, 32px) scale(3.3)",
-  "46": "translate(-13px, 23px) scale(3.3)",
-  "47": "translate(-14px, 4px) scale(3.1)",
-  "48": "translate(-9px, 24px) scale(3.5)",
-  "49": "translate(-14px, 25px) scale(3.4)",
-  "50": "translate(-7px, 4px) scale(3.6)",
-  "51": "translate(-13px, 16px) scale(3.2)",
-  "52": "translate(-2px, 13px) scale(3.2)",
-  "53": "translate(-6px, 4px) scale(3.1)",
-  "54": "translate(-15px, 22px) scale(3.6)",
-  "55": "translate(1px, 14px) scale(3.1)",
+const transformsByBodyId = {
+  "93": "translate(-5px, 10px) scale(2.8)",
+  "106": "translate(-8px, 8px) scale(2.9)",
+  "47": "translate(-1px, 17px) scale(3)",
+  "84": "translate(-21px, 22px) scale(3.2)",
+  "146": "translate(2px, 15px) scale(3.3)",
+  "250": "translate(-14px, 28px) scale(3.4)",
+  "212": "translate(-4px, 8px) scale(2.9)",
+  "74": "translate(-26px, 30px) scale(3.0)",
+  "94": "translate(-4px, 8px) scale(3.1)",
+  "132": "translate(-14px, 18px) scale(3.0)",
+  "56": "translate(-7px, 24px) scale(2.9)",
+  "90": "translate(-16px, 20px) scale(3.5)",
+  "136": "translate(-11px, 18px) scale(3.0)",
+  "138": "translate(-14px, 26px) scale(3.5)",
+  "166": "translate(-13px, 24px) scale(3.1)",
+  "119": "translate(-6px, 29px) scale(3.1)",
+  "126": "translate(3px, 13px) scale(3.1)",
+  "67": "translate(2px, 27px) scale(3.4)",
+  "163": "translate(-7px, 16px) scale(3.1)",
+  "147": "translate(-2px, 15px) scale(3.0)",
+  "80": "translate(-2px, -17px) scale(3.0)",
+  "117": "translate(-14px, 16px) scale(3.6)",
+  "201": "translate(-16px, 16px) scale(3.2)",
+  "51": "translate(-2px, 6px) scale(3.2)",
+  "208": "translate(-3px, 6px) scale(3.7)",
+  "196": "translate(-7px, 19px) scale(5.2)",
+  "143": "translate(-16px, 20px) scale(3.5)",
+  "150": "translate(-3px, 24px) scale(3.2)",
+  "175": "translate(-9px, 15px) scale(3.4)",
+  "173": "translate(3px, 57px) scale(4.4)",
+  "199": "translate(-28px, 35px) scale(3.8)",
+  "52": "translate(-8px, 33px) scale(3.5)",
+  "109": "translate(-8px, -6px) scale(3.2)",
+  "134": "translate(-14px, 14px) scale(3.1)",
+  "95": "translate(-12px, 0px) scale(3.4)",
+  "96": "translate(6px, 23px) scale(3.3)",
+  "154": "translate(-20px, 25px) scale(3.6)",
+  "55": "translate(-16px, 28px) scale(4.0)",
+  "76": "translate(-8px, 11px) scale(3.0)",
+  "156": "translate(2px, 12px) scale(3.5)",
+  "78": "translate(-3px, 18px) scale(3.0)",
+  "191": "translate(-18px, 46px) scale(4.4)",
+  "187": "translate(-6px, 22px) scale(3.2)",
+  "46": "translate(-2px, 19px) scale(3.4)",
+  "178": "translate(-11px, 32px) scale(3.3)",
+  "100": "translate(-13px, 23px) scale(3.3)",
+  "130": "translate(-14px, 4px) scale(3.1)",
+  "188": "translate(-9px, 24px) scale(3.5)",
+  "257": "translate(-14px, 25px) scale(3.4)",
+  "206": "translate(-7px, 4px) scale(3.6)",
+  "101": "translate(-13px, 16px) scale(3.2)",
+  "68": "translate(-2px, 13px) scale(3.2)",
+  "182": "translate(-6px, 4px) scale(3.1)",
+  "180": "translate(-15px, 22px) scale(3.6)",
+  "306": "translate(1px, 14px) scale(3.1)",
   default: "scale(2.5)",
 };
 
