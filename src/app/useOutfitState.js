@@ -30,12 +30,14 @@ function useOutfitState() {
         "74546",
         "57997",
       ]),
-      speciesId: "24", // Starry
-      colorId: "62", // Zafara
+      speciesId: "24",
+      colorId: "62",
+      emotion: "HAPPY",
+      genderPresentation: "FEMININE",
     }
   );
 
-  const { name, speciesId, colorId } = state;
+  const { name, speciesId, colorId, emotion, genderPresentation } = state;
 
   // It's more convenient to manage these as a Set in state, but most callers
   // will find it more convenient to access them as arrays! e.g. for `.map()`
@@ -94,6 +96,8 @@ function useOutfitState() {
     allItemIds,
     speciesId,
     colorId,
+    emotion,
+    genderPresentation,
     url,
   };
 
@@ -106,6 +110,8 @@ function useOutfitState() {
         name: urlParams.get("name"),
         speciesId: urlParams.get("species"),
         colorId: urlParams.get("color"),
+        emotion: urlParams.get("emotion"),
+        genderPresentation: urlParams.get("genderPresentation"),
         wornItemIds: urlParams.getAll("objects[]"),
         closetedItemIds: urlParams.getAll("closet[]"),
       });
@@ -176,6 +182,9 @@ const outfitStateReducer = (apolloClient) => (baseState, action) => {
         wornItemIds.delete(itemId);
         closetedItemIds.delete(itemId);
       });
+    case "setPose":
+      const { emotion, genderPresentation } = action;
+      return { ...baseState, emotion, genderPresentation };
     case "reset":
       const { name, speciesId, colorId, wornItemIds, closetedItemIds } = action;
       return {
@@ -315,12 +324,22 @@ function getZonesAndItems(itemsById, wornItemIds, closetedItemIds) {
 }
 
 function buildOutfitUrl(state) {
-  const { name, speciesId, colorId, wornItemIds, closetedItemIds } = state;
+  const {
+    name,
+    speciesId,
+    colorId,
+    emotion,
+    genderPresentation,
+    wornItemIds,
+    closetedItemIds,
+  } = state;
 
   const params = new URLSearchParams();
   params.append("name", name);
   params.append("species", speciesId);
   params.append("color", colorId);
+  params.append("emotion", emotion);
+  params.append("genderPresentation", genderPresentation);
   for (const itemId of wornItemIds) {
     params.append("objects[]", itemId);
   }

@@ -25,16 +25,15 @@ import twemojiMasc from "../images/twemoji/masc.svg";
 import twemojiFem from "../images/twemoji/fem.svg";
 import { OutfitLayers } from "./OutfitPreview";
 
-function PosePicker({ outfitState, onLockFocus, onUnlockFocus }) {
+function PosePicker({
+  outfitState,
+  dispatchToOutfit,
+  onLockFocus,
+  onUnlockFocus,
+}) {
   const theme = useTheme();
-
-  const { speciesId, colorId } = outfitState;
-  const { loading, error, poses, selectPose } = usePoses({
-    speciesId,
-    colorId,
-  });
-
   const checkedInputRef = React.useRef();
+  const { loading, error, poses } = usePoses(outfitState);
 
   if (loading) {
     return null;
@@ -51,6 +50,15 @@ function PosePicker({ outfitState, onLockFocus, onUnlockFocus }) {
   if (numAvailablePoses <= 1) {
     return null;
   }
+
+  const onChange = (e) => {
+    const [emotion, genderPresentation] = e.target.value.split("-");
+    dispatchToOutfit({
+      type: "setPose",
+      emotion,
+      genderPresentation,
+    });
+  };
 
   return (
     <Popover
@@ -95,16 +103,7 @@ function PosePicker({ outfitState, onLockFocus, onUnlockFocus }) {
           </PopoverTrigger>
           <PopoverContent>
             <Box p="4">
-              <table
-                width="100%"
-                borderSpacing="8px"
-                onChange={(e) => {
-                  const [emotion, genderPresentation] = e.target.value.split(
-                    "-"
-                  );
-                  selectPose({ emotion, genderPresentation });
-                }}
-              >
+              <table width="100%">
                 <thead>
                   <tr>
                     <th />
@@ -127,21 +126,21 @@ function PosePicker({ outfitState, onLockFocus, onUnlockFocus }) {
                     <Cell as="td">
                       <PoseButton
                         pose={poses.happyMasc}
-                        speciesId={speciesId}
+                        onChange={onChange}
                         inputRef={poses.happyMasc.isSelected && checkedInputRef}
                       />
                     </Cell>
                     <Cell as="td">
                       <PoseButton
                         pose={poses.sadMasc}
-                        speciesId={speciesId}
+                        onChange={onChange}
                         inputRef={poses.sadMasc.isSelected && checkedInputRef}
                       />
                     </Cell>
                     <Cell as="td">
                       <PoseButton
                         pose={poses.sickMasc}
-                        speciesId={speciesId}
+                        onChange={onChange}
                         inputRef={poses.sickMasc.isSelected && checkedInputRef}
                       />
                     </Cell>
@@ -153,21 +152,21 @@ function PosePicker({ outfitState, onLockFocus, onUnlockFocus }) {
                     <Cell as="td">
                       <PoseButton
                         pose={poses.happyFem}
-                        speciesId={speciesId}
+                        onChange={onChange}
                         inputRef={poses.happyFem.isSelected && checkedInputRef}
                       />
                     </Cell>
                     <Cell as="td">
                       <PoseButton
                         pose={poses.sadFem}
-                        speciesId={speciesId}
+                        onChange={onChange}
                         inputRef={poses.sadFem.isSelected && checkedInputRef}
                       />
                     </Cell>
                     <Cell as="td">
                       <PoseButton
                         pose={poses.sickFem}
-                        speciesId={speciesId}
+                        onChange={onChange}
                         inputRef={poses.sickFem.isSelected && checkedInputRef}
                       />
                     </Cell>
@@ -205,7 +204,7 @@ const GENDER_PRESENTATION_STRINGS = {
   FEMININE: "Feminine",
 };
 
-function PoseButton({ pose, speciesId, inputRef }) {
+function PoseButton({ pose, onChange, inputRef }) {
   const theme = useTheme();
 
   if (!pose) {
@@ -233,6 +232,7 @@ function PoseButton({ pose, speciesId, inputRef }) {
         name="pose"
         value={`${pose.emotion}-${pose.genderPresentation}`}
         checked={pose.isSelected}
+        onChange={onChange}
         ref={inputRef || null}
       />
       <Box
@@ -279,7 +279,8 @@ function PoseButton({ pose, speciesId, inputRef }) {
           width="50px"
           height="50px"
           transform={
-            transformsBySpeciesId[speciesId] || transformsBySpeciesId.default
+            transformsBySpeciesId[pose.speciesId] ||
+            transformsBySpeciesId.default
           }
         >
           <OutfitLayers visibleLayers={getVisibleLayers(pose, [])} />
@@ -293,11 +294,8 @@ function EmojiImage({ src, "aria-label": ariaLabel }) {
   return <Image src={src} aria-label={ariaLabel} width="16px" height="16px" />;
 }
 
-function usePoses({ speciesId, colorId }) {
-  const [selectedPose, selectPose] = React.useState({
-    emotion: "HAPPY",
-    genderPresentation: "FEMININE",
-  });
+function usePoses(outfitState) {
+  const { speciesId, colorId, emotion, genderPresentation } = outfitState;
 
   const { loading, error, data } = useQuery(
     gql`
@@ -320,9 +318,11 @@ function usePoses({ speciesId, colorId }) {
     ...petAppearances.find(
       (pa) => pa.emotion === e && pa.genderPresentation === gp
     ),
+    speciesId,
     isSelected:
-      selectedPose.emotion === e && selectedPose.genderPresentation === gp,
+      outfitState.emotion === e && outfitState.genderPresentation === gp,
   });
+  console.log(outfitState.emotion, outfitState.genderPresentation, outfitState);
 
   const poses = {
     happyMasc: buildPose("HAPPY", "MASCULINE"),
@@ -333,7 +333,7 @@ function usePoses({ speciesId, colorId }) {
     sickFem: buildPose("SICK", "FEMININE"),
   };
 
-  return { loading, error, poses, selectPose };
+  return { loading, error, poses };
 }
 
 const transformsBySpeciesId = {
