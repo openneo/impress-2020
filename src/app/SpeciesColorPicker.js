@@ -1,5 +1,6 @@
 import React from "react";
 import gql from "graphql-tag";
+import useFetch from "use-http";
 import { useQuery } from "@apollo/react-hooks";
 import { Box, Flex, Select, Text, useToast } from "@chakra-ui/core";
 
@@ -13,7 +14,7 @@ import { Delay } from "./util";
  */
 function SpeciesColorPicker({ outfitState, dispatchToOutfit }) {
   const toast = useToast();
-  const { loading, error, data } = useQuery(gql`
+  const { loading: loadingMeta, error: errorMeta, data: meta } = useQuery(gql`
     query {
       allSpecies {
         id
@@ -24,35 +25,24 @@ function SpeciesColorPicker({ outfitState, dispatchToOutfit }) {
         id
         name
       }
-
-      allValidSpeciesColorPairs {
-        species {
-          id
-        }
-        color {
-          id
-        }
-      }
     }
   `);
-
-  const allColors = (data && [...data.allColors]) || [];
-  allColors.sort((a, b) => a.name.localeCompare(b.name));
-  const allSpecies = (data && [...data.allSpecies]) || [];
-  allSpecies.sort((a, b) => a.name.localeCompare(b.name));
-
-  // Build a large Set where we can quickly look up species/color pairs!
-  const allValidSpeciesColorPairs = React.useMemo(
-    () =>
-      new Set(
-        ((data && data.allValidSpeciesColorPairs) || []).map(
-          (p) => `${p.species.id},${p.color.id}`
-        )
-      ),
-    [data]
+  const {
+    loading: loadingValids,
+    error: errorValids,
+    data: validsBuffer,
+  } = useFetch("/api/validPetPoses", { responseType: "arrayBuffer" }, []);
+  const valids = React.useMemo(
+    () => validsBuffer && new DataView(validsBuffer),
+    [validsBuffer]
   );
 
-  if (loading) {
+  const allColors = (meta && [...meta.allColors]) || [];
+  allColors.sort((a, b) => a.name.localeCompare(b.name));
+  const allSpecies = (meta && [...meta.allSpecies]) || [];
+  allSpecies.sort((a, b) => a.name.localeCompare(b.name));
+
+  if (loadingMeta || loadingValids) {
     return (
       <Delay ms={5000}>
         <Text color="gray.50" textShadow="md">
@@ -62,7 +52,7 @@ function SpeciesColorPicker({ outfitState, dispatchToOutfit }) {
     );
   }
 
-  if (error) {
+  if (errorMeta || errorValids) {
     return (
       <Text color="gray.50" textShadow="md">
         Error loading species/color data.
@@ -75,8 +65,7 @@ function SpeciesColorPicker({ outfitState, dispatchToOutfit }) {
   const onChangeColor = (e) => {
     const speciesId = outfitState.speciesId;
     const colorId = e.target.value;
-    const pair = `${speciesId},${colorId}`;
-    if (allValidSpeciesColorPairs.has(pair)) {
+    if (pairIsValid(valids, meta, speciesId, colorId)) {
       dispatchToOutfit({ type: "changeColor", colorId: e.target.value });
     } else {
       const species = allSpecies.find((s) => s.id === speciesId);
@@ -93,14 +82,14 @@ function SpeciesColorPicker({ outfitState, dispatchToOutfit }) {
   const onChangeSpecies = (e) => {
     const colorId = outfitState.colorId;
     const speciesId = e.target.value;
-    const pair = `${speciesId},${colorId}`;
-    if (allValidSpeciesColorPairs.has(pair)) {
+    if (pairIsValid(valids, meta, speciesId, colorId)) {
       dispatchToOutfit({ type: "changeSpecies", speciesId: e.target.value });
     } else {
       const species = allSpecies.find((s) => s.id === speciesId);
       const color = allColors.find((c) => c.id === colorId);
       toast({
         title: `We haven't seen a ${color.name} ${species.name} before! 😓`,
+        status: "warning",
       });
     }
   };
@@ -142,6 +131,16 @@ function SpeciesColorPicker({ outfitState, dispatchToOutfit }) {
       </Select>
     </Flex>
   );
+}
+
+function pairIsValid(valids, meta, speciesId, colorId) {
+  // Reading a bit table, owo!
+  const speciesIndex = speciesId - 1;
+  const colorIndex = colorId - 1;
+  const numColors = meta.allColors.length;
+  const pairByteIndex = speciesIndex * numColors + colorIndex;
+  const pairByte = valids.getUint8(pairByteIndex);
+  return pairByte !== 0;
 }
 
 export default SpeciesColorPicker;

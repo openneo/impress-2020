@@ -101,8 +101,7 @@ const typeDefs = gql`
   type Query {
     allColors: [Color!]!
     allSpecies: [Species!]!
-    allValidSpeciesColorPairs: [SpeciesColorPair!]!
-
+    allValidSpeciesColorPairs: [SpeciesColorPair!]! # deprecated
     items(ids: [ID!]!): [Item!]!
     itemSearch(query: String!): ItemSearchResult!
     itemSearchToFit(

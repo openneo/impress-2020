@@ -33,7 +33,10 @@ export default async function getValidPetPoses() {
   const buffer = Buffer.alloc(numPairs);
 
   for (let speciesId = 1; speciesId <= numSpecies; speciesId++) {
+    const speciesIndex = speciesId - 1;
     for (let colorId = 1; colorId <= numColors; colorId++) {
+      const colorIndex = colorId - 1;
+
       let byte = 0;
       byte += hasPose(speciesId, colorId, "HAPPY", "MASCULINE") ? 1 : 0;
       byte <<= 1;
@@ -47,7 +50,7 @@ export default async function getValidPetPoses() {
       byte <<= 1;
       byte += hasPose(speciesId, colorId, "SICK", "FEMININE") ? 1 : 0;
 
-      buffer.writeUInt8(byte);
+      buffer.writeUInt8(byte, speciesIndex * numColors + colorIndex);
     }
   }
 
@@ -60,7 +63,9 @@ async function getNumSpecies(db) {
 }
 
 async function getNumColors(db) {
-  const [rows, _] = await db.query(`SELECT count(*) FROM colors`);
+  const [rows, _] = await db.query(
+    `SELECT count(*) FROM colors WHERE prank = 0`
+  );
   return rows[0]["count(*)"];
 }
 
