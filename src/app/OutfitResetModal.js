@@ -55,6 +55,8 @@ function OutfitResetModal({ isOpen, onClose, dispatchToOutfit }) {
           name: petName,
           speciesId: species.id,
           colorId: color.id,
+          emotion: "HAPPY", // TODO: Ask PetService
+          genderPresentation: "FEMININE", // TODO: Ask PetService
           wornItemIds: items.map((i) => i.id),
           closetedItemIds: [],
         });

@@ -202,8 +202,9 @@ const outfitStateReducer = (apolloClient) => (baseState, action) => {
         state.name = name;
         state.speciesId = speciesId ? String(speciesId) : baseState.speciesId;
         state.colorId = colorId ? String(colorId) : baseState.colorId;
-        state.emotion = emotion;
-        state.genderPresentation = genderPresentation;
+        state.emotion = emotion || baseState.emotion;
+        state.genderPresentation =
+          genderPresentation || baseState.genderPresentation;
         state.wornItemIds = wornItemIds
           ? new Set(wornItemIds.map(String))
           : baseState.wornItemIds;
