@@ -110,8 +110,8 @@ function useOutfitState() {
         name: urlParams.get("name"),
         speciesId: urlParams.get("species"),
         colorId: urlParams.get("color"),
-        emotion: urlParams.get("emotion"),
-        genderPresentation: urlParams.get("genderPresentation"),
+        emotion: urlParams.get("emotion") || "HAPPY",
+        genderPresentation: urlParams.get("genderPresentation") || "FEMININE",
         wornItemIds: urlParams.getAll("objects[]"),
         closetedItemIds: urlParams.getAll("closet[]"),
       });
