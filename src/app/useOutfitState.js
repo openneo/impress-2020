@@ -54,7 +54,7 @@ function useOutfitState() {
 
           appearanceOn(speciesId: $speciesId, colorId: $colorId) {
             # This enables us to quickly show the item when the user clicks it!
-            ...AppearanceForOutfitPreview
+            ...ItemAppearanceForOutfitPreview
 
             # This is used to group items by zone, and to detect conflicts when
             # wearing a new item.

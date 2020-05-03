@@ -82,6 +82,7 @@ function OutfitControls({ outfitState, dispatchToOutfit }) {
         </Box>
         <Flex flex="1 1 0" align="center" pl="4">
           <PosePicker
+            outfitState={outfitState}
             onLockFocus={() => setFocusIsLocked(true)}
             onUnlockFocus={() => setFocusIsLocked(false)}
           />

@@ -12,17 +12,18 @@ export default function useOutfitAppearance(outfitState) {
     gql`
       query($wornItemIds: [ID!]!, $speciesId: ID!, $colorId: ID!) {
         petAppearance(speciesId: $speciesId, colorId: $colorId) {
-          ...AppearanceForOutfitPreview
+          ...PetAppearanceForOutfitPreview
         }
 
         items(ids: $wornItemIds) {
           id
           appearanceOn(speciesId: $speciesId, colorId: $colorId) {
-            ...AppearanceForOutfitPreview
+            ...ItemAppearanceForOutfitPreview
           }
         }
       }
       ${itemAppearanceFragment}
+      ${petAppearanceFragment}
     `,
     {
       variables: { wornItemIds, speciesId, colorId },
@@ -39,10 +40,11 @@ function getVisibleLayers(data) {
     return [];
   }
 
-  const allAppearances = [
-    data.petAppearance,
-    ...(data.items || []).map((i) => i.appearanceOn),
-  ].filter((a) => a);
+  const itemAppearances = (data.items || []).map((i) => i.appearanceOn);
+
+  const allAppearances = [data.petAppearance, ...itemAppearances].filter(
+    (a) => a
+  );
   let allLayers = allAppearances.map((a) => a.layers).flat();
 
   // Clean up our data a bit, by ensuring only one layer per zone. This
@@ -52,7 +54,7 @@ function getVisibleLayers(data) {
     return allLayers.findIndex((l2) => l2.zone.id === l.zone.id) === i;
   });
 
-  const allRestrictedZoneIds = allAppearances
+  const allRestrictedZoneIds = itemAppearances
     .map((l) => l.restrictedZones)
     .flat()
     .map((z) => z.id);
@@ -66,7 +68,7 @@ function getVisibleLayers(data) {
 }
 
 export const itemAppearanceFragment = gql`
-  fragment AppearanceForOutfitPreview on Appearance {
+  fragment ItemAppearanceForOutfitPreview on ItemAppearance {
     layers {
       id
       imageUrl(size: SIZE_600)
@@ -78,6 +80,19 @@ export const itemAppearanceFragment = gql`
 
     restrictedZones {
       id
+    }
+  }
+`;
+
+export const petAppearanceFragment = gql`
+  fragment PetAppearanceForOutfitPreview on PetAppearance {
+    layers {
+      id
+      imageUrl(size: SIZE_600)
+      zone {
+        id
+        depth
+      }
     }
   }
 `;
