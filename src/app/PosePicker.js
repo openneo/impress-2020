@@ -65,6 +65,7 @@ function PosePicker({
     <Popover
       placement="bottom-end"
       usePortal
+      returnFocusOnClose
       onOpen={onLockFocus}
       onClose={onUnlockFocus}
       initialFocusRef={checkedInputRef}
@@ -99,7 +100,15 @@ function PosePicker({
                 isOpen && "is-open"
               )}
             >
-              <EmojiImage src={twemojiSmile} aria-label="Choose a pose" />
+              {outfitState.emotion === "HAPPY" && (
+                <EmojiImage src={twemojiSmile} alt="Choose a pose" />
+              )}
+              {outfitState.emotion === "SAD" && (
+                <EmojiImage src={twemojiCry} alt="Choose a pose" />
+              )}
+              {outfitState.emotion === "SICK" && (
+                <EmojiImage src={twemojiSick} alt="Choose a pose" />
+              )}
             </Button>
           </PopoverTrigger>
           <PopoverContent>
@@ -109,20 +118,20 @@ function PosePicker({
                   <tr>
                     <th />
                     <Cell as="th">
-                      <EmojiImage src={twemojiSmile} aria-label="Happy" />
+                      <EmojiImage src={twemojiSmile} alt="Happy" />
                     </Cell>
                     <Cell as="th">
-                      <EmojiImage src={twemojiCry} aria-label="Sad" />
+                      <EmojiImage src={twemojiCry} alt="Sad" />
                     </Cell>
                     <Cell as="th">
-                      <EmojiImage src={twemojiSick} aria-label="Sick" />
+                      <EmojiImage src={twemojiSick} alt="Sick" />
                     </Cell>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
                     <Cell as="th">
-                      <EmojiImage src={twemojiMasc} aria-label="Masculine" />
+                      <EmojiImage src={twemojiMasc} alt="Masculine" />
                     </Cell>
                     <Cell as="td">
                       <PoseButton
@@ -148,7 +157,7 @@ function PosePicker({
                   </tr>
                   <tr>
                     <Cell as="th">
-                      <EmojiImage src={twemojiFem} aria-label="Feminine" />
+                      <EmojiImage src={twemojiFem} alt="Feminine" />
                     </Cell>
                     <Cell as="td">
                       <PoseButton
@@ -321,8 +330,8 @@ function PoseButton({ pose, onChange, inputRef }) {
   );
 }
 
-function EmojiImage({ src, "aria-label": ariaLabel }) {
-  return <Image src={src} aria-label={ariaLabel} width="16px" height="16px" />;
+function EmojiImage({ src, alt }) {
+  return <img src={src} alt={alt} width="16px" height="16px" />;
 }
 
 function usePoses(outfitState) {
