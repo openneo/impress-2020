@@ -19,6 +19,15 @@ const client = new ApolloClient({
       // the server again!
       items: (_, args, { getCacheKey }) =>
         args.ids.map((id) => getCacheKey({ __typename: "Item", id })),
+
+      // Teach Apollo how to serve `petAppearance` queries from the cache. That
+      // way, when you switch pet poses, Apollo knows it already has the
+      // appearance data and doesn't need to ask the server again!
+      petAppearance: (_, args, { getCacheKey }) => {
+        const { speciesId, colorId, emotion, genderPresentation } = args;
+        const id = `${speciesId}-${colorId}-${emotion}-${genderPresentation}`;
+        return getCacheKey({ __typename: "PetAppearance", id });
+      },
     },
   },
 });

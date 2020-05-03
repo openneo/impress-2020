@@ -48,6 +48,7 @@ const typeDefs = gql`
 
   type PetAppearance {
     id: ID!
+    petStateId: ID!
     genderPresentation: GenderPresentation
     emotion: Emotion
     approximateThumbnailUrl: String!
@@ -166,7 +167,13 @@ const resolvers = {
     },
   },
   PetAppearance: {
-    id: ({ petState }) => petState.id,
+    id: ({ petType, petState }) => {
+      const { speciesId, colorId } = petType;
+      const emotion = getEmotion(petState.moodId);
+      const genderPresentation = getGenderPresentation(petState.female);
+      return `${speciesId}-${colorId}-${emotion}-${genderPresentation}`;
+    },
+    petStateId: ({ petState }) => petState.id,
     genderPresentation: ({ petState }) =>
       getGenderPresentation(petState.female),
     emotion: ({ petState }) => getEmotion(petState.moodId),
