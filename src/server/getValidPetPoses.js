@@ -37,18 +37,21 @@ export default async function getValidPetPoses() {
     for (let colorId = 1; colorId <= numColors; colorId++) {
       const colorIndex = colorId - 1;
 
+      // We fill in the high bits first. If we add more things later, write
+      // them first, so that they fill in the currently-empty high bits and
+      // everything else stays in the same position as before!
       let byte = 0;
-      byte += hasPose(speciesId, colorId, "HAPPY", "MASCULINE") ? 1 : 0;
-      byte <<= 1;
-      byte += hasPose(speciesId, colorId, "SAD", "MASCULINE") ? 1 : 0;
-      byte <<= 1;
-      byte += hasPose(speciesId, colorId, "SICK", "MASCULINE") ? 1 : 0;
-      byte <<= 1;
-      byte += hasPose(speciesId, colorId, "HAPPY", "FEMININE") ? 1 : 0;
+      byte += hasPose(speciesId, colorId, "SICK", "FEMININE") ? 1 : 0;
       byte <<= 1;
       byte += hasPose(speciesId, colorId, "SAD", "FEMININE") ? 1 : 0;
       byte <<= 1;
-      byte += hasPose(speciesId, colorId, "SICK", "FEMININE") ? 1 : 0;
+      byte += hasPose(speciesId, colorId, "HAPPY", "FEMININE") ? 1 : 0;
+      byte <<= 1;
+      byte += hasPose(speciesId, colorId, "SICK", "MASCULINE") ? 1 : 0;
+      byte <<= 1;
+      byte += hasPose(speciesId, colorId, "SAD", "MASCULINE") ? 1 : 0;
+      byte <<= 1;
+      byte += hasPose(speciesId, colorId, "HAPPY", "MASCULINE") ? 1 : 0;
 
       buffer.writeUInt8(byte, speciesIndex * numColors + colorIndex);
     }
