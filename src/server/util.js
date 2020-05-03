@@ -3,11 +3,11 @@ function capitalize(str) {
 }
 
 function getEmotion(moodId) {
-  if (moodId === "1") {
+  if (String(moodId) === "1") {
     return "HAPPY";
-  } else if (moodId === "2") {
+  } else if (String(moodId) === "2") {
     return "SAD";
-  } else if (moodId === "4") {
+  } else if (String(moodId) === "4") {
     return "SICK";
   } else if (moodId === null) {
     return null;
@@ -17,9 +17,9 @@ function getEmotion(moodId) {
 }
 
 function getGenderPresentation(modelPetWasFemale) {
-  if (modelPetWasFemale === 1) {
+  if (String(modelPetWasFemale) === "1") {
     return "FEMININE";
-  } else if (modelPetWasFemale === 0) {
+  } else if (String(modelPetWasFemale) === "0") {
     return "MASCULINE";
   } else {
     return null;
