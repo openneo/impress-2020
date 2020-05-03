@@ -3,13 +3,14 @@ function capitalize(str) {
 }
 
 function getEmotion(moodId) {
-  if (moodId === "1") {
+  const moodIdStr = String(moodId);
+  if (moodIdStr === "1") {
     return "HAPPY";
-  } else if (moodId === "2") {
+  } else if (moodIdStr === "2") {
     return "SAD";
-  } else if (moodId === "4") {
+  } else if (moodIdStr === "4") {
     return "SICK";
-  } else if (moodId === null) {
+  } else if (moodIdStr === null) {
     return null;
   } else {
     throw new Error(`unrecognized moodId ${JSON.stringify(moodId)}`);
@@ -17,9 +18,10 @@ function getEmotion(moodId) {
 }
 
 function getGenderPresentation(modelPetWasFemale) {
-  if (modelPetWasFemale === 1) {
+  const modelPetWasFemaleStr = String(modelPetWasFemale);
+  if (modelPetWasFemaleStr === "1") {
     return "FEMININE";
-  } else if (modelPetWasFemale === 0) {
+  } else if (modelPetWasFemaleStr === "0") {
     return "MASCULINE";
   } else {
     return null;
