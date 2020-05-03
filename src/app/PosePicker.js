@@ -46,7 +46,8 @@ function PosePicker({
   }
 
   // If there's only one pose anyway, don't bother showing a picker!
-  const numAvailablePoses = Object.values(poses).filter((p) => p).length;
+  const numAvailablePoses = Object.values(poses).filter((p) => p.isAvailable)
+    .length;
   if (numAvailablePoses <= 1) {
     return null;
   }
@@ -206,14 +207,14 @@ const GENDER_PRESENTATION_STRINGS = {
 
 function PoseButton({ pose, onChange, inputRef }) {
   const theme = useTheme();
-
-  if (!pose) {
-    return null;
-  }
-
   const genderPresentationStr =
     GENDER_PRESENTATION_STRINGS[pose.genderPresentation];
   const emotionStr = EMOTION_STRINGS[pose.emotion];
+
+  let label = `${emotionStr} and ${genderPresentationStr}`;
+  if (!pose.isAvailable) {
+    label += ` (not modeled yet)`;
+  }
 
   return (
     <Box
@@ -228,24 +229,28 @@ function PoseButton({ pose, onChange, inputRef }) {
       <VisuallyHidden
         as="input"
         type="radio"
-        aria-label={`${emotionStr} and ${genderPresentationStr}`}
+        aria-label={label}
         name="pose"
         value={`${pose.emotion}-${pose.genderPresentation}`}
         checked={pose.isSelected}
+        disabled={!pose.isAvailable}
         onChange={onChange}
         ref={inputRef || null}
       />
       <Box
+        aria-hidden
         rounded="full"
         boxShadow="md"
         overflow="hidden"
         width="50px"
         height="50px"
         title={
-          // A lil debug output, so that we can quickly identify glitched
-          // PetStates and manually mark them as glitched!
-          window.location.hostname.includes("localhost") &&
-          `#${pose.petStateId}`
+          pose.isAvailable
+            ? // A lil debug output, so that we can quickly identify glitched
+              // PetStates and manually mark them as glitched!
+              window.location.hostname.includes("localhost") &&
+              `#${pose.petStateId}`
+            : "Not modeled yet"
         }
         position="relative"
         className={css`
@@ -267,29 +272,50 @@ function PoseButton({ pose, onChange, inputRef }) {
           left="0"
           right="0"
           zIndex="2"
-          className={css`
-            border: 0px solid ${theme.colors.green["600"]};
-            transition: border-width 0.2s;
+          className={cx(
+            css`
+              border: 0px solid ${theme.colors.green["600"]};
+              transition: border-width 0.2s;
 
-            input:checked + * & {
-              border-width: 1px;
-            }
+              &.not-available {
+                border-color: ${theme.colors.gray["500"]};
+                border-width: 1px;
+              }
 
-            input:focus + * & {
-              border-width: 3px;
-            }
-          `}
+              input:checked + * & {
+                border-width: 1px;
+              }
+
+              input:focus + * & {
+                border-width: 3px;
+              }
+            `,
+            !pose.isAvailable && "not-available"
+          )}
         />
-        <Box
-          width="50px"
-          height="50px"
-          transform={
-            transformsBySpeciesId[pose.speciesId] ||
-            transformsBySpeciesId.default
-          }
-        >
-          <OutfitLayers visibleLayers={getVisibleLayers(pose, [])} />
-        </Box>
+        {pose.isAvailable ? (
+          <Box
+            width="50px"
+            height="50px"
+            transform={
+              transformsBySpeciesId[pose.speciesId] ||
+              transformsBySpeciesId.default
+            }
+          >
+            <OutfitLayers visibleLayers={getVisibleLayers(pose, [])} />
+          </Box>
+        ) : (
+          <Flex align="center" justify="center">
+            <Box
+              fontFamily="Delicious"
+              fontSize="3xl"
+              fontWeight="900"
+              color="gray.600"
+            >
+              ?
+            </Box>
+          </Flex>
+        )}
       </Box>
     </Box>
   );
@@ -320,15 +346,18 @@ function usePoses(outfitState) {
   );
 
   const petAppearances = data?.petAppearances || [];
-  const buildPose = (e, gp) => ({
-    ...petAppearances.find(
+  const buildPose = (e, gp) => {
+    const appearance = petAppearances.find(
       (pa) => pa.emotion === e && pa.genderPresentation === gp
-    ),
-    speciesId,
-    isSelected:
-      outfitState.emotion === e && outfitState.genderPresentation === gp,
-  });
-  console.log(outfitState.emotion, outfitState.genderPresentation, outfitState);
+    );
+    return {
+      ...appearance,
+      speciesId,
+      isAvailable: Boolean(appearance),
+      isSelected:
+        outfitState.emotion === e && outfitState.genderPresentation === gp,
+    };
+  };
 
   const poses = {
     happyMasc: buildPose("HAPPY", "MASCULINE"),

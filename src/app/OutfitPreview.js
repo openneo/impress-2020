@@ -25,14 +25,20 @@ function OutfitPreview({ outfitState }) {
     );
   }
 
-  return <OutfitLayers loading={loading} visibleLayers={visibleLayers} />;
+  return (
+    <OutfitLayers
+      loading={loading}
+      visibleLayers={visibleLayers}
+      doAnimations
+    />
+  );
 }
 
 /**
  * OutfitLayers is the raw UI component for rendering outfit layers. It's
  * used both in the main outfit preview, and in other minor UIs!
  */
-export function OutfitLayers({ loading, visibleLayers }) {
+export function OutfitLayers({ loading, visibleLayers, doAnimations = false }) {
   return (
     <Box pos="relative" height="100%" width="100%">
       <TransitionGroup>
@@ -41,6 +47,7 @@ export function OutfitLayers({ loading, visibleLayers }) {
           // happens here, when the layer exits the DOM.
           <CSSTransition
             key={layer.id}
+            exit={doAnimations}
             classNames={css`
               &-exit {
                 opacity: 1;
@@ -62,14 +69,17 @@ export function OutfitLayers({ loading, visibleLayers }) {
                 // We manage the fade-in and fade-out separately! The fade-in
                 // happens here, when the <Image> finishes preloading and
                 // applies the src to the underlying <img>.
-                className={css`
-                  opacity: 0.01;
+                className={
+                  doAnimations &&
+                  css`
+                    opacity: 0.01;
 
-                  &[src] {
-                    opacity: 1;
-                    transition: opacity 0.2s;
-                  }
-                `}
+                    &[src] {
+                      opacity: 1;
+                      transition: opacity 0.2s;
+                    }
+                  `
+                }
                 // This sets up the cache to not need to reload images during
                 // download!
                 // TODO: Re-enable this once we get our change into Chakra
