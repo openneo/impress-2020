@@ -1,15 +1,7 @@
 import React from "react";
 import { css } from "emotion";
 import gql from "graphql-tag";
-import {
-  Box,
-  Button,
-  Flex,
-  Input,
-  Tooltip,
-  useTheme,
-  useToast,
-} from "@chakra-ui/core";
+import { Box, Button, Flex, Input, useTheme, useToast } from "@chakra-ui/core";
 import { Helmet } from "react-helmet";
 import { useHistory } from "react-router-dom";
 import { useLazyQuery } from "@apollo/react-hooks";
@@ -92,18 +84,9 @@ function StartOutfitForm() {
           }}
         />
         <Box width="4" />
-        <Tooltip
-          label="Does not exist 😓"
-          placement="top"
-          // HACK: I only want the tooltip to appear when invalid... but the
-          //       API doesn't really give us that option while also retaining
-          //       the same <Button> instance. Instead, we set the max delay ><
-          showDelay={isValid ? 2147483647 : 0}
-        >
-          <Button type="submit" variantColor="green" disabled={!isValid}>
-            Start
-          </Button>
-        </Tooltip>
+        <Button type="submit" variantColor="green" disabled={!isValid}>
+          Start
+        </Button>
       </Flex>
     </form>
   );
