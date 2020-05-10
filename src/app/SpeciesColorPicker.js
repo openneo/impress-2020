@@ -61,6 +61,8 @@ function SpeciesColorPicker({
       _hover={{
         borderColor: "green.400",
       }}
+      isInvalid={valids && !pairIsValid(valids, speciesId, colorId)}
+      errorBorderColor="red.300"
       {...props}
     />
   );
