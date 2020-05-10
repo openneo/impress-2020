@@ -8,6 +8,7 @@ import {
   Stack,
   Tooltip,
   useClipboard,
+  useToast,
 } from "@chakra-ui/core";
 
 import OutfitResetModal from "./OutfitResetModal";
@@ -21,6 +22,7 @@ import useOutfitAppearance from "./useOutfitAppearance";
  */
 function OutfitControls({ outfitState, dispatchToOutfit }) {
   const [focusIsLocked, setFocusIsLocked] = React.useState(false);
+  const toast = useToast();
 
   return (
     <PseudoBox
@@ -76,8 +78,23 @@ function OutfitControls({ outfitState, dispatchToOutfit }) {
         <Box flex="1 1 0" />
         <Box flex="0 0 auto">
           <SpeciesColorPicker
-            outfitState={outfitState}
-            dispatchToOutfit={dispatchToOutfit}
+            speciesId={outfitState.speciesId}
+            colorId={outfitState.colorId}
+            dark
+            onChange={(species, color, isValid) => {
+              if (isValid) {
+                dispatchToOutfit({
+                  type: "setSpeciesAndColor",
+                  speciesId: species.id,
+                  colorId: color.id,
+                });
+              } else {
+                toast({
+                  title: `We haven't seen a ${color.name} ${species.name} before! 😓`,
+                  status: "warning",
+                });
+              }
+            }}
           />
         </Box>
         <Flex flex="1 1 0" align="center" pl="4">

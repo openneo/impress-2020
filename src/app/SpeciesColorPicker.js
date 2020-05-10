@@ -2,7 +2,7 @@ import React from "react";
 import gql from "graphql-tag";
 import useFetch from "use-http";
 import { useQuery } from "@apollo/react-hooks";
-import { Box, Flex, Select, Text, useToast } from "@chakra-ui/core";
+import { Box, Flex, Select, Text } from "@chakra-ui/core";
 
 import { Delay } from "./util";
 
@@ -12,8 +12,13 @@ import { Delay } from "./util";
  * It preloads all species, colors, and valid species/color pairs; and then
  * ensures that the outfit is always in a valid state.
  */
-function SpeciesColorPicker({ outfitState, dispatchToOutfit }) {
-  const toast = useToast();
+function SpeciesColorPicker({
+  speciesId,
+  colorId,
+  showPlaceholders,
+  dark = false,
+  onChange,
+}) {
   const { loading: loadingMeta, error: errorMeta, data: meta } = useQuery(gql`
     query {
       allSpecies {
@@ -42,10 +47,28 @@ function SpeciesColorPicker({ outfitState, dispatchToOutfit }) {
   const allSpecies = (meta && [...meta.allSpecies]) || [];
   allSpecies.sort((a, b) => a.name.localeCompare(b.name));
 
-  if (loadingMeta || loadingValids) {
+  const backgroundColor = dark ? "gray.600" : "white";
+  const borderColor = dark ? "transparent" : "green.600";
+  const textColor = dark ? "gray.50" : "inherit";
+  const SpeciesColorSelect = ({ ...props }) => (
+    <Select
+      backgroundColor={backgroundColor}
+      color={textColor}
+      border="1px"
+      borderColor={borderColor}
+      boxShadow="md"
+      width="auto"
+      _hover={{
+        borderColor: "green.400",
+      }}
+      {...props}
+    />
+  );
+
+  if ((loadingMeta || loadingValids) && !showPlaceholders) {
     return (
       <Delay ms={5000}>
-        <Text color="gray.50" textShadow="md">
+        <Text color={textColor} textShadow="md">
           Loading species/color data…
         </Text>
       </Delay>
@@ -54,7 +77,7 @@ function SpeciesColorPicker({ outfitState, dispatchToOutfit }) {
 
   if (errorMeta || errorValids) {
     return (
-      <Text color="gray.50" textShadow="md">
+      <Text color={textColor} textShadow="md">
         Error loading species/color data.
       </Text>
     );
@@ -63,72 +86,64 @@ function SpeciesColorPicker({ outfitState, dispatchToOutfit }) {
   // When the color changes, check if the new pair is valid, and update the
   // outfit if so!
   const onChangeColor = (e) => {
-    const speciesId = outfitState.speciesId;
-    const colorId = e.target.value;
-    if (pairIsValid(valids, speciesId, colorId)) {
-      dispatchToOutfit({ type: "changeColor", colorId: e.target.value });
-    } else {
-      const species = allSpecies.find((s) => s.id === speciesId);
-      const color = allColors.find((c) => c.id === colorId);
-      toast({
-        title: `We haven't seen a ${color.name} ${species.name} before! 😓`,
-        status: "warning",
-      });
-    }
+    const newColorId = e.target.value;
+
+    const species = allSpecies.find((s) => s.id === speciesId);
+    const newColor = allColors.find((c) => c.id === newColorId);
+    onChange(species, newColor, pairIsValid(valids, speciesId, newColorId));
   };
 
   // When the species changes, check if the new pair is valid, and update the
   // outfit if so!
   const onChangeSpecies = (e) => {
-    const colorId = outfitState.colorId;
-    const speciesId = e.target.value;
-    if (pairIsValid(valids, speciesId, colorId)) {
-      dispatchToOutfit({ type: "changeSpecies", speciesId: e.target.value });
-    } else {
-      const species = allSpecies.find((s) => s.id === speciesId);
-      const color = allColors.find((c) => c.id === colorId);
-      toast({
-        title: `We haven't seen a ${color.name} ${species.name} before! 😓`,
-        status: "warning",
-      });
-    }
+    const newSpeciesId = e.target.value;
+
+    const newSpecies = allSpecies.find((s) => s.id === newSpeciesId);
+    const color = allColors.find((c) => c.id === colorId);
+    onChange(newSpecies, color, pairIsValid(valids, newSpeciesId, colorId));
   };
 
   return (
     <Flex direction="row">
-      <Select
+      <SpeciesColorSelect
         aria-label="Pet color"
-        value={outfitState.colorId}
+        value={colorId}
+        isDisabled={allColors.length === 0}
         onChange={onChangeColor}
-        backgroundColor="gray.600"
-        color="gray.50"
-        border="none"
-        boxShadow="md"
-        width="auto"
       >
+        {allColors.length === 0 && (
+          <>
+            {/* The default case, and a long name for sizing! */}
+            <option>Blue</option>
+            <option>Dimensional</option>
+          </>
+        )}
         {allColors.map((color) => (
           <option key={color.id} value={color.id}>
             {color.name}
           </option>
         ))}
-      </Select>
+      </SpeciesColorSelect>
       <Box width="4" />
-      <Select
+      <SpeciesColorSelect
         aria-label="Pet species"
-        value={outfitState.speciesId}
+        value={speciesId}
+        isDisabled={allSpecies.length === 0}
         onChange={onChangeSpecies}
-        backgroundColor="gray.600"
-        color="gray.50"
-        border="none"
-        boxShadow="md"
-        width="auto"
       >
+        {allSpecies.length === 0 && (
+          <>
+            {/* The default case, and a long name for sizing! */}
+            <option>Acara</option>
+            <option>Tuskaninny</option>
+          </>
+        )}
         {allSpecies.map((species) => (
           <option key={species.id} value={species.id}>
             {species.name}
           </option>
         ))}
-      </Select>
+      </SpeciesColorSelect>
     </Flex>
   );
 }

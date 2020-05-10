@@ -130,10 +130,12 @@ const outfitStateReducer = (apolloClient) => (baseState, action) => {
   switch (action.type) {
     case "rename":
       return { ...baseState, name: action.outfitName };
-    case "changeColor":
-      return { ...baseState, colorId: action.colorId };
-    case "changeSpecies":
-      return { ...baseState, speciesId: action.speciesId };
+    case "setSpeciesAndColor":
+      return {
+        ...baseState,
+        speciesId: action.speciesId,
+        colorId: action.colorId,
+      };
     case "wearItem":
       return produce(baseState, (state) => {
         // A hack to work around https://github.com/immerjs/immer/issues/586
@@ -348,12 +350,13 @@ function buildOutfitUrl(state) {
     closetedItemIds,
   } = state;
 
-  const params = new URLSearchParams();
-  params.append("name", name);
-  params.append("species", speciesId);
-  params.append("color", colorId);
-  params.append("emotion", emotion);
-  params.append("genderPresentation", genderPresentation);
+  const params = new URLSearchParams({
+    name: name || "",
+    species: speciesId,
+    color: colorId,
+    emotion,
+    genderPresentation,
+  });
   for (const itemId of wornItemIds) {
     params.append("objects[]", itemId);
   }

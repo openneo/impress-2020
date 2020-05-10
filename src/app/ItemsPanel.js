@@ -157,7 +157,7 @@ function OutfitHeading({ outfitState, dispatchToOutfit }) {
         <Heading1 mb="6">
           <Editable
             value={outfitState.name}
-            placeholder="Untitled outfit (click to edit)"
+            placeholder="Untitled outfit"
             onChange={(value) =>
               dispatchToOutfit({ type: "rename", outfitName: value })
             }

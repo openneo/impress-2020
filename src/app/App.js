@@ -1,9 +1,11 @@
 import React from "react";
+import ApolloClient from "apollo-boost";
 import { ApolloProvider } from "@apollo/react-hooks";
 import { CSSReset, ThemeProvider, theme } from "@chakra-ui/core";
-import WardrobePage from "./WardrobePage";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
-import ApolloClient from "apollo-boost";
+import HomePage from "./HomePage";
+import WardrobePage from "./WardrobePage";
 
 /**
  * client is the global Apollo Client instance we use for GraphQL queries. This
@@ -40,12 +42,21 @@ const client = new ApolloClient({
  */
 function App() {
   return (
-    <ApolloProvider client={client}>
-      <ThemeProvider theme={theme}>
-        <CSSReset />
-        <WardrobePage />
-      </ThemeProvider>
-    </ApolloProvider>
+    <Router>
+      <ApolloProvider client={client}>
+        <ThemeProvider theme={theme}>
+          <CSSReset />
+          <Switch>
+            <Route path="/outfits/new">
+              <WardrobePage />
+            </Route>
+            <Route path="/">
+              <HomePage />
+            </Route>
+          </Switch>
+        </ThemeProvider>
+      </ApolloProvider>
+    </Router>
   );
 }
 
