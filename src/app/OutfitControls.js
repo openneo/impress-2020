@@ -32,6 +32,7 @@ function OutfitControls({ outfitState, dispatchToOutfit }) {
       right="0"
       top="0"
       bottom="0"
+      height="100%" // Required for Safari to size the grid correctly
       padding={{ base: 2, lg: 6 }}
       display="grid"
       overflow="auto"
