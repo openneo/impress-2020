@@ -11,10 +11,10 @@ import {
   useToast,
 } from "@chakra-ui/core";
 
-import OutfitResetModal from "./OutfitResetModal";
 import PosePicker from "./PosePicker";
 import SpeciesColorPicker from "./SpeciesColorPicker";
 import useOutfitAppearance from "./useOutfitAppearance";
+import { Link } from "react-router-dom";
 
 /**
  * OutfitControls is the set of controls layered over the outfit preview, to
@@ -54,7 +54,13 @@ function OutfitControls({ outfitState, dispatchToOutfit }) {
       )}
     >
       <Box gridArea="back">
-        <BackButton dispatchToOutfit={dispatchToOutfit} />
+        <ControlButton
+          as={Link}
+          to="/"
+          icon="arrow-back"
+          aria-label="Leave this outfit"
+          d="inline-flex" // Not sure why <a> requires this to style right! ^^`
+        />
       </Box>
       <Stack
         gridArea="sharing"
@@ -155,29 +161,6 @@ function CopyLinkButton({ outfitState }) {
         />
       </Box>
     </Tooltip>
-  );
-}
-
-/**
- * BackButton opens a reset modal to let you clear the outfit or enter a new
- * pet's name to start from!
- */
-function BackButton({ dispatchToOutfit }) {
-  const [showResetModal, setShowResetModal] = React.useState(false);
-
-  return (
-    <>
-      <ControlButton
-        icon="arrow-back"
-        aria-label="Leave this outfit"
-        onClick={() => setShowResetModal(true)}
-      />
-      <OutfitResetModal
-        isOpen={showResetModal}
-        onClose={() => setShowResetModal(false)}
-        dispatchToOutfit={dispatchToOutfit}
-      />
-    </>
   );
 }
 
