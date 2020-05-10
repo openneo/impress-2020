@@ -98,7 +98,7 @@ function StartOutfitForm() {
           // HACK: I only want the tooltip to appear when invalid... but the
           //       API doesn't really give us that option while also retaining
           //       the same <Button> instance. Instead, we set the max delay ><
-          showDelay={isValid && 2147483647}
+          showDelay={isValid ? 2147483647 : 0}
         >
           <Button type="submit" variantColor="green" disabled={!isValid}>
             Start
