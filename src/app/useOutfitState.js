@@ -9,32 +9,10 @@ enableMapSet();
 
 function useOutfitState() {
   const apolloClient = useApolloClient();
+  const initialState = parseOutfitUrl();
   const [state, dispatchToOutfit] = React.useReducer(
     outfitStateReducer(apolloClient),
-    {
-      name: "Dress to Impress demo 💖",
-      wornItemIds: new Set(["51054", "35779", "35780", "37830"]),
-      closetedItemIds: new Set([
-        "76732",
-        "54393",
-        "80087",
-        "75997",
-        "57632",
-        "80052",
-        "67617",
-        "50861",
-        "77778",
-        "51164",
-        "62215",
-        "70660",
-        "74546",
-        "57997",
-      ]),
-      speciesId: "24",
-      colorId: "62",
-      emotion: "HAPPY",
-      genderPresentation: "FEMININE",
-    }
+    initialState
   );
 
   const { name, speciesId, colorId, emotion, genderPresentation } = state;
@@ -101,24 +79,7 @@ function useOutfitState() {
     url,
   };
 
-  // Get the state from the URL the first time we load.
-  React.useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has("species")) {
-      dispatchToOutfit({
-        type: "reset",
-        name: urlParams.get("name"),
-        speciesId: urlParams.get("species"),
-        colorId: urlParams.get("color"),
-        emotion: urlParams.get("emotion") || "HAPPY",
-        genderPresentation: urlParams.get("genderPresentation") || "FEMININE",
-        wornItemIds: urlParams.getAll("objects[]"),
-        closetedItemIds: urlParams.getAll("closet[]"),
-      });
-    }
-  }, []);
-
-  // Afterwards, keep the URL up-to-date, but don't listen to it anymore.
+  // Keep the URL up-to-date. (We don't listen to it, though 😅)
   React.useEffect(() => {
     window.history.replaceState(null, "", url);
   }, [url]);
@@ -218,6 +179,19 @@ const outfitStateReducer = (apolloClient) => (baseState, action) => {
       throw new Error(`unexpected action ${JSON.stringify(action)}`);
   }
 };
+
+function parseOutfitUrl() {
+  const urlParams = new URLSearchParams(window.location.search);
+  return {
+    name: urlParams.get("name"),
+    speciesId: urlParams.get("species"),
+    colorId: urlParams.get("color"),
+    emotion: urlParams.get("emotion") || "HAPPY",
+    genderPresentation: urlParams.get("genderPresentation") || "FEMININE",
+    wornItemIds: urlParams.getAll("objects[]"),
+    closetedItemIds: urlParams.getAll("closet[]"),
+  };
+}
 
 function findItemConflicts(itemIdToAdd, state, apolloClient) {
   const { wornItemIds, speciesId, colorId } = state;
