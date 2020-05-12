@@ -188,8 +188,8 @@ function parseOutfitUrl() {
     colorId: urlParams.get("color"),
     emotion: urlParams.get("emotion") || "HAPPY",
     genderPresentation: urlParams.get("genderPresentation") || "FEMININE",
-    wornItemIds: urlParams.getAll("objects[]"),
-    closetedItemIds: urlParams.getAll("closet[]"),
+    wornItemIds: new Set(urlParams.getAll("objects[]")),
+    closetedItemIds: new Set(urlParams.getAll("closet[]")),
   };
 }
 

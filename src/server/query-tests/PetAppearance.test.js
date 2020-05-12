@@ -15,6 +15,7 @@ describe("PetAppearance", () => {
             layers {
               id
               imageUrl(size: SIZE_600)
+              svgUrl
               zone {
                 depth
               }

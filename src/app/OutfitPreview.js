@@ -65,7 +65,7 @@ export function OutfitLayers({ loading, visibleLayers, doAnimations = false }) {
           >
             <FullScreenCenter>
               <ImageTag
-                src={layer.imageUrl}
+                src={getBestImageUrlForLayer(layer)}
                 // We manage the fade-in and fade-out separately! The fade-in
                 // happens here, when the <Image> finishes preloading and
                 // applies the src to the underlying <img>.
@@ -130,6 +130,14 @@ function FullScreenCenter({ children }) {
       {children}
     </Flex>
   );
+}
+
+function getBestImageUrlForLayer(layer) {
+  if (layer.svgUrl) {
+    return `/api/assetProxy?url=${encodeURIComponent(layer.svgUrl)}`;
+  } else {
+    return layer.imageUrl;
+  }
 }
 
 export default OutfitPreview;

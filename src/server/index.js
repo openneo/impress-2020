@@ -65,6 +65,14 @@ const typeDefs = gql`
     id: ID!
     zone: Zone!
     imageUrl(size: LayerImageSize): String
+
+    """
+    This layer as a single SVG, if available.
+
+    This might not be available if the asset isn't converted yet by Neopets,
+    or if it's not as simple as a single SVG (e.g. animated).
+    """
+    svgUrl: String
   }
 
   type Zone {
@@ -209,6 +217,42 @@ const resolvers = {
         `https://impress-asset-images.s3.amazonaws.com/${layer.type}` +
         `/${rid1}/${rid2}/${rid3}/${rid}/${sizeNum}x${sizeNum}.png?v2-${time}`
       );
+    },
+    svgUrl: async (layer) => {
+      const manifest = await neopets.loadAssetManifest(layer.url);
+      if (!manifest) {
+        console.debug("expected manifest to exist, but it did not");
+        return null;
+      }
+
+      if (manifest.assets.length !== 1) {
+        console.debug(
+          "expected 1 asset in manifest, but found %d",
+          manifest.assets.length
+        );
+        return null;
+      }
+
+      const asset = manifest.assets[0];
+      if (asset.format !== "vector") {
+        console.debug(
+          'expected asset format "vector", but found %s',
+          asset.format
+        );
+        return null;
+      }
+
+      if (asset.assetData.length !== 1) {
+        console.debug(
+          "expected 1 datum in asset, but found %d",
+          asset.assetData.length
+        );
+        return null;
+      }
+
+      const assetDatum = asset.assetData[0];
+      const url = new URL(assetDatum.path, "http://images.neopets.com");
+      return url.toString();
     },
   },
   Zone: {

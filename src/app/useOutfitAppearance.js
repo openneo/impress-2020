@@ -93,6 +93,7 @@ export const itemAppearanceFragment = gql`
   fragment ItemAppearanceForOutfitPreview on ItemAppearance {
     layers {
       id
+      svgUrl
       imageUrl(size: SIZE_600)
       zone {
         id
@@ -111,6 +112,7 @@ export const petAppearanceFragment = gql`
     id
     layers {
       id
+      svgUrl
       imageUrl(size: SIZE_600)
       zone {
         id
