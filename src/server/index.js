@@ -108,8 +108,8 @@ const typeDefs = gql`
   }
 
   type Query {
-    allColors: [Color!]!
-    allSpecies: [Species!]!
+    allColors: [Color!]! @cacheControl(maxAge: 10800) # Cache for 3 hours
+    allSpecies: [Species!]! @cacheControl(maxAge: 10800) # Cache for 3 hours
     allValidSpeciesColorPairs: [SpeciesColorPair!]! # deprecated
     items(ids: [ID!]!): [Item!]!
     itemSearch(query: String!): ItemSearchResult!
