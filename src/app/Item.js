@@ -143,7 +143,7 @@ function ItemThumbnail({ src, isWorn }) {
         },
       ])}
     >
-      <Image src={src} />
+      <Image src={src} alt="" />
     </Box>
   );
 }

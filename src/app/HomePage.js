@@ -81,7 +81,13 @@ function StartOutfitForm() {
           }}
         />
         <Box width="4" />
-        <Button type="submit" variantColor="green" disabled={!isValid}>
+        <Button
+          type="submit"
+          variantColor="green"
+          disabled={!isValid}
+          backgroundColor="green.600" // for AA contrast
+          _hover={{ backgroundColor: "green.700" }}
+        >
           Start
         </Button>
       </Flex>
@@ -158,6 +164,7 @@ function SubmitPetForm() {
           onChange={(e) => setPetName(e.target.value)}
           isDisabled={loading}
           placeholder="Enter a pet's name"
+          aria-label="Enter a pet's name"
           borderColor="green.600"
           _hover={{ borderColor: "green.400" }}
           boxShadow="md"
@@ -174,6 +181,8 @@ function SubmitPetForm() {
           variantColor="green"
           isDisabled={!petName}
           isLoading={loading}
+          backgroundColor="green.600" // for AA contrast
+          _hover={{ backgroundColor: "green.700" }}
         >
           Start
         </Button>

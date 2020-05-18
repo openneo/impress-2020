@@ -100,33 +100,37 @@ function ItemZoneGroup({ zoneLabel, items, outfitState, dispatchToOutfit }) {
       <Heading2 mx="1">{zoneLabel}</Heading2>
       <ItemListContainer>
         <TransitionGroup component={null}>
-          {items.map((item) => (
-            <CSSTransition key={item.id} {...fadeOutAndRollUpTransition}>
-              <label>
-                <VisuallyHidden
-                  as="input"
-                  type="radio"
-                  aria-labelledby={`${zoneLabel}-item-${item.id}-name`}
-                  name={zoneLabel}
-                  value={item.id}
-                  checked={outfitState.wornItemIds.includes(item.id)}
-                  onChange={onChange}
-                  onClick={onClick}
-                  onKeyUp={(e) => {
-                    if (e.key === " ") {
-                      onClick(e);
-                    }
-                  }}
-                />
-                <Item
-                  item={item}
-                  itemNameId={`${zoneLabel}-item-${item.id}-name`}
-                  outfitState={outfitState}
-                  dispatchToOutfit={dispatchToOutfit}
-                />
-              </label>
-            </CSSTransition>
-          ))}
+          {items.map((item) => {
+            const itemNameId =
+              zoneLabel.replace(/ /g, "-") + `-item-${item.id}-name`;
+            return (
+              <CSSTransition key={item.id} {...fadeOutAndRollUpTransition}>
+                <label>
+                  <VisuallyHidden
+                    as="input"
+                    type="radio"
+                    aria-labelledby={itemNameId}
+                    name={zoneLabel}
+                    value={item.id}
+                    checked={outfitState.wornItemIds.includes(item.id)}
+                    onChange={onChange}
+                    onClick={onClick}
+                    onKeyUp={(e) => {
+                      if (e.key === " ") {
+                        onClick(e);
+                      }
+                    }}
+                  />
+                  <Item
+                    item={item}
+                    itemNameId={itemNameId}
+                    outfitState={outfitState}
+                    dispatchToOutfit={dispatchToOutfit}
+                  />
+                </label>
+              </CSSTransition>
+            );
+          })}
         </TransitionGroup>
       </ItemListContainer>
     </Box>
