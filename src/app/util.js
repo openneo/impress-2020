@@ -33,7 +33,12 @@ export function Delay({ children, ms = 300 }) {
  */
 export function Heading1({ children, ...props }) {
   return (
-    <Heading fontFamily="Delicious" fontWeight="800" size="2xl" {...props}>
+    <Heading
+      fontFamily="Delicious, sans-serif"
+      fontWeight="800"
+      size="2xl"
+      {...props}
+    >
       {children}
     </Heading>
   );
@@ -45,7 +50,13 @@ export function Heading1({ children, ...props }) {
  */
 export function Heading2({ children, ...props }) {
   return (
-    <Heading size="xl" color="green.800" fontFamily="Delicious" {...props}>
+    <Heading
+      size="xl"
+      color="green.800"
+      fontFamily="Delicious, sans-serif"
+      fontWeight="700"
+      {...props}
+    >
       {children}
     </Heading>
   );

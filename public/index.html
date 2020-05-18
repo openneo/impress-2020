@@ -21,6 +21,36 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>Dress to Impress</title>
+    <style type="text/css">
+      /* A font by Jos Buivenga (exljbris) -> www.exljbris.com */
+      @font-face {
+        font-family: "Delicious";
+        font-display: swap;
+        font-weight: 700;
+        src: url(/fonts/Delicious-Bold.otf);
+      }
+
+      @font-face {
+        font-family: "Delicious";
+        font-display: swap;
+        font-weight: 800 1000;
+        src: url(/fonts/Delicious-Heavy.otf);
+      }
+    </style>
+    <link
+      rel="preload"
+      href="/fonts/Delicious-Heavy.otf"
+      type="font/otf"
+      as="font"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/Delicious-Bold.otf"
+      type="font/otf"
+      as="font"
+      crossorigin
+    />
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

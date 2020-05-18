@@ -314,7 +314,7 @@ function PoseButton({ pose, onChange, inputRef }) {
         ) : (
           <Flex align="center" justify="center">
             <Box
-              fontFamily="Delicious"
+              fontFamily="Delicious, sans-serif"
               fontSize="3xl"
               fontWeight="900"
               color="gray.600"
