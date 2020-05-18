@@ -1,10 +1,9 @@
 import React from "react";
 import gql from "graphql-tag";
-import useFetch from "use-http";
 import { useQuery } from "@apollo/react-hooks";
 import { Box, Flex, Select, Text } from "@chakra-ui/core";
 
-import { Delay } from "./util";
+import { Delay, useFetch } from "./util";
 
 /**
  * SpeciesColorPicker lets the user pick the species/color of their pet.
@@ -36,7 +35,7 @@ function SpeciesColorPicker({
     loading: loadingValids,
     error: errorValids,
     data: validsBuffer,
-  } = useFetch("/api/validPetPoses", { responseType: "arrayBuffer" }, []);
+  } = useFetch("/api/validPetPoses", { responseType: "arrayBuffer" });
   const valids = React.useMemo(
     () => validsBuffer && new DataView(validsBuffer),
     [validsBuffer]

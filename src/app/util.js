@@ -93,8 +93,59 @@ export function useDebounce(value, delay, { waitForFirstPause = false } = {}) {
   return debouncedValue;
 }
 
+/**
+ * usePageTitle sets the page title!
+ */
 export function usePageTitle(title) {
   React.useEffect(() => {
     document.title = title;
   }, [title]);
+}
+
+/**
+ * useFetch uses `fetch` to fetch the given URL, and returns the request state.
+ *
+ * Our limited API is designed to match the `use-http` library!
+ */
+export function useFetch(url, { responseType }) {
+  // Just trying to be clear about what you'll get back ^_^` If we want to
+  // fetch non-binary data later, extend this and get something else from res!
+  if (responseType !== "arrayBuffer") {
+    throw new Error(`unsupported responseType ${responseType}`);
+  }
+
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState(null);
+  const [data, setData] = React.useState(null);
+
+  React.useEffect(() => {
+    let canceled = false;
+
+    fetch(url)
+      .then(async (res) => {
+        if (canceled) {
+          return;
+        }
+
+        const arrayBuffer = await res.arrayBuffer();
+        setLoading(false);
+        setError(null);
+        setData(arrayBuffer);
+      })
+      .catch((error) => {
+        if (canceled) {
+          return;
+        }
+
+        setLoading(false);
+        setError(error);
+        setData(null);
+      });
+
+    return () => {
+      canceled = true;
+    };
+  }, [url]);
+
+  return { loading, error, data };
 }
