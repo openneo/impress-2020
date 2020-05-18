@@ -1,11 +1,11 @@
 import React from "react";
 import { Box, Grid, useToast } from "@chakra-ui/core";
-import { Helmet } from "react-helmet";
 
 import ItemsAndSearchPanels from "./ItemsAndSearchPanels";
 import OutfitControls from "./OutfitControls";
 import OutfitPreview from "./OutfitPreview";
 import useOutfitState from "./useOutfitState.js";
+import { usePageTitle } from "./util";
 
 /**
  * WardrobePage is the most fun page on the site - it's where you create
@@ -21,6 +21,8 @@ import useOutfitState from "./useOutfitState.js";
 function WardrobePage() {
   const toast = useToast();
   const { loading, error, outfitState, dispatchToOutfit } = useOutfitState();
+
+  usePageTitle(`${outfitState.name || "Untitled outfit"} | Dress to Impress`);
 
   // TODO: I haven't found a great place for this error UI yet, and this case
   // isn't very common, so this lil toast notification seems good enough!
@@ -38,51 +40,44 @@ function WardrobePage() {
   }, [error, toast]);
 
   return (
-    <>
-      <Helmet>
-        <title>
-          {outfitState.name || "Untitled outfit"} | Dress to Impress
-        </title>
-      </Helmet>
-      <Box position="absolute" top="0" bottom="0" left="0" right="0">
-        <Grid
-          templateAreas={{
-            base: `"previewAndControls"
+    <Box position="absolute" top="0" bottom="0" left="0" right="0">
+      <Grid
+        templateAreas={{
+          base: `"previewAndControls"
                    "itemsAndSearch"`,
-            lg: `"previewAndControls itemsAndSearch"`,
-          }}
-          templateRows={{
-            base: "minmax(100px, 45%) minmax(300px, 55%)",
-            lg: "100%",
-          }}
-          templateColumns={{
-            base: "100%",
-            lg: "50% 50%",
-          }}
-          height="100%"
-          width="100%"
-        >
-          <Box gridArea="previewAndControls" bg="gray.900" pos="relative">
-            <Box position="absolute" top="0" bottom="0" left="0" right="0">
-              <OutfitPreview outfitState={outfitState} />
-            </Box>
-            <Box position="absolute" top="0" bottom="0" left="0" right="0">
-              <OutfitControls
-                outfitState={outfitState}
-                dispatchToOutfit={dispatchToOutfit}
-              />
-            </Box>
+          lg: `"previewAndControls itemsAndSearch"`,
+        }}
+        templateRows={{
+          base: "minmax(100px, 45%) minmax(300px, 55%)",
+          lg: "100%",
+        }}
+        templateColumns={{
+          base: "100%",
+          lg: "50% 50%",
+        }}
+        height="100%"
+        width="100%"
+      >
+        <Box gridArea="previewAndControls" bg="gray.900" pos="relative">
+          <Box position="absolute" top="0" bottom="0" left="0" right="0">
+            <OutfitPreview outfitState={outfitState} />
           </Box>
-          <Box gridArea="itemsAndSearch">
-            <ItemsAndSearchPanels
-              loading={loading}
+          <Box position="absolute" top="0" bottom="0" left="0" right="0">
+            <OutfitControls
               outfitState={outfitState}
               dispatchToOutfit={dispatchToOutfit}
             />
           </Box>
-        </Grid>
-      </Box>
-    </>
+        </Box>
+        <Box gridArea="itemsAndSearch">
+          <ItemsAndSearchPanels
+            loading={loading}
+            outfitState={outfitState}
+            dispatchToOutfit={dispatchToOutfit}
+          />
+        </Box>
+      </Grid>
+    </Box>
   );
 }
 

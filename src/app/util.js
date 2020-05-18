@@ -92,3 +92,9 @@ export function useDebounce(value, delay, { waitForFirstPause = false } = {}) {
 
   return debouncedValue;
 }
+
+export function usePageTitle(title) {
+  React.useEffect(() => {
+    document.title = title;
+  }, [title]);
+}

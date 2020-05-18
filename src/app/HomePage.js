@@ -2,49 +2,45 @@ import React from "react";
 import { css } from "emotion";
 import gql from "graphql-tag";
 import { Box, Button, Flex, Input, useTheme, useToast } from "@chakra-ui/core";
-import { Helmet } from "react-helmet";
 import { useHistory } from "react-router-dom";
 import { useLazyQuery } from "@apollo/react-hooks";
 
-import { Heading1 } from "./util";
+import { Heading1, usePageTitle } from "./util";
 
 import HomepageSplashImg from "../images/homepage-splash.png";
 import SpeciesColorPicker from "./SpeciesColorPicker";
 
 function HomePage() {
+  usePageTitle("Dress to Impress");
+
   return (
-    <>
-      <Helmet>
-        <title>Dress to Impress</title>
-      </Helmet>
-      <Flex
-        color="green.800"
-        direction="column"
-        p="6"
-        align="center"
-        textAlign="center"
-      >
-        <Box height="8" />
-        <Box
-          as="img"
-          src={HomepageSplashImg}
-          width="200px"
-          height="200px"
-          rounded="lg"
-          boxShadow="md"
-        />
-        <Box height="4" />
-        <Heading1>Dress to Impress</Heading1>
-        <Box height="8" />
-        <StartOutfitForm />
-        <Box height="4" />
-        <Box fontStyle="italic" fontSize="sm">
-          or
-        </Box>
-        <Box height="4" />
-        <SubmitPetForm />
-      </Flex>
-    </>
+    <Flex
+      color="green.800"
+      direction="column"
+      p="6"
+      align="center"
+      textAlign="center"
+    >
+      <Box height="8" />
+      <Box
+        as="img"
+        src={HomepageSplashImg}
+        width="200px"
+        height="200px"
+        rounded="lg"
+        boxShadow="md"
+      />
+      <Box height="4" />
+      <Heading1>Dress to Impress</Heading1>
+      <Box height="8" />
+      <StartOutfitForm />
+      <Box height="4" />
+      <Box fontStyle="italic" fontSize="sm">
+        or
+      </Box>
+      <Box height="4" />
+      <SubmitPetForm />
+    </Flex>
   );
 }
 
