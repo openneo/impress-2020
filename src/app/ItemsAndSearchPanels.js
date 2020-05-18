@@ -110,6 +110,7 @@ function SearchToolbar({
       </InputLeftElement>
       <Input
         placeholder="Search for items to add…"
+        aria-label="Search for items to add…"
         focusBorderColor="green.600"
         color="green.800"
         value={query}
