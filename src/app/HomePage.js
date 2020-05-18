@@ -25,6 +25,7 @@ function HomePage() {
       <Box
         as="img"
         src={HomepageSplashImg}
+        alt=""
         width="200px"
         height="200px"
         rounded="lg"

@@ -66,6 +66,7 @@ export function OutfitLayers({ loading, visibleLayers, doAnimations = false }) {
             <FullScreenCenter>
               <ImageTag
                 src={getBestImageUrlForLayer(layer)}
+                alt=""
                 // We manage the fade-in and fade-out separately! The fade-in
                 // happens here, when the <Image> finishes preloading and
                 // applies the src to the underlying <img>.
