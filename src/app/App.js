@@ -2,10 +2,12 @@ import React from "react";
 import { ApolloProvider } from "@apollo/react-hooks";
 import { CSSReset, ThemeProvider, theme } from "@chakra-ui/core";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import loadable from "@loadable/component";
 
 import apolloClient from "./apolloClient";
-import HomePage from "./HomePage";
-import WardrobePage from "./WardrobePage";
+
+const WardrobePage = loadable(() => import("./WardrobePage"));
+const HomePage = loadable(() => import("./HomePage"));
 
 /**
  * App is the entry point of our application. There's not a ton of exciting

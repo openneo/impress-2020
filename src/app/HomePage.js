@@ -141,7 +141,12 @@ function SubmitPetForm() {
 
   const onSubmit = (e) => {
     e.preventDefault();
+
     loadPet({ variables: { petName } });
+
+    // Start preloading the WardrobePage, too!
+    // eslint-disable-next-line no-unused-expressions
+    import("./WardrobePage");
   };
 
   return (
