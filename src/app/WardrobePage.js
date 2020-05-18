@@ -7,7 +7,9 @@ import OutfitPreview from "./OutfitPreview";
 import useOutfitState from "./useOutfitState.js";
 import { usePageTitle } from "./util";
 
-const OutfitControls = loadable(() => import("./OutfitControls"));
+const OutfitControls = loadable(() =>
+  import(/* webpackPreload: true */ "./OutfitControls")
+);
 
 /**
  * WardrobePage is the most fun page on the site - it's where you create
