@@ -1,11 +1,13 @@
 import React from "react";
 import { Box, Grid, useToast } from "@chakra-ui/core";
+import loadable from "@loadable/component";
 
 import ItemsAndSearchPanels from "./ItemsAndSearchPanels";
-import OutfitControls from "./OutfitControls";
 import OutfitPreview from "./OutfitPreview";
 import useOutfitState from "./useOutfitState.js";
 import { usePageTitle } from "./util";
+
+const OutfitControls = loadable(() => import("./OutfitControls"));
 
 /**
  * WardrobePage is the most fun page on the site - it's where you create
