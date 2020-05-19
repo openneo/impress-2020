@@ -50,6 +50,9 @@ function useOutfitState() {
             }
           }
         }
+
+        # NOTE: We skip this query if items is empty for perf reasons. If
+        #       you're adding more fields, consider changing that condition!
       }
       ${itemAppearanceFragment}
     `,
