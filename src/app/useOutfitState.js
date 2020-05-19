@@ -124,7 +124,13 @@ const outfitStateReducer = (apolloClient) => (baseState, action) => {
         // doing a search and it loads before the worn item data does? Anyway,
         // Apollo will throw in that case, which should just essentially reject
         // the action.)
-        const conflictingIds = findItemConflicts(itemId, state, apolloClient);
+        let conflictingIds;
+        try {
+          conflictingIds = findItemConflicts(itemId, state, apolloClient);
+        } catch (e) {
+          console.error(e);
+          return;
+        }
         for (const conflictingId of conflictingIds) {
           wornItemIds.delete(conflictingId);
           closetedItemIds.add(conflictingId);

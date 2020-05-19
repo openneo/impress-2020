@@ -35,7 +35,6 @@ const httpLink = createHttpLink({ uri: "/api/graphql" });
  * queries. This is how we communicate with the server!
  */
 export default new ApolloClient({
-  cacheRedirects,
   link: persistedQueryLink.concat(httpLink),
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({ cacheRedirects }),
 });
