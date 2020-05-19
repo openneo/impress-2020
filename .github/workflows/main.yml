@@ -1,0 +1,15 @@
+name: CI
+on: push
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Audit URLs using Lighthouse
+        uses: treosh/lighthouse-ci-action@v2
+        with:
+          urls: |
+            https://impress-2020.now.sh/
+            https://impress-2020.now.sh/outfits/new?name=roopal27&species=54&color=75&emotion=HAPPY&genderPresentation=FEMININE&objects%5B%5D=37229&objects%5B%5D=37375&objects%5B%5D=38911&objects%5B%5D=38912&objects%5B%5D=38913&objects%5B%5D=43014&objects%5B%5D=43397&objects%5B%5D=48313
+          uploadArtifacts: true # save results as an action artifacts
+          temporaryPublicStorage: true # upload lighthouse report to the temporary storage
