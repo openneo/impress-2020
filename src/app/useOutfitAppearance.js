@@ -16,7 +16,7 @@ export default function useOutfitAppearance(outfitState) {
 
   const { loading, error, data } = useQuery(
     gql`
-      query(
+      query OutfitAppearance(
         $wornItemIds: [ID!]!
         $speciesId: ID!
         $colorId: ID!

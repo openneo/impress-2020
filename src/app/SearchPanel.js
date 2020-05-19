@@ -210,7 +210,12 @@ function useSearchResults(query, outfitState) {
     fetchMore: fetchMoreGQL,
   } = useQuery(
     gql`
-      query($query: String!, $speciesId: ID!, $colorId: ID!, $offset: Int!) {
+      query SearchPanel(
+        $query: String!
+        $speciesId: ID!
+        $colorId: ID!
+        $offset: Int!
+      ) {
         itemSearchToFit(
           query: $query
           speciesId: $speciesId

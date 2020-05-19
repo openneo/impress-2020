@@ -104,7 +104,7 @@ function SubmitPetForm() {
 
   const [loadPet, { loading }] = useLazyQuery(
     gql`
-      query($petName: String!) {
+      query SubmitPetForm($petName: String!) {
         petOnNeopetsDotCom(petName: $petName) {
           color {
             id

@@ -25,7 +25,7 @@ function useOutfitState() {
   const allItemIds = [...state.wornItemIds, ...state.closetedItemIds];
   const { loading, error, data } = useQuery(
     gql`
-      query($allItemIds: [ID!]!, $speciesId: ID!, $colorId: ID!) {
+      query OutfitState($allItemIds: [ID!]!, $speciesId: ID!, $colorId: ID!) {
         items(ids: $allItemIds) {
           # TODO: De-dupe this from SearchPanel?
           id
@@ -198,7 +198,11 @@ function findItemConflicts(itemIdToAdd, state, apolloClient) {
 
   const { items } = apolloClient.readQuery({
     query: gql`
-      query($itemIds: [ID!]!, $speciesId: ID!, $colorId: ID!) {
+      query OutfitStateItemConflicts(
+        $itemIds: [ID!]!
+        $speciesId: ID!
+        $colorId: ID!
+      ) {
         items(ids: $itemIds) {
           id
           appearanceOn(speciesId: $speciesId, colorId: $colorId) {
