@@ -42,11 +42,7 @@ function ItemsPanel({ outfitState, loading, dispatchToOutfit }) {
       </Box>
       <Flex direction="column">
         {loading ? (
-          <>
-            <ItemZoneGroupSkeleton />
-            <ItemZoneGroupSkeleton />
-            <ItemZoneGroupSkeleton />
-          </>
+          <ItemZoneGroupsSkeleton itemCount={outfitState.allItemIds.length} />
         ) : (
           <TransitionGroup component={null}>
             {zonesAndItems.map(({ zoneLabel, items }) => (
@@ -138,14 +134,39 @@ function ItemZoneGroup({ zoneLabel, items, outfitState, dispatchToOutfit }) {
 }
 
 /**
+ * ItemZoneGroupSkeletons is a placeholder for when the items are loading.
+ *
+ * We try to match the approximate size of the incoming data! This is
+ * especially nice for when you start with a fresh pet from the homepage, so
+ * we don't show skeleton items that just clear away!
+ */
+function ItemZoneGroupsSkeleton({ itemCount }) {
+  const groups = [];
+  for (let i = 0; i < itemCount; i++) {
+    // NOTE: I initially wrote this to return groups of 3, which looks good for
+    //     outfit shares I think, but looks bad for pet loading... once shares
+    //     become a more common use case, it might be useful to figure out how
+    //     to differentiate these cases and show 1-per-group for pets, but
+    //     maybe more for built outfits?
+    groups.push(<ItemZoneGroupSkeleton key={i} itemCount={1} />);
+  }
+  return groups;
+}
+
+/**
  * ItemZoneGroupSkeleton is a placeholder for when an ItemZoneGroup is loading.
  */
-function ItemZoneGroupSkeleton() {
+function ItemZoneGroupSkeleton({ itemCount }) {
   return (
     <Box mb="10">
       <Delay>
-        <Skeleton mx="1" height="2.3rem" width="12rem" />
-        <ItemListSkeleton count={3} />
+        <Skeleton
+          mx="1"
+          // 2.25rem font size, 1.25rem line height
+          height={`${2.25 * 1.25}rem`}
+          width="12rem"
+        />
+        <ItemListSkeleton count={itemCount} />
       </Delay>
     </Box>
   );
