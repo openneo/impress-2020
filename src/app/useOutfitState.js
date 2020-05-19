@@ -25,7 +25,11 @@ function useOutfitState() {
   const allItemIds = [...state.wornItemIds, ...state.closetedItemIds];
   const { loading, error, data } = useQuery(
     gql`
-      query OutfitState($allItemIds: [ID!]!, $speciesId: ID!, $colorId: ID!) {
+      query OutfitStateItems(
+        $allItemIds: [ID!]!
+        $speciesId: ID!
+        $colorId: ID!
+      ) {
         items(ids: $allItemIds) {
           # TODO: De-dupe this from SearchPanel?
           id
@@ -49,7 +53,10 @@ function useOutfitState() {
       }
       ${itemAppearanceFragment}
     `,
-    { variables: { allItemIds, speciesId, colorId } }
+    {
+      variables: { allItemIds, speciesId, colorId },
+      skip: allItemIds.length === 0,
+    }
   );
 
   const items = (data && data.items) || [];
