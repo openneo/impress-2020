@@ -135,7 +135,12 @@ function DownloadButton({ outfitState }) {
           aria-label="Download"
           as="a"
           // eslint-disable-next-line no-script-url
-          href={downloadImageUrl || "javascript:void 0"}
+          href={downloadImageUrl || "#"}
+          onClick={(e) => {
+            if (!downloadImageUrl) {
+              e.preventDefault();
+            }
+          }}
           download={(outfitState.name || "Outfit") + ".png"}
           onMouseEnter={prepareDownload}
           onFocus={prepareDownload}
