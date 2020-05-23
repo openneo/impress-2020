@@ -105,6 +105,7 @@ const outfitStateReducer = (apolloClient) => (baseState, action) => {
         ...baseState,
         speciesId: action.speciesId,
         colorId: action.colorId,
+        pose: action.pose,
       };
     case "wearItem":
       return produce(baseState, (state) => {

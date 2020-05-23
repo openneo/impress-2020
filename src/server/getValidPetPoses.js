@@ -38,9 +38,7 @@ export default async function getValidPetPoses() {
     for (let colorId = 1; colorId <= numColors; colorId++) {
       const colorIndex = colorId - 1;
 
-      // We fill in the high bits first. If we add more things later, write
-      // them first, so that they fill in the currently-empty high bits and
-      // everything else stays in the same position as before!
+      // We fill in the high bits first, and shift left as we go!
       let byte = 0;
       byte += hasPose(speciesId, colorId, "UNKNOWN") ? 1 : 0;
       byte <<= 1;

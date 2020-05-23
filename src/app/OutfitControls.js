@@ -87,13 +87,15 @@ function OutfitControls({ outfitState, dispatchToOutfit }) {
           <SpeciesColorPicker
             speciesId={outfitState.speciesId}
             colorId={outfitState.colorId}
+            idealPose={outfitState.pose}
             dark
-            onChange={(species, color, isValid) => {
+            onChange={(species, color, isValid, closestPose) => {
               if (isValid) {
                 dispatchToOutfit({
                   type: "setSpeciesAndColor",
                   speciesId: species.id,
                   colorId: color.id,
+                  pose: closestPose,
                 });
               } else {
                 toast({

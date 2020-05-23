@@ -48,9 +48,15 @@ function HomePage() {
 function StartOutfitForm() {
   const history = useHistory();
 
+  const idealPose = React.useMemo(
+    () => (Math.random() > 0.5 ? "HAPPY_FEM" : "HAPPY_MASC"),
+    []
+  );
+
   const [speciesId, setSpeciesId] = React.useState("1");
   const [colorId, setColorId] = React.useState("8");
   const [isValid, setIsValid] = React.useState(true);
+  const [closestPose, setClosestPose] = React.useState(idealPose);
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -62,6 +68,7 @@ function StartOutfitForm() {
     const params = new URLSearchParams({
       species: speciesId,
       color: colorId,
+      pose: closestPose,
     });
 
     history.push(`/outfits/new?${params}`);
@@ -73,11 +80,13 @@ function StartOutfitForm() {
         <SpeciesColorPicker
           speciesId={speciesId}
           colorId={colorId}
+          idealPose={idealPose}
           showPlaceholders
-          onChange={(species, color, isValid) => {
+          onChange={(species, color, isValid, closestPose) => {
             setSpeciesId(species.id);
             setColorId(color.id);
             setIsValid(isValid);
+            setClosestPose(closestPose);
           }}
         />
         <Box width="4" />

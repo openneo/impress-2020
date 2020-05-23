@@ -14,6 +14,7 @@ import { Delay, useFetch } from "./util";
 function SpeciesColorPicker({
   speciesId,
   colorId,
+  idealPose,
   showPlaceholders,
   dark = false,
   onChange,
@@ -99,7 +100,11 @@ function SpeciesColorPicker({
 
     const species = allSpecies.find((s) => s.id === speciesId);
     const newColor = allColors.find((c) => c.id === newColorId);
-    onChange(species, newColor, pairIsValid(valids, speciesId, newColorId));
+    const validPoses = getValidPoses(valids, speciesId, newColorId);
+    const isValid = validPoses.size > 0;
+    const closestPose = getClosestPose(validPoses, idealPose);
+    console.log(idealPose, closestPose, validPoses);
+    onChange(species, newColor, isValid, closestPose);
   };
 
   // When the species changes, check if the new pair is valid, and update the
@@ -109,7 +114,11 @@ function SpeciesColorPicker({
 
     const newSpecies = allSpecies.find((s) => s.id === newSpeciesId);
     const color = allColors.find((c) => c.id === colorId);
-    onChange(newSpecies, color, pairIsValid(valids, newSpeciesId, colorId));
+    const validPoses = getValidPoses(valids, newSpeciesId, colorId);
+    const isValid = validPoses.size > 0;
+    const closestPose = getClosestPose(validPoses, idealPose);
+    console.log(idealPose, closestPose, validPoses);
+    onChange(newSpecies, color, isValid, closestPose);
   };
 
   return (
@@ -157,14 +166,131 @@ function SpeciesColorPicker({
   );
 }
 
-function pairIsValid(valids, speciesId, colorId) {
+function getPairByte(valids, speciesId, colorId) {
   // Reading a bit table, owo!
   const speciesIndex = speciesId - 1;
   const colorIndex = colorId - 1;
   const numColors = valids.getUint8(1);
   const pairByteIndex = speciesIndex * numColors + colorIndex + 2;
-  const pairByte = valids.getUint8(pairByteIndex);
-  return pairByte !== 0;
+  return valids.getUint8(pairByteIndex);
 }
+
+function pairIsValid(valids, speciesId, colorId) {
+  return getPairByte(valids, speciesId, colorId) !== 0;
+}
+
+function getValidPoses(valids, speciesId, colorId) {
+  const pairByte = getPairByte(valids, speciesId, colorId);
+  console.log("pair byte", pairByte.toString(2).padStart(8, "0"));
+
+  const validPoses = new Set();
+  if (pairByte & 0b00000001) validPoses.add("HAPPY_MASC");
+  if (pairByte & 0b00000010) validPoses.add("SAD_MASC");
+  if (pairByte & 0b00000100) validPoses.add("SICK_MASC");
+  if (pairByte & 0b00001000) validPoses.add("HAPPY_FEM");
+  if (pairByte & 0b00010000) validPoses.add("SAD_FEM");
+  if (pairByte & 0b00100000) validPoses.add("SICK_FEM");
+  // TODO: Add unconverted support!
+  // if (pairByte & 0b01000000) validPoses.add("UNCONVERTED");
+  if (pairByte & 0b10000000) validPoses.add("UNKNOWN");
+
+  return validPoses;
+}
+
+function getClosestPose(validPoses, idealPose) {
+  return closestPosesInOrder[idealPose].find((p) => validPoses.has(p)) || null;
+}
+
+// For each pose, in what order do we prefer to match other poses?
+//
+// The principles of this ordering are:
+//   - Happy/sad matters more than gender presentation.
+//   - "Sick" is an unpopular emotion, and it's better to change gender
+//     presentation and stay happy/sad than to become sick.
+//   - Sad is a better fallback for sick than happy.
+//   - Unconverted vs converted is the biggest possible difference.
+//   - Unknown is the pose of last resort - even coming from another unknown.
+const closestPosesInOrder = {
+  HAPPY_MASC: [
+    "HAPPY_MASC",
+    "HAPPY_FEM",
+    "SAD_MASC",
+    "SAD_FEM",
+    "SICK_MASC",
+    "SICK_FEM",
+    "UNCONVERTED",
+    "UNKNOWN",
+  ],
+  HAPPY_FEM: [
+    "HAPPY_FEM",
+    "HAPPY_MASC",
+    "SAD_FEM",
+    "SAD_MASC",
+    "SICK_FEM",
+    "SICK_MASC",
+    "UNCONVERTED",
+    "UNKNOWN",
+  ],
+  SAD_MASC: [
+    "SAD_MASC",
+    "SAD_FEM",
+    "HAPPY_MASC",
+    "HAPPY_FEM",
+    "SICK_MASC",
+    "SICK_FEM",
+    "UNCONVERTED",
+    "UNKNOWN",
+  ],
+  SAD_FEM: [
+    "SAD_FEM",
+    "SAD_MASC",
+    "HAPPY_FEM",
+    "HAPPY_MASC",
+    "SICK_FEM",
+    "SICK_MASC",
+    "UNCONVERTED",
+    "UNKNOWN",
+  ],
+  SICK_MASC: [
+    "SICK_MASC",
+    "SICK_FEM",
+    "SAD_MASC",
+    "SAD_FEM",
+    "HAPPY_MASC",
+    "HAPPY_FEM",
+    "UNCONVERTED",
+    "UNKNOWN",
+  ],
+  SICK_FEM: [
+    "SICK_FEM",
+    "SICK_MASC",
+    "SAD_FEM",
+    "SAD_MASC",
+    "HAPPY_FEM",
+    "HAPPY_MASC",
+    "UNCONVERTED",
+    "UNKNOWN",
+  ],
+  UNCONVERTED: [
+    "UNCONVERTED",
+    "HAPPY_FEM",
+    "HAPPY_MASC",
+    "SAD_FEM",
+    "SAD_MASC",
+    "SICK_FEM",
+    "SICK_MASC",
+    "UNKNOWN",
+  ],
+  UNKNOWN: [
+    "HAPPY_FEM",
+    "HAPPY_MASC",
+    "SAD_FEM",
+    "SAD_MASC",
+    "SICK_FEM",
+    "SICK_MASC",
+    "UNCONVERTED",
+    "UNKNOWN",
+  ],
+};
 
 export default SpeciesColorPicker;
