@@ -109,9 +109,6 @@ const outfitStateReducer = (apolloClient) => (baseState, action) => {
       };
     case "wearItem":
       return produce(baseState, (state) => {
-        // A hack to work around https://github.com/immerjs/immer/issues/586
-        state.wornItemIds.add("fake-id-immer#586").delete("fake-id-immer#586");
-
         const { wornItemIds, closetedItemIds } = state;
         const { itemId } = action;
 
