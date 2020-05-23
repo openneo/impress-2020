@@ -8,6 +8,7 @@ import { useLazyQuery } from "@apollo/react-hooks";
 import { Heading1, usePageTitle } from "./util";
 
 import HomepageSplashImg from "../images/homepage-splash.png";
+import HomepageSplashImg2x from "../images/homepage-splash@2x.png";
 import SpeciesColorPicker from "./SpeciesColorPicker";
 
 function HomePage() {
@@ -25,6 +26,7 @@ function HomePage() {
       <Box
         as="img"
         src={HomepageSplashImg}
+        srcSet={`${HomepageSplashImg} 1x, ${HomepageSplashImg2x} 2x`}
         alt=""
         width="200px"
         height="200px"
