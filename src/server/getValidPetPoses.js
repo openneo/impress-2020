@@ -1,25 +1,25 @@
 import connectToDb from "./db";
 
-import { getPose } from "./util";
+import { getPoseFromPetState, normalizeRow } from "./util";
 
 export default async function getValidPetPoses() {
   const db = await connectToDb();
 
   const numSpeciesPromise = getNumSpecies(db);
   const numColorsPromise = getNumColors(db);
-  const poseTuplesPromise = getPoseTuples(db);
+  const distinctPetStatesPromise = getDistinctPetStates(db);
 
-  const [numSpecies, numColors, poseTuples] = await Promise.all([
+  const [numSpecies, numColors, distinctPetStates] = await Promise.all([
     numSpeciesPromise,
     numColorsPromise,
-    poseTuplesPromise,
+    distinctPetStatesPromise,
   ]);
 
   const poseStrs = new Set();
-  for (const poseTuple of poseTuples) {
-    const { species_id, color_id, mood_id, female, unconverted } = poseTuple;
-    const pose = getPose(mood_id, female, unconverted);
-    const poseStr = `${species_id}-${color_id}-${pose}`;
+  for (const petState of distinctPetStates) {
+    const { speciesId, colorId } = petState;
+    const pose = getPoseFromPetState(petState);
+    const poseStr = `${speciesId}-${colorId}-${pose}`;
     poseStrs.add(poseStr);
   }
 
@@ -77,11 +77,11 @@ async function getNumColors(db) {
   return rows[0]["count(*)"];
 }
 
-async function getPoseTuples(db) {
+async function getDistinctPetStates(db) {
   const [rows, _] = await db.query(`
     SELECT DISTINCT species_id, color_id, mood_id, female, unconverted
         FROM pet_states
     INNER JOIN pet_types ON pet_types.id = pet_states.pet_type_id
     WHERE glitched IS false AND color_id >= 1`);
-  return rows;
+  return rows.map(normalizeRow);
 }

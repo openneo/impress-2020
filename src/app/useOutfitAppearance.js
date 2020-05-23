@@ -6,13 +6,7 @@ import { useQuery } from "@apollo/react-hooks";
  * visibleLayers for rendering.
  */
 export default function useOutfitAppearance(outfitState) {
-  const {
-    wornItemIds,
-    speciesId,
-    colorId,
-    emotion,
-    genderPresentation,
-  } = outfitState;
+  const { wornItemIds, speciesId, colorId, pose } = outfitState;
 
   const { loading, error, data } = useQuery(
     gql`
@@ -20,15 +14,9 @@ export default function useOutfitAppearance(outfitState) {
         $wornItemIds: [ID!]!
         $speciesId: ID!
         $colorId: ID!
-        $emotion: Emotion!
-        $genderPresentation: GenderPresentation!
+        $pose: Pose!
       ) {
-        petAppearance(
-          speciesId: $speciesId
-          colorId: $colorId
-          emotion: $emotion
-          genderPresentation: $genderPresentation
-        ) {
+        petAppearance(speciesId: $speciesId, colorId: $colorId, pose: $pose) {
           ...PetAppearanceForOutfitPreview
         }
 
@@ -47,8 +35,7 @@ export default function useOutfitAppearance(outfitState) {
         wornItemIds,
         speciesId,
         colorId,
-        emotion,
-        genderPresentation,
+        pose,
       },
     }
   );

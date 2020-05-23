@@ -128,8 +128,7 @@ function SubmitPetForm() {
           name: petName,
           species: species.id,
           color: color.id,
-          emotion: "HAPPY", // TODO: Ask PetService
-          genderPresentation: "FEMININE", // TODO: Ask PetService
+          pose: "HAPPY_FEM", // TODO: Ask PetService
         });
         for (const item of items) {
           params.append("objects[]", item.id);

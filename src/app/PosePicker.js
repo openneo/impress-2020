@@ -32,7 +32,7 @@ function PosePicker({
 }) {
   const theme = useTheme();
   const checkedInputRef = React.useRef();
-  const { loading, error, poses } = usePoses(outfitState);
+  const { loading, error, poseInfos } = usePoses(outfitState);
 
   if (loading) {
     return null;
@@ -45,19 +45,15 @@ function PosePicker({
   }
 
   // If there's only one pose anyway, don't bother showing a picker!
-  const numAvailablePoses = Object.values(poses).filter((p) => p.isAvailable)
-    .length;
+  const numAvailablePoses = Object.values(poseInfos).filter(
+    (p) => p.isAvailable
+  ).length;
   if (numAvailablePoses <= 1) {
     return null;
   }
 
   const onChange = (e) => {
-    const [emotion, genderPresentation] = e.target.value.split("-");
-    dispatchToOutfit({
-      type: "setPose",
-      emotion,
-      genderPresentation,
-    });
+    dispatchToOutfit({ type: "setPose", pose: e.target.value });
   };
 
   return (
@@ -99,13 +95,13 @@ function PosePicker({
                 isOpen && "is-open"
               )}
             >
-              {outfitState.emotion === "HAPPY" && (
+              {getEmotion(outfitState.pose) === "HAPPY" && (
                 <EmojiImage src={twemojiSmile} alt="Choose a pose" />
               )}
-              {outfitState.emotion === "SAD" && (
+              {getEmotion(outfitState.pose) === "SAD" && (
                 <EmojiImage src={twemojiCry} alt="Choose a pose" />
               )}
-              {outfitState.emotion === "SICK" && (
+              {getEmotion(outfitState.pose) === "SICK" && (
                 <EmojiImage src={twemojiSick} alt="Choose a pose" />
               )}
             </Button>
@@ -133,24 +129,30 @@ function PosePicker({
                       <EmojiImage src={twemojiMasc} alt="Masculine" />
                     </Cell>
                     <Cell as="td">
-                      <PoseButton
-                        pose={poses.happyMasc}
+                      <PoseOption
+                        poseInfo={poseInfos.happyMasc}
                         onChange={onChange}
-                        inputRef={poses.happyMasc.isSelected && checkedInputRef}
+                        inputRef={
+                          poseInfos.happyMasc.isSelected && checkedInputRef
+                        }
                       />
                     </Cell>
                     <Cell as="td">
-                      <PoseButton
-                        pose={poses.sadMasc}
+                      <PoseOption
+                        poseInfo={poseInfos.sadMasc}
                         onChange={onChange}
-                        inputRef={poses.sadMasc.isSelected && checkedInputRef}
+                        inputRef={
+                          poseInfos.sadMasc.isSelected && checkedInputRef
+                        }
                       />
                     </Cell>
                     <Cell as="td">
-                      <PoseButton
-                        pose={poses.sickMasc}
+                      <PoseOption
+                        poseInfo={poseInfos.sickMasc}
                         onChange={onChange}
-                        inputRef={poses.sickMasc.isSelected && checkedInputRef}
+                        inputRef={
+                          poseInfos.sickMasc.isSelected && checkedInputRef
+                        }
                       />
                     </Cell>
                   </tr>
@@ -159,24 +161,30 @@ function PosePicker({
                       <EmojiImage src={twemojiFem} alt="Feminine" />
                     </Cell>
                     <Cell as="td">
-                      <PoseButton
-                        pose={poses.happyFem}
+                      <PoseOption
+                        poseInfo={poseInfos.happyFem}
                         onChange={onChange}
-                        inputRef={poses.happyFem.isSelected && checkedInputRef}
+                        inputRef={
+                          poseInfos.happyFem.isSelected && checkedInputRef
+                        }
                       />
                     </Cell>
                     <Cell as="td">
-                      <PoseButton
-                        pose={poses.sadFem}
+                      <PoseOption
+                        poseInfo={poseInfos.sadFem}
                         onChange={onChange}
-                        inputRef={poses.sadFem.isSelected && checkedInputRef}
+                        inputRef={
+                          poseInfos.sadFem.isSelected && checkedInputRef
+                        }
                       />
                     </Cell>
                     <Cell as="td">
-                      <PoseButton
-                        pose={poses.sickFem}
+                      <PoseOption
+                        poseInfo={poseInfos.sickFem}
                         onChange={onChange}
-                        inputRef={poses.sickFem.isSelected && checkedInputRef}
+                        inputRef={
+                          poseInfos.sickFem.isSelected && checkedInputRef
+                        }
                       />
                     </Cell>
                   </tr>
@@ -213,14 +221,14 @@ const GENDER_PRESENTATION_STRINGS = {
   FEMININE: "Feminine",
 };
 
-function PoseButton({ pose, onChange, inputRef }) {
+function PoseOption({ poseInfo, onChange, inputRef }) {
   const theme = useTheme();
   const genderPresentationStr =
-    GENDER_PRESENTATION_STRINGS[pose.genderPresentation];
-  const emotionStr = EMOTION_STRINGS[pose.emotion];
+    GENDER_PRESENTATION_STRINGS[poseInfo.genderPresentation];
+  const emotionStr = EMOTION_STRINGS[poseInfo.emotion];
 
   let label = `${emotionStr} and ${genderPresentationStr}`;
-  if (!pose.isAvailable) {
+  if (!poseInfo.isAvailable) {
     label += ` (not modeled yet)`;
   }
 
@@ -239,9 +247,9 @@ function PoseButton({ pose, onChange, inputRef }) {
         type="radio"
         aria-label={label}
         name="pose"
-        value={`${pose.emotion}-${pose.genderPresentation}`}
-        checked={pose.isSelected}
-        disabled={!pose.isAvailable}
+        value={poseInfo.pose}
+        checked={poseInfo.isSelected}
+        disabled={!poseInfo.isAvailable}
         onChange={onChange}
         ref={inputRef || null}
       />
@@ -253,11 +261,11 @@ function PoseButton({ pose, onChange, inputRef }) {
         width="50px"
         height="50px"
         title={
-          pose.isAvailable
+          poseInfo.isAvailable
             ? // A lil debug output, so that we can quickly identify glitched
               // PetStates and manually mark them as glitched!
               window.location.hostname.includes("localhost") &&
-              `#${pose.petStateId}`
+              `#${poseInfo.petStateId}`
             : "Not modeled yet"
         }
         position="relative"
@@ -298,18 +306,18 @@ function PoseButton({ pose, onChange, inputRef }) {
                 border-width: 3px;
               }
             `,
-            !pose.isAvailable && "not-available"
+            !poseInfo.isAvailable && "not-available"
           )}
         />
-        {pose.isAvailable ? (
+        {poseInfo.isAvailable ? (
           <Box
             width="50px"
             height="50px"
             transform={
-              transformsByBodyId[pose.bodyId] || transformsByBodyId.default
+              transformsByBodyId[poseInfo.bodyId] || transformsByBodyId.default
             }
           >
-            <OutfitLayers visibleLayers={getVisibleLayers(pose, [])} />
+            <OutfitLayers visibleLayers={getVisibleLayers(poseInfo, [])} />
           </Box>
         ) : (
           <Flex align="center" justify="center">
@@ -342,8 +350,7 @@ function usePoses(outfitState) {
           id
           petStateId
           bodyId
-          genderPresentation
-          emotion
+          pose
           approximateThumbnailUrl
           ...PetAppearanceForOutfitPreview
         }
@@ -354,28 +361,39 @@ function usePoses(outfitState) {
   );
 
   const petAppearances = data?.petAppearances || [];
-  const buildPose = (e, gp) => {
-    const appearance = petAppearances.find(
-      (pa) => pa.emotion === e && pa.genderPresentation === gp
-    );
+  const buildPoseInfo = (pose) => {
+    const appearance = petAppearances.find((pa) => pa.pose === pose);
     return {
       ...appearance,
       isAvailable: Boolean(appearance),
-      isSelected:
-        outfitState.emotion === e && outfitState.genderPresentation === gp,
+      isSelected: outfitState.pose === pose,
     };
   };
 
-  const poses = {
-    happyMasc: buildPose("HAPPY", "MASCULINE"),
-    sadMasc: buildPose("SAD", "MASCULINE"),
-    sickMasc: buildPose("SICK", "MASCULINE"),
-    happyFem: buildPose("HAPPY", "FEMININE"),
-    sadFem: buildPose("SAD", "FEMININE"),
-    sickFem: buildPose("SICK", "FEMININE"),
+  const poseInfos = {
+    happyMasc: buildPoseInfo("HAPPY_MASC"),
+    sadMasc: buildPoseInfo("SAD_MASC"),
+    sickMasc: buildPoseInfo("SICK_MASC"),
+    happyFem: buildPoseInfo("HAPPY_FEM"),
+    sadFem: buildPoseInfo("SAD_FEM"),
+    sickFem: buildPoseInfo("SICK_FEM"),
   };
 
-  return { loading, error, poses };
+  return { loading, error, poseInfos };
+}
+
+function getEmotion(pose) {
+  if (["HAPPY_MASC", "HAPPY_FEM"].includes(pose)) {
+    return "HAPPY";
+  } else if (["SAD_MASC", "SAD_FEM"].includes(pose)) {
+    return "SAD";
+  } else if (["SICK_MASC", "SICK_FEM"].includes(pose)) {
+    return "SICK";
+  } else if (["UNCONVERTED", "UNKNOWN"].includes(pose)) {
+    return null;
+  } else {
+    throw new Error(`unrecognized pose ${JSON.stringify(pose)}`);
+  }
 }
 
 const transformsByBodyId = {

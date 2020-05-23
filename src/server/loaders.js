@@ -1,4 +1,5 @@
 const DataLoader = require("dataloader");
+const { normalizeRow } = require("./util");
 
 const loadAllColors = (db) => async () => {
   const [rows, _] = await db.execute(`SELECT * FROM colors WHERE prank = 0`);
@@ -276,18 +277,6 @@ const buildZoneTranslationLoader = (db) =>
         new Error(`could not find translation for zone ${zoneId}`)
     );
   });
-
-function normalizeRow(row) {
-  const normalizedRow = {};
-  for (let [key, value] of Object.entries(row)) {
-    key = key.replace(/_([a-z])/gi, (m) => m[1].toUpperCase());
-    if ((key === "id" || key.endsWith("Id")) && typeof value === "number") {
-      value = String(value);
-    }
-    normalizedRow[key] = value;
-  }
-  return normalizedRow;
-}
 
 function buildLoaders(db) {
   return {

@@ -3,13 +3,32 @@ const { gql } = require("apollo-server");
 const connectToDb = require("./db");
 const buildLoaders = require("./loaders");
 const neopets = require("./neopets");
-const { capitalize, getEmotion, getGenderPresentation } = require("./util");
+const {
+  capitalize,
+  getPoseFromPetState,
+  getEmotion,
+  getGenderPresentation,
+} = require("./util");
 
 const typeDefs = gql`
   enum LayerImageSize {
     SIZE_600
     SIZE_300
     SIZE_150
+  }
+
+  """
+  The poses a PetAppearance can take!
+  """
+  enum Pose {
+    HAPPY_MASC
+    SAD_MASC
+    SICK_MASC
+    HAPPY_FEM
+    SAD_FEM
+    SICK_FEM
+    UNCONVERTED
+    UNKNOWN # for when we have the data, but we don't know what it is
   }
 
   """
@@ -50,8 +69,9 @@ const typeDefs = gql`
     id: ID!
     petStateId: ID!
     bodyId: ID!
-    genderPresentation: GenderPresentation
-    emotion: Emotion
+    pose: Pose!
+    genderPresentation: GenderPresentation # deprecated
+    emotion: Emotion # deprecated
     approximateThumbnailUrl: String!
     layers: [AppearanceLayer!]!
   }
@@ -120,12 +140,7 @@ const typeDefs = gql`
       offset: Int
       limit: Int
     ): ItemSearchResult!
-    petAppearance(
-      speciesId: ID!
-      colorId: ID!
-      emotion: Emotion!
-      genderPresentation: GenderPresentation!
-    ): PetAppearance
+    petAppearance(speciesId: ID!, colorId: ID!, pose: Pose!): PetAppearance
     petAppearances(speciesId: ID!, colorId: ID!): [PetAppearance!]!
 
     petOnNeopetsDotCom(petName: String!): Outfit
@@ -177,15 +192,15 @@ const resolvers = {
   PetAppearance: {
     id: ({ petType, petState }) => {
       const { speciesId, colorId } = petType;
-      const emotion = getEmotion(petState.moodId);
-      const genderPresentation = getGenderPresentation(petState.female);
-      return `${speciesId}-${colorId}-${emotion}-${genderPresentation}`;
+      const pose = getPoseFromPetState(petState);
+      return `${speciesId}-${colorId}-${pose}`;
     },
     petStateId: ({ petState }) => petState.id,
     bodyId: ({ petType }) => petType.bodyId,
+    pose: ({ petState }) => getPoseFromPetState(petState),
     genderPresentation: ({ petState }) =>
-      getGenderPresentation(petState.female),
-    emotion: ({ petState }) => getEmotion(petState.moodId),
+      getGenderPresentation(getPoseFromPetState(petState)),
+    emotion: ({ petState }) => getEmotion(getPoseFromPetState(petState)),
     approximateThumbnailUrl: ({ petType, petState }) => {
       return `http://pets.neopets.com/cp/${petType.basicImageHash}/${petState.moodId}/1.png`;
     },
@@ -309,7 +324,7 @@ const resolvers = {
     },
     petAppearance: async (
       _,
-      { speciesId, colorId, emotion, genderPresentation },
+      { speciesId, colorId, pose },
       { petTypeLoader, petStateLoader }
     ) => {
       const petType = await petTypeLoader.load({
@@ -319,11 +334,7 @@ const resolvers = {
 
       const petStates = await petStateLoader.load(petType.id);
       // TODO: This could be optimized into the query condition 🤔
-      const petState = petStates.find(
-        (ps) =>
-          getEmotion(ps.moodId) === emotion &&
-          getGenderPresentation(ps.female) === genderPresentation
-      );
+      const petState = petStates.find((ps) => getPoseFromPetState(ps) === pose);
       if (!petState) {
         return null;
       }

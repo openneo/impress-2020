@@ -15,7 +15,7 @@ function useOutfitState() {
     initialState
   );
 
-  const { name, speciesId, colorId, emotion, genderPresentation } = state;
+  const { name, speciesId, colorId, pose } = state;
 
   // It's more convenient to manage these as a Set in state, but most callers
   // will find it more convenient to access them as arrays! e.g. for `.map()`
@@ -84,8 +84,7 @@ function useOutfitState() {
     allItemIds,
     speciesId,
     colorId,
-    emotion,
-    genderPresentation,
+    pose,
     url,
   };
 
@@ -159,28 +158,21 @@ const outfitStateReducer = (apolloClient) => (baseState, action) => {
         closetedItemIds.delete(itemId);
       });
     case "setPose":
-      return produce(baseState, (state) => {
-        const { emotion, genderPresentation } = action;
-        state.emotion = emotion;
-        state.genderPresentation = genderPresentation;
-      });
+      return { ...baseState, pose: action.pose };
     case "reset":
       return produce(baseState, (state) => {
         const {
           name,
           speciesId,
           colorId,
-          emotion,
-          genderPresentation,
+          pose,
           wornItemIds,
           closetedItemIds,
         } = action;
         state.name = name;
         state.speciesId = speciesId ? String(speciesId) : baseState.speciesId;
         state.colorId = colorId ? String(colorId) : baseState.colorId;
-        state.emotion = emotion || baseState.emotion;
-        state.genderPresentation =
-          genderPresentation || baseState.genderPresentation;
+        state.pose = pose || baseState.pose;
         state.wornItemIds = wornItemIds
           ? new Set(wornItemIds.map(String))
           : baseState.wornItemIds;
@@ -199,8 +191,7 @@ function parseOutfitUrl() {
     name: urlParams.get("name"),
     speciesId: urlParams.get("species"),
     colorId: urlParams.get("color"),
-    emotion: urlParams.get("emotion") || "HAPPY",
-    genderPresentation: urlParams.get("genderPresentation") || "FEMININE",
+    pose: urlParams.get("pose") || "HAPPY_FEM",
     wornItemIds: new Set(urlParams.getAll("objects[]")),
     closetedItemIds: new Set(urlParams.getAll("closet[]")),
   };
@@ -335,8 +326,7 @@ function buildOutfitUrl(state) {
     name,
     speciesId,
     colorId,
-    emotion,
-    genderPresentation,
+    pose,
     wornItemIds,
     closetedItemIds,
   } = state;
@@ -345,8 +335,7 @@ function buildOutfitUrl(state) {
     name: name || "",
     species: speciesId,
     color: colorId,
-    emotion,
-    genderPresentation,
+    pose,
   });
   for (const itemId of wornItemIds) {
     params.append("objects[]", itemId);

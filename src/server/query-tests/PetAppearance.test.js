@@ -6,12 +6,7 @@ describe("PetAppearance", () => {
     const res = await query({
       query: gql`
         query {
-          petAppearance(
-            speciesId: "54"
-            colorId: "75"
-            emotion: HAPPY
-            genderPresentation: FEMININE
-          ) {
+          petAppearance(speciesId: "54", colorId: "75", pose: HAPPY_FEM) {
             layers {
               id
               imageUrl(size: SIZE_600)
@@ -77,6 +72,7 @@ describe("PetAppearance", () => {
             id
             bodyId
             petStateId
+            pose
             genderPresentation
             emotion
             approximateThumbnailUrl

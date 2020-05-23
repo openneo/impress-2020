@@ -16,8 +16,8 @@ const cacheRedirects = {
     // way, when you switch pet poses, Apollo knows it already has the
     // appearance data and doesn't need to ask the server again!
     petAppearance: (_, args, { getCacheKey }) => {
-      const { speciesId, colorId, emotion, genderPresentation } = args;
-      const id = `${speciesId}-${colorId}-${emotion}-${genderPresentation}`;
+      const { speciesId, colorId, pose } = args;
+      const id = `${speciesId}-${colorId}-${pose}`;
       return getCacheKey({ __typename: "PetAppearance", id });
     },
   },
