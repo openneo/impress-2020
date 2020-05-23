@@ -9677,6 +9677,14 @@ Object {
     },
     Object {
       "color": Object {
+        "id": "108",
+      },
+      "species": Object {
+        "id": "18",
+      },
+    },
+    Object {
+      "color": Object {
         "id": "6",
       },
       "species": Object {
@@ -16533,6 +16541,14 @@ Object {
     },
     Object {
       "color": Object {
+        "id": "106",
+      },
+      "species": Object {
+        "id": "31",
+      },
+    },
+    Object {
+      "color": Object {
         "id": "6",
       },
       "species": Object {
@@ -17974,6 +17990,14 @@ Object {
     Object {
       "color": Object {
         "id": "108",
+      },
+      "species": Object {
+        "id": "34",
+      },
+    },
+    Object {
+      "color": Object {
+        "id": "109",
       },
       "species": Object {
         "id": "34",

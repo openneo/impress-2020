@@ -26,4 +26,31 @@ function getGenderPresentation(modelPetWasFemale) {
   }
 }
 
-module.exports = { capitalize, getEmotion, getGenderPresentation };
+function getPose(moodId, modelPetWasFemale, isUnconverted) {
+  if (isUnconverted) {
+    return "UNCONVERTED";
+  } else if (moodId == null || modelPetWasFemale == null) {
+    return "UNKNOWN";
+  } else if (String(moodId) === "1" && String(modelPetWasFemale) === "0") {
+    return "HAPPY_MASC";
+  } else if (String(moodId) === "1" && String(modelPetWasFemale) === "1") {
+    return "HAPPY_FEM";
+  } else if (String(moodId) === "2" && String(modelPetWasFemale) === "0") {
+    return "SAD_MASC";
+  } else if (String(moodId) === "2" && String(modelPetWasFemale) === "1") {
+    return "SAD_FEM";
+  } else if (String(moodId) === "4" && String(modelPetWasFemale) === "0") {
+    return "SICK_MASC";
+  } else if (String(moodId) === "4" && String(modelPetWasFemale) === "1") {
+    return "SICK_FEM";
+  } else {
+    throw new Error(
+      `could not identify pose: ` +
+        `moodId=${moodId}, ` +
+        `modelPetWasFemale=${modelPetWasFemale}, ` +
+        `isUnconverted=${isUnconverted}`
+    );
+  }
+}
+
+module.exports = { capitalize, getEmotion, getGenderPresentation, getPose };

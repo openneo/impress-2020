@@ -1,6 +1,6 @@
 import connectToDb from "./db";
 
-import { getEmotion, getGenderPresentation } from "./util";
+import { getPose } from "./util";
 
 export default async function getValidPetPoses() {
   const db = await connectToDb();
@@ -17,15 +17,14 @@ export default async function getValidPetPoses() {
 
   const poseStrs = new Set();
   for (const poseTuple of poseTuples) {
-    const { species_id, color_id, mood_id, female } = poseTuple;
-    const emotion = getEmotion(mood_id);
-    const genderPresentation = getGenderPresentation(female);
-    const poseStr = `${species_id}-${color_id}-${emotion}-${genderPresentation}`;
+    const { species_id, color_id, mood_id, female, unconverted } = poseTuple;
+    const pose = getPose(mood_id, female, unconverted);
+    const poseStr = `${species_id}-${color_id}-${pose}`;
     poseStrs.add(poseStr);
   }
 
-  function hasPose(speciesId, colorId, emotion, genderPresentation) {
-    const poseStr = `${speciesId}-${colorId}-${emotion}-${genderPresentation}`;
+  function hasPose(speciesId, colorId, pose) {
+    const poseStr = `${speciesId}-${colorId}-${pose}`;
     return poseStrs.has(poseStr);
   }
 
@@ -43,17 +42,21 @@ export default async function getValidPetPoses() {
       // them first, so that they fill in the currently-empty high bits and
       // everything else stays in the same position as before!
       let byte = 0;
-      byte += hasPose(speciesId, colorId, "SICK", "FEMININE") ? 1 : 0;
+      byte += hasPose(speciesId, colorId, "UNKNOWN") ? 1 : 0;
       byte <<= 1;
-      byte += hasPose(speciesId, colorId, "SAD", "FEMININE") ? 1 : 0;
+      byte += hasPose(speciesId, colorId, "UNCONVERTED") ? 1 : 0;
       byte <<= 1;
-      byte += hasPose(speciesId, colorId, "HAPPY", "FEMININE") ? 1 : 0;
+      byte += hasPose(speciesId, colorId, "SICK_FEM") ? 1 : 0;
       byte <<= 1;
-      byte += hasPose(speciesId, colorId, "SICK", "MASCULINE") ? 1 : 0;
+      byte += hasPose(speciesId, colorId, "SAD_FEM") ? 1 : 0;
       byte <<= 1;
-      byte += hasPose(speciesId, colorId, "SAD", "MASCULINE") ? 1 : 0;
+      byte += hasPose(speciesId, colorId, "HAPPY_FEM") ? 1 : 0;
       byte <<= 1;
-      byte += hasPose(speciesId, colorId, "HAPPY", "MASCULINE") ? 1 : 0;
+      byte += hasPose(speciesId, colorId, "SICK_MASC") ? 1 : 0;
+      byte <<= 1;
+      byte += hasPose(speciesId, colorId, "SAD_MASC") ? 1 : 0;
+      byte <<= 1;
+      byte += hasPose(speciesId, colorId, "HAPPY_MASC") ? 1 : 0;
 
       buffer.writeUInt8(byte, speciesIndex * numColors + colorIndex + 2);
     }
@@ -76,8 +79,9 @@ async function getNumColors(db) {
 
 async function getPoseTuples(db) {
   const [rows, _] = await db.query(`
-    SELECT DISTINCT species_id, color_id, mood_id, female FROM pet_states
+    SELECT DISTINCT species_id, color_id, mood_id, female, unconverted
+        FROM pet_states
     INNER JOIN pet_types ON pet_types.id = pet_states.pet_type_id
-    WHERE mood_id IS NOT NULL AND female IS NOT NULL AND color_id >= 1`);
+    WHERE glitched IS false AND color_id >= 1`);
   return rows;
 }
