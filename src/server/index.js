@@ -218,38 +218,30 @@ const resolvers = {
         `/${rid1}/${rid2}/${rid3}/${rid}/${sizeNum}x${sizeNum}.png?v2-${time}`
       );
     },
-    svgUrl: async (layer) => {
+    svgUrl: async (layer, _, { svgLogger }) => {
       const manifest = await neopets.loadAssetManifest(layer.url);
       if (!manifest) {
-        console.debug("expected manifest to exist, but it did not");
+        svgLogger.log("no-manifest");
         return null;
       }
 
       if (manifest.assets.length !== 1) {
-        console.debug(
-          "expected 1 asset in manifest, but found %d",
-          manifest.assets.length
-        );
+        svgLogger.log(`wrong-asset-count:${manifest.assets.length}!=1`);
         return null;
       }
 
       const asset = manifest.assets[0];
       if (asset.format !== "vector") {
-        console.debug(
-          'expected asset format "vector", but found %s',
-          asset.format
-        );
+        svgLogger.log(`wrong-asset-format:${asset.format}`);
         return null;
       }
 
       if (asset.assetData.length !== 1) {
-        console.debug(
-          "expected 1 datum in asset, but found %d",
-          asset.assetData.length
-        );
+        svgLogger.log(`wrong-assetData-length:${asset.assetData.length}!=1`);
         return null;
       }
 
+      svgLogger.log("success");
       const assetDatum = asset.assetData[0];
       const url = new URL(assetDatum.path, "http://images.neopets.com");
       return url.toString();
@@ -364,15 +356,55 @@ const resolvers = {
   },
 };
 
+let lastSvgLogger = null;
+const svgLogging = {
+  requestDidStart() {
+    return {
+      willSendResponse({ operationName }) {
+        const logEntries = lastSvgLogger.entries;
+        if (logEntries.length === 0) {
+          return;
+        }
+
+        console.log(`[svgLogger] Operation: ${operationName}`);
+
+        const logEntryCounts = {};
+        for (const logEntry of logEntries) {
+          logEntryCounts[logEntry] = (logEntryCounts[logEntry] || 0) + 1;
+        }
+
+        const logEntriesSortedByCount = Object.entries(logEntryCounts).sort(
+          (a, b) => b[1] - a[1]
+        );
+        for (const [logEntry, count] of logEntriesSortedByCount) {
+          console.log(`[svgLogger] - ${logEntry}: ${count}`);
+        }
+      },
+    };
+  },
+};
+
 const config = {
   typeDefs,
   resolvers,
   context: async () => {
     const db = await connectToDb();
+
+    const svgLogger = {
+      entries: [],
+      log(entry) {
+        this.entries.push(entry);
+      },
+    };
+    lastSvgLogger = svgLogger;
+
     return {
+      svgLogger,
       ...buildLoaders(db),
     };
   },
+
+  plugins: [svgLogging],
 
   // Enable Playground in production :)
   introspection: true,
