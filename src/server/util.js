@@ -57,6 +57,31 @@ function getPoseFromPetState(petState) {
   }
 }
 
+function getPoseFromPetData(petMetaData, petCustomData) {
+  // TODO: Use custom data to decide if Unconverted.
+  const moodId = petMetaData.mood;
+  const genderId = petMetaData.gender;
+  if (String(moodId) === "1" && String(genderId) === "1") {
+    return "HAPPY_MASC";
+  } else if (String(moodId) === "1" && String(genderId) === "2") {
+    return "HAPPY_FEM";
+  } else if (String(moodId) === "2" && String(genderId) === "1") {
+    return "SAD_MASC";
+  } else if (String(moodId) === "2" && String(genderId) === "2") {
+    return "SAD_FEM";
+  } else if (String(moodId) === "4" && String(genderId) === "1") {
+    return "SICK_MASC";
+  } else if (String(moodId) === "4" && String(genderId) === "2") {
+    return "SICK_FEM";
+  } else {
+    throw new Error(
+      `could not identify pose: ` +
+        `moodId=${moodId}, ` +
+        `genderId=${genderId}`
+    );
+  }
+}
+
 function normalizeRow(row) {
   const normalizedRow = {};
   for (let [key, value] of Object.entries(row)) {
@@ -74,5 +99,6 @@ module.exports = {
   getEmotion,
   getGenderPresentation,
   getPoseFromPetState,
+  getPoseFromPetData,
   normalizeRow,
 };

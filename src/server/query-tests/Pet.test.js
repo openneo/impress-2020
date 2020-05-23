@@ -13,6 +13,7 @@ describe("Pet", () => {
             color {
               id
             }
+            pose
             items {
               id
             }

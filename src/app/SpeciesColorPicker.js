@@ -103,7 +103,6 @@ function SpeciesColorPicker({
     const validPoses = getValidPoses(valids, speciesId, newColorId);
     const isValid = validPoses.size > 0;
     const closestPose = getClosestPose(validPoses, idealPose);
-    console.log(idealPose, closestPose, validPoses);
     onChange(species, newColor, isValid, closestPose);
   };
 
@@ -117,7 +116,6 @@ function SpeciesColorPicker({
     const validPoses = getValidPoses(valids, newSpeciesId, colorId);
     const isValid = validPoses.size > 0;
     const closestPose = getClosestPose(validPoses, idealPose);
-    console.log(idealPose, closestPose, validPoses);
     onChange(newSpecies, color, isValid, closestPose);
   };
 
@@ -181,7 +179,6 @@ function pairIsValid(valids, speciesId, colorId) {
 
 function getValidPoses(valids, speciesId, colorId) {
   const pairByte = getPairByte(valids, speciesId, colorId);
-  console.log("pair byte", pairByte.toString(2).padStart(8, "0"));
 
   const validPoses = new Set();
   if (pairByte & 0b00000001) validPoses.add("HAPPY_MASC");

@@ -1,13 +1,28 @@
 const fetch = require("node-fetch");
 
-async function loadPetData(petName) {
+async function loadPetMetaData(petName) {
+  const url =
+    `http://www.neopets.com/amfphp/json.php/PetService.getPet` + `/${petName}`;
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(
+      `for pet meta data, neopets.com returned: ` +
+        `${res.status} ${res.statusText}. (${url})`
+    );
+  }
+
+  const json = await res.json();
+  return json;
+}
+
+async function loadCustomPetData(petName) {
   const url =
     `http://www.neopets.com/amfphp/json.php/CustomPetService.getViewerData` +
     `/${petName}`;
   const res = await fetch(url);
   if (!res.ok) {
     throw new Error(
-      `for pet data, neopets.com returned: ` +
+      `for custom pet data, neopets.com returned: ` +
         `${res.status} ${res.statusText}. (${url})`
     );
   }
@@ -56,4 +71,4 @@ function convertSwfUrlToManifestUrl(swfUrl) {
   return `http://images.neopets.com/cp/${type}/data/${folders}/manifest.json`;
 }
 
-module.exports = { loadPetData, loadAssetManifest };
+module.exports = { loadPetMetaData, loadCustomPetData, loadAssetManifest };

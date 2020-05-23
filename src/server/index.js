@@ -6,6 +6,7 @@ const neopets = require("./neopets");
 const {
   capitalize,
   getPoseFromPetState,
+  getPoseFromPetData,
   getEmotion,
   getGenderPresentation,
 } = require("./util");
@@ -124,6 +125,7 @@ const typeDefs = gql`
   type Outfit {
     species: Species!
     color: Color!
+    pose: Pose!
     items: [Item!]!
   }
 
@@ -354,11 +356,15 @@ const resolvers = {
       return petStates.map((petState) => ({ petType, petState }));
     },
     petOnNeopetsDotCom: async (_, { petName }) => {
-      const petData = await neopets.loadPetData(petName);
+      const [petMetaData, customPetData] = await Promise.all([
+        neopets.loadPetMetaData(petName),
+        neopets.loadCustomPetData(petName),
+      ]);
       const outfit = {
-        species: { id: petData.custom_pet.species_id },
-        color: { id: petData.custom_pet.color_id },
-        items: Object.values(petData.object_info_registry).map((o) => ({
+        species: { id: customPetData.custom_pet.species_id },
+        color: { id: customPetData.custom_pet.color_id },
+        pose: getPoseFromPetData(petMetaData, customPetData),
+        items: Object.values(customPetData.object_info_registry).map((o) => ({
           id: o.obj_info_id,
         })),
       };

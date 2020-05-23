@@ -121,6 +121,7 @@ function SubmitPetForm() {
           species {
             id
           }
+          pose
           items {
             id
           }
@@ -132,12 +133,12 @@ function SubmitPetForm() {
       onCompleted: (data) => {
         if (!data) return;
 
-        const { species, color, items } = data.petOnNeopetsDotCom;
+        const { species, color, pose, items } = data.petOnNeopetsDotCom;
         const params = new URLSearchParams({
           name: petName,
           species: species.id,
           color: color.id,
-          pose: "HAPPY_FEM", // TODO: Ask PetService
+          pose,
         });
         for (const item of items) {
           params.append("objects[]", item.id);

@@ -32,6 +32,7 @@ Object {
         "id": "48313",
       },
     ],
+    "pose": "SAD_MASC",
     "species": Object {
       "id": "54",
     },
