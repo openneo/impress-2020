@@ -171,14 +171,18 @@ const resolvers = {
         speciesId: speciesId,
         colorId: colorId,
       });
-      const swfAssets = await itemSwfAssetLoader.load({
+      const allSwfAssets = await itemSwfAssetLoader.load({
         itemId: item.id,
         bodyId: petType.bodyId,
       });
-
-      if (swfAssets.length === 0) {
+      if (allSwfAssets.length === 0) {
+        // If there's no assets at all, treat it as non-fitting: no appearance.
+        // (If there are assets but they're non-SWF, we'll treat this as
+        // fitting, but with an *empty* appearance.)
         return null;
       }
+
+      const swfAssets = allSwfAssets.filter((sa) => sa.url.endsWith(".swf"));
 
       const restrictedZones = [];
       for (const [i, bit] of Array.from(item.zonesRestrict).entries()) {

@@ -9,6 +9,7 @@ Object {
           Object {
             "id": "37128",
             "imageUrl": "https://impress-asset-images.s3.amazonaws.com/object/000/000/014/14856/600x600.png?v2-1587653266000",
+            "svgUrl": null,
             "zone": Object {
               "depth": 30,
               "id": "26",
@@ -34,6 +35,7 @@ Object {
           Object {
             "id": "37129",
             "imageUrl": "https://impress-asset-images.s3.amazonaws.com/object/000/000/014/14857/600x600.png?v2-0",
+            "svgUrl": null,
             "zone": Object {
               "depth": 44,
               "id": "40",
@@ -59,6 +61,7 @@ Object {
           Object {
             "id": "30203",
             "imageUrl": "https://impress-asset-images.s3.amazonaws.com/object/000/000/006/6829/600x600.png?v2-0",
+            "svgUrl": null,
             "zone": Object {
               "depth": 3,
               "id": "3",
@@ -95,6 +98,21 @@ Object {
       "id": "38912",
       "name": "Zafara Agent Robe",
       "thumbnailUrl": "http://images.neopets.com/items/clo_zafara_agent_robe.gif",
+    },
+  ],
+}
+`;
+
+exports[`Item skips appearance data for audio assets 1`] = `
+Object {
+  "items": Array [
+    Object {
+      "appearanceOn": Object {
+        "layers": Array [],
+        "restrictedZones": Array [],
+      },
+      "id": "42829",
+      "name": "Time Tunnel Music Track",
     },
   ],
 }
