@@ -256,7 +256,8 @@ const buildZoneLoader = (db) =>
 
     return ids.map(
       (id) =>
-        entitiesById.get(id) || new Error(`could not find zone with ID: ${id}`)
+        entitiesById.get(String(id)) ||
+        new Error(`could not find zone with ID: ${id}`)
     );
   });
 
@@ -273,7 +274,7 @@ const buildZoneTranslationLoader = (db) =>
 
     return zoneIds.map(
       (zoneId) =>
-        entitiesByZoneId.get(zoneId) ||
+        entitiesByZoneId.get(String(zoneId)) ||
         new Error(`could not find translation for zone ${zoneId}`)
     );
   });

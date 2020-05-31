@@ -272,8 +272,15 @@ const resolvers = {
     },
   },
   Zone: {
-    label: async (zone, _, { zoneTranslationLoader }) => {
-      const zoneTranslation = await zoneTranslationLoader.load(zone.id);
+    depth: async ({ id }, _, { zoneLoader }) => {
+      // TODO: Should we extend this loader-in-field pattern elsewhere? I like
+      //       that we avoid the fetch in cases where we only want the zone ID,
+      //       but it adds complexity 🤔
+      const zone = await zoneLoader.load(id);
+      return zone.depth;
+    },
+    label: async ({ id }, _, { zoneTranslationLoader }) => {
+      const zoneTranslation = await zoneTranslationLoader.load(id);
       return zoneTranslation.label;
     },
   },
