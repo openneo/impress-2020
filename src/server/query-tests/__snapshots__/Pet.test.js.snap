@@ -5,6 +5,7 @@ Object {
   "petOnNeopetsDotCom": Object {
     "color": Object {
       "id": "75",
+      "name": "Starry",
     },
     "items": Array [
       Object {
@@ -35,6 +36,7 @@ Object {
     "pose": "SAD_MASC",
     "species": Object {
       "id": "54",
+      "name": "Zafara",
     },
   },
 }

@@ -21,7 +21,7 @@ const buildColorTranslationLoader = (db) =>
 
     return colorIds.map(
       (colorId) =>
-        entitiesByColorId.get(colorId) ||
+        entitiesByColorId.get(String(colorId)) ||
         new Error(`could not find translation for species ${colorId}`)
     );
   });
@@ -46,7 +46,7 @@ const buildSpeciesTranslationLoader = (db) =>
 
     return speciesIds.map(
       (speciesId) =>
-        entitiesBySpeciesId.get(speciesId) ||
+        entitiesBySpeciesId.get(String(speciesId)) ||
         new Error(`could not find translation for species ${speciesId}`)
     );
   });
