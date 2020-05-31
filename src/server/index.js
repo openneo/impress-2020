@@ -63,6 +63,8 @@ const typeDefs = gql`
     name: String!
     description: String!
     thumbnailUrl: String!
+    rarityIndex: Int!
+    isNc: Boolean!
     appearanceOn(speciesId: ID!, colorId: ID!): ItemAppearance
   }
 
@@ -73,7 +75,7 @@ const typeDefs = gql`
     pose: Pose!
     genderPresentation: GenderPresentation # deprecated
     emotion: Emotion # deprecated
-    approximateThumbnailUrl: String!
+    approximateThumbnailUrl: String! # deprecated
     layers: [AppearanceLayer!]!
   }
 
@@ -162,6 +164,7 @@ const resolvers = {
       const translation = await itemTranslationLoader.load(item.id);
       return translation.description;
     },
+    isNc: (item) => item.rarityIndex === 500 || item.rarityIndex === 0,
     appearanceOn: async (
       item,
       { speciesId, colorId },
