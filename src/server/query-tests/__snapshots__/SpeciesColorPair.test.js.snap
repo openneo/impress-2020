@@ -13373,6 +13373,14 @@ Object {
     },
     Object {
       "color": Object {
+        "id": "107",
+      },
+      "species": Object {
+        "id": "25",
+      },
+    },
+    Object {
+      "color": Object {
         "id": "110",
       },
       "species": Object {
