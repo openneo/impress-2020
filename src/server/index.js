@@ -310,7 +310,7 @@ const resolvers = {
       return items;
     },
     itemSearch: async (_, { query }, { itemSearchLoader }) => {
-      const items = await itemSearchLoader.load(query);
+      const items = await itemSearchLoader.load(query.trim());
       return { query, items };
     },
     itemSearchToFit: async (
@@ -321,7 +321,7 @@ const resolvers = {
       const petType = await petTypeLoader.load({ speciesId, colorId });
       const { bodyId } = petType;
       const items = await itemSearchToFitLoader.load({
-        query,
+        query: query.trim(),
         bodyId,
         offset,
         limit,
