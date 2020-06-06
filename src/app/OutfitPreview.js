@@ -32,14 +32,6 @@ function OutfitPreview({ outfitState }) {
     );
   }
 
-  console.log(
-    "Loading?",
-    loading1 || loading2,
-    loading1,
-    loading2,
-    visibleLayers
-  );
-
   return (
     <OutfitLayers
       loading={loading1 || loading2}
@@ -182,7 +174,6 @@ function usePreloadLayers(layers) {
   const [loadedLayers, setLoadedLayers] = React.useState([]);
 
   React.useEffect(() => {
-    console.log("layers changed!", layers);
     let canceled = false;
     setError(null);
 
@@ -201,7 +192,6 @@ function usePreloadLayers(layers) {
 
       if (canceled) return;
       setLoadedLayers(layers);
-      console.log("Loaded layers", layers);
     };
 
     loadImages();
