@@ -2,18 +2,25 @@ import React from "react";
 import { css, cx } from "emotion";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 
-import { Box, Flex, Icon, Image, Spinner, Text } from "@chakra-ui/core";
+import { Box, Flex, Icon, Spinner, Text } from "@chakra-ui/core";
 
-import { Delay } from "./util";
 import useOutfitAppearance from "./useOutfitAppearance";
 
 /**
  * OutfitPreview renders the actual image layers for the outfit we're viewing!
  */
 function OutfitPreview({ outfitState }) {
-  const { loading, error, visibleLayers } = useOutfitAppearance(outfitState);
+  const {
+    loading: loading1,
+    error: error1,
+    visibleLayers,
+  } = useOutfitAppearance(outfitState);
 
-  if (error) {
+  const { loading: loading2, error: error2, loadedLayers } = usePreloadLayers(
+    visibleLayers
+  );
+
+  if (error1 || error2) {
     return (
       <FullScreenCenter>
         <Text color="gray.50" d="flex" alignItems="center">
@@ -25,10 +32,18 @@ function OutfitPreview({ outfitState }) {
     );
   }
 
+  console.log(
+    "Loading?",
+    loading1 || loading2,
+    loading1,
+    loading2,
+    visibleLayers
+  );
+
   return (
     <OutfitLayers
-      loading={loading}
-      visibleLayers={visibleLayers}
+      loading={loading1 || loading2}
+      visibleLayers={loadedLayers}
       doAnimations
     />
   );
@@ -39,10 +54,6 @@ function OutfitPreview({ outfitState }) {
  * used both in the main outfit preview, and in other minor UIs!
  */
 export function OutfitLayers({ loading, visibleLayers, doAnimations = false }) {
-  // If we're fading in, we should use Image, to detect the load success. But
-  // if not, just use a plain img, so that we load instantly without a flicker!
-  const ImageTag = doAnimations ? Image : "img";
-
   return (
     <Box pos="relative" height="100%" width="100%">
       <TransitionGroup enter={false} exit={doAnimations}>
@@ -64,7 +75,7 @@ export function OutfitLayers({ loading, visibleLayers, doAnimations = false }) {
             timeout={200}
           >
             <FullScreenCenter>
-              <ImageTag
+              <img
                 src={getBestImageUrlForLayer(layer)}
                 alt=""
                 // We manage the fade-in and fade-out separately! The fade-in
@@ -76,13 +87,17 @@ export function OutfitLayers({ loading, visibleLayers, doAnimations = false }) {
                     max-width: 100%;
                     max-height: 100%;
 
-                    transition: opacity 0.2s;
                     &.do-animations {
-                      opacity: 0.01;
+                      animation: fade-in 0.2s;
                     }
 
-                    &.do-animations[src] {
-                      opacity: 1;
+                    @keyframes fade-in {
+                      from {
+                        opacity: 0;
+                      }
+                      to {
+                        opacity: 1;
+                      }
                     }
                   `,
                   doAnimations && "do-animations"
@@ -98,21 +113,24 @@ export function OutfitLayers({ loading, visibleLayers, doAnimations = false }) {
           </CSSTransition>
         ))}
       </TransitionGroup>
-      {loading && (
-        <Delay ms={0}>
-          <FullScreenCenter>
-            <Box
-              width="100%"
-              height="100%"
-              backgroundColor="gray.900"
-              opacity="0.8"
-            />
-          </FullScreenCenter>
-          <FullScreenCenter>
-            <Spinner color="green.400" size="xl" />
-          </FullScreenCenter>
-        </Delay>
-      )}
+      <Box
+        // This is similar to our Delay util component, but Delay disappears
+        // immediately on load, whereas we want this to fade out smoothly.
+        opacity={loading ? 1 : 0}
+        transition={`opacity 0.2s ${loading ? "0.5s" : "0s"}`}
+      >
+        <FullScreenCenter>
+          <Box
+            width="100%"
+            height="100%"
+            backgroundColor="gray.900"
+            opacity="0.8"
+          />
+        </FullScreenCenter>
+        <FullScreenCenter>
+          <Spinner color="green.400" size="xl" />
+        </FullScreenCenter>
+      </Box>
     </Box>
   );
 }
@@ -139,6 +157,65 @@ function getBestImageUrlForLayer(layer) {
   } else {
     return layer.imageUrl;
   }
+}
+
+function loadImage(url) {
+  const image = new Image();
+  const promise = new Promise((resolve, reject) => {
+    image.onload = () => resolve();
+    image.onerror = () => reject();
+    image.src = url;
+  });
+  promise.cancel = () => {
+    image.src = "";
+  };
+  return promise;
+}
+
+/**
+ * usePreloadLayers preloads the images for the given layers, and yields them
+ * when done. This enables us to keep the old outfit preview on screen until
+ * all the new layers are ready, then show them all at once!
+ */
+function usePreloadLayers(layers) {
+  const [error, setError] = React.useState(null);
+  const [loadedLayers, setLoadedLayers] = React.useState([]);
+
+  React.useEffect(() => {
+    console.log("layers changed!", layers);
+    let canceled = false;
+    setError(null);
+
+    const loadImages = async () => {
+      const imagePromises = layers.map(getBestImageUrlForLayer).map(loadImage);
+      try {
+        // TODO: Load in one at a time, under a loading spinner & delay?
+        await Promise.all(imagePromises);
+      } catch (e) {
+        if (canceled) return;
+        console.error("Error preloading outfit layers", e);
+        imagePromises.forEach((p) => p.cancel());
+        setError(e);
+        return;
+      }
+
+      if (canceled) return;
+      setLoadedLayers(layers);
+      console.log("Loaded layers", layers);
+    };
+
+    loadImages();
+
+    return () => {
+      canceled = true;
+    };
+  }, [layers]);
+
+  // NOTE: This condition would need to change if we started loading one at a
+  // time, or if the error case would need to show a partial state!
+  const loading = loadedLayers !== layers;
+
+  return { loading, error, loadedLayers };
 }
 
 export default OutfitPreview;

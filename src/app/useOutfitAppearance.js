@@ -1,3 +1,4 @@
+import React from "react";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
 
@@ -40,8 +41,14 @@ export default function useOutfitAppearance(outfitState) {
     }
   );
 
-  const itemAppearances = (data?.items || []).map((i) => i.appearanceOn);
-  const visibleLayers = getVisibleLayers(data?.petAppearance, itemAppearances);
+  const itemAppearances = React.useMemo(
+    () => (data?.items || []).map((i) => i.appearanceOn),
+    [data]
+  );
+  const visibleLayers = React.useMemo(
+    () => getVisibleLayers(data?.petAppearance, itemAppearances),
+    [data, itemAppearances]
+  );
 
   return { loading, error, visibleLayers };
 }
