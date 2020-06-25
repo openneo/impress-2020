@@ -351,7 +351,6 @@ function usePoses(outfitState) {
           petStateId
           bodyId
           pose
-          approximateThumbnailUrl
           ...PetAppearanceForOutfitPreview
         }
       }
