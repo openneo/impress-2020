@@ -70,13 +70,13 @@ const typeDefs = gql`
 
   type PetAppearance {
     id: ID!
-    petStateId: ID!
-    bodyId: ID!
+    species: Species!
+    color: Color!
     pose: Pose!
-    genderPresentation: GenderPresentation # deprecated
-    emotion: Emotion # deprecated
-    approximateThumbnailUrl: String! # deprecated
+    bodyId: ID!
+
     layers: [AppearanceLayer!]!
+    petStateId: ID! # Convenience field for developers
   }
 
   type ItemAppearance {
@@ -125,10 +125,16 @@ const typeDefs = gql`
   }
 
   type Outfit {
-    species: Species!
-    color: Color!
-    pose: Pose!
-    items: [Item!]!
+    id: ID!
+    name: String!
+    petAppearance: PetAppearance!
+    wornItems: [Item!]!
+    closetedItems: [Item!]!
+
+    species: Species! # to be deprecated? can use petAppearance? 🤔
+    color: Color! # to be deprecated? can use petAppearance? 🤔
+    pose: Pose! # to be deprecated? can use petAppearance? 🤔
+    items: [Item!]! # deprecated alias for wornItems
   }
 
   type Query {
@@ -146,6 +152,8 @@ const typeDefs = gql`
     ): ItemSearchResult!
     petAppearance(speciesId: ID!, colorId: ID!, pose: Pose!): PetAppearance
     petAppearances(speciesId: ID!, colorId: ID!): [PetAppearance!]!
+
+    outfit(id: ID!): Outfit
 
     petOnNeopetsDotCom(petName: String!): Outfit
   }
@@ -168,9 +176,9 @@ const resolvers = {
     appearanceOn: async (
       item,
       { speciesId, colorId },
-      { petTypeLoader, itemSwfAssetLoader }
+      { petTypeBySpeciesAndColorLoader, itemSwfAssetLoader }
     ) => {
-      const petType = await petTypeLoader.load({
+      const petType = await petTypeBySpeciesAndColorLoader.load({
         speciesId: speciesId,
         colorId: colorId,
       });
@@ -199,22 +207,33 @@ const resolvers = {
     },
   },
   PetAppearance: {
-    id: ({ petType, petState }) => {
-      const { speciesId, colorId } = petType;
+    id: async ({ petStateId }, _, { petStateLoader, petTypeLoader }) => {
+      const petState = await petStateLoader.load(petStateId);
+      const petType = await petTypeLoader.load(petState.petTypeId);
       const pose = getPoseFromPetState(petState);
-      return `${speciesId}-${colorId}-${pose}`;
+      return `${petType.speciesId}-${petType.colorId}-${pose}`;
     },
-    petStateId: ({ petState }) => petState.id,
-    bodyId: ({ petType }) => petType.bodyId,
-    pose: ({ petState }) => getPoseFromPetState(petState),
-    genderPresentation: ({ petState }) =>
-      getGenderPresentation(getPoseFromPetState(petState)),
-    emotion: ({ petState }) => getEmotion(getPoseFromPetState(petState)),
-    approximateThumbnailUrl: ({ petType, petState }) => {
-      return `http://pets.neopets.com/cp/${petType.basicImageHash}/${petState.moodId}/1.png`;
+    color: async ({ petStateId }, _, { petStateLoader, petTypeLoader }) => {
+      const petState = await petStateLoader.load(petStateId);
+      const petType = await petTypeLoader.load(petState.petTypeId);
+      return { id: petType.colorId };
     },
-    layers: async ({ petState }, _, { petSwfAssetLoader }) => {
-      const swfAssets = await petSwfAssetLoader.load(petState.id);
+    species: async ({ petStateId }, _, { petStateLoader, petTypeLoader }) => {
+      const petState = await petStateLoader.load(petStateId);
+      const petType = await petTypeLoader.load(petState.petTypeId);
+      return { id: petType.speciesId };
+    },
+    bodyId: async ({ petStateId }, _, { petStateLoader, petTypeLoader }) => {
+      const petState = await petStateLoader.load(petStateId);
+      const petType = await petTypeLoader.load(petState.petTypeId);
+      return petType.bodyId;
+    },
+    pose: async ({ petStateId }, _, { petStateLoader }) => {
+      const petState = await petStateLoader.load(petStateId);
+      return getPoseFromPetState(petState);
+    },
+    layers: async ({ petStateId }, _, { petSwfAssetLoader }) => {
+      const swfAssets = await petSwfAssetLoader.load(petStateId);
       return swfAssets;
     },
   },
@@ -285,17 +304,37 @@ const resolvers = {
     },
   },
   Color: {
-    name: async (color, _, { colorTranslationLoader }) => {
-      const colorTranslation = await colorTranslationLoader.load(color.id);
+    name: async ({ id }, _, { colorTranslationLoader }) => {
+      const colorTranslation = await colorTranslationLoader.load(id);
       return capitalize(colorTranslation.name);
     },
   },
   Species: {
-    name: async (species, _, { speciesTranslationLoader }) => {
-      const speciesTranslation = await speciesTranslationLoader.load(
-        species.id
-      );
+    name: async ({ id }, _, { speciesTranslationLoader }) => {
+      const speciesTranslation = await speciesTranslationLoader.load(id);
       return capitalize(speciesTranslation.name);
+    },
+  },
+  Outfit: {
+    name: async ({ id }, _, { outfitLoader }) => {
+      const outfit = await outfitLoader.load(id);
+      return outfit.name;
+    },
+    petAppearance: async ({ id }, _, { outfitLoader }) => {
+      const outfit = await outfitLoader.load(id);
+      return { petStateId: outfit.petStateId };
+    },
+    wornItems: async ({ id }, _, { itemOutfitRelationshipsLoader }) => {
+      const relationships = await itemOutfitRelationshipsLoader.load(id);
+      return relationships
+        .filter((oir) => oir.isWorn)
+        .map((oir) => ({ id: oir.itemId }));
+    },
+    closetedItems: async ({ id }, _, { itemOutfitRelationshipsLoader }) => {
+      const relationships = await itemOutfitRelationshipsLoader.load(id);
+      return relationships
+        .filter((oir) => !oir.isWorn)
+        .map((oir) => ({ id: oir.itemId }));
     },
   },
   Query: {
@@ -326,9 +365,12 @@ const resolvers = {
     itemSearchToFit: async (
       _,
       { query, speciesId, colorId, offset, limit },
-      { petTypeLoader, itemSearchToFitLoader }
+      { petTypeBySpeciesAndColorLoader, itemSearchToFitLoader }
     ) => {
-      const petType = await petTypeLoader.load({ speciesId, colorId });
+      const petType = await petTypeBySpeciesAndColorLoader.load({
+        speciesId,
+        colorId,
+      });
       const { bodyId } = petType;
       const items = await itemSearchToFitLoader.load({
         query: query.trim(),
@@ -341,40 +383,44 @@ const resolvers = {
     petAppearance: async (
       _,
       { speciesId, colorId, pose },
-      { petTypeLoader, petStateLoader }
+      { petTypeBySpeciesAndColorLoader, petStatesForPetTypeLoader }
     ) => {
-      const petType = await petTypeLoader.load({
+      const petType = await petTypeBySpeciesAndColorLoader.load({
         speciesId,
         colorId,
       });
 
-      const petStates = await petStateLoader.load(petType.id);
+      const petStates = await petStatesForPetTypeLoader.load(petType.id);
       // TODO: This could be optimized into the query condition 🤔
       const petState = petStates.find((ps) => getPoseFromPetState(ps) === pose);
       if (!petState) {
         return null;
       }
 
-      return { petType, petState };
+      return { petStateId: petState.id };
     },
     petAppearances: async (
       _,
       { speciesId, colorId },
-      { petTypeLoader, petStateLoader }
+      { petTypeBySpeciesAndColorLoader, petStatesForPetTypeLoader }
     ) => {
-      const petType = await petTypeLoader.load({
+      const petType = await petTypeBySpeciesAndColorLoader.load({
         speciesId,
         colorId,
       });
-      const petStates = await petStateLoader.load(petType.id);
-      return petStates.map((petState) => ({ petType, petState }));
+      const petStates = await petStatesForPetTypeLoader.load(petType.id);
+      return petStates.map((petState) => ({ petStateId: petState.id }));
     },
+    outfit: (_, { id }) => ({ id }),
     petOnNeopetsDotCom: async (_, { petName }) => {
       const [petMetaData, customPetData] = await Promise.all([
         neopets.loadPetMetaData(petName),
         neopets.loadCustomPetData(petName),
       ]);
       const outfit = {
+        // TODO: This isn't a fully-working Outfit object. It works for the
+        //       client as currently implemented, but we'll probably want to
+        //       move the client and this onto our more generic fields!
         species: { id: customPetData.custom_pet.species_id },
         color: { id: customPetData.custom_pet.color_id },
         pose: getPoseFromPetData(petMetaData, customPetData),

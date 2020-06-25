@@ -7,6 +7,18 @@ describe("PetAppearance", () => {
       query: gql`
         query {
           petAppearance(speciesId: "54", colorId: "75", pose: HAPPY_FEM) {
+            id
+
+            species {
+              id
+              name
+            }
+
+            color {
+              id
+              name
+            }
+
             layers {
               id
               imageUrl(size: SIZE_600)
@@ -50,6 +62,20 @@ describe("PetAppearance", () => {
           ],
         ],
         Array [
+          "SELECT * FROM species_translations
+             WHERE species_id IN (?) AND locale = \\"en\\"",
+          Array [
+            "54",
+          ],
+        ],
+        Array [
+          "SELECT * FROM color_translations
+             WHERE color_id IN (?) AND locale = \\"en\\"",
+          Array [
+            "75",
+          ],
+        ],
+        Array [
           "SELECT * FROM zones WHERE id IN (?,?,?,?,?,?)",
           Array [
             "15",
@@ -70,12 +96,20 @@ describe("PetAppearance", () => {
         query {
           petAppearances(speciesId: "54", colorId: "75") {
             id
+
+            species {
+              id
+              name
+            }
+
+            color {
+              id
+              name
+            }
+
             bodyId
             petStateId
             pose
-            genderPresentation
-            emotion
-            approximateThumbnailUrl
             layers {
               id
               imageUrl(size: SIZE_600)
@@ -122,6 +156,20 @@ describe("PetAppearance", () => {
             "436",
             "2",
             "4751",
+          ],
+        ],
+        Array [
+          "SELECT * FROM species_translations
+             WHERE species_id IN (?) AND locale = \\"en\\"",
+          Array [
+            "54",
+          ],
+        ],
+        Array [
+          "SELECT * FROM color_translations
+             WHERE color_id IN (?) AND locale = \\"en\\"",
+          Array [
+            "75",
           ],
         ],
         Array [

@@ -11237,6 +11237,14 @@ Object {
     },
     Object {
       "color": Object {
+        "id": "99",
+      },
+      "species": Object {
+        "id": "21",
+      },
+    },
+    Object {
+      "color": Object {
         "id": "100",
       },
       "species": Object {
@@ -12238,6 +12246,14 @@ Object {
     Object {
       "color": Object {
         "id": "87",
+      },
+      "species": Object {
+        "id": "23",
+      },
+    },
+    Object {
+      "color": Object {
+        "id": "89",
       },
       "species": Object {
         "id": "23",
@@ -18637,6 +18653,14 @@ Object {
     },
     Object {
       "color": Object {
+        "id": "14",
+      },
+      "species": Object {
+        "id": "36",
+      },
+    },
+    Object {
+      "color": Object {
         "id": "16",
       },
       "species": Object {
@@ -21518,6 +21542,14 @@ Object {
     Object {
       "color": Object {
         "id": "92",
+      },
+      "species": Object {
+        "id": "41",
+      },
+    },
+    Object {
+      "color": Object {
+        "id": "93",
       },
       "species": Object {
         "id": "41",
@@ -27854,6 +27886,14 @@ Object {
     Object {
       "color": Object {
         "id": "108",
+      },
+      "species": Object {
+        "id": "53",
+      },
+    },
+    Object {
+      "color": Object {
+        "id": "111",
       },
       "species": Object {
         "id": "53",

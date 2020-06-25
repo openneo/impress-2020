@@ -3,6 +3,11 @@
 exports[`PetAppearance loads for species and color 1`] = `
 Object {
   "petAppearance": Object {
+    "color": Object {
+      "id": "75",
+      "name": "Starry",
+    },
+    "id": "54-75-HAPPY_FEM",
     "layers": Array [
       Object {
         "id": "5995",
@@ -53,6 +58,10 @@ Object {
         },
       },
     ],
+    "species": Object {
+      "id": "54",
+      "name": "Zafara",
+    },
   },
 }
 `;
@@ -61,10 +70,11 @@ exports[`PetAppearance loads multiple for species and color 1`] = `
 Object {
   "petAppearances": Array [
     Object {
-      "approximateThumbnailUrl": "http://pets.neopets.com/cp/vghhzlgf/1/1.png",
       "bodyId": "180",
-      "emotion": "HAPPY",
-      "genderPresentation": "MASCULINE",
+      "color": Object {
+        "id": "75",
+        "name": "Starry",
+      },
       "id": "54-75-HAPPY_FEM",
       "layers": Array [
         Object {
@@ -112,12 +122,17 @@ Object {
       ],
       "petStateId": "17723",
       "pose": "HAPPY_FEM",
+      "species": Object {
+        "id": "54",
+        "name": "Zafara",
+      },
     },
     Object {
-      "approximateThumbnailUrl": "http://pets.neopets.com/cp/vghhzlgf/1/1.png",
       "bodyId": "180",
-      "emotion": "HAPPY",
-      "genderPresentation": "MASCULINE",
+      "color": Object {
+        "id": "75",
+        "name": "Starry",
+      },
       "id": "54-75-HAPPY_MASC",
       "layers": Array [
         Object {
@@ -165,12 +180,17 @@ Object {
       ],
       "petStateId": "17742",
       "pose": "HAPPY_MASC",
+      "species": Object {
+        "id": "54",
+        "name": "Zafara",
+      },
     },
     Object {
-      "approximateThumbnailUrl": "http://pets.neopets.com/cp/vghhzlgf/4/1.png",
       "bodyId": "180",
-      "emotion": "SICK",
-      "genderPresentation": "MASCULINE",
+      "color": Object {
+        "id": "75",
+        "name": "Starry",
+      },
       "id": "54-75-SICK_FEM",
       "layers": Array [
         Object {
@@ -218,12 +238,17 @@ Object {
       ],
       "petStateId": "10014",
       "pose": "SICK_FEM",
+      "species": Object {
+        "id": "54",
+        "name": "Zafara",
+      },
     },
     Object {
-      "approximateThumbnailUrl": "http://pets.neopets.com/cp/vghhzlgf/4/1.png",
       "bodyId": "180",
-      "emotion": "SICK",
-      "genderPresentation": "MASCULINE",
+      "color": Object {
+        "id": "75",
+        "name": "Starry",
+      },
       "id": "54-75-SICK_MASC",
       "layers": Array [
         Object {
@@ -271,12 +296,17 @@ Object {
       ],
       "petStateId": "11089",
       "pose": "SICK_MASC",
+      "species": Object {
+        "id": "54",
+        "name": "Zafara",
+      },
     },
     Object {
-      "approximateThumbnailUrl": "http://pets.neopets.com/cp/vghhzlgf/2/1.png",
       "bodyId": "180",
-      "emotion": "SAD",
-      "genderPresentation": "MASCULINE",
+      "color": Object {
+        "id": "75",
+        "name": "Starry",
+      },
       "id": "54-75-SAD_FEM",
       "layers": Array [
         Object {
@@ -324,12 +354,17 @@ Object {
       ],
       "petStateId": "5991",
       "pose": "SAD_FEM",
+      "species": Object {
+        "id": "54",
+        "name": "Zafara",
+      },
     },
     Object {
-      "approximateThumbnailUrl": "http://pets.neopets.com/cp/vghhzlgf/2/1.png",
       "bodyId": "180",
-      "emotion": "SAD",
-      "genderPresentation": "MASCULINE",
+      "color": Object {
+        "id": "75",
+        "name": "Starry",
+      },
       "id": "54-75-SAD_MASC",
       "layers": Array [
         Object {
@@ -377,12 +412,17 @@ Object {
       ],
       "petStateId": "436",
       "pose": "SAD_MASC",
+      "species": Object {
+        "id": "54",
+        "name": "Zafara",
+      },
     },
     Object {
-      "approximateThumbnailUrl": "http://pets.neopets.com/cp/vghhzlgf/null/1.png",
       "bodyId": "180",
-      "emotion": null,
-      "genderPresentation": null,
+      "color": Object {
+        "id": "75",
+        "name": "Starry",
+      },
       "id": "54-75-UNKNOWN",
       "layers": Array [
         Object {
@@ -437,12 +477,17 @@ Object {
       ],
       "petStateId": "2",
       "pose": "UNKNOWN",
+      "species": Object {
+        "id": "54",
+        "name": "Zafara",
+      },
     },
     Object {
-      "approximateThumbnailUrl": "http://pets.neopets.com/cp/vghhzlgf/null/1.png",
       "bodyId": "180",
-      "emotion": null,
-      "genderPresentation": null,
+      "color": Object {
+        "id": "75",
+        "name": "Starry",
+      },
       "id": "54-75-UNKNOWN",
       "layers": Array [
         Object {
@@ -497,6 +542,10 @@ Object {
       ],
       "petStateId": "4751",
       "pose": "UNKNOWN",
+      "species": Object {
+        "id": "54",
+        "name": "Zafara",
+      },
     },
   ],
 }

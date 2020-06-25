@@ -154,6 +154,21 @@ const buildItemSearchToFitLoader = (db) =>
   });
 
 const buildPetTypeLoader = (db) =>
+  new DataLoader(async (petTypeIds) => {
+    const qs = petTypeIds.map((_) => "?").join(",");
+    const [rows, _] = await db.execute(
+      `SELECT * FROM pet_types WHERE id IN (${qs})`,
+      petTypeIds
+    );
+
+    const entities = rows.map(normalizeRow);
+
+    return petTypeIds.map((petTypeId) =>
+      entities.find((e) => e.id === petTypeId)
+    );
+  });
+
+const buildPetTypeBySpeciesAndColorLoader = (db, loaders) =>
   new DataLoader(async (speciesAndColorPairs) => {
     const conditions = [];
     const values = [];
@@ -171,6 +186,10 @@ const buildPetTypeLoader = (db) =>
     const entitiesBySpeciesAndColorPair = new Map(
       entities.map((e) => [`${e.speciesId},${e.colorId}`, e])
     );
+
+    for (const petType of entities) {
+      loaders.petTypeLoader.prime(petType.id, petType);
+    }
 
     return speciesAndColorPairs.map(({ speciesId, colorId }) =>
       entitiesBySpeciesAndColorPair.get(`${speciesId},${colorId}`)
@@ -226,7 +245,50 @@ const buildPetSwfAssetLoader = (db) =>
     );
   });
 
+const buildOutfitLoader = (db) =>
+  new DataLoader(async (outfitIds) => {
+    const qs = outfitIds.map((_) => "?").join(",");
+    const [rows, _] = await db.execute(
+      `SELECT * FROM outfits WHERE id IN (${qs})`,
+      outfitIds
+    );
+
+    const entities = rows.map(normalizeRow);
+
+    return outfitIds.map((outfitId) => entities.find((e) => e.id === outfitId));
+  });
+
+const buildItemOutfitRelationshipsLoader = (db) =>
+  new DataLoader(async (outfitIds) => {
+    const qs = outfitIds.map((_) => "?").join(",");
+    const [rows, _] = await db.execute(
+      `SELECT * FROM item_outfit_relationships WHERE outfit_id IN (${qs})`,
+      outfitIds
+    );
+
+    const entities = rows.map(normalizeRow);
+
+    return outfitIds.map((outfitId) =>
+      entities.filter((e) => e.outfitId === outfitId)
+    );
+  });
+
 const buildPetStateLoader = (db) =>
+  new DataLoader(async (petStateIds) => {
+    const qs = petStateIds.map((_) => "?").join(",");
+    const [rows, _] = await db.execute(
+      `SELECT * FROM pet_states WHERE id IN (${qs})`,
+      petStateIds
+    );
+
+    const entities = rows.map(normalizeRow);
+
+    return petStateIds.map((petStateId) =>
+      entities.find((e) => e.id === petStateId)
+    );
+  });
+
+const buildPetStatesForPetTypeLoader = (db, loaders) =>
   new DataLoader(async (petTypeIds) => {
     const qs = petTypeIds.map((_) => "?").join(",");
     const [rows, _] = await db.execute(
@@ -237,6 +299,10 @@ const buildPetStateLoader = (db) =>
     );
 
     const entities = rows.map(normalizeRow);
+
+    for (const petState of entities) {
+      loaders.petStateLoader.prime(petState.id, petState);
+    }
 
     return petTypeIds.map((petTypeId) =>
       entities.filter((e) => e.petTypeId === petTypeId)
@@ -280,24 +346,37 @@ const buildZoneTranslationLoader = (db) =>
   });
 
 function buildLoaders(db) {
-  return {
-    loadAllColors: loadAllColors(db),
-    loadAllSpecies: loadAllSpecies(db),
-    loadAllPetTypes: loadAllPetTypes(db),
+  const loaders = {};
+  loaders.loadAllColors = loadAllColors(db);
+  loaders.loadAllSpecies = loadAllSpecies(db);
+  loaders.loadAllPetTypes = loadAllPetTypes(db);
 
-    colorTranslationLoader: buildColorTranslationLoader(db),
-    itemLoader: buildItemsLoader(db),
-    itemTranslationLoader: buildItemTranslationLoader(db),
-    itemSearchLoader: buildItemSearchLoader(db),
-    itemSearchToFitLoader: buildItemSearchToFitLoader(db),
-    petTypeLoader: buildPetTypeLoader(db),
-    itemSwfAssetLoader: buildItemSwfAssetLoader(db),
-    petSwfAssetLoader: buildPetSwfAssetLoader(db),
-    petStateLoader: buildPetStateLoader(db),
-    speciesTranslationLoader: buildSpeciesTranslationLoader(db),
-    zoneLoader: buildZoneLoader(db),
-    zoneTranslationLoader: buildZoneTranslationLoader(db),
-  };
+  loaders.colorTranslationLoader = buildColorTranslationLoader(db);
+  loaders.itemLoader = buildItemsLoader(db);
+  loaders.itemTranslationLoader = buildItemTranslationLoader(db);
+  loaders.itemSearchLoader = buildItemSearchLoader(db);
+  loaders.itemSearchToFitLoader = buildItemSearchToFitLoader(db);
+  loaders.petTypeLoader = buildPetTypeLoader(db);
+  loaders.petTypeBySpeciesAndColorLoader = buildPetTypeBySpeciesAndColorLoader(
+    db,
+    loaders
+  );
+  loaders.itemSwfAssetLoader = buildItemSwfAssetLoader(db);
+  loaders.petSwfAssetLoader = buildPetSwfAssetLoader(db);
+  loaders.outfitLoader = buildOutfitLoader(db);
+  loaders.itemOutfitRelationshipsLoader = buildItemOutfitRelationshipsLoader(
+    db
+  );
+  loaders.petStateLoader = buildPetStateLoader(db);
+  loaders.petStatesForPetTypeLoader = buildPetStatesForPetTypeLoader(
+    db,
+    loaders
+  );
+  loaders.speciesTranslationLoader = buildSpeciesTranslationLoader(db);
+  loaders.zoneLoader = buildZoneLoader(db);
+  loaders.zoneTranslationLoader = buildZoneTranslationLoader(db);
+
+  return loaders;
 }
 
 module.exports = buildLoaders;
