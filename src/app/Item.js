@@ -40,15 +40,24 @@ export function Item({ item, itemNameId, outfitState, dispatchToOutfit }) {
         </ItemName>
       </Box>
       <Box flexGrow="1" />
-      {isInOutfit && (
-        <Box>
-          <RemoveItemButton
+      <Box>
+        <ItemActionButton
+          icon="info"
+          label="More info"
+          href={`http://impress.openneo.net/items/${
+            item.id
+          }-${item.name.replace(/ /g, "-")}`}
+        />
+        {isInOutfit && (
+          <ItemActionButton
+            icon="delete"
+            label="Remove"
             onClick={() =>
               dispatchToOutfit({ type: "removeItem", itemId: item.id })
             }
           />
-        </Box>
-      )}
+        )}
+      </Box>
     </ItemContainer>
   );
 }
@@ -179,25 +188,24 @@ function ItemName({ children, ...props }) {
 }
 
 /**
- * RemoveItemButton lets the user remove the item from the outfit altogether.
- *
- * This removes it from their "closet", which is even more severe than
- * unwearing it: it disappears from your item list entirely, until you find it
- * again via search!
+ * ItemActionButton is one of a list of actions a user can take for this item.
  */
-function RemoveItemButton({ onClick }) {
+function ItemActionButton({ icon, label, href, onClick }) {
   const theme = useTheme();
 
   return (
-    <Tooltip label="Remove" placement="top">
+    <Tooltip label={label} placement="top">
       <IconButton
-        icon="delete"
-        aria-label="Remove from outfit"
+        as={href ? "a" : "button"}
+        icon={icon}
+        aria-label={label}
         variant="ghost"
         color="gray.400"
+        href={href}
+        target={href ? "_blank" : null}
         onClick={(e) => {
-          onClick();
-          e.preventDefault();
+          if (onClick) onClick();
+          e.stopPropagation();
         }}
         className={css`
           opacity: 0;
