@@ -161,31 +161,46 @@ const typeDefs = gql`
 
 const resolvers = {
   Item: {
-    name: async (item, _, { itemTranslationLoader }) => {
-      // Search queries pre-fill this!
-      if (item.name) return item.name;
-
-      const translation = await itemTranslationLoader.load(item.id);
+    name: async ({ id, name }, _, { itemTranslationLoader }) => {
+      if (name) return name;
+      const translation = await itemTranslationLoader.load(id);
       return translation.name;
     },
-    description: async (item, _, { itemTranslationLoader }) => {
-      const translation = await itemTranslationLoader.load(item.id);
+    description: async ({ id, description }, _, { itemTranslationLoader }) => {
+      if (description) return description;
+      const translation = await itemTranslationLoader.load(id);
       return translation.description;
     },
-    isNc: (item) => item.rarityIndex === 500 || item.rarityIndex === 0,
+    thumbnailUrl: async ({ id, thumbnailUrl }, _, { itemLoader }) => {
+      if (thumbnailUrl) return thumbnailUrl;
+      const item = await itemLoader.load(id);
+      return item.thumbnailUrl;
+    },
+    rarityIndex: async ({ id, rarityIndex }, _, { itemLoader }) => {
+      if (rarityIndex) return rarityIndex;
+      const item = await itemLoader.load(id);
+      return item.rarityIndex;
+    },
+    isNc: async ({ id, rarityIndex }, _, { itemLoader }) => {
+      if (rarityIndex) return rarityIndex === 500 || rarityIndex === 0;
+      const item = await itemLoader.load({ id });
+      return item.rarityIndex === 500 || item.rarityIndex === 0;
+    },
     appearanceOn: async (
-      item,
+      { id },
       { speciesId, colorId },
-      { petTypeBySpeciesAndColorLoader, itemSwfAssetLoader }
+      { petTypeBySpeciesAndColorLoader, itemSwfAssetLoader, itemLoader }
     ) => {
+      const itemPromise = itemLoader.load(id);
       const petType = await petTypeBySpeciesAndColorLoader.load({
         speciesId: speciesId,
         colorId: colorId,
       });
       const allSwfAssets = await itemSwfAssetLoader.load({
-        itemId: item.id,
+        itemId: id,
         bodyId: petType.bodyId,
       });
+
       if (allSwfAssets.length === 0) {
         // If there's no assets at all, treat it as non-fitting: no appearance.
         // (If there are assets but they're non-SWF, we'll treat this as
@@ -196,6 +211,7 @@ const resolvers = {
       const swfAssets = allSwfAssets.filter((sa) => sa.url.endsWith(".swf"));
 
       const restrictedZones = [];
+      const item = await itemPromise;
       for (const [i, bit] of Array.from(item.zonesRestrict).entries()) {
         if (bit === "1") {
           const zone = { id: i + 1 };
@@ -426,6 +442,10 @@ const resolvers = {
         pose: getPoseFromPetData(petMetaData, customPetData),
         items: Object.values(customPetData.object_info_registry).map((o) => ({
           id: o.obj_info_id,
+          name: o.name,
+          description: o.description,
+          thumbnailUrl: o.thumbnail_url,
+          rarityIndex: o.rarity_index,
         })),
       };
       return outfit;

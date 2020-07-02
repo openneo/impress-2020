@@ -573,6 +573,14 @@ Object {
     },
     Object {
       "color": Object {
+        "id": "110",
+      },
+      "species": Object {
+        "id": "1",
+      },
+    },
+    Object {
+      "color": Object {
         "id": "-1",
       },
       "species": Object {

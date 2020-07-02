@@ -59,7 +59,7 @@ const loadAllPetTypes = (db) => async () => {
   return entities;
 };
 
-const buildItemsLoader = (db) =>
+const buildItemLoader = (db) =>
   new DataLoader(async (ids) => {
     const qs = ids.map((_) => "?").join(",");
     const [rows, _] = await db.execute(
@@ -72,7 +72,7 @@ const buildItemsLoader = (db) =>
 
     return ids.map(
       (id) =>
-        entitiesById.get(id) || new Error(`could not find item with ID: ${id}`)
+        entitiesById.get(String(id)) || new Error(`could not find item with ID: ${id}`)
     );
   });
 
@@ -89,7 +89,7 @@ const buildItemTranslationLoader = (db) =>
 
     return itemIds.map(
       (itemId) =>
-        entitiesByItemId.get(itemId) ||
+        entitiesByItemId.get(String(itemId)) ||
         new Error(`could not find translation for item ${itemId}`)
     );
   });
@@ -352,7 +352,7 @@ function buildLoaders(db) {
   loaders.loadAllPetTypes = loadAllPetTypes(db);
 
   loaders.colorTranslationLoader = buildColorTranslationLoader(db);
-  loaders.itemLoader = buildItemsLoader(db);
+  loaders.itemLoader = buildItemLoader(db);
   loaders.itemTranslationLoader = buildItemTranslationLoader(db);
   loaders.itemSearchLoader = buildItemSearchLoader(db);
   loaders.itemSearchToFitLoader = buildItemSearchToFitLoader(db);

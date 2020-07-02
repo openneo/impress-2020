@@ -18,6 +18,11 @@ describe("Pet", () => {
             pose
             items {
               id
+              name
+              description
+              thumbnailUrl
+              rarityIndex
+              isNc
             }
           }
         }

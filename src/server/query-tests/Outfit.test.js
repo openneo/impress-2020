@@ -57,6 +57,12 @@ describe("Outfit", () => {
           ],
         ],
         Array [
+          "SELECT * FROM pet_states WHERE id IN (?)",
+          Array [
+            "3951",
+          ],
+        ],
+        Array [
           "SELECT * FROM item_translations WHERE item_id IN (?,?,?,?,?,?,?,?,?,?,?) AND locale = \\"en\\"",
           Array [
             "38916",
@@ -70,12 +76,6 @@ describe("Outfit", () => {
             "56706",
             "38915",
             "56398",
-          ],
-        ],
-        Array [
-          "SELECT * FROM pet_states WHERE id IN (?)",
-          Array [
-            "3951",
           ],
         ],
         Array [
