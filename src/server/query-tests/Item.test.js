@@ -23,7 +23,7 @@ describe("Item", () => {
     expect(getDbCalls()).toMatchInlineSnapshot(`
       Array [
         Array [
-          "SELECT * FROM items WHERE id IN (?,?,?,?)",
+          "SELECT * FROM item_translations WHERE item_id IN (?,?,?,?) AND locale = \\"en\\"",
           Array [
             "38913",
             "38911",
@@ -32,7 +32,7 @@ describe("Item", () => {
           ],
         ],
         Array [
-          "SELECT * FROM item_translations WHERE item_id IN (?,?,?,?) AND locale = \\"en\\"",
+          "SELECT * FROM items WHERE id IN (?,?,?,?)",
           Array [
             "38913",
             "38911",
@@ -78,7 +78,7 @@ describe("Item", () => {
     expect(getDbCalls()).toMatchInlineSnapshot(`
       Array [
         Array [
-          "SELECT * FROM items WHERE id IN (?,?,?)",
+          "SELECT * FROM item_translations WHERE item_id IN (?,?,?) AND locale = \\"en\\"",
           Array [
             "38912",
             "38911",
@@ -86,7 +86,7 @@ describe("Item", () => {
           ],
         ],
         Array [
-          "SELECT * FROM item_translations WHERE item_id IN (?,?,?) AND locale = \\"en\\"",
+          "SELECT * FROM items WHERE id IN (?,?,?)",
           Array [
             "38912",
             "38911",
@@ -173,13 +173,13 @@ describe("Item", () => {
     expect(getDbCalls()).toMatchInlineSnapshot(`
       Array [
         Array [
-          "SELECT * FROM items WHERE id IN (?)",
+          "SELECT * FROM item_translations WHERE item_id IN (?) AND locale = \\"en\\"",
           Array [
             "42829",
           ],
         ],
         Array [
-          "SELECT * FROM item_translations WHERE item_id IN (?) AND locale = \\"en\\"",
+          "SELECT * FROM items WHERE id IN (?)",
           Array [
             "42829",
           ],

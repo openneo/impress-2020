@@ -182,8 +182,8 @@ const resolvers = {
       return item.rarityIndex;
     },
     isNc: async ({ id, rarityIndex }, _, { itemLoader }) => {
-      if (rarityIndex) return rarityIndex === 500 || rarityIndex === 0;
-      const item = await itemLoader.load({ id });
+      if (rarityIndex != null) return rarityIndex === 500 || rarityIndex === 0;
+      const item = await itemLoader.load(id);
       return item.rarityIndex === 500 || item.rarityIndex === 0;
     },
     appearanceOn: async (
@@ -370,9 +370,8 @@ const resolvers = {
       }));
       return allPairs;
     },
-    items: async (_, { ids }, { itemLoader }) => {
-      const items = await itemLoader.loadMany(ids);
-      return items;
+    items: (_, { ids }) => {
+      return ids.map(id => ({ id }));
     },
     itemSearch: async (_, { query }, { itemSearchLoader }) => {
       const items = await itemSearchLoader.load(query.trim());
