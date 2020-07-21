@@ -6,6 +6,7 @@ import { useHistory } from "react-router-dom";
 import { useLazyQuery } from "@apollo/react-hooks";
 
 import { Heading1, usePageTitle } from "./util";
+import HangerSpinner from "./components/HangerSpinner";
 
 import HomepageSplashImg from "../images/homepage-splash.png";
 import HomepageSplashImg2x from "../images/homepage-splash@2x.png";
@@ -192,6 +193,7 @@ function SubmitPetForm() {
           colorScheme="green"
           isDisabled={!petName}
           isLoading={loading}
+          spinner={<HangerSpinner />}
           backgroundColor="green.600" // for AA contrast
           _hover={{ backgroundColor: "green.700" }}
         >

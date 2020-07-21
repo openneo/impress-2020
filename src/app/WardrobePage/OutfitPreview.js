@@ -2,9 +2,10 @@ import React from "react";
 import { css, cx } from "emotion";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 
-import { Box, Flex, Spinner, Text } from "@chakra-ui/core";
+import { Box, Flex, Text } from "@chakra-ui/core";
 import { WarningIcon } from "@chakra-ui/icons";
 
+import HangerSpinner from "../components/HangerSpinner";
 import useOutfitAppearance from "./useOutfitAppearance";
 
 /**
@@ -121,7 +122,7 @@ export function OutfitLayers({ loading, visibleLayers, doAnimations = false }) {
           />
         </FullScreenCenter>
         <FullScreenCenter>
-          <Spinner color="green.400" size="xl" />
+          <HangerSpinner color="green.300" boxSize="48px" />
         </FullScreenCenter>
       </Box>
     </Box>
