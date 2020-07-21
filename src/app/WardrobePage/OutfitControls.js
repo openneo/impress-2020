@@ -17,7 +17,7 @@ import {
 } from "@chakra-ui/icons";
 
 import PosePicker from "./PosePicker";
-import SpeciesColorPicker from "./SpeciesColorPicker";
+import SpeciesColorPicker from "../components/SpeciesColorPicker";
 import useOutfitAppearance from "./useOutfitAppearance";
 import { Link } from "react-router-dom";
 

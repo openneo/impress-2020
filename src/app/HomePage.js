@@ -9,7 +9,7 @@ import { Heading1, usePageTitle } from "./util";
 
 import HomepageSplashImg from "../images/homepage-splash.png";
 import HomepageSplashImg2x from "../images/homepage-splash@2x.png";
-import SpeciesColorPicker from "./SpeciesColorPicker";
+import SpeciesColorPicker from "./components/SpeciesColorPicker";
 
 function HomePage() {
   usePageTitle("Dress to Impress");

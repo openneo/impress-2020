@@ -3,7 +3,7 @@ import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
 import { Box, Flex, Select, Text } from "@chakra-ui/core";
 
-import { Delay, useFetch } from "./util";
+import { Delay, useFetch } from "../util";
 
 /**
  * SpeciesColorPicker lets the user pick the species/color of their pet.

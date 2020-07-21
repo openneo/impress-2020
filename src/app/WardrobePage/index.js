@@ -5,7 +5,7 @@ import loadable from "@loadable/component";
 import ItemsAndSearchPanels from "./ItemsAndSearchPanels";
 import OutfitPreview from "./OutfitPreview";
 import useOutfitState from "./useOutfitState.js";
-import { usePageTitle } from "./util";
+import { usePageTitle } from "../util";
 
 const OutfitControls = loadable(() =>
   import(/* webpackPreload: true */ "./OutfitControls")

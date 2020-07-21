@@ -13,7 +13,7 @@ import {
 import { EditIcon } from "@chakra-ui/icons";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 
-import { Delay, Heading1, Heading2 } from "./util";
+import { Delay, Heading1, Heading2 } from "../util";
 import { Item, ItemListContainer, ItemListSkeleton } from "./Item";
 
 /**

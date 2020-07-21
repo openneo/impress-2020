@@ -11,7 +11,7 @@ import {
 } from "@chakra-ui/core";
 import { DeleteIcon, InfoIcon } from "@chakra-ui/icons";
 
-import { safeImageUrl } from "./util";
+import { safeImageUrl } from "../util";
 
 /**
  * Item show a basic summary of an item, in the context of the current outfit!

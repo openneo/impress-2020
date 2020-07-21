@@ -17,11 +17,11 @@ import {
 import { getVisibleLayers, petAppearanceFragment } from "./useOutfitAppearance";
 
 // From https://twemoji.twitter.com/, thank you!
-import twemojiSmile from "../images/twemoji/smile.svg";
-import twemojiCry from "../images/twemoji/cry.svg";
-import twemojiSick from "../images/twemoji/sick.svg";
-import twemojiMasc from "../images/twemoji/masc.svg";
-import twemojiFem from "../images/twemoji/fem.svg";
+import twemojiSmile from "../../images/twemoji/smile.svg";
+import twemojiCry from "../../images/twemoji/cry.svg";
+import twemojiSick from "../../images/twemoji/sick.svg";
+import twemojiMasc from "../../images/twemoji/masc.svg";
+import twemojiFem from "../../images/twemoji/fem.svg";
 import { OutfitLayers } from "./OutfitPreview";
 
 function PosePicker({
