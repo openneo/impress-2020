@@ -9,6 +9,7 @@ import {
   Tooltip,
   useTheme,
 } from "@chakra-ui/core";
+import { DeleteIcon, InfoIcon } from "@chakra-ui/icons";
 
 import { safeImageUrl } from "./util";
 
@@ -42,7 +43,7 @@ export function Item({ item, itemNameId, outfitState, dispatchToOutfit }) {
       <Box flexGrow="1" />
       <Box>
         <ItemActionButton
-          icon="info"
+          icon={<InfoIcon />}
           label="More info"
           href={`http://impress.openneo.net/items/${
             item.id
@@ -50,7 +51,7 @@ export function Item({ item, itemNameId, outfitState, dispatchToOutfit }) {
         />
         {isInOutfit && (
           <ItemActionButton
-            icon="delete"
+            icon={<DeleteIcon />}
             label="Remove"
             onClick={() =>
               dispatchToOutfit({ type: "removeItem", itemId: item.id })
@@ -89,7 +90,7 @@ function ItemContainer({ children }) {
     <Box
       p="1"
       my="1"
-      rounded="lg"
+      borderRadius="lg"
       d="flex"
       alignItems="center"
       cursor="pointer"
@@ -126,7 +127,7 @@ function ItemThumbnail({ src, isWorn }) {
   const theme = useTheme();
   return (
     <Box
-      rounded="lg"
+      borderRadius="lg"
       boxShadow="md"
       border="1px"
       width="50px"

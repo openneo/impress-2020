@@ -2,7 +2,8 @@ import React from "react";
 import { css, cx } from "emotion";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 
-import { Box, Flex, Icon, Spinner, Text } from "@chakra-ui/core";
+import { Box, Flex, Spinner, Text } from "@chakra-ui/core";
+import { WarningIcon } from "@chakra-ui/icons";
 
 import useOutfitAppearance from "./useOutfitAppearance";
 
@@ -24,7 +25,7 @@ function OutfitPreview({ outfitState }) {
     return (
       <FullScreenCenter>
         <Text color="gray.50" d="flex" alignItems="center">
-          <Icon name="warning" />
+          <WarningIcon />
           <Box width={2} />
           Could not load preview. Try again?
         </Text>

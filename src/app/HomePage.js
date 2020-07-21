@@ -30,7 +30,7 @@ function HomePage() {
         alt=""
         width="200px"
         height="200px"
-        rounded="lg"
+        borderRadius="lg"
         boxShadow="md"
       />
       <Box height="4" />
@@ -94,7 +94,7 @@ function StartOutfitForm() {
         <Box width="4" />
         <Button
           type="submit"
-          variantColor="green"
+          colorScheme="green"
           disabled={!isValid}
           backgroundColor="green.600" // for AA contrast
           _hover={{ backgroundColor: "green.700" }}
@@ -189,7 +189,7 @@ function SubmitPetForm() {
         <Box width="4" />
         <Button
           type="submit"
-          variantColor="green"
+          colorScheme="green"
           isDisabled={!petName}
           isLoading={loading}
           backgroundColor="green.600" // for AA contrast

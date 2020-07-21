@@ -7,10 +7,10 @@ import {
   EditableInput,
   Flex,
   IconButton,
-  PseudoBox,
   Skeleton,
   VisuallyHidden,
 } from "@chakra-ui/core";
+import { EditIcon } from "@chakra-ui/icons";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 
 import { Delay, Heading1, Heading2 } from "./util";
@@ -178,7 +178,7 @@ function ItemZoneGroupSkeleton({ itemCount }) {
 function OutfitHeading({ outfitState, dispatchToOutfit }) {
   return (
     <Box>
-      <PseudoBox role="group" d="inline-block" position="relative" width="100%">
+      <Box role="group" d="inline-block" position="relative" width="100%">
         <Heading1 mb="6">
           <Editable
             value={outfitState.name}
@@ -187,31 +187,31 @@ function OutfitHeading({ outfitState, dispatchToOutfit }) {
               dispatchToOutfit({ type: "rename", outfitName: value })
             }
           >
-            {({ isEditing, onRequestEdit }) => (
+            {({ isEditing, onEdit }) => (
               <Flex align="flex-top">
                 <EditablePreview />
                 <EditableInput />
                 {!isEditing && (
-                  <PseudoBox
+                  <Box
                     opacity="0"
                     transition="opacity 0.5s"
                     _groupHover={{ opacity: "1" }}
-                    onClick={onRequestEdit}
+                    onClick={onEdit}
                   >
                     <IconButton
-                      icon="edit"
+                      icon={<EditIcon />}
                       variant="link"
                       color="green.600"
                       aria-label="Edit outfit name"
                       title="Edit outfit name"
                     />
-                  </PseudoBox>
+                  </Box>
                 )}
               </Flex>
             )}
           </Editable>
         </Heading1>
-      </PseudoBox>
+      </Box>
     </Box>
   );
 }

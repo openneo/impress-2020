@@ -255,7 +255,7 @@ function PoseOption({ poseInfo, onChange, inputRef }) {
       />
       <Box
         aria-hidden
-        rounded="full"
+        borderRadius="full"
         boxShadow="md"
         overflow="hidden"
         width="50px"
@@ -281,7 +281,7 @@ function PoseOption({ poseInfo, onChange, inputRef }) {
         `}
       >
         <Box
-          rounded="full"
+          borderRadius="full"
           position="absolute"
           top="0"
           bottom="0"

@@ -2,13 +2,13 @@ import React from "react";
 import {
   Box,
   Flex,
-  Icon,
   IconButton,
   Input,
   InputGroup,
   InputLeftElement,
   InputRightElement,
 } from "@chakra-ui/core";
+import { CloseIcon, SearchIcon } from "@chakra-ui/icons";
 
 import ItemsPanel from "./ItemsPanel";
 import SearchPanel from "./SearchPanel";
@@ -106,7 +106,7 @@ function SearchToolbar({
   return (
     <InputGroup>
       <InputLeftElement>
-        <Icon name="search" color="gray.400" />
+        <SearchIcon color="gray.400" />
       </InputLeftElement>
       <Input
         placeholder="Search for items to add…"
@@ -128,10 +128,10 @@ function SearchToolbar({
       {query && (
         <InputRightElement>
           <IconButton
-            icon="close"
+            icon={<CloseIcon />}
             color="gray.400"
             variant="ghost"
-            variantColor="green"
+            colorScheme="green"
             aria-label="Clear search"
             onClick={() => onChange("")}
             // Big style hacks here!

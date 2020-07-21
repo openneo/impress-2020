@@ -4,12 +4,17 @@ import {
   Box,
   Flex,
   IconButton,
-  PseudoBox,
   Stack,
   Tooltip,
   useClipboard,
   useToast,
 } from "@chakra-ui/core";
+import {
+  ArrowBackIcon,
+  CheckIcon,
+  DownloadIcon,
+  LinkIcon,
+} from "@chakra-ui/icons";
 
 import PosePicker from "./PosePicker";
 import SpeciesColorPicker from "./SpeciesColorPicker";
@@ -25,7 +30,7 @@ function OutfitControls({ outfitState, dispatchToOutfit }) {
   const toast = useToast();
 
   return (
-    <PseudoBox
+    <Box
       role="group"
       pos="absolute"
       left="0"
@@ -58,7 +63,7 @@ function OutfitControls({ outfitState, dispatchToOutfit }) {
         <ControlButton
           as={Link}
           to="/"
-          icon="arrow-back"
+          icon={<ArrowBackIcon />}
           aria-label="Leave this outfit"
           d="inline-flex" // Not sure why <a> requires this to style right! ^^`
         />
@@ -115,7 +120,7 @@ function OutfitControls({ outfitState, dispatchToOutfit }) {
           />
         </Flex>
       </Flex>
-    </PseudoBox>
+    </Box>
   );
 }
 
@@ -133,7 +138,7 @@ function DownloadButton({ outfitState }) {
     <Tooltip label="Download" placement="left">
       <Box>
         <ControlButton
-          icon="download"
+          icon={<DownloadIcon />}
           aria-label="Download"
           as="a"
           // eslint-disable-next-line no-script-url
@@ -163,7 +168,7 @@ function CopyLinkButton({ outfitState }) {
     <Tooltip label={hasCopied ? "Copied!" : "Copy link"} placement="left">
       <Box>
         <ControlButton
-          icon={hasCopied ? "check" : "link"}
+          icon={hasCopied ? <CheckIcon /> : <LinkIcon />}
           aria-label="Copy link"
           onClick={onCopy}
         />
