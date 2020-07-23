@@ -38,6 +38,7 @@ function HomePage() {
           colorId={previewState?.colorId}
           pose={previewState?.pose}
           wornItemIds={[]}
+          loadingDelay="1.5s"
           placeholder={
             <Box
               as="img"

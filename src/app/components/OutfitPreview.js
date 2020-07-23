@@ -21,7 +21,14 @@ import useOutfitAppearance from "./useOutfitAppearance";
  * TODO: There's some duplicate work happening in useOutfitAppearance and
  * useOutfitState both getting appearance data on first load...
  */
-function OutfitPreview({ speciesId, colorId, pose, wornItemIds, placeholder }) {
+function OutfitPreview({
+  speciesId,
+  colorId,
+  pose,
+  wornItemIds,
+  placeholder,
+  loadingDelay,
+}) {
   const { loading, error, visibleLayers } = useOutfitAppearance({
     speciesId,
     colorId,
@@ -50,6 +57,7 @@ function OutfitPreview({ speciesId, colorId, pose, wornItemIds, placeholder }) {
       loading={loading || loading2}
       visibleLayers={loadedLayers}
       placeholder={placeholder}
+      loadingDelay={loadingDelay}
       doAnimations
     />
   );
@@ -63,15 +71,13 @@ export function OutfitLayers({
   loading,
   visibleLayers,
   placeholder,
+  loadingDelay = "0.5s",
   doAnimations = false,
 }) {
   const [isMounted, setIsMounted] = React.useState(false);
   React.useEffect(() => {
     setTimeout(() => setIsMounted(true), 0);
   }, []);
-
-  console.log("opacity", isMounted && loading ? 1 : 0);
-  console.log("transition delay", loading ? "0.5s" : "0s");
 
   return (
     <Box pos="relative" height="100%" width="100%">
@@ -153,7 +159,7 @@ export function OutfitLayers({
         // (This starts the opacity at 0, then fires an immediate callback to
         // set it to 1, triggering the transition.)
         opacity={isMounted && loading ? 1 : 0}
-        transition={`opacity 0.2s ${loading ? "0.5s" : "0s"}`}
+        transition={`opacity 0.2s ${loading ? loadingDelay : "0s"}`}
       >
         <FullScreenCenter>
           <Box
