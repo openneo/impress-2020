@@ -9,31 +9,31 @@ import { useQuery } from "@apollo/react-hooks";
 export default function useOutfitAppearance(outfitState) {
   const { wornItemIds, speciesId, colorId, pose } = outfitState;
 
-  const { loading, error, data } = useQuery(
+  // We split this query out from the other one, so that we can HTTP cache it.
+  //
+  // While Apollo gives us fine-grained caching during the page session, we can
+  // only HTTP a full query at a time.
+  //
+  // This is a minor optimization with respect to keeping the user's cache
+  // populated with their favorite species/color combinations. Once we start
+  // caching the items by body instead of species/color, this could make color
+  // changes really snappy!
+  //
+  // The larger optimization is that this enables the CDN to edge-cache the
+  // most popular species/color combinations, for very fast previews on the
+  // HomePage. At time of writing, Vercel isn't actually edge-caching these, I
+  // assume because our traffic isn't enough - so let's keep an eye on this!
+  const { loading: loading1, error: error1, data: data1 } = useQuery(
     gql`
-      query OutfitAppearance(
-        $wornItemIds: [ID!]!
-        $speciesId: ID!
-        $colorId: ID!
-        $pose: Pose!
-      ) {
+      query OutfitPetAppearance($speciesId: ID!, $colorId: ID!, $pose: Pose!) {
         petAppearance(speciesId: $speciesId, colorId: $colorId, pose: $pose) {
           ...PetAppearanceForOutfitPreview
         }
-
-        items(ids: $wornItemIds) {
-          id
-          appearanceOn(speciesId: $speciesId, colorId: $colorId) {
-            ...ItemAppearanceForOutfitPreview
-          }
-        }
       }
-      ${itemAppearanceFragment}
       ${petAppearanceFragment}
     `,
     {
       variables: {
-        wornItemIds,
         speciesId,
         colorId,
         pose,
@@ -42,16 +42,46 @@ export default function useOutfitAppearance(outfitState) {
     }
   );
 
-  const itemAppearances = React.useMemo(
-    () => (data?.items || []).map((i) => i.appearanceOn),
-    [data]
-  );
-  const visibleLayers = React.useMemo(
-    () => getVisibleLayers(data?.petAppearance, itemAppearances),
-    [data, itemAppearances]
+  const { loading: loading2, error: error2, data: data2 } = useQuery(
+    gql`
+      query OutfitItemsAppearance(
+        $speciesId: ID!
+        $colorId: ID!
+        $wornItemIds: [ID!]!
+      ) {
+        items(ids: $wornItemIds) {
+          id
+          appearanceOn(speciesId: $speciesId, colorId: $colorId) {
+            ...ItemAppearanceForOutfitPreview
+          }
+        }
+      }
+      ${itemAppearanceFragment}
+    `,
+    {
+      variables: {
+        speciesId,
+        colorId,
+        wornItemIds,
+      },
+      skip: speciesId == null || colorId == null || wornItemIds.length === 0,
+    }
   );
 
-  return { loading, error, visibleLayers };
+  const itemAppearances = React.useMemo(
+    () => (data2?.items || []).map((i) => i.appearanceOn),
+    [data2]
+  );
+  const visibleLayers = React.useMemo(
+    () => getVisibleLayers(data1?.petAppearance, itemAppearances),
+    [data1, itemAppearances]
+  );
+
+  return {
+    loading: loading1 || loading2,
+    error: error1 || error2,
+    visibleLayers,
+  };
 }
 
 export function getVisibleLayers(petAppearance, itemAppearances) {

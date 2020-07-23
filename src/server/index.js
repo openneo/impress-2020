@@ -68,7 +68,8 @@ const typeDefs = gql`
     appearanceOn(speciesId: ID!, colorId: ID!): ItemAppearance
   }
 
-  type PetAppearance {
+  # Cache for 1 week (unlikely to change)
+  type PetAppearance @cacheControl(maxAge: 604800) {
     id: ID!
     species: Species!
     color: Color!
@@ -84,7 +85,8 @@ const typeDefs = gql`
     restrictedZones: [Zone!]!
   }
 
-  type AppearanceLayer {
+  # Cache for 1 week (unlikely to change)
+  type AppearanceLayer @cacheControl(maxAge: 604800) {
     id: ID!
     zone: Zone!
     imageUrl(size: LayerImageSize): String
@@ -98,7 +100,8 @@ const typeDefs = gql`
     svgUrl: String
   }
 
-  type Zone {
+  # Cache for 1 week (unlikely to change)
+  type Zone @cacheControl(maxAge: 604800) {
     id: ID!
     depth: Int!
     label: String!
@@ -109,12 +112,14 @@ const typeDefs = gql`
     items: [Item!]!
   }
 
-  type Color {
+  # Cache for 1 week (unlikely to change)
+  type Color @cacheControl(maxAge: 604800) {
     id: ID!
     name: String!
   }
 
-  type Species {
+  # Cache for 1 week (unlikely to change)
+  type Species @cacheControl(maxAge: 604800) {
     id: ID!
     name: String!
   }
@@ -138,8 +143,8 @@ const typeDefs = gql`
   }
 
   type Query {
-    allColors: [Color!]! @cacheControl(maxAge: 10800) # Cache for 3 hours
-    allSpecies: [Species!]! @cacheControl(maxAge: 10800) # Cache for 3 hours
+    allColors: [Color!]! @cacheControl(maxAge: 10800) # Cache for 3 hours (we might add more!)
+    allSpecies: [Species!]! @cacheControl(maxAge: 10800) # Cache for 3 hours (we might add more!)
     allValidSpeciesColorPairs: [SpeciesColorPair!]! # deprecated
     items(ids: [ID!]!): [Item!]!
     itemSearch(query: String!): ItemSearchResult!
@@ -151,8 +156,9 @@ const typeDefs = gql`
       limit: Int
     ): ItemSearchResult!
     petAppearance(speciesId: ID!, colorId: ID!, pose: Pose!): PetAppearance
+      @cacheControl(maxAge: 604800) # Cache for 1 week (unlikely to change)
     petAppearances(speciesId: ID!, colorId: ID!): [PetAppearance!]!
-
+      @cacheControl(maxAge: 10800) # Cache for 3 hours (we might add more!)
     outfit(id: ID!): Outfit
 
     petOnNeopetsDotCom(petName: String!): Outfit
@@ -371,7 +377,7 @@ const resolvers = {
       return allPairs;
     },
     items: (_, { ids }) => {
-      return ids.map(id => ({ id }));
+      return ids.map((id) => ({ id }));
     },
     itemSearch: async (_, { query }, { itemSearchLoader }) => {
       const items = await itemSearchLoader.load(query.trim());
