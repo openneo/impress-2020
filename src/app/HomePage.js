@@ -6,6 +6,7 @@ import { useHistory } from "react-router-dom";
 import { useLazyQuery } from "@apollo/react-hooks";
 
 import { Heading1, usePageTitle } from "./util";
+import OutfitPreview from "./components/OutfitPreview";
 
 import HomepageSplashImg from "../images/homepage-splash.png";
 import HomepageSplashImg2x from "../images/homepage-splash@2x.png";
@@ -13,6 +14,8 @@ import SpeciesColorPicker from "./components/SpeciesColorPicker";
 
 function HomePage() {
   usePageTitle("Dress to Impress");
+
+  const [previewState, setPreviewState] = React.useState(null);
 
   return (
     <Flex
@@ -24,19 +27,31 @@ function HomePage() {
     >
       <Box height="8" />
       <Box
-        as="img"
-        src={HomepageSplashImg}
-        srcSet={`${HomepageSplashImg} 1x, ${HomepageSplashImg2x} 2x`}
-        alt=""
         width="200px"
         height="200px"
         borderRadius="lg"
         boxShadow="md"
-      />
+        overflow="hidden"
+      >
+        <OutfitPreview
+          speciesId={previewState?.speciesId}
+          colorId={previewState?.colorId}
+          pose={previewState?.pose}
+          wornItemIds={[]}
+          placeholder={
+            <Box
+              as="img"
+              src={HomepageSplashImg}
+              srcSet={`${HomepageSplashImg} 1x, ${HomepageSplashImg2x} 2x`}
+              alt=""
+            />
+          }
+        />
+      </Box>
       <Box height="4" />
       <Heading1>Dress to Impress</Heading1>
       <Box height="8" />
-      <StartOutfitForm />
+      <StartOutfitForm onChange={setPreviewState} />
       <Box height="4" />
       <Box fontStyle="italic" fontSize="sm">
         or
@@ -47,7 +62,7 @@ function HomePage() {
   );
 }
 
-function StartOutfitForm() {
+function StartOutfitForm({ onChange }) {
   const history = useHistory();
 
   const idealPose = React.useMemo(
@@ -89,6 +104,14 @@ function StartOutfitForm() {
             setColorId(color.id);
             setIsValid(isValid);
             setClosestPose(closestPose);
+
+            if (isValid) {
+              onChange({
+                speciesId: species.id,
+                colorId: color.id,
+                pose: closestPose,
+              });
+            }
           }}
         />
         <Box width="4" />

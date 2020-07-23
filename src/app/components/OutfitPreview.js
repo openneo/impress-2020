@@ -12,10 +12,16 @@ import useOutfitAppearance from "./useOutfitAppearance";
  * fetches the appearance data for it, and preloads and renders the layers
  * together.
  *
+ * If the species/color/pose fields are null and a `placeholder` node is
+ * provided instead, we'll render the placeholder. And then, once those props
+ * become non-null, we'll keep showing the placeholder below the loading
+ * overlay until loading completes. (We use this on the homepage to show the
+ * beach splash until outfit data arrives!)
+ *
  * TODO: There's some duplicate work happening in useOutfitAppearance and
  * useOutfitState both getting appearance data on first load...
  */
-function OutfitPreview({ speciesId, colorId, pose, wornItemIds }) {
+function OutfitPreview({ speciesId, colorId, pose, wornItemIds, placeholder }) {
   const { loading, error, visibleLayers } = useOutfitAppearance({
     speciesId,
     colorId,
@@ -43,6 +49,7 @@ function OutfitPreview({ speciesId, colorId, pose, wornItemIds }) {
     <OutfitLayers
       loading={loading || loading2}
       visibleLayers={loadedLayers}
+      placeholder={placeholder}
       doAnimations
     />
   );
@@ -52,9 +59,34 @@ function OutfitPreview({ speciesId, colorId, pose, wornItemIds }) {
  * OutfitLayers is the raw UI component for rendering outfit layers. It's
  * used both in the main outfit preview, and in other minor UIs!
  */
-export function OutfitLayers({ loading, visibleLayers, doAnimations = false }) {
+export function OutfitLayers({
+  loading,
+  visibleLayers,
+  placeholder,
+  doAnimations = false,
+}) {
+  const [isMounted, setIsMounted] = React.useState(false);
+  React.useEffect(() => {
+    setTimeout(() => setIsMounted(true), 0);
+  }, []);
+
+  console.log("opacity", isMounted && loading ? 1 : 0);
+  console.log("transition delay", loading ? "0.5s" : "0s");
+
   return (
     <Box pos="relative" height="100%" width="100%">
+      {placeholder && (
+        <FullScreenCenter>
+          <Box
+            // We show the placeholder until there are visible layers, at which
+            // point we fade it out.
+            opacity={visibleLayers.length === 0 ? 1 : 0}
+            transition="opacity 0.2s"
+          >
+            {placeholder}
+          </Box>
+        </FullScreenCenter>
+      )}
       <TransitionGroup enter={false} exit={doAnimations}>
         {visibleLayers.map((layer) => (
           <CSSTransition
@@ -114,8 +146,13 @@ export function OutfitLayers({ loading, visibleLayers, doAnimations = false }) {
       </TransitionGroup>
       <Box
         // This is similar to our Delay util component, but Delay disappears
-        // immediately on load, whereas we want this to fade out smoothly.
-        opacity={loading ? 1 : 0}
+        // immediately on load, whereas we want this to fade out smoothly. We
+        // also delay the fade-in by 0.5s, but don't delay the fade-out at all.
+        //
+        // We also use `isMounted` here to make sure it actually _fades_ in!
+        // (This starts the opacity at 0, then fires an immediate callback to
+        // set it to 1, triggering the transition.)
+        opacity={isMounted && loading ? 1 : 0}
         transition={`opacity 0.2s ${loading ? "0.5s" : "0s"}`}
       >
         <FullScreenCenter>

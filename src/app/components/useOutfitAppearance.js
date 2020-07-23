@@ -38,6 +38,7 @@ export default function useOutfitAppearance(outfitState) {
         colorId,
         pose,
       },
+      skip: speciesId == null || colorId == null || pose == null,
     }
   );
 
