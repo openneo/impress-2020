@@ -3,7 +3,7 @@ import { Box, Grid, useToast } from "@chakra-ui/core";
 import loadable from "@loadable/component";
 
 import ItemsAndSearchPanels from "./ItemsAndSearchPanels";
-import OutfitPreview from "./OutfitPreview";
+import OutfitPreview from "../components/OutfitPreview";
 import useOutfitState from "./useOutfitState.js";
 import { usePageTitle } from "../util";
 
@@ -64,7 +64,12 @@ function WardrobePage() {
       >
         <Box gridArea="previewAndControls" bg="gray.900" pos="relative">
           <Box position="absolute" top="0" bottom="0" left="0" right="0">
-            <OutfitPreview outfitState={outfitState} />
+            <OutfitPreview
+              speciesId={outfitState.speciesId}
+              colorId={outfitState.colorId}
+              pose={outfitState.pose}
+              wornItemIds={outfitState.wornItemIds}
+            />
           </Box>
           <Box position="absolute" top="0" bottom="0" left="0" right="0">
             <OutfitControls

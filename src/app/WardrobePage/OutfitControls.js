@@ -18,7 +18,7 @@ import {
 
 import PosePicker from "./PosePicker";
 import SpeciesColorPicker from "../components/SpeciesColorPicker";
-import useOutfitAppearance from "./useOutfitAppearance";
+import useOutfitAppearance from "../components/useOutfitAppearance";
 import { Link } from "react-router-dom";
 
 /**

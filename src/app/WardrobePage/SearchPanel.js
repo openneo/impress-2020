@@ -5,7 +5,7 @@ import { useQuery } from "@apollo/react-hooks";
 
 import { Delay, Heading1, useDebounce } from "../util";
 import { Item, ItemListContainer, ItemListSkeleton } from "./Item";
-import { itemAppearanceFragment } from "./useOutfitAppearance";
+import { itemAppearanceFragment } from "../components/useOutfitAppearance";
 
 /**
  * SearchPanel shows item search results to the user, so they can preview them

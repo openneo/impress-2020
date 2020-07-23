@@ -1,28 +1,33 @@
 import React from "react";
 import { css, cx } from "emotion";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
-
 import { Box, Flex, Text } from "@chakra-ui/core";
 import { WarningIcon } from "@chakra-ui/icons";
 
-import HangerSpinner from "../components/HangerSpinner";
+import HangerSpinner from "./HangerSpinner";
 import useOutfitAppearance from "./useOutfitAppearance";
 
 /**
- * OutfitPreview renders the actual image layers for the outfit we're viewing!
+ * OutfitPreview is for rendering a full outfit! It accepts outfit data,
+ * fetches the appearance data for it, and preloads and renders the layers
+ * together.
+ *
+ * TODO: There's some duplicate work happening in useOutfitAppearance and
+ * useOutfitState both getting appearance data on first load...
  */
-function OutfitPreview({ outfitState }) {
-  const {
-    loading: loading1,
-    error: error1,
-    visibleLayers,
-  } = useOutfitAppearance(outfitState);
+function OutfitPreview({ speciesId, colorId, pose, wornItemIds }) {
+  const { loading, error, visibleLayers } = useOutfitAppearance({
+    speciesId,
+    colorId,
+    pose,
+    wornItemIds,
+  });
 
   const { loading: loading2, error: error2, loadedLayers } = usePreloadLayers(
     visibleLayers
   );
 
-  if (error1 || error2) {
+  if (error || error2) {
     return (
       <FullScreenCenter>
         <Text color="gray.50" d="flex" alignItems="center">
@@ -36,7 +41,7 @@ function OutfitPreview({ outfitState }) {
 
   return (
     <OutfitLayers
-      loading={loading1 || loading2}
+      loading={loading || loading2}
       visibleLayers={loadedLayers}
       doAnimations
     />
@@ -129,7 +134,7 @@ export function OutfitLayers({ loading, visibleLayers, doAnimations = false }) {
   );
 }
 
-function FullScreenCenter({ children }) {
+export function FullScreenCenter({ children }) {
   return (
     <Flex
       pos="absolute"
@@ -171,7 +176,7 @@ function loadImage(url) {
  * when done. This enables us to keep the old outfit preview on screen until
  * all the new layers are ready, then show them all at once!
  */
-function usePreloadLayers(layers) {
+export function usePreloadLayers(layers) {
   const [error, setError] = React.useState(null);
   const [loadedLayers, setLoadedLayers] = React.useState([]);
 
