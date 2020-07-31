@@ -5,9 +5,9 @@
   "dependencies": {
     "@apollo/react-hooks": "^3.1.5",
     "@apollographql/graphql-playground-html": "^1.6.24",
-    "@chakra-ui/core": "^1.0.0-next.6",
-    "@chakra-ui/icons": "^1.0.0-next.6",
-    "@chakra-ui/theme": "^1.0.0-next.6",
+    "@chakra-ui/core": "^1.0.0-rc.0",
+    "@chakra-ui/icons": "^1.0.0-rc.0",
+    "@chakra-ui/theme": "^1.0.0-rc.0",
     "@loadable/component": "^5.12.0",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
