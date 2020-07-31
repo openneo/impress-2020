@@ -9,9 +9,15 @@ import {
   Tooltip,
   useTheme,
 } from "@chakra-ui/core";
-import { DeleteIcon, InfoIcon } from "@chakra-ui/icons";
+import { EditIcon, DeleteIcon, InfoIcon } from "@chakra-ui/icons";
+import loadable from "@loadable/component";
 
 import { safeImageUrl } from "../util";
+import SupportOnly from "./support/SupportOnly";
+
+const LoadableItemSupportDrawer = loadable(() =>
+  import("./support/ItemSupportDrawer")
+);
 
 /**
  * Item show a basic summary of an item, in the context of the current outfit!
@@ -29,37 +35,58 @@ export function Item({ item, itemNameId, outfitState, dispatchToOutfit }) {
   const isWorn = wornItemIds.includes(item.id);
   const isInOutfit = allItemIds.includes(item.id);
 
+  const [supportDrawerIsOpen, setSupportDrawerIsOpen] = React.useState(false);
+
   return (
-    <ItemContainer>
-      <Box>
-        <ItemThumbnail src={safeImageUrl(item.thumbnailUrl)} isWorn={isWorn} />
-      </Box>
-      <Box width="3" />
-      <Box>
-        <ItemName id={itemNameId} isWorn={isWorn}>
-          {item.name}
-        </ItemName>
-      </Box>
-      <Box flexGrow="1" />
-      <Box>
-        <ItemActionButton
-          icon={<InfoIcon />}
-          label="More info"
-          href={`http://impress.openneo.net/items/${
-            item.id
-          }-${item.name.replace(/ /g, "-")}`}
-        />
-        {isInOutfit && (
-          <ItemActionButton
-            icon={<DeleteIcon />}
-            label="Remove"
-            onClick={() =>
-              dispatchToOutfit({ type: "removeItem", itemId: item.id })
-            }
+    <>
+      <ItemContainer>
+        <Box>
+          <ItemThumbnail
+            src={safeImageUrl(item.thumbnailUrl)}
+            isWorn={isWorn}
           />
-        )}
-      </Box>
-    </ItemContainer>
+        </Box>
+        <Box width="3" />
+        <Box>
+          <ItemName id={itemNameId} isWorn={isWorn}>
+            {item.name}
+          </ItemName>
+        </Box>
+        <Box flexGrow="1" />
+        <Box>
+          <SupportOnly>
+            <ItemActionButton
+              icon={<EditIcon />}
+              label="Edit"
+              onClick={() => setSupportDrawerIsOpen(true)}
+            />
+          </SupportOnly>
+          <ItemActionButton
+            icon={<InfoIcon />}
+            label="More info"
+            href={`https://impress.openneo.net/items/${
+              item.id
+            }-${item.name.replace(/ /g, "-")}`}
+          />
+          {isInOutfit && (
+            <ItemActionButton
+              icon={<DeleteIcon />}
+              label="Remove"
+              onClick={() =>
+                dispatchToOutfit({ type: "removeItem", itemId: item.id })
+              }
+            />
+          )}
+        </Box>
+      </ItemContainer>
+      <SupportOnly>
+        <LoadableItemSupportDrawer
+          item={item}
+          isOpen={supportDrawerIsOpen}
+          onClose={() => setSupportDrawerIsOpen(false)}
+        />
+      </SupportOnly>
+    </>
   );
 }
 

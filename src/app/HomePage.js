@@ -2,7 +2,7 @@ import React from "react";
 import { css } from "emotion";
 import gql from "graphql-tag";
 import { Box, Button, Flex, Input, useTheme, useToast } from "@chakra-ui/core";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import { useLazyQuery } from "@apollo/client";
 
 import { Heading1, usePageTitle } from "./util";
@@ -14,6 +14,7 @@ import SpeciesColorPicker from "./components/SpeciesColorPicker";
 
 function HomePage() {
   usePageTitle("Dress to Impress");
+  useSupportSetup();
 
   const [previewState, setPreviewState] = React.useState(null);
 
@@ -224,6 +225,50 @@ function SubmitPetForm() {
       </Flex>
     </form>
   );
+}
+
+/**
+ * useSupportSetup helps our support staff get set up with special access.
+ * If you provide ?supportSecret=... in the URL, we'll save it in a cookie and
+ * pop up a toast!
+ *
+ * This doesn't guarantee the secret is correct, of course! We don't bother to
+ * check that here; the server will reject requests from bad support secrets.
+ * And there's nothing especially secret in the support UI, so it's okay if
+ * other people know about the tools and poke around a powerless interface!
+ */
+function useSupportSetup() {
+  const location = useLocation();
+  const toast = useToast();
+
+  React.useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const supportSecret = params.get("supportSecret");
+
+    if (supportSecret) {
+      localStorage.setItem("supportSecret", supportSecret);
+
+      toast({
+        title: "Support secret saved!",
+        description:
+          `You should now see special Support UI across the site. ` +
+          `Thanks for your help! 💖`,
+        status: "success",
+        duration: 10000,
+        isClosable: true,
+      });
+    } else if (supportSecret === "") {
+      localStorage.removeItem("supportSecret");
+
+      toast({
+        title: "Support secret deleted.",
+        description: `The Support UI will now stop appearing on this device.`,
+        status: "success",
+        duration: 10000,
+        isClosable: true,
+      });
+    }
+  }, [location, toast]);
 }
 
 export default HomePage;
