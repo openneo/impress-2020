@@ -86,7 +86,18 @@ function SpecialColorFields({ item }) {
         }
       }
     `,
-    { variables: { itemId: item.id } }
+    {
+      variables: { itemId: item.id },
+
+      // HACK: I think it's a bug in @apollo/client 3.1.1 that, if the
+      //     optimistic response sets `manualSpecialColor` to null, the query
+      //     doesn't update, even though its cache has updated :/
+      //
+      //     This cheap trick of changing the display name every re-render
+      //     persuades Apollo that this is a different query, so it re-checks
+      //     its cache and finds the empty `manualSpecialColor`. Weird!
+      displayName: `ItemSupportDrawerManualSpecialColor-${new Date()}`,
+    }
   );
 
   const {

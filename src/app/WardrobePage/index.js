@@ -44,7 +44,16 @@ function WardrobePage() {
   }, [error, toast]);
 
   return (
-    <Box position="absolute" top="0" bottom="0" left="0" right="0">
+    <Box
+      position="absolute"
+      top="0"
+      bottom="0"
+      left="0"
+      right="0"
+      // Create a stacking context, so that our drawers and modals don't fight
+      // with the z-indexes in here!
+      zIndex="0"
+    >
       <Grid
         templateAreas={{
           base: `"previewAndControls"
