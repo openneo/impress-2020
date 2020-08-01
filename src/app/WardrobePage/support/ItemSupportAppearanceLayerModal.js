@@ -226,10 +226,14 @@ function ItemSupportAppearanceLayerPetCompatibility({
 
   const biologyLayers = visibleLayers.filter((l) => l.source === "pet");
 
-  // When the appearance body ID changes, select it as the new body ID. (This
-  // is an effect because it happens after the appearance finishes loading!)
+  // After we touch a species/color selector and null out `bodyId`, when the
+  // appearance body ID loads in, select it as the new body ID.
+  //
+  // This might move the radio button away from "all pets", but I think that's
+  // a _less_ surprising experience: if you're touching the pickers, then
+  // that's probably where you head is.
   React.useEffect(() => {
-    if (selectedBodyId !== "0") {
+    if (selectedBodyId == null && appearanceBodyId != null) {
       onChangeBodyId(appearanceBodyId);
     }
   }, [selectedBodyId, appearanceBodyId, onChangeBodyId]);
@@ -289,6 +293,10 @@ function ItemSupportAppearanceLayerPetCompatibility({
             setSelectedBiology({ speciesId, colorId, isValid, pose });
             if (isValid) {
               onChangePreviewBiology({ speciesId, colorId, isValid, pose });
+
+              // Also temporarily null out the body ID. We'll switch to the new
+              // body ID once it's loaded.
+              onChangeBodyId(null);
             }
           }}
         />
