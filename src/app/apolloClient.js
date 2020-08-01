@@ -8,8 +8,11 @@ const typePolicies = {
       // when you remove an item from your outfit, or add an item from search,
       // Apollo knows it already has the data it needs and doesn't need to ask
       // the server again!
-      items: (_, { args, toReference }) =>
-        args.ids.map((id) => toReference({ __typename: "Item", id })),
+      items: (_, { args, toReference }) => {
+        return args.ids.map((id) =>
+          toReference({ __typename: "Item", id }, true)
+        );
+      },
 
       // Teach Apollo how to serve `petAppearance` queries from the cache. That
       // way, when you switch pet poses, Apollo knows it already has the
@@ -17,7 +20,7 @@ const typePolicies = {
       petAppearance: (_, { args, toReference }) => {
         const { speciesId, colorId, pose } = args;
         const id = `${speciesId}-${colorId}-${pose}`;
-        return toReference({ __typename: "PetAppearance", id });
+        return toReference({ __typename: "PetAppearance", id }, true);
       },
     },
   },

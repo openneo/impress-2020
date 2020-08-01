@@ -62,7 +62,7 @@ function useOutfitState() {
     }
   );
 
-  const items = (data && data.items) || [];
+  const items = data?.items || [];
   const itemsById = {};
   for (const item of items) {
     itemsById[item.id] = item;
