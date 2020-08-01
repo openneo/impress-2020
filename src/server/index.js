@@ -171,6 +171,14 @@ const typeDefs = gql`
 
     petOnNeopetsDotCom(petName: String!): Outfit
   }
+
+  type Mutation {
+    setManualSpecialColor(
+      itemId: ID!
+      colorId: ID
+      supportSecret: String!
+    ): Item!
+  }
 `;
 
 const resolvers = {
@@ -476,6 +484,32 @@ const resolvers = {
       return outfit;
     },
   },
+  Mutation: {
+    setManualSpecialColor: async (
+      _,
+      { itemId, colorId, supportSecret },
+      { db }
+    ) => {
+      if (supportSecret !== process.env["SUPPORT_SECRET"]) {
+        throw new Error(`Support secret is incorrect. Try setting up again?`);
+      }
+
+      const [
+        result,
+      ] = await db.execute(
+        `UPDATE items SET manual_special_color_id = ? WHERE id = ? LIMIT 1`,
+        [colorId, itemId]
+      );
+
+      if (result.affectedRows !== 1) {
+        throw new Error(
+          `Expected to affect 1 item, but affected ${result.affectedRows}`
+        );
+      }
+
+      return { id: itemId };
+    },
+  },
 };
 
 let lastSvgLogger = null;
@@ -522,6 +556,7 @@ const config = {
 
     return {
       svgLogger,
+      db,
       ...buildLoaders(db),
     };
   },

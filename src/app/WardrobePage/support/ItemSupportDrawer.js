@@ -79,6 +79,7 @@ function SpecialColorFields({ item }) {
     gql`
       query ItemSupportDrawerManualSpecialColor($itemId: ID!) {
         item(id: $itemId) {
+          id
           manualSpecialColor {
             id
           }
@@ -118,8 +119,8 @@ function SpecialColorFields({ item }) {
         colorId: $colorId
         supportSecret: $supportSecret
       ) {
+        id
         manualSpecialColor {
-          __typename
           id
         }
       }
@@ -141,6 +142,8 @@ function SpecialColorFields({ item }) {
             ? "Loading…"
             : "Default: Auto-detect from item description"
         }
+        value={itemData?.item?.manualSpecialColor?.id}
+        isDisabled={mutationLoading}
         icon={
           colorsLoading || itemLoading || mutationLoading ? (
             <Spinner />
@@ -148,19 +151,10 @@ function SpecialColorFields({ item }) {
             <CheckCircleIcon />
           ) : undefined
         }
-        value={itemData?.item?.manualSpecialColor?.id}
         onChange={(e) => {
-          const colorId = e.target.value;
+          const colorId = e.target.value || null;
           const color =
             colorId != null ? { __typename: "Color", id: colorId } : null;
-          console.log({
-            __typename: "Mutation",
-            setManualSpecialColor: {
-              __typename: "Item",
-              id: item.id,
-              manualSpecialColor: color,
-            },
-          });
           mutate({
             variables: {
               itemId: item.id,
