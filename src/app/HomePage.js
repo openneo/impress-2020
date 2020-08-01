@@ -244,8 +244,9 @@ function useSupportSetup() {
   React.useEffect(() => {
     const params = new URLSearchParams(location.search);
     const supportSecret = params.get("supportSecret");
+    const existingSupportSecret = localStorage.getItem("supportSecret");
 
-    if (supportSecret) {
+    if (supportSecret && supportSecret !== existingSupportSecret) {
       localStorage.setItem("supportSecret", supportSecret);
 
       toast({
