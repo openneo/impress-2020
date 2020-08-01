@@ -167,7 +167,7 @@ export function OutfitLayers({
         opacity={isMounted && loading ? 1 : 0}
         transition={`opacity 0.2s ${loading ? loadingDelay : "0s"}`}
       >
-        <FullScreenCenter>
+        <FullScreenCenter zIndex="9000">
           <Box
             width="100%"
             height="100%"
@@ -175,7 +175,7 @@ export function OutfitLayers({
             opacity="0.8"
           />
         </FullScreenCenter>
-        <FullScreenCenter>
+        <FullScreenCenter zIndex="9001">
           <HangerSpinner color="green.300" boxSize="48px" />
         </FullScreenCenter>
       </Box>

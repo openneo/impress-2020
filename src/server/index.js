@@ -104,6 +104,12 @@ const typeDefs = gql`
     or if it's not as simple as a single SVG (e.g. animated).
     """
     svgUrl: String
+
+    """
+    This layer can fit on PetAppearances with the same bodyId. "0" is a
+    special body ID that indicates it fits all PetAppearances.
+    """
+    bodyId: ID!
   }
 
   # Cache for 1 week (unlikely to change)

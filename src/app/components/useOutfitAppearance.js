@@ -117,6 +117,7 @@ export const itemAppearanceFragment = gql`
       id
       svgUrl
       imageUrl(size: SIZE_600)
+      bodyId
       zone {
         id
         depth

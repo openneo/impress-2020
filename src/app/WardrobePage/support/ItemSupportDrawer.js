@@ -250,9 +250,10 @@ function ItemSupportAppearanceFields({ item, outfitState }) {
       <HStack spacing="4" overflow="auto" paddingX="1">
         {itemLayers.map((itemLayer) => (
           <ItemSupportAppearanceLayer
-            biologyLayers={biologyLayers}
-            itemLayer={itemLayer}
             item={item}
+            itemLayer={itemLayer}
+            biologyLayers={biologyLayers}
+            outfitState={outfitState}
           />
         ))}
       </HStack>
@@ -261,7 +262,12 @@ function ItemSupportAppearanceFields({ item, outfitState }) {
   );
 }
 
-function ItemSupportAppearanceLayer({ biologyLayers, itemLayer, item }) {
+function ItemSupportAppearanceLayer({
+  item,
+  itemLayer,
+  biologyLayers,
+  outfitState,
+}) {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
@@ -311,6 +317,7 @@ function ItemSupportAppearanceLayer({ biologyLayers, itemLayer, item }) {
       <ItemSupportAppearanceLayerModal
         item={item}
         itemLayer={itemLayer}
+        outfitState={outfitState}
         isOpen={isOpen}
         onClose={onClose}
       />

@@ -15,7 +15,9 @@ function SpeciesColorPicker({
   speciesId,
   colorId,
   idealPose,
-  showPlaceholders,
+  showPlaceholders = false,
+  isDisabled = false,
+  size = "md",
   dark = false,
   onChange,
 }) {
@@ -51,30 +53,38 @@ function SpeciesColorPicker({
   const backgroundColor = dark ? "gray.600" : "white";
   const borderColor = dark ? "transparent" : "green.600";
   const textColor = dark ? "gray.50" : "inherit";
-  const SpeciesColorSelect = ({ ...props }) => (
-    <Select
-      backgroundColor={backgroundColor}
-      color={textColor}
-      border="1px"
-      borderColor={borderColor}
-      boxShadow="md"
-      width="auto"
-      _hover={{
-        borderColor: "green.400",
-      }}
-      _disabled={{
-        // Visually the disabled state is the same as the normal state, but
-        // with a wait cursor. We don't expect this to take long, and the flash
-        // of content is rough! (The caret still flashes, but that's small and
-        // harder to style in Chakra.)
-        opacity: 1,
-        cursor: "wait",
-      }}
-      isInvalid={valids && !pairIsValid(valids, speciesId, colorId)}
-      errorBorderColor="red.300"
-      {...props}
-    />
-  );
+  const SpeciesColorSelect = ({ isDisabled, isLoading, ...props }) => {
+    const loadingProps = isLoading
+      ? {
+          // Visually the disabled state is the same as the normal state, but
+          // with a wait cursor. We don't expect this to take long, and the flash
+          // of content is rough! (The caret still flashes, but that's small and
+          // harder to style in Chakra.)
+          opacity: 1,
+          cursor: "wait",
+        }
+      : {};
+
+    return (
+      <Select
+        backgroundColor={backgroundColor}
+        color={textColor}
+        size={size}
+        border="1px"
+        borderColor={borderColor}
+        boxShadow="md"
+        width="auto"
+        _hover={{
+          borderColor: "green.400",
+        }}
+        isInvalid={valids && !pairIsValid(valids, speciesId, colorId)}
+        isDisabled={isDisabled || isLoading}
+        errorBorderColor="red.300"
+        {...props}
+        {...loadingProps}
+      />
+    );
+  };
 
   if ((loadingMeta || loadingValids) && !showPlaceholders) {
     return (
@@ -125,7 +135,8 @@ function SpeciesColorPicker({
       <SpeciesColorSelect
         aria-label="Pet color"
         value={colorId}
-        isDisabled={allColors.length === 0}
+        isLoading={allColors.length === 0}
+        isDisabled={isDisabled}
         onChange={onChangeColor}
       >
         {allColors.length === 0 && (
@@ -141,11 +152,12 @@ function SpeciesColorPicker({
           </option>
         ))}
       </SpeciesColorSelect>
-      <Box width="4" />
+      <Box width={size === "sm" ? 2 : 4} />
       <SpeciesColorSelect
         aria-label="Pet species"
         value={speciesId}
-        isDisabled={allSpecies.length === 0}
+        isLoading={allSpecies.length === 0}
+        isDisabled={isDisabled}
         onChange={onChangeSpecies}
       >
         {allSpecies.length === 0 && (
