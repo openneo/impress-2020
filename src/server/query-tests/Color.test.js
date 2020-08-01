@@ -9,6 +9,7 @@ describe("Color", () => {
           allColors {
             id
             name
+            isStandard
           }
         }
       `,

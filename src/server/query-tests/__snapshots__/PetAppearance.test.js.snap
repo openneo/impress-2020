@@ -68,6 +68,73 @@ Object {
 
 exports[`PetAppearance loads multiple for species and color 1`] = `
 Object {
+  "petAppearance": Object {
+    "color": Object {
+      "id": "75",
+      "isStandard": true,
+      "name": "Starry",
+    },
+    "id": "54-75-HAPPY_FEM",
+    "layers": Array [
+      Object {
+        "id": "5995",
+        "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7941/600x600.png?v2-0",
+        "svgUrl": "http://images.neopets.com/cp/bio/data/000/000/007/7941_2c4cc4b846/7941.svg",
+        "zone": Object {
+          "depth": 18,
+        },
+      },
+      Object {
+        "id": "5996",
+        "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7942/600x600.png?v2-0",
+        "svgUrl": "http://images.neopets.com/cp/bio/data/000/000/007/7942_2eab06fd7b/7942.svg",
+        "zone": Object {
+          "depth": 7,
+        },
+      },
+      Object {
+        "id": "6000",
+        "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7946/600x600.png?v2-0",
+        "svgUrl": "http://images.neopets.com/cp/bio/data/000/000/007/7946_0348dad587/7946.svg",
+        "zone": Object {
+          "depth": 40,
+        },
+      },
+      Object {
+        "id": "16467",
+        "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/024/24008/600x600.png?v2-0",
+        "svgUrl": "http://images.neopets.com/cp/bio/data/000/000/024/24008_a05fe9876a/24008.svg",
+        "zone": Object {
+          "depth": 34,
+        },
+      },
+      Object {
+        "id": "19784",
+        "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/028/28892/600x600.png?v2-1313418652000",
+        "svgUrl": "http://images.neopets.com/cp/bio/data/000/000/028/28892_a8e3a8b430/28892.svg",
+        "zone": Object {
+          "depth": 37,
+        },
+      },
+      Object {
+        "id": "178150",
+        "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/036/36887/600x600.png?v2-1354240708000",
+        "svgUrl": "http://images.neopets.com/cp/bio/data/000/000/036/36887_a335fbba09/36887.svg",
+        "zone": Object {
+          "depth": 38,
+        },
+      },
+    ],
+    "species": Object {
+      "id": "54",
+      "name": "Zafara",
+    },
+  },
+}
+`;
+
+exports[`PetAppearance loads multiple for species and color 3`] = `
+Object {
   "petAppearances": Array [
     Object {
       "bodyId": "180",
@@ -75,65 +142,7 @@ Object {
         "id": "75",
         "name": "Starry",
       },
-      "id": "54-75-HAPPY_FEM",
-      "layers": Array [
-        Object {
-          "id": "5995",
-          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7941/600x600.png?v2-0",
-          "zone": Object {
-            "depth": 18,
-          },
-        },
-        Object {
-          "id": "5996",
-          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7942/600x600.png?v2-0",
-          "zone": Object {
-            "depth": 7,
-          },
-        },
-        Object {
-          "id": "6000",
-          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7946/600x600.png?v2-0",
-          "zone": Object {
-            "depth": 40,
-          },
-        },
-        Object {
-          "id": "16467",
-          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/024/24008/600x600.png?v2-0",
-          "zone": Object {
-            "depth": 34,
-          },
-        },
-        Object {
-          "id": "19784",
-          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/028/28892/600x600.png?v2-1313418652000",
-          "zone": Object {
-            "depth": 37,
-          },
-        },
-        Object {
-          "id": "178150",
-          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/036/36887/600x600.png?v2-1354240708000",
-          "zone": Object {
-            "depth": 38,
-          },
-        },
-      ],
-      "petStateId": "17723",
-      "pose": "HAPPY_FEM",
-      "species": Object {
-        "id": "54",
-        "name": "Zafara",
-      },
-    },
-    Object {
-      "bodyId": "180",
-      "color": Object {
-        "id": "75",
-        "name": "Starry",
-      },
-      "id": "54-75-HAPPY_MASC",
+      "id": "54-75-UNKNOWN",
       "layers": Array [
         Object {
           "id": "5995",
@@ -171,15 +180,203 @@ Object {
           },
         },
         Object {
-          "id": "178150",
-          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/036/36887/600x600.png?v2-1354240708000",
+          "id": "19550",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/028/28549/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 38,
+          },
+        },
+        Object {
+          "id": "163528",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/028/28549/600x600.png?v2-1326455337000",
           "zone": Object {
             "depth": 38,
           },
         },
       ],
-      "petStateId": "17742",
-      "pose": "HAPPY_MASC",
+      "petStateId": "2",
+      "pose": "UNKNOWN",
+      "species": Object {
+        "id": "54",
+        "name": "Zafara",
+      },
+    },
+    Object {
+      "bodyId": "180",
+      "color": Object {
+        "id": "75",
+        "name": "Starry",
+      },
+      "id": "54-75-SAD_MASC",
+      "layers": Array [
+        Object {
+          "id": "5995",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7941/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 18,
+          },
+        },
+        Object {
+          "id": "5996",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7942/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 7,
+          },
+        },
+        Object {
+          "id": "6000",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7946/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 40,
+          },
+        },
+        Object {
+          "id": "14790",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/021/21057/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 38,
+          },
+        },
+        Object {
+          "id": "14792",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/021/21060/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 37,
+          },
+        },
+        Object {
+          "id": "16467",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/024/24008/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 34,
+          },
+        },
+      ],
+      "petStateId": "436",
+      "pose": "SAD_MASC",
+      "species": Object {
+        "id": "54",
+        "name": "Zafara",
+      },
+    },
+    Object {
+      "bodyId": "180",
+      "color": Object {
+        "id": "75",
+        "name": "Starry",
+      },
+      "id": "54-75-UNKNOWN",
+      "layers": Array [
+        Object {
+          "id": "5995",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7941/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 18,
+          },
+        },
+        Object {
+          "id": "5996",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7942/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 7,
+          },
+        },
+        Object {
+          "id": "6000",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7946/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 40,
+          },
+        },
+        Object {
+          "id": "16467",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/024/24008/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 34,
+          },
+        },
+        Object {
+          "id": "19550",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/028/28549/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 38,
+          },
+        },
+        Object {
+          "id": "19784",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/028/28892/600x600.png?v2-1313418652000",
+          "zone": Object {
+            "depth": 37,
+          },
+        },
+        Object {
+          "id": "163528",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/028/28549/600x600.png?v2-1326455337000",
+          "zone": Object {
+            "depth": 38,
+          },
+        },
+      ],
+      "petStateId": "4751",
+      "pose": "UNKNOWN",
+      "species": Object {
+        "id": "54",
+        "name": "Zafara",
+      },
+    },
+    Object {
+      "bodyId": "180",
+      "color": Object {
+        "id": "75",
+        "name": "Starry",
+      },
+      "id": "54-75-SAD_FEM",
+      "layers": Array [
+        Object {
+          "id": "5995",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7941/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 18,
+          },
+        },
+        Object {
+          "id": "5996",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7942/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 7,
+          },
+        },
+        Object {
+          "id": "6000",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7946/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 40,
+          },
+        },
+        Object {
+          "id": "14790",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/021/21057/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 38,
+          },
+        },
+        Object {
+          "id": "14793",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/021/21061/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 37,
+          },
+        },
+        Object {
+          "id": "16467",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/024/24008/600x600.png?v2-0",
+          "zone": Object {
+            "depth": 34,
+          },
+        },
+      ],
+      "petStateId": "5991",
+      "pose": "SAD_FEM",
       "species": Object {
         "id": "54",
         "name": "Zafara",
@@ -307,7 +504,7 @@ Object {
         "id": "75",
         "name": "Starry",
       },
-      "id": "54-75-SAD_FEM",
+      "id": "54-75-HAPPY_FEM",
       "layers": Array [
         Object {
           "id": "5995",
@@ -331,29 +528,29 @@ Object {
           },
         },
         Object {
-          "id": "14790",
-          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/021/21057/600x600.png?v2-0",
-          "zone": Object {
-            "depth": 38,
-          },
-        },
-        Object {
-          "id": "14793",
-          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/021/21061/600x600.png?v2-0",
-          "zone": Object {
-            "depth": 37,
-          },
-        },
-        Object {
           "id": "16467",
           "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/024/24008/600x600.png?v2-0",
           "zone": Object {
             "depth": 34,
           },
         },
+        Object {
+          "id": "19784",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/028/28892/600x600.png?v2-1313418652000",
+          "zone": Object {
+            "depth": 37,
+          },
+        },
+        Object {
+          "id": "178150",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/036/36887/600x600.png?v2-1354240708000",
+          "zone": Object {
+            "depth": 38,
+          },
+        },
       ],
-      "petStateId": "5991",
-      "pose": "SAD_FEM",
+      "petStateId": "17723",
+      "pose": "HAPPY_FEM",
       "species": Object {
         "id": "54",
         "name": "Zafara",
@@ -365,65 +562,7 @@ Object {
         "id": "75",
         "name": "Starry",
       },
-      "id": "54-75-SAD_MASC",
-      "layers": Array [
-        Object {
-          "id": "5995",
-          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7941/600x600.png?v2-0",
-          "zone": Object {
-            "depth": 18,
-          },
-        },
-        Object {
-          "id": "5996",
-          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7942/600x600.png?v2-0",
-          "zone": Object {
-            "depth": 7,
-          },
-        },
-        Object {
-          "id": "6000",
-          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7946/600x600.png?v2-0",
-          "zone": Object {
-            "depth": 40,
-          },
-        },
-        Object {
-          "id": "14790",
-          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/021/21057/600x600.png?v2-0",
-          "zone": Object {
-            "depth": 38,
-          },
-        },
-        Object {
-          "id": "14792",
-          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/021/21060/600x600.png?v2-0",
-          "zone": Object {
-            "depth": 37,
-          },
-        },
-        Object {
-          "id": "16467",
-          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/024/24008/600x600.png?v2-0",
-          "zone": Object {
-            "depth": 34,
-          },
-        },
-      ],
-      "petStateId": "436",
-      "pose": "SAD_MASC",
-      "species": Object {
-        "id": "54",
-        "name": "Zafara",
-      },
-    },
-    Object {
-      "bodyId": "180",
-      "color": Object {
-        "id": "75",
-        "name": "Starry",
-      },
-      "id": "54-75-UNKNOWN",
+      "id": "54-75-HAPPY_MASC",
       "layers": Array [
         Object {
           "id": "5995",
@@ -461,87 +600,15 @@ Object {
           },
         },
         Object {
-          "id": "19550",
-          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/028/28549/600x600.png?v2-0",
-          "zone": Object {
-            "depth": 38,
-          },
-        },
-        Object {
-          "id": "163528",
-          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/028/28549/600x600.png?v2-1326455337000",
+          "id": "178150",
+          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/036/36887/600x600.png?v2-1354240708000",
           "zone": Object {
             "depth": 38,
           },
         },
       ],
-      "petStateId": "2",
-      "pose": "UNKNOWN",
-      "species": Object {
-        "id": "54",
-        "name": "Zafara",
-      },
-    },
-    Object {
-      "bodyId": "180",
-      "color": Object {
-        "id": "75",
-        "name": "Starry",
-      },
-      "id": "54-75-UNKNOWN",
-      "layers": Array [
-        Object {
-          "id": "5995",
-          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7941/600x600.png?v2-0",
-          "zone": Object {
-            "depth": 18,
-          },
-        },
-        Object {
-          "id": "5996",
-          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7942/600x600.png?v2-0",
-          "zone": Object {
-            "depth": 7,
-          },
-        },
-        Object {
-          "id": "6000",
-          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/007/7946/600x600.png?v2-0",
-          "zone": Object {
-            "depth": 40,
-          },
-        },
-        Object {
-          "id": "16467",
-          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/024/24008/600x600.png?v2-0",
-          "zone": Object {
-            "depth": 34,
-          },
-        },
-        Object {
-          "id": "19550",
-          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/028/28549/600x600.png?v2-0",
-          "zone": Object {
-            "depth": 38,
-          },
-        },
-        Object {
-          "id": "19784",
-          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/028/28892/600x600.png?v2-1313418652000",
-          "zone": Object {
-            "depth": 37,
-          },
-        },
-        Object {
-          "id": "163528",
-          "imageUrl": "https://impress-asset-images.s3.amazonaws.com/biology/000/000/028/28549/600x600.png?v2-1326455337000",
-          "zone": Object {
-            "depth": 38,
-          },
-        },
-      ],
-      "petStateId": "4751",
-      "pose": "UNKNOWN",
+      "petStateId": "17742",
+      "pose": "HAPPY_MASC",
       "species": Object {
         "id": "54",
         "name": "Zafara",

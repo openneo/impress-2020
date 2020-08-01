@@ -1,4 +1,6 @@
 import * as React from "react";
+import gql from "graphql-tag";
+import { useQuery } from "@apollo/react-hooks";
 import {
   Badge,
   Box,
@@ -9,10 +11,13 @@ import {
   DrawerHeader,
   DrawerOverlay,
   FormControl,
+  FormErrorMessage,
   FormHelperText,
   FormLabel,
   Link,
   Select,
+  Spinner,
+  useBreakpointValue,
 } from "@chakra-ui/core";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 
@@ -23,9 +28,22 @@ import { ExternalLinkIcon } from "@chakra-ui/icons";
  * from another lazy-loaded component!
  */
 function ItemSupportDrawer({ item, isOpen, onClose }) {
+  const placement = useBreakpointValue({
+    base: "bottom",
+    lg: "right",
+
+    // TODO: There's a bug in the Chakra RC that doesn't read the breakpoint
+    // specification correctly - we need these extra keys until it's fixed!
+    // https://github.com/chakra-ui/chakra-ui/issues/1444
+    0: "bottom",
+    1: "bottom",
+    2: "right",
+    3: "right",
+  });
+
   return (
     <Drawer
-      placement="bottom"
+      placement={placement}
       isOpen={isOpen}
       onClose={onClose}
       // blockScrollOnMount doesn't matter on our fullscreen UI, but the
@@ -37,7 +55,7 @@ function ItemSupportDrawer({ item, isOpen, onClose }) {
           <DrawerCloseButton />
           <DrawerHeader>
             {item.name}
-            <Badge colorScheme="purple" marginLeft="3">
+            <Badge colorScheme="pink" marginLeft="3">
               Support <span aria-hidden="true">💖</span>
             </Badge>
           </DrawerHeader>
@@ -53,26 +71,48 @@ function ItemSupportDrawer({ item, isOpen, onClose }) {
 }
 
 function SpecialColorFields({ item }) {
+  const { loading, error, data } = useQuery(gql`
+    query ItemSupportDrawer {
+      allColors {
+        id
+        name
+        isStandard
+      }
+    }
+  `);
+
+  const nonStandardColors = data?.allColors?.filter((c) => !c.isStandard) || [];
+  nonStandardColors.sort((a, b) => a.name.localeCompare(b.name));
+
   return (
-    <FormControl>
+    <FormControl isInvalid={error ? true : false}>
       <FormLabel>Special color</FormLabel>
-      <Select placeholder="Default: Auto-detect from item description">
-        <option>Mutant</option>
-        <option>Maraquan</option>
+      <Select
+        placeholder="Default: Auto-detect from item description"
+        icon={loading ? <Spinner /> : undefined}
+      >
+        {nonStandardColors.map((color) => (
+          <option key={color.id} value={color.id}>
+            {color.name}
+          </option>
+        ))}
       </Select>
-      <FormHelperText>
-        This controls which previews we show on the{" "}
-        <Link
-          href={`https://impress.openneo.net/items/${
-            item.id
-          }-${item.name.replace(/ /g, "-")}`}
-          color="green.500"
-          isExternal
-        >
-          item page <ExternalLinkIcon />
-        </Link>
-        .
-      </FormHelperText>
+      {error && <FormErrorMessage>{error.message}</FormErrorMessage>}
+      {!error && (
+        <FormHelperText>
+          This controls which previews we show on the{" "}
+          <Link
+            href={`https://impress.openneo.net/items/${
+              item.id
+            }-${item.name.replace(/ /g, "-")}`}
+            color="green.500"
+            isExternal
+          >
+            item page <ExternalLinkIcon />
+          </Link>
+          .
+        </FormHelperText>
+      )}
     </FormControl>
   );
 }

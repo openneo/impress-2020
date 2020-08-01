@@ -57,7 +57,7 @@ export function Item({ item, itemNameId, outfitState, dispatchToOutfit }) {
           <SupportOnly>
             <ItemActionButton
               icon={<EditIcon />}
-              label="Edit"
+              label="Support"
               onClick={() => setSupportDrawerIsOpen(true)}
             />
           </SupportOnly>

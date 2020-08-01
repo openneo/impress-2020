@@ -116,6 +116,7 @@ const typeDefs = gql`
   type Color @cacheControl(maxAge: 604800) {
     id: ID!
     name: String!
+    isStandard: Boolean!
   }
 
   # Cache for 1 week (unlikely to change)
@@ -330,6 +331,10 @@ const resolvers = {
       const colorTranslation = await colorTranslationLoader.load(id);
       return capitalize(colorTranslation.name);
     },
+    isStandard: async ({ id }, _, { colorLoader }) => {
+      const color = await colorLoader.load(id);
+      return color.standard ? true : false;
+    },
   },
   Species: {
     name: async ({ id }, _, { speciesTranslationLoader }) => {
@@ -360,8 +365,8 @@ const resolvers = {
     },
   },
   Query: {
-    allColors: async (_, { ids }, { loadAllColors }) => {
-      const allColors = await loadAllColors();
+    allColors: async (_, { ids }, { colorLoader }) => {
+      const allColors = await colorLoader.loadAll();
       return allColors;
     },
     allSpecies: async (_, { ids }, { loadAllSpecies }) => {
@@ -430,6 +435,7 @@ const resolvers = {
         colorId,
       });
       const petStates = await petStatesForPetTypeLoader.load(petType.id);
+      petStates.sort((a, b) => a.id - b.id);
       return petStates.map((petState) => ({ petStateId: petState.id }));
     },
     outfit: (_, { id }) => ({ id }),

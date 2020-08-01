@@ -1,10 +1,36 @@
 const DataLoader = require("dataloader");
 const { normalizeRow } = require("./util");
 
-const loadAllColors = (db) => async () => {
-  const [rows, _] = await db.execute(`SELECT * FROM colors WHERE prank = 0`);
-  const entities = rows.map(normalizeRow);
-  return entities;
+const buildColorLoader = (db) => {
+  const colorLoader = new DataLoader(async (colorIds) => {
+    const qs = colorIds.map((_) => "?").join(",");
+    const [rows, _] = await db.execute(
+      `SELECT * FROM colors WHERE id IN (${qs}) AND prank = 0`,
+      colorIds
+    );
+
+    const entities = rows.map(normalizeRow);
+    const entitiesByColorId = new Map(entities.map((e) => [e.id, e]));
+
+    return colorIds.map(
+      (colorId) =>
+        entitiesByColorId.get(String(colorId)) ||
+        new Error(`could not find color ${colorId}`)
+    );
+  });
+
+  colorLoader.loadAll = async () => {
+    const [rows, _] = await db.execute(`SELECT * FROM colors WHERE prank = 0`);
+    const entities = rows.map(normalizeRow);
+
+    for (const color of entities) {
+      colorLoader.prime(color.id, color);
+    }
+
+    return entities;
+  };
+
+  return colorLoader;
 };
 
 const buildColorTranslationLoader = (db) =>
@@ -22,7 +48,7 @@ const buildColorTranslationLoader = (db) =>
     return colorIds.map(
       (colorId) =>
         entitiesByColorId.get(String(colorId)) ||
-        new Error(`could not find translation for species ${colorId}`)
+        new Error(`could not find translation for color ${colorId}`)
     );
   });
 
@@ -72,7 +98,8 @@ const buildItemLoader = (db) =>
 
     return ids.map(
       (id) =>
-        entitiesById.get(String(id)) || new Error(`could not find item with ID: ${id}`)
+        entitiesById.get(String(id)) ||
+        new Error(`could not find item with ID: ${id}`)
     );
   });
 
@@ -347,10 +374,10 @@ const buildZoneTranslationLoader = (db) =>
 
 function buildLoaders(db) {
   const loaders = {};
-  loaders.loadAllColors = loadAllColors(db);
   loaders.loadAllSpecies = loadAllSpecies(db);
   loaders.loadAllPetTypes = loadAllPetTypes(db);
 
+  loaders.colorLoader = buildColorLoader(db);
   loaders.colorTranslationLoader = buildColorTranslationLoader(db);
   loaders.itemLoader = buildItemLoader(db);
   loaders.itemTranslationLoader = buildItemTranslationLoader(db);

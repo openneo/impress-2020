@@ -29,6 +29,7 @@ function SpeciesColorPicker({
       allColors {
         id
         name
+        isStandard # Not used here, but helpful for caching!
       }
     }
   `);
