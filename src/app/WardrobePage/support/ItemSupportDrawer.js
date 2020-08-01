@@ -14,13 +14,17 @@ import {
   FormErrorMessage,
   FormHelperText,
   FormLabel,
+  HStack,
   Link,
   Select,
   Spinner,
+  Stack,
   useBreakpointValue,
 } from "@chakra-ui/core";
 import { CheckCircleIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 
+import { OutfitLayers } from "../../components/OutfitPreview";
+import useOutfitAppearance from "../../components/useOutfitAppearance";
 import useSupportSecret from "./useSupportSecret";
 
 /**
@@ -29,7 +33,7 @@ import useSupportSecret from "./useSupportSecret";
  * This component controls the drawer element. The actual content is imported
  * from another lazy-loaded component!
  */
-function ItemSupportDrawer({ item, isOpen, onClose }) {
+function ItemSupportDrawer({ item, outfitState, isOpen, onClose }) {
   const placement = useBreakpointValue({
     base: "bottom",
     lg: "right",
@@ -53,17 +57,26 @@ function ItemSupportDrawer({ item, isOpen, onClose }) {
       blockScrollOnMount={false}
     >
       <DrawerOverlay>
-        <DrawerContent>
+        <DrawerContent
+          maxHeight={placement === "bottom" ? "90vh" : undefined}
+          overflow="auto"
+        >
           <DrawerCloseButton />
-          <DrawerHeader>
+          <DrawerHeader color="green.800">
             {item.name}
             <Badge colorScheme="pink" marginLeft="3">
               Support <span aria-hidden="true">💖</span>
             </Badge>
           </DrawerHeader>
-          <DrawerBody>
+          <DrawerBody color="green.800">
             <Box paddingBottom="5">
-              <SpecialColorFields item={item} />
+              <Stack spacing="8">
+                <ItemSupportSpecialColorFields item={item} />
+                <ItemSupportAppearanceFields
+                  item={item}
+                  outfitState={outfitState}
+                />
+              </Stack>
             </Box>
           </DrawerBody>
         </DrawerContent>
@@ -72,7 +85,7 @@ function ItemSupportDrawer({ item, isOpen, onClose }) {
   );
 }
 
-function SpecialColorFields({ item }) {
+function ItemSupportSpecialColorFields({ item }) {
   const supportSecret = useSupportSecret();
 
   const { loading: itemLoading, error: itemError, data: itemData } = useQuery(
@@ -212,6 +225,56 @@ function SpecialColorFields({ item }) {
         </FormHelperText>
       )}
     </FormControl>
+  );
+}
+
+function ItemSupportAppearanceFields({ item, outfitState }) {
+  const { speciesId, colorId, pose } = outfitState;
+  const { error, visibleLayers } = useOutfitAppearance({
+    speciesId,
+    colorId,
+    pose,
+    wornItemIds: [item.id],
+  });
+
+  const biologyLayers = visibleLayers.filter((l) => l.source === "pet");
+  const itemLayers = visibleLayers.filter((l) => l.source === "item");
+  itemLayers.sort((a, b) => a.zone.depth - b.zone.depth);
+
+  return (
+    <FormControl>
+      <FormLabel>Appearance layers</FormLabel>
+      <HStack spacing="4" overflow="auto">
+        {itemLayers.map((itemLayer) => (
+          <ItemSupportAppearanceLayer
+            biologyLayers={biologyLayers}
+            itemLayer={itemLayer}
+          />
+        ))}
+      </HStack>
+      {error && <FormErrorMessage>{error.message}</FormErrorMessage>}
+    </FormControl>
+  );
+}
+
+function ItemSupportAppearanceLayer({ biologyLayers, itemLayer }) {
+  return (
+    <Box width="150px" textAlign="center" fontSize="xs">
+      <Box
+        width="150px"
+        height="150px"
+        marginBottom="1"
+        boxShadow="md"
+        borderRadius="md"
+      >
+        <OutfitLayers visibleLayers={[...biologyLayers, itemLayer]} />
+      </Box>
+      <Box>
+        <b>{itemLayer.zone.label}</b>
+      </Box>
+      <Box>Zone ID: {itemLayer.zone.id}</Box>
+      <Box>Layer ID: {itemLayer.id}</Box>
+    </Box>
   );
 }
 

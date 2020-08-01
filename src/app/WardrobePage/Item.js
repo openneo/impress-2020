@@ -82,6 +82,7 @@ export function Item({ item, itemNameId, outfitState, dispatchToOutfit }) {
       <SupportOnly>
         <LoadableItemSupportDrawer
           item={item}
+          outfitState={outfitState}
           isOpen={supportDrawerIsOpen}
           onClose={() => setSupportDrawerIsOpen(false)}
         />

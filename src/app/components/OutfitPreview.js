@@ -80,7 +80,13 @@ export function OutfitLayers({
   }, []);
 
   return (
-    <Box pos="relative" height="100%" width="100%">
+    <Box
+      pos="relative"
+      height="100%"
+      width="100%"
+      // Create a stacking context, so the z-indexed layers don't escape!
+      zIndex="0"
+    >
       {placeholder && (
         <FullScreenCenter>
           <Box
@@ -111,7 +117,7 @@ export function OutfitLayers({
             `}
             timeout={200}
           >
-            <FullScreenCenter>
+            <FullScreenCenter zIndex={layer.zone.depth}>
               <img
                 src={getBestImageUrlForLayer(layer)}
                 alt=""
@@ -177,7 +183,7 @@ export function OutfitLayers({
   );
 }
 
-export function FullScreenCenter({ children }) {
+export function FullScreenCenter({ children, zIndex }) {
   return (
     <Flex
       pos="absolute"
@@ -187,6 +193,7 @@ export function FullScreenCenter({ children }) {
       left="0"
       alignItems="center"
       justifyContent="center"
+      zIndex={zIndex}
     >
       {children}
     </Flex>

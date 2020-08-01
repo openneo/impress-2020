@@ -91,15 +91,12 @@ export function getVisibleLayers(petAppearance, itemAppearances) {
 
   const validItemAppearances = itemAppearances.filter((a) => a);
 
-  const allAppearances = [petAppearance, ...validItemAppearances];
-  let allLayers = allAppearances.map((a) => a.layers).flat();
-
-  // Clean up our data a bit, by ensuring only one layer per zone. This
-  // shouldn't happen in theory, but sometimes our database doesn't clean up
-  // after itself correctly :(
-  allLayers = allLayers.filter((l, i) => {
-    return allLayers.findIndex((l2) => l2.zone.id === l.zone.id) === i;
-  });
+  const petLayers = petAppearance.layers.map((l) => ({ ...l, source: "pet" }));
+  const itemLayers = validItemAppearances
+    .map((a) => a.layers)
+    .flat()
+    .map((l) => ({ ...l, source: "item" }));
+  let allLayers = [...petLayers, ...itemLayers];
 
   const allRestrictedZoneIds = validItemAppearances
     .map((l) => l.restrictedZones)
@@ -123,6 +120,7 @@ export const itemAppearanceFragment = gql`
       zone {
         id
         depth
+        label # HACK: This is for Support tools, but other views don't need it
       }
     }
 
