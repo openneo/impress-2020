@@ -1,7 +1,7 @@
 import React from "react";
 import gql from "graphql-tag";
 import produce, { enableMapSet } from "immer";
-import { useQuery, useApolloClient } from "@apollo/react-hooks";
+import { useQuery, useApolloClient } from "@apollo/client";
 
 import { itemAppearanceFragment } from "../components/useOutfitAppearance";
 

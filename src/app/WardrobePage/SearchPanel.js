@@ -1,7 +1,7 @@
 import React from "react";
 import gql from "graphql-tag";
 import { Box, Text, VisuallyHidden } from "@chakra-ui/core";
-import { useQuery } from "@apollo/react-hooks";
+import { useQuery } from "@apollo/client";
 
 import { Delay, Heading1, useDebounce } from "../util";
 import { Item, ItemListContainer, ItemListSkeleton } from "./Item";

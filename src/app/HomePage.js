@@ -3,7 +3,7 @@ import { css } from "emotion";
 import gql from "graphql-tag";
 import { Box, Button, Flex, Input, useTheme, useToast } from "@chakra-ui/core";
 import { useHistory } from "react-router-dom";
-import { useLazyQuery } from "@apollo/react-hooks";
+import { useLazyQuery } from "@apollo/client";
 
 import { Heading1, usePageTitle } from "./util";
 import OutfitPreview from "./components/OutfitPreview";

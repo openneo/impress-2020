@@ -1,6 +1,6 @@
 import React from "react";
 import gql from "graphql-tag";
-import { useQuery } from "@apollo/react-hooks";
+import { useQuery } from "@apollo/client";
 
 /**
  * useOutfitAppearance downloads the outfit's appearance data, and returns

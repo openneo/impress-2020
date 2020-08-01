@@ -1,5 +1,5 @@
 import React from "react";
-import { ApolloProvider } from "@apollo/react-hooks";
+import { ApolloProvider } from "@apollo/client";
 import { CSSReset, ChakraProvider } from "@chakra-ui/core";
 import theme from "@chakra-ui/theme";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
