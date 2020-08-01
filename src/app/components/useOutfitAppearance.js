@@ -77,10 +77,13 @@ export default function useOutfitAppearance(outfitState) {
     [data1, itemAppearances]
   );
 
+  const bodyId = data1?.petAppearance?.bodyId;
+
   return {
     loading: loading1 || loading2,
     error: error1 || error2,
     visibleLayers,
+    bodyId,
   };
 }
 
@@ -134,6 +137,7 @@ export const itemAppearanceFragment = gql`
 export const petAppearanceFragment = gql`
   fragment PetAppearanceForOutfitPreview on PetAppearance {
     id
+    bodyId
     layers {
       id
       svgUrl

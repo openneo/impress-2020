@@ -11,10 +11,12 @@ import {
   ModalBody,
   ModalCloseButton,
   ModalContent,
+  ModalFooter,
   ModalHeader,
   ModalOverlay,
   Radio,
   RadioGroup,
+  Spinner,
 } from "@chakra-ui/core";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 
@@ -37,7 +39,7 @@ function ItemSupportAppearanceLayerModal({
             Layer {itemLayer.id}: {item.name}
           </ModalHeader>
           <ModalCloseButton />
-          <ModalBody mb="4" pb="4">
+          <ModalBody>
             <Metadata>
               <MetadataLabel>ID:</MetadataLabel>
               <MetadataValue>{itemLayer.id}</MetadataValue>
@@ -88,6 +90,9 @@ function ItemSupportAppearanceLayerModal({
               outfitState={outfitState}
             />
           </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="green">Save changes</Button>
+          </ModalFooter>
         </ModalContent>
       </ModalOverlay>
     </Modal>
@@ -99,6 +104,7 @@ function ItemSupportAppearanceLayerPetCompatibility({
   itemLayer,
   outfitState,
 }) {
+  const [bodyId, setBodyId] = React.useState(itemLayer.bodyId);
   const [selectedBiology, setSelectedBiology] = React.useState({
     speciesId: outfitState.speciesId,
     colorId: outfitState.colorId,
@@ -106,9 +112,13 @@ function ItemSupportAppearanceLayerPetCompatibility({
     isValid: true,
   });
   const [visibleBiology, setVisibleBiology] = React.useState(selectedBiology);
-  console.log(selectedBiology, visibleBiology);
 
-  const { loading, error, visibleLayers } = useOutfitAppearance({
+  const {
+    loading,
+    error,
+    visibleLayers,
+    bodyId: appearanceBodyId,
+  } = useOutfitAppearance({
     speciesId: visibleBiology.speciesId,
     colorId: visibleBiology.colorId,
     pose: visibleBiology.pose,
@@ -117,13 +127,21 @@ function ItemSupportAppearanceLayerPetCompatibility({
 
   const biologyLayers = visibleLayers.filter((l) => l.source === "pet");
 
+  // When the appearance body ID changes, select it as the new body ID. (This
+  // is an effect because it happens after the appearance finishes loading!)
+  React.useEffect(() => {
+    if (bodyId !== "0") {
+      setBodyId(appearanceBodyId);
+    }
+  }, [bodyId, appearanceBodyId]);
+
   return (
     <FormControl isInvalid={error || !selectedBiology.isValid ? true : false}>
       <FormLabel>Pet compatibility</FormLabel>
       <RadioGroup
         colorScheme="green"
-        value={itemLayer.bodyId}
-        onChange={(e) => console.log(e)}
+        value={bodyId}
+        onChange={(newBodyId) => setBodyId(newBodyId)}
         marginBottom="4"
       >
         <Radio value="0">
@@ -132,10 +150,16 @@ function ItemSupportAppearanceLayerPetCompatibility({
             (Body ID: 0)
           </Box>
         </Radio>
-        <Radio as="div" value="100" marginTop="2">
+        <Radio as="div" value={appearanceBodyId} marginTop="2">
           Fits all pets with the same body as:{" "}
           <Box display="inline" color="gray.400" fontSize="sm">
-            (Body ID: 100)
+            (Body ID:{" "}
+            {appearanceBodyId == null ? (
+              <Spinner size="sm" />
+            ) : (
+              appearanceBodyId
+            )}
+            )
           </Box>
         </Radio>
       </RadioGroup>
@@ -157,7 +181,6 @@ function ItemSupportAppearanceLayerPetCompatibility({
           speciesId={selectedBiology.speciesId}
           colorId={selectedBiology.colorId}
           idealPose={outfitState.pose}
-          isDisabled={itemLayer.bodyId === "0"}
           size="sm"
           showPlaceholders
           onChange={(species, color, isValid, pose) => {
