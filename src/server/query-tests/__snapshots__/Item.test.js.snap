@@ -85,6 +85,7 @@ Object {
       "description": "Dont leave any trace that you were there with these gloves.",
       "id": "38913",
       "isNc": false,
+      "manualSpecialColor": null,
       "name": "Zafara Agent Gloves",
       "rarityIndex": 88,
       "thumbnailUrl": "http://images.neopets.com/items/clo_zafara_agent_gloves.gif",
@@ -93,6 +94,7 @@ Object {
       "description": "Hide your face and hair so no one can recognise you.",
       "id": "38911",
       "isNc": false,
+      "manualSpecialColor": null,
       "name": "Zafara Agent Hood",
       "rarityIndex": 92,
       "thumbnailUrl": "http://images.neopets.com/items/clo_zafara_agent_hood.gif",
@@ -101,14 +103,28 @@ Object {
       "description": "This robe is great for being stealthy.",
       "id": "38912",
       "isNc": false,
+      "manualSpecialColor": null,
       "name": "Zafara Agent Robe",
       "rarityIndex": 90,
       "thumbnailUrl": "http://images.neopets.com/items/clo_zafara_agent_robe.gif",
     },
     Object {
+      "description": "Made with the finest jewels of the sea!",
+      "id": "77530",
+      "isNc": true,
+      "manualSpecialColor": Object {
+        "id": "44",
+        "name": "Maraquan",
+      },
+      "name": "Maraquan Sea Blue Gown",
+      "rarityIndex": 500,
+      "thumbnailUrl": "http://images.neopets.com/items/mall_clo_marabluegown.gif",
+    },
+    Object {
       "description": "You truly are the number one fan of Altador Cup, and your room reflects this!",
       "id": "78104",
       "isNc": true,
+      "manualSpecialColor": null,
       "name": "#1 Fan Room Background",
       "rarityIndex": 500,
       "thumbnailUrl": "http://images.neopets.com/items/mall_bg_numberonefanbg.gif",
@@ -118,6 +134,21 @@ Object {
 `;
 
 exports[`Item skips appearance data for audio assets 1`] = `
+Object {
+  "items": Array [
+    Object {
+      "appearanceOn": Object {
+        "layers": Array [],
+        "restrictedZones": Array [],
+      },
+      "id": "42829",
+      "name": "Time Tunnel Music Track",
+    },
+  ],
+}
+`;
+
+exports[`Item skips appearance data for audio assets 3`] = `
 Object {
   "items": Array [
     Object {

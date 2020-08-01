@@ -71,15 +71,24 @@ function ItemSupportDrawer({ item, isOpen, onClose }) {
 }
 
 function SpecialColorFields({ item }) {
-  const { loading, error, data } = useQuery(gql`
-    query ItemSupportDrawer {
-      allColors {
-        id
-        name
-        isStandard
+  const { loading, error, data } = useQuery(
+    gql`
+      query ItemSupportDrawerSpecialColorFields($itemId: ID!) {
+        allColors {
+          id
+          name
+          isStandard
+        }
+
+        item(id: $itemId) {
+          manualSpecialColor {
+            id
+          }
+        }
       }
-    }
-  `);
+    `,
+    { variables: { itemId: item.id } }
+  );
 
   const nonStandardColors = data?.allColors?.filter((c) => !c.isStandard) || [];
   nonStandardColors.sort((a, b) => a.name.localeCompare(b.name));
@@ -88,8 +97,11 @@ function SpecialColorFields({ item }) {
     <FormControl isInvalid={error ? true : false}>
       <FormLabel>Special color</FormLabel>
       <Select
-        placeholder="Default: Auto-detect from item description"
+        placeholder={
+          loading ? "Loading…" : "Default: Auto-detect from item description"
+        }
         icon={loading ? <Spinner /> : undefined}
+        value={data?.item?.manualSpecialColor?.id}
       >
         {nonStandardColors.map((color) => (
           <option key={color.id} value={color.id}>

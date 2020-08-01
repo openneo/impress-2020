@@ -66,6 +66,12 @@ const typeDefs = gql`
     rarityIndex: Int!
     isNc: Boolean!
     appearanceOn(speciesId: ID!, colorId: ID!): ItemAppearance
+
+    # This is set manually by Support users, when the pet is only for e.g.
+    # Maraquan pets, and our usual auto-detection isn't working. We provide
+    # this for the Support UI; it's not very helpful for most users, because it
+    # can be empty even if the item _has_ an auto-detected special color.
+    manualSpecialColor: Color
   }
 
   # Cache for 1 week (unlikely to change)
@@ -147,6 +153,7 @@ const typeDefs = gql`
     allColors: [Color!]! @cacheControl(maxAge: 10800) # Cache for 3 hours (we might add more!)
     allSpecies: [Species!]! @cacheControl(maxAge: 10800) # Cache for 3 hours (we might add more!)
     allValidSpeciesColorPairs: [SpeciesColorPair!]! # deprecated
+    item(id: ID!): Item
     items(ids: [ID!]!): [Item!]!
     itemSearch(query: String!): ItemSearchResult!
     itemSearchToFit(
@@ -227,6 +234,12 @@ const resolvers = {
       }
 
       return { layers: swfAssets, restrictedZones };
+    },
+    manualSpecialColor: async ({ id }, _, { itemLoader }) => {
+      const item = await itemLoader.load(id);
+      return item.manualSpecialColorId != null
+        ? { id: item.manualSpecialColorId }
+        : null;
     },
   },
   PetAppearance: {
@@ -381,6 +394,7 @@ const resolvers = {
       }));
       return allPairs;
     },
+    item: (_, { id }) => ({ id }),
     items: (_, { ids }) => {
       return ids.map((id) => ({ id }));
     },
