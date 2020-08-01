@@ -1,6 +1,7 @@
 import * as React from "react";
 import gql from "graphql-tag";
 import { useQuery, useMutation } from "@apollo/client";
+import { css } from "emotion";
 import {
   Badge,
   Box,
@@ -20,9 +21,11 @@ import {
   Spinner,
   Stack,
   useBreakpointValue,
+  useDisclosure,
 } from "@chakra-ui/core";
-import { CheckCircleIcon, ExternalLinkIcon } from "@chakra-ui/icons";
+import { CheckCircleIcon, EditIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 
+import ItemSupportAppearanceLayerModal from "./ItemSupportAppearanceLayerModal";
 import { OutfitLayers } from "../../components/OutfitPreview";
 import useOutfitAppearance from "../../components/useOutfitAppearance";
 import useSupportSecret from "./useSupportSecret";
@@ -244,11 +247,12 @@ function ItemSupportAppearanceFields({ item, outfitState }) {
   return (
     <FormControl>
       <FormLabel>Appearance layers</FormLabel>
-      <HStack spacing="4" overflow="auto">
+      <HStack spacing="4" overflow="auto" paddingX="1">
         {itemLayers.map((itemLayer) => (
           <ItemSupportAppearanceLayer
             biologyLayers={biologyLayers}
             itemLayer={itemLayer}
+            item={item}
           />
         ))}
       </HStack>
@@ -257,9 +261,18 @@ function ItemSupportAppearanceFields({ item, outfitState }) {
   );
 }
 
-function ItemSupportAppearanceLayer({ biologyLayers, itemLayer }) {
+function ItemSupportAppearanceLayer({ biologyLayers, itemLayer, item }) {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   return (
-    <Box width="150px" textAlign="center" fontSize="xs">
+    <Box
+      as="button"
+      width="150px"
+      textAlign="center"
+      fontSize="xs"
+      position="relative"
+      onClick={onOpen}
+    >
       <Box
         width="150px"
         height="150px"
@@ -269,11 +282,38 @@ function ItemSupportAppearanceLayer({ biologyLayers, itemLayer }) {
       >
         <OutfitLayers visibleLayers={[...biologyLayers, itemLayer]} />
       </Box>
-      <Box>
-        <b>{itemLayer.zone.label}</b>
-      </Box>
+      <Box fontWeight="bold">{itemLayer.zone.label}</Box>
       <Box>Zone ID: {itemLayer.zone.id}</Box>
       <Box>Layer ID: {itemLayer.id}</Box>
+      <Box
+        className={css`
+          opacity: 0;
+          transition: opacity 0.2s;
+
+          button:hover > &,
+          button:focus > & {
+            opacity: 1;
+          }
+        `}
+        background="rgba(255, 255, 255, 0.8)"
+        borderRadius="full"
+        position="absolute"
+        top="2"
+        right="2"
+        padding="2"
+        alignItems="center"
+        justifyContent="center"
+        width="32px"
+        height="32px"
+      >
+        <EditIcon boxSize="16px" position="relative" top="-2px" right="-1px" />
+      </Box>
+      <ItemSupportAppearanceLayerModal
+        item={item}
+        itemLayer={itemLayer}
+        isOpen={isOpen}
+        onClose={onClose}
+      />
     </Box>
   );
 }
