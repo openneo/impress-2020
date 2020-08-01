@@ -75,15 +75,9 @@ function ItemSupportDrawer({ item, isOpen, onClose }) {
 function SpecialColorFields({ item }) {
   const supportSecret = useSupportSecret();
 
-  const { loading, error, data } = useQuery(
+  const { loading: itemLoading, error: itemError, data: itemData } = useQuery(
     gql`
-      query ItemSupportDrawerSpecialColorFields($itemId: ID!) {
-        allColors {
-          id
-          name
-          isStandard
-        }
-
+      query ItemSupportDrawerManualSpecialColor($itemId: ID!) {
         item(id: $itemId) {
           manualSpecialColor {
             id
@@ -94,9 +88,25 @@ function SpecialColorFields({ item }) {
     { variables: { itemId: item.id } }
   );
 
+  const {
+    loading: colorsLoading,
+    error: colorsError,
+    data: colorsData,
+  } = useQuery(
+    gql`
+      query ItemSupportDrawerAllColors {
+        allColors {
+          id
+          name
+          isStandard
+        }
+      }
+    `
+  );
+
   const [
     mutate,
-    { loading: loading2, error: error2, data: data2 },
+    { loading: mutationLoading, error: mutationError, data: mutationData },
   ] = useMutation(gql`
     mutation ItemSupportDrawerSetManualSpecialColor(
       $itemId: ID!
@@ -116,24 +126,29 @@ function SpecialColorFields({ item }) {
     }
   `);
 
-  const nonStandardColors = data?.allColors?.filter((c) => !c.isStandard) || [];
+  const nonStandardColors =
+    colorsData?.allColors?.filter((c) => !c.isStandard) || [];
   nonStandardColors.sort((a, b) => a.name.localeCompare(b.name));
 
   return (
-    <FormControl isInvalid={error ? true : false}>
+    <FormControl
+      isInvalid={colorsError || itemError || mutationError ? true : false}
+    >
       <FormLabel>Special color</FormLabel>
       <Select
         placeholder={
-          loading ? "Loading…" : "Default: Auto-detect from item description"
+          colorsLoading || itemLoading
+            ? "Loading…"
+            : "Default: Auto-detect from item description"
         }
         icon={
-          loading || loading2 ? (
+          colorsLoading || itemLoading || mutationLoading ? (
             <Spinner />
-          ) : data2 ? (
+          ) : mutationData ? (
             <CheckCircleIcon />
           ) : undefined
         }
-        value={data?.item?.manualSpecialColor?.id}
+        value={itemData?.item?.manualSpecialColor?.id}
         onChange={(e) => {
           const colorId = e.target.value;
           const color =
@@ -169,9 +184,14 @@ function SpecialColorFields({ item }) {
           </option>
         ))}
       </Select>
-      {error && <FormErrorMessage>{error.message}</FormErrorMessage>}
-      {error2 && <FormErrorMessage>{error2.message}</FormErrorMessage>}
-      {!error && (
+      {colorsError && (
+        <FormErrorMessage>{colorsError.message}</FormErrorMessage>
+      )}
+      {itemError && <FormErrorMessage>{itemError.message}</FormErrorMessage>}
+      {mutationError && (
+        <FormErrorMessage>{mutationError.message}</FormErrorMessage>
+      )}
+      {!colorsError && !itemError && !mutationError && (
         <FormHelperText>
           This controls which previews we show on the{" "}
           <Link
