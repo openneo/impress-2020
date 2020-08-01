@@ -1,4 +1,6 @@
 import * as React from "react";
+import gql from "graphql-tag";
+import { useMutation } from "@apollo/client";
 import {
   Button,
   Box,
@@ -17,12 +19,16 @@ import {
   Radio,
   RadioGroup,
   Spinner,
+  useToast,
 } from "@chakra-ui/core";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 
 import { OutfitLayers } from "../../components/OutfitPreview";
 import SpeciesColorPicker from "../../components/SpeciesColorPicker";
-import useOutfitAppearance from "../../components/useOutfitAppearance";
+import useOutfitAppearance, {
+  itemAppearanceFragment,
+} from "../../components/useOutfitAppearance";
+import useSupportSecret from "./useSupportSecret";
 
 function ItemSupportAppearanceLayerModal({
   item,
@@ -31,6 +37,82 @@ function ItemSupportAppearanceLayerModal({
   isOpen,
   onClose,
 }) {
+  const [selectedBodyId, setSelectedBodyId] = React.useState(itemLayer.bodyId);
+  const [previewBiology, setPreviewBiology] = React.useState({
+    speciesId: outfitState.speciesId,
+    colorId: outfitState.colorId,
+    pose: outfitState.pose,
+    isValid: true,
+  });
+  const supportSecret = useSupportSecret();
+  const toast = useToast();
+
+  const [
+    mutate,
+    { loading: mutationLoading, error: mutationError },
+  ] = useMutation(
+    gql`
+      mutation ItemSupportSetLayerBodyId(
+        $layerId: ID!
+        $bodyId: ID!
+        $supportSecret: String!
+        $outfitSpeciesId: ID!
+        $outfitColorId: ID!
+        $formPreviewSpeciesId: ID!
+        $formPreviewColorId: ID!
+      ) {
+        setLayerBodyId(
+          layerId: $layerId
+          bodyId: $bodyId
+          supportSecret: $supportSecret
+        ) {
+          # This mutation returns the affected AppearanceLayer. Fetch the
+          # updated fields, including the appearance on the outfit pet and the
+          # form preview pet, to automatically update our cached appearance in
+          # the rest of the app. That means you should be able to see your
+          # changes immediately!
+          id
+          bodyId
+          item {
+            id
+            appearanceOnOutfit: appearanceOn(
+              speciesId: $outfitSpeciesId
+              colorId: $outfitColorId
+            ) {
+              ...ItemAppearanceForOutfitPreview
+            }
+
+            appearanceOnFormPreviewPet: appearanceOn(
+              speciesId: $formPreviewSpeciesId
+              colorId: $formPreviewColorId
+            ) {
+              ...ItemAppearanceForOutfitPreview
+            }
+          }
+        }
+      }
+      ${itemAppearanceFragment}
+    `,
+    {
+      variables: {
+        layerId: itemLayer.id,
+        bodyId: selectedBodyId,
+        supportSecret,
+        outfitSpeciesId: outfitState.speciesId,
+        outfitColorId: outfitState.colorId,
+        formPreviewSpeciesId: previewBiology.speciesId,
+        formPreviewColorId: previewBiology.colorId,
+      },
+      onCompleted: () => {
+        onClose();
+        toast({
+          status: "success",
+          title: `Saved layer ${itemLayer.id}: ${item.name}`,
+        });
+      },
+    }
+  );
+
   return (
     <Modal size="xl" isOpen={isOpen} onClose={onClose}>
       <ModalOverlay>
@@ -41,7 +123,7 @@ function ItemSupportAppearanceLayerModal({
           <ModalCloseButton />
           <ModalBody>
             <Metadata>
-              <MetadataLabel>ID:</MetadataLabel>
+              <MetadataLabel>DTI ID:</MetadataLabel>
               <MetadataValue>{itemLayer.id}</MetadataValue>
               <MetadataLabel>Zone:</MetadataLabel>
               <MetadataValue>
@@ -88,10 +170,30 @@ function ItemSupportAppearanceLayerModal({
               item={item}
               itemLayer={itemLayer}
               outfitState={outfitState}
+              selectedBodyId={selectedBodyId}
+              previewBiology={previewBiology}
+              onChangeBodyId={setSelectedBodyId}
+              onChangePreviewBiology={setPreviewBiology}
             />
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme="green">Save changes</Button>
+            {mutationError && (
+              <Box
+                color="red.400"
+                fontSize="sm"
+                marginRight="2"
+                textAlign="right"
+              >
+                {mutationError.message}
+              </Box>
+            )}
+            <Button
+              isLoading={mutationLoading}
+              colorScheme="green"
+              onClick={mutate}
+            >
+              Save changes
+            </Button>
           </ModalFooter>
         </ModalContent>
       </ModalOverlay>
@@ -103,15 +205,12 @@ function ItemSupportAppearanceLayerPetCompatibility({
   item,
   itemLayer,
   outfitState,
+  selectedBodyId,
+  previewBiology,
+  onChangeBodyId,
+  onChangePreviewBiology,
 }) {
-  const [bodyId, setBodyId] = React.useState(itemLayer.bodyId);
-  const [selectedBiology, setSelectedBiology] = React.useState({
-    speciesId: outfitState.speciesId,
-    colorId: outfitState.colorId,
-    pose: outfitState.pose,
-    isValid: true,
-  });
-  const [visibleBiology, setVisibleBiology] = React.useState(selectedBiology);
+  const [selectedBiology, setSelectedBiology] = React.useState(previewBiology);
 
   const {
     loading,
@@ -119,9 +218,9 @@ function ItemSupportAppearanceLayerPetCompatibility({
     visibleLayers,
     bodyId: appearanceBodyId,
   } = useOutfitAppearance({
-    speciesId: visibleBiology.speciesId,
-    colorId: visibleBiology.colorId,
-    pose: visibleBiology.pose,
+    speciesId: previewBiology.speciesId,
+    colorId: previewBiology.colorId,
+    pose: previewBiology.pose,
     wornItemIds: [item.id],
   });
 
@@ -130,18 +229,18 @@ function ItemSupportAppearanceLayerPetCompatibility({
   // When the appearance body ID changes, select it as the new body ID. (This
   // is an effect because it happens after the appearance finishes loading!)
   React.useEffect(() => {
-    if (bodyId !== "0") {
-      setBodyId(appearanceBodyId);
+    if (selectedBodyId !== "0") {
+      onChangeBodyId(appearanceBodyId);
     }
-  }, [bodyId, appearanceBodyId]);
+  }, [selectedBodyId, appearanceBodyId, onChangeBodyId]);
 
   return (
     <FormControl isInvalid={error || !selectedBiology.isValid ? true : false}>
       <FormLabel>Pet compatibility</FormLabel>
       <RadioGroup
         colorScheme="green"
-        value={bodyId}
-        onChange={(newBodyId) => setBodyId(newBodyId)}
+        value={selectedBodyId}
+        onChange={(newBodyId) => onChangeBodyId(newBodyId)}
         marginBottom="4"
       >
         <Radio value="0">
@@ -189,7 +288,7 @@ function ItemSupportAppearanceLayerPetCompatibility({
 
             setSelectedBiology({ speciesId, colorId, isValid, pose });
             if (isValid) {
-              setVisibleBiology({ speciesId, colorId, isValid, pose });
+              onChangePreviewBiology({ speciesId, colorId, isValid, pose });
             }
           }}
         />

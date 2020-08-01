@@ -250,6 +250,7 @@ function ItemSupportAppearanceFields({ item, outfitState }) {
       <HStack spacing="4" overflow="auto" paddingX="1">
         {itemLayers.map((itemLayer) => (
           <ItemSupportAppearanceLayer
+            key={itemLayer.id}
             item={item}
             itemLayer={itemLayer}
             biologyLayers={biologyLayers}
@@ -290,7 +291,7 @@ function ItemSupportAppearanceLayer({
       </Box>
       <Box fontWeight="bold">{itemLayer.zone.label}</Box>
       <Box>Zone ID: {itemLayer.zone.id}</Box>
-      <Box>Layer ID: {itemLayer.id}</Box>
+      <Box>DTI ID: {itemLayer.id}</Box>
       <Box
         className={css`
           opacity: 0;

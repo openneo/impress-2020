@@ -110,6 +110,11 @@ const typeDefs = gql`
     special body ID that indicates it fits all PetAppearances.
     """
     bodyId: ID!
+
+    """
+    The item this layer is for, if any. (For pet layers, this is null.)
+    """
+    item: Item
   }
 
   # Cache for 1 week (unlikely to change)
@@ -184,6 +189,12 @@ const typeDefs = gql`
       colorId: ID
       supportSecret: String!
     ): Item!
+
+    setLayerBodyId(
+      layerId: ID!
+      bodyId: ID!
+      supportSecret: String!
+    ): AppearanceLayer!
   }
 `;
 
@@ -288,11 +299,18 @@ const resolvers = {
     },
   },
   AppearanceLayer: {
-    zone: async (layer, _, { zoneLoader }) => {
+    bodyId: async ({ id }, _, { swfAssetLoader }) => {
+      const layer = await swfAssetLoader.load(id);
+      return layer.bodyId;
+    },
+    zone: async ({ id }, _, { swfAssetLoader, zoneLoader }) => {
+      const layer = await swfAssetLoader.load(id);
       const zone = await zoneLoader.load(layer.zoneId);
       return zone;
     },
-    imageUrl: (layer, { size }) => {
+    imageUrl: async ({ id }, { size }, { swfAssetLoader }) => {
+      const layer = await swfAssetLoader.load(id);
+
       if (!layer.hasImage) {
         return null;
       }
@@ -311,7 +329,9 @@ const resolvers = {
         `/${rid1}/${rid2}/${rid3}/${rid}/${sizeNum}x${sizeNum}.png?v2-${time}`
       );
     },
-    svgUrl: async (layer, _, { svgLogger }) => {
+    svgUrl: async ({ id }, _, { swfAssetLoader, svgLogger }) => {
+      const layer = await swfAssetLoader.load(id);
+
       const manifest = await neopets.loadAssetManifest(layer.url);
       if (!manifest) {
         svgLogger.log("no-manifest");
@@ -338,6 +358,24 @@ const resolvers = {
       const assetDatum = asset.assetData[0];
       const url = new URL(assetDatum.path, "http://images.neopets.com");
       return url.toString();
+    },
+    item: async ({ id }, _, { db }) => {
+      // TODO: If this becomes a popular request, we'll definitely need to
+      // loaderize this! I'm cheating for now because it's just Support, one at
+      // a time.
+      const [rows] = await db.query(
+        `
+        SELECT parent_id FROM parents_swf_assets
+        WHERE swf_asset_id = ? AND parent_type = "Item" LIMIT 1;
+      `,
+        [id]
+      );
+
+      if (rows.length === 0) {
+        return null;
+      }
+
+      return { id: String(rows[0].parent_id) };
     },
   },
   Zone: {
@@ -514,6 +552,27 @@ const resolvers = {
       }
 
       return { id: itemId };
+    },
+
+    setLayerBodyId: async (_, { layerId, bodyId, supportSecret }, { db }) => {
+      if (supportSecret !== process.env["SUPPORT_SECRET"]) {
+        throw new Error(`Support secret is incorrect. Try setting up again?`);
+      }
+
+      const [
+        result,
+      ] = await db.execute(
+        `UPDATE swf_assets SET body_id = ? WHERE id = ? LIMIT 1`,
+        [bodyId, layerId]
+      );
+
+      if (result.affectedRows !== 1) {
+        throw new Error(
+          `Expected to affect 1 layer, but affected ${result.affectedRows}`
+        );
+      }
+
+      return { id: layerId };
     },
   },
 };

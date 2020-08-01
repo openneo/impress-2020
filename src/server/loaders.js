@@ -223,7 +223,22 @@ const buildPetTypeBySpeciesAndColorLoader = (db, loaders) =>
     );
   });
 
-const buildItemSwfAssetLoader = (db) =>
+const buildSwfAssetLoader = (db) =>
+  new DataLoader(async (swfAssetIds) => {
+    const qs = swfAssetIds.map((_) => "?").join(",");
+    const [rows, _] = await db.execute(
+      `SELECT * FROM swf_assets WHERE id IN (${qs})`,
+      swfAssetIds
+    );
+
+    const entities = rows.map(normalizeRow);
+
+    return swfAssetIds.map((swfAssetId) =>
+      entities.find((e) => e.id === swfAssetId)
+    );
+  });
+
+const buildItemSwfAssetLoader = (db, loaders) =>
   new DataLoader(async (itemAndBodyPairs) => {
     const conditions = [];
     const values = [];
@@ -245,6 +260,10 @@ const buildItemSwfAssetLoader = (db) =>
 
     const entities = rows.map(normalizeRow);
 
+    for (const swfAsset of entities) {
+      loaders.swfAssetLoader.prime(swfAsset.id, swfAsset);
+    }
+
     return itemAndBodyPairs.map(({ itemId, bodyId }) =>
       entities.filter(
         (e) =>
@@ -253,7 +272,7 @@ const buildItemSwfAssetLoader = (db) =>
     );
   });
 
-const buildPetSwfAssetLoader = (db) =>
+const buildPetSwfAssetLoader = (db, loaders) =>
   new DataLoader(async (petStateIds) => {
     const qs = petStateIds.map((_) => "?").join(",");
     const [rows, _] = await db.execute(
@@ -266,6 +285,10 @@ const buildPetSwfAssetLoader = (db) =>
     );
 
     const entities = rows.map(normalizeRow);
+
+    for (const swfAsset of entities) {
+      loaders.swfAssetLoader.prime(swfAsset.id, swfAsset);
+    }
 
     return petStateIds.map((petStateId) =>
       entities.filter((e) => e.parentId === petStateId)
@@ -388,8 +411,9 @@ function buildLoaders(db) {
     db,
     loaders
   );
-  loaders.itemSwfAssetLoader = buildItemSwfAssetLoader(db);
-  loaders.petSwfAssetLoader = buildPetSwfAssetLoader(db);
+  loaders.swfAssetLoader = buildSwfAssetLoader(db);
+  loaders.itemSwfAssetLoader = buildItemSwfAssetLoader(db, loaders);
+  loaders.petSwfAssetLoader = buildPetSwfAssetLoader(db, loaders);
   loaders.outfitLoader = buildOutfitLoader(db);
   loaders.itemOutfitRelationshipsLoader = buildItemOutfitRelationshipsLoader(
     db
