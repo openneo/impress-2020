@@ -7,8 +7,7 @@ async function connectToDb() {
     return globalDb;
   }
 
-  globalDb = await mysql.createPool({
-    connectionLimit: 5,
+  globalDb = await mysql.createConnection({
     host: "impress.openneo.net",
     user: process.env["IMPRESS_MYSQL_USER"],
     password: process.env["IMPRESS_MYSQL_PASSWORD"],
