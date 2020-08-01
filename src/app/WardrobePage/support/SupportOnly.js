@@ -1,4 +1,4 @@
-import * as React from "react";
+import useSupportSecret from "./useSupportSecret";
 
 /**
  * SupportOnly only shows its contents to Support users. For most users, the
@@ -12,13 +12,8 @@ import * as React from "react";
  * the server checks the provided secret for each Support request.
  */
 function SupportOnly({ children }) {
-  const supportSecret = React.useMemo(getSupportSecret, []);
-
+  const supportSecret = useSupportSecret();
   return supportSecret ? children : null;
-}
-
-function getSupportSecret() {
-  return localStorage.getItem("supportSecret");
 }
 
 export default SupportOnly;

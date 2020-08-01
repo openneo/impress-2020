@@ -1,6 +1,6 @@
 import * as React from "react";
 import gql from "graphql-tag";
-import { useQuery } from "@apollo/react-hooks";
+import { useQuery, useMutation } from "@apollo/client";
 import {
   Badge,
   Box,
@@ -19,7 +19,9 @@ import {
   Spinner,
   useBreakpointValue,
 } from "@chakra-ui/core";
-import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { CheckCircleIcon, ExternalLinkIcon } from "@chakra-ui/icons";
+
+import useSupportSecret from "./useSupportSecret";
 
 /**
  * ItemSupportDrawer shows Support UI for the item when open.
@@ -71,6 +73,8 @@ function ItemSupportDrawer({ item, isOpen, onClose }) {
 }
 
 function SpecialColorFields({ item }) {
+  const supportSecret = useSupportSecret();
+
   const { loading, error, data } = useQuery(
     gql`
       query ItemSupportDrawerSpecialColorFields($itemId: ID!) {
@@ -90,6 +94,28 @@ function SpecialColorFields({ item }) {
     { variables: { itemId: item.id } }
   );
 
+  const [
+    mutate,
+    { loading: loading2, error: error2, data: data2 },
+  ] = useMutation(gql`
+    mutation ItemSupportDrawerSetManualSpecialColor(
+      $itemId: ID!
+      $colorId: ID
+      $supportSecret: String!
+    ) {
+      setManualSpecialColor(
+        itemId: $itemId
+        colorId: $colorId
+        supportSecret: $supportSecret
+      ) {
+        manualSpecialColor {
+          __typename
+          id
+        }
+      }
+    }
+  `);
+
   const nonStandardColors = data?.allColors?.filter((c) => !c.isStandard) || [];
   nonStandardColors.sort((a, b) => a.name.localeCompare(b.name));
 
@@ -100,8 +126,42 @@ function SpecialColorFields({ item }) {
         placeholder={
           loading ? "Loading…" : "Default: Auto-detect from item description"
         }
-        icon={loading ? <Spinner /> : undefined}
+        icon={
+          loading || loading2 ? (
+            <Spinner />
+          ) : data2 ? (
+            <CheckCircleIcon />
+          ) : undefined
+        }
         value={data?.item?.manualSpecialColor?.id}
+        onChange={(e) => {
+          const colorId = e.target.value;
+          const color =
+            colorId != null ? { __typename: "Color", id: colorId } : null;
+          console.log({
+            __typename: "Mutation",
+            setManualSpecialColor: {
+              __typename: "Item",
+              id: item.id,
+              manualSpecialColor: color,
+            },
+          });
+          mutate({
+            variables: {
+              itemId: item.id,
+              colorId,
+              supportSecret,
+            },
+            optimisticResponse: {
+              __typename: "Mutation",
+              setManualSpecialColor: {
+                __typename: "Item",
+                id: item.id,
+                manualSpecialColor: color,
+              },
+            },
+          });
+        }}
       >
         {nonStandardColors.map((color) => (
           <option key={color.id} value={color.id}>
@@ -110,6 +170,7 @@ function SpecialColorFields({ item }) {
         ))}
       </Select>
       {error && <FormErrorMessage>{error.message}</FormErrorMessage>}
+      {error2 && <FormErrorMessage>{error2.message}</FormErrorMessage>}
       {!error && (
         <FormHelperText>
           This controls which previews we show on the{" "}
