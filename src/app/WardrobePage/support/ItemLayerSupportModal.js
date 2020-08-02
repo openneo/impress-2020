@@ -21,7 +21,7 @@ import {
   Spinner,
   useToast,
 } from "@chakra-ui/core";
-import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { ChevronRightIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 
 import { OutfitLayers } from "../../components/OutfitPreview";
 import SpeciesColorPicker from "../../components/SpeciesColorPicker";
@@ -166,6 +166,15 @@ function ItemLayerSupportModal({
                       No PNG
                     </Button>
                   )}
+                  <Button
+                    as="a"
+                    size="xs"
+                    target="_blank"
+                    href={itemLayer.swfUrl}
+                    colorScheme="teal"
+                  >
+                    SWF <ExternalLinkIcon ml="1" />
+                  </Button>
                 </HStack>
               </MetadataValue>
             </Metadata>

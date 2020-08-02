@@ -106,6 +106,15 @@ const typeDefs = gql`
     svgUrl: String
 
     """
+    This layer as a single SWF, if available.
+
+    At time of writing, all layers have SWFs. But I've marked this nullable
+    because I'm not sure this will continue to be true after the HTML5
+    migration, and I'd like clients to guard against it.
+    """
+    swfUrl: String
+
+    """
     This layer can fit on PetAppearances with the same bodyId. "0" is a
     special body ID that indicates it fits all PetAppearances.
     """
@@ -307,6 +316,10 @@ const resolvers = {
       const layer = await swfAssetLoader.load(id);
       const zone = await zoneLoader.load(layer.zoneId);
       return zone;
+    },
+    swfUrl: async ({ id }, _, { swfAssetLoader }) => {
+      const layer = await swfAssetLoader.load(id);
+      return layer.url;
     },
     imageUrl: async ({ id }, { size }, { swfAssetLoader }) => {
       const layer = await swfAssetLoader.load(id);
