@@ -25,7 +25,7 @@ import {
 } from "@chakra-ui/core";
 import { CheckCircleIcon, EditIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 
-import ItemSupportAppearanceLayerModal from "./ItemSupportAppearanceLayerModal";
+import ItemLayerSupportModal from "./ItemLayerSupportModal";
 import { OutfitLayers } from "../../components/OutfitPreview";
 import useOutfitAppearance from "../../components/useOutfitAppearance";
 import useSupportSecret from "./useSupportSecret";
@@ -315,7 +315,7 @@ function ItemSupportAppearanceLayer({
       >
         <EditIcon boxSize="16px" position="relative" top="-2px" right="-1px" />
       </Box>
-      <ItemSupportAppearanceLayerModal
+      <ItemLayerSupportModal
         item={item}
         itemLayer={itemLayer}
         outfitState={outfitState}

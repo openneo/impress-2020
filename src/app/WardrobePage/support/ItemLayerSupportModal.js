@@ -30,7 +30,11 @@ import useOutfitAppearance, {
 } from "../../components/useOutfitAppearance";
 import useSupportSecret from "./useSupportSecret";
 
-function ItemSupportAppearanceLayerModal({
+/**
+ * ItemLayerSupportModal offers Support info and tools for a specific item
+ * appearance layer. Open it by clicking a layer from ItemSupportDrawer.
+ */
+function ItemLayerSupportModal({
   item,
   itemLayer,
   outfitState,
@@ -166,7 +170,7 @@ function ItemSupportAppearanceLayerModal({
               </MetadataValue>
             </Metadata>
             <Box height="8" />
-            <ItemSupportAppearanceLayerPetCompatibility
+            <ItemLayerSupportPetCompatibilityFields
               item={item}
               itemLayer={itemLayer}
               outfitState={outfitState}
@@ -201,7 +205,7 @@ function ItemSupportAppearanceLayerModal({
   );
 }
 
-function ItemSupportAppearanceLayerPetCompatibility({
+function ItemLayerSupportPetCompatibilityFields({
   item,
   itemLayer,
   outfitState,
@@ -342,4 +346,4 @@ function MetadataValue({ children }) {
   );
 }
 
-export default ItemSupportAppearanceLayerModal;
+export default ItemLayerSupportModal;
