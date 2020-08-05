@@ -40,20 +40,18 @@ export function Item({ item, itemNameId, outfitState, dispatchToOutfit }) {
   return (
     <>
       <ItemContainer>
-        <Box>
+        <Box flex="0 0 auto" marginRight="3">
           <ItemThumbnail
             src={safeImageUrl(item.thumbnailUrl)}
             isWorn={isWorn}
           />
         </Box>
-        <Box width="3" />
-        <Box>
+        <Box flex="1 1 auto">
           <ItemName id={itemNameId} isWorn={isWorn}>
             {item.name}
           </ItemName>
         </Box>
-        <Box flexGrow="1" />
-        <Box>
+        <Box flex="0 0 auto">
           <SupportOnly>
             <ItemActionButton
               icon={<EditIcon />}
