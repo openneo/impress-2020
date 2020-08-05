@@ -3,6 +3,16 @@ const Jimp = require("jimp");
 
 const connectToDb = require("../src/server/db.js");
 
+if (
+  !process.env["DTI_AWS_ACCESS_KEY_ID"] ||
+  !process.env["DTI_AWS_SECRET_ACCESS_KEY"]
+) {
+  throw new Error(
+    `must provide DTI_AWS_ACCESS_KEY_ID and DTI_AWS_SECRET_ACCESS_KEY ` +
+      `environment variables`
+  );
+}
+
 const s3 = new AWS.S3({
   accessKeyId: process.env["DTI_AWS_ACCESS_KEY_ID"],
   secretAccessKey: process.env["DTI_AWS_SECRET_ACCESS_KEY"],
