@@ -43,11 +43,11 @@ function WardrobePage() {
     }
   }, [error, toast]);
 
+  // NOTE: Most components pass around outfitState directly, to make the data
+  //       relationships more explicit... but there are some deep components
+  //       that need it, where it's more useful and more performant to access
+  //       via context.
   return (
-    // NOTE: Most components pass around outfitState directly, to make the data
-    //       relationships more explicit... but there are some deep components
-    //       that need it, where it's more useful and more performant to access
-    //       via context.
     <OutfitStateContext.Provider value={outfitState}>
       <Box
         position="absolute"
