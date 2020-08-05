@@ -62,6 +62,14 @@ function OutfitControls({ outfitState, dispatchToOutfit }) {
     [dispatchToOutfit, toast]
   );
 
+  const maybeUnlockFocus = (e) => {
+    // We lock focus when a touch-device user taps the area. When they tap
+    // empty space, we treat that as a toggle and release the focus lock.
+    if (e.target === e.currentTarget) {
+      onUnlockFocus();
+    }
+  };
+
   return (
     <Box
       role="group"
@@ -83,16 +91,40 @@ function OutfitControls({ outfitState, dispatchToOutfit }) {
           opacity: 0;
           transition: opacity 0.2s;
 
-          &:hover,
           &:focus-within,
           &.focus-is-locked {
             opacity: 1;
           }
+
+          /* Ignore simulated hovers, only reveal for _real_ hovers. This helps
+           * us avoid state conflicts with the focus-lock from clicks. */
+          @media (hover: hover) {
+            &:hover {
+              opacity: 1;
+            }
+          }
         `,
         focusIsLocked && "focus-is-locked"
       )}
+      onClickCapture={(e) => {
+        const opacity = parseFloat(getComputedStyle(e.currentTarget).opacity);
+        if (opacity < 0.5) {
+          // If the controls aren't visible right now, then clicks on them are
+          // probably accidental. Ignore them! (We prevent default to block
+          // built-in behaviors like link nav, and we stop propagation to block
+          // our own custom click handlers. I don't know if I can prevent the
+          // select clicks though?)
+          e.preventDefault();
+          e.stopPropagation();
+
+          // We also show the controls, by locking focus. We'll undo this when
+          // the user taps elsewhere (because it will trigger a blur event from
+          // our child components), in `maybeUnlockFocus`.
+          setFocusIsLocked(true);
+        }
+      }}
     >
-      <Box gridArea="back">
+      <Box gridArea="back" onClick={maybeUnlockFocus}>
         <ControlButton
           as={Link}
           to="/"
@@ -106,6 +138,7 @@ function OutfitControls({ outfitState, dispatchToOutfit }) {
         alignSelf="flex-end"
         spacing={{ base: "2", lg: "4" }}
         align="flex-end"
+        onClick={maybeUnlockFocus}
       >
         <Box>
           <DownloadButton outfitState={outfitState} />
@@ -114,8 +147,8 @@ function OutfitControls({ outfitState, dispatchToOutfit }) {
           <CopyLinkButton outfitState={outfitState} />
         </Box>
       </Stack>
-      <Box gridArea="space" />
-      <Flex gridArea="picker" justify="center">
+      <Box gridArea="space" onClick={maybeUnlockFocus} />
+      <Flex gridArea="picker" justify="center" onClick={maybeUnlockFocus}>
         {/**
          * We try to center the species/color picker, but the left spacer will
          * shrink more than the pose picker container if we run out of space!
