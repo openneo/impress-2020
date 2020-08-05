@@ -1,4 +1,6 @@
 import * as React from "react";
+import gql from "graphql-tag";
+import { useApolloClient } from "@apollo/client";
 import {
   Button,
   Box,
@@ -34,6 +36,7 @@ function ItemLayerSupportUploadModal({ item, itemLayer, isOpen, onClose }) {
 
   const supportSecret = useSupportSecret();
   const toast = useToast();
+  const apolloClient = useApolloClient();
 
   // Once both images are ready, merge them!
   React.useEffect(() => {
@@ -106,28 +109,17 @@ function ItemLayerSupportUploadModal({ item, itemLayer, isOpen, onClose }) {
       toast({
         status: "success",
         title: "Image successfully uploaded",
-        description: "Reload the page to see!",
+        description: "It might take a few seconds to update in the app!",
       });
 
-      // TODO: This seemed to be unreliable, I got it to work once but I don't
-      //       know what configuration of stuff did it! :/
-      // const { imageUrl600, imageUrl300, imageUrl150 } = await res.json();
-
-      // apolloClient.writeFragment({
-      //   id: `AppearanceLayer:${itemLayer.id}`,
-      //   fragment: gql`
-      //     fragment LayerImage on AppearanceLayer {
-      //       imageUrl600: imageUrl(size: SIZE_600)
-      //       imageUrl300: imageUrl(size: SIZE_300)
-      //       imageUrl150: imageUrl(size: SIZE_150)
-      //     }
-      //   `,
-      //   data: {
-      //     imageUrl600,
-      //     imageUrl300,
-      //     imageUrl150,
-      //   },
-      // });
+      // NOTE: I tried to do this as a cache update, but I couldn't ever get
+      //       the fragment with size parameters to work :/ (Other fields would
+      //       update, but not these!) Ultimately the eviction is the only
+      //       reliable method I found :/
+      apolloClient.cache.evict({
+        id: `AppearanceLayer:${itemLayer.id}`,
+        fieldName: "imageUrl",
+      });
     } catch (e) {
       setIsUploading(false);
       setUploadError(e);

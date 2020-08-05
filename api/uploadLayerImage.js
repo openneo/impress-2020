@@ -27,7 +27,7 @@ async function resize(imageData, size) {
   return resizedImageData;
 }
 
-async function processImage(assetType, remoteId, size, imageData, now) {
+async function processImage(assetType, remoteId, size, imageData) {
   if (size !== 600) {
     imageData = await resize(imageData, size);
   }
@@ -39,9 +39,6 @@ async function processImage(assetType, remoteId, size, imageData, now) {
   const key = `${assetType}/${id1}/${id2}/${id3}/${remoteId}/${size}x${size}.png`;
 
   upload("impress-asset-images", key, imageData);
-
-  const when = Number(now);
-  return `https://impress-asset-images.s3.amazonaws.com/${key}?v2-${when}`;
 }
 
 export default async (req, res) => {
@@ -72,20 +69,18 @@ export default async (req, res) => {
     res.status(404).send(`Layer not found`);
   }
 
-  const now = new Date();
-
   const { remote_id: remoteId, type: assetType } = layer;
   const [imageUrl600, imageUrl300, imageUrl150] = await Promise.all([
-    processImage(assetType, remoteId, 600, imageData, now),
-    processImage(assetType, remoteId, 300, imageData, now),
-    processImage(assetType, remoteId, 150, imageData, now),
+    processImage(assetType, remoteId, 600, imageData),
+    processImage(assetType, remoteId, 300, imageData),
+    processImage(assetType, remoteId, 150, imageData),
   ]);
 
-  const nowTimestamp = now.toISOString().slice(0, 19).replace("T", " ");
+  const now = new Date().toISOString().slice(0, 19).replace("T", " ");
   const [result] = await db.execute(
     `UPDATE swf_assets SET image_manual = 1, converted_at = ?
      WHERE type = ? AND remote_id = ? LIMIT 1`,
-    [nowTimestamp, assetType, remoteId]
+    [now, assetType, remoteId]
   );
   if (result.affectedRows !== 1) {
     res
