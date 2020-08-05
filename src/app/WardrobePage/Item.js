@@ -250,6 +250,13 @@ function ItemActionButton({ icon, label, href, onClick }) {
             background-color: ${theme.colors.gray["300"]};
             color: ${theme.colors.gray["700"]};
           }
+
+          /* On touch devices, always show the buttons! This avoids having to
+           * tap to reveal them (which toggles the item), or worse,
+           * accidentally tapping a hidden button without realizing! */
+          @media (hover: none) {
+            opacity: 1;
+          }
         `}
       />
     </Tooltip>
