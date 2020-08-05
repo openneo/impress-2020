@@ -255,13 +255,17 @@ function ItemLayerSupportReviewStep({ imageWithAlphaUrl, numWarnings }) {
     return <Box>Generating image…</Box>;
   }
 
+  const ratioBad = numWarnings / (600 * 600);
+  const ratioGood = 1 - ratioBad;
+
   return (
     <>
       <Box>
         <b>Step 3:</b> Does this look correct? If so, let's upload it!
       </Box>
       <Box fontSize="sm" color="gray.500">
-        (Generated with {numWarnings} warnings.)
+        ({Math.floor(ratioGood * 10000) / 100}% match,{" "}
+        {Math.floor(ratioBad * 10000) / 100}% mismatch.)
       </Box>
       <Box
         // Checkerboard pattern: https://stackoverflow.com/a/35362074/107415
