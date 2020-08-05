@@ -321,7 +321,7 @@ function ItemLayerSupportFlashPlayer({ swfUrl, backgroundColor }) {
         >
           <object
             type="application/x-shockwave-flash"
-            data={swfUrl}
+            data={`/api/assetProxy?url=${encodeURIComponent(swfUrl)}`}
             width="100%"
             height="100%"
           >
