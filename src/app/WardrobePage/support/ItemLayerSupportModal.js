@@ -23,6 +23,7 @@ import {
 } from "@chakra-ui/core";
 import { ChevronRightIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 
+import ItemLayerSupportUploadModal from "./ItemLayerSupportUploadModal";
 import { OutfitLayers } from "../../components/OutfitPreview";
 import SpeciesColorPicker from "../../components/SpeciesColorPicker";
 import useOutfitAppearance, {
@@ -48,6 +49,7 @@ function ItemLayerSupportModal({
     pose: outfitState.pose,
     isValid: true,
   });
+  const [uploadModalIsOpen, setUploadModalIsOpen] = React.useState(false);
   const supportSecret = useSupportSecret();
   const toast = useToast();
 
@@ -175,6 +177,20 @@ function ItemLayerSupportModal({
                   >
                     SWF <ExternalLinkIcon ml="1" />
                   </Button>
+                  <Box flex="1 1 0" />
+                  <Button
+                    size="xs"
+                    colorScheme="gray"
+                    onClick={() => setUploadModalIsOpen(true)}
+                  >
+                    Upload PNG <ChevronRightIcon />
+                  </Button>
+                  <ItemLayerSupportUploadModal
+                    item={item}
+                    itemLayer={itemLayer}
+                    isOpen={uploadModalIsOpen}
+                    onClose={() => setUploadModalIsOpen(false)}
+                  />
                 </HStack>
               </MetadataValue>
             </Metadata>
