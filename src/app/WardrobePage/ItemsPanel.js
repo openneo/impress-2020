@@ -14,7 +14,7 @@ import { EditIcon } from "@chakra-ui/icons";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 
 import { Delay, Heading1, Heading2 } from "../util";
-import { Item, ItemListContainer, ItemListSkeleton } from "./Item";
+import Item, { ItemListContainer, ItemListSkeleton } from "./Item";
 
 /**
  * ItemsPanel shows the items in the current outfit, and lets the user toggle
@@ -120,7 +120,8 @@ function ItemZoneGroup({ zoneLabel, items, outfitState, dispatchToOutfit }) {
                   <Item
                     item={item}
                     itemNameId={itemNameId}
-                    outfitState={outfitState}
+                    isWorn={outfitState.wornItemIds.includes(item.id)}
+                    isInOutfit={outfitState.allItemIds.includes(item.id)}
                     dispatchToOutfit={dispatchToOutfit}
                   />
                 </label>

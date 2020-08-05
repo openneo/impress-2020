@@ -7,6 +7,8 @@ import { itemAppearanceFragment } from "../components/useOutfitAppearance";
 
 enableMapSet();
 
+export const OutfitStateContext = React.createContext(null);
+
 function useOutfitState() {
   const apolloClient = useApolloClient();
   const initialState = parseOutfitUrl();

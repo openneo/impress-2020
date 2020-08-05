@@ -28,6 +28,7 @@ import { CheckCircleIcon, EditIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 import ItemLayerSupportModal from "./ItemLayerSupportModal";
 import { OutfitLayers } from "../../components/OutfitPreview";
 import useOutfitAppearance from "../../components/useOutfitAppearance";
+import { OutfitStateContext } from "../useOutfitState";
 import useSupportSecret from "./useSupportSecret";
 
 /**
@@ -36,7 +37,7 @@ import useSupportSecret from "./useSupportSecret";
  * This component controls the drawer element. The actual content is imported
  * from another lazy-loaded component!
  */
-function ItemSupportDrawer({ item, outfitState, isOpen, onClose }) {
+function ItemSupportDrawer({ item, isOpen, onClose }) {
   const placement = useBreakpointValue({
     base: "bottom",
     lg: "right",
@@ -75,10 +76,7 @@ function ItemSupportDrawer({ item, outfitState, isOpen, onClose }) {
             <Box paddingBottom="5">
               <Stack spacing="8">
                 <ItemSupportSpecialColorFields item={item} />
-                <ItemSupportAppearanceFields
-                  item={item}
-                  outfitState={outfitState}
-                />
+                <ItemSupportAppearanceFields item={item} />
               </Stack>
             </Box>
           </DrawerBody>
@@ -231,7 +229,15 @@ function ItemSupportSpecialColorFields({ item }) {
   );
 }
 
-function ItemSupportAppearanceFields({ item, outfitState }) {
+/**
+ * NOTE: This component takes `outfitState` from context, rather than as a prop
+ *       from its parent, for performance reasons. We want `Item` to memoize
+ *       and generally skip re-rendering on `outfitState` changes, and to make
+ *       sure the context isn't accessed when the drawer is closed. So we use
+ *       it here, only when the drawer is open!
+ */
+function ItemSupportAppearanceFields({ item }) {
+  const outfitState = React.useContext(OutfitStateContext);
   const { speciesId, colorId, pose } = outfitState;
   const { error, visibleLayers } = useOutfitAppearance({
     speciesId,

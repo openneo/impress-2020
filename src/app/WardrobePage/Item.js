@@ -29,12 +29,15 @@ const LoadableItemSupportDrawer = loadable(() =>
  * In fact, this component can't trigger wear or unwear events! When you click
  * it in the app, you're actually clicking a <label> that wraps the radio or
  * checkbox. We _do_ control the Remove button in here, though!
+ *
+ * NOTE: This component is memoized with React.memo. It's surpisingly expensive
+ *       to re-render, because Chakra components are a lil bit expensive from
+ *       their internal complexity, and we have a lot of them here. And it can
+ *       add up when there's a lot of Items in the list. This contributes to
+ *       wearing/unwearing items being noticeably slower on lower-power
+ *       devices.
  */
-export function Item({ item, itemNameId, outfitState, dispatchToOutfit }) {
-  const { wornItemIds, allItemIds } = outfitState;
-  const isWorn = wornItemIds.includes(item.id);
-  const isInOutfit = allItemIds.includes(item.id);
-
+function Item({ item, itemNameId, isWorn, isInOutfit, dispatchToOutfit }) {
   const [supportDrawerIsOpen, setSupportDrawerIsOpen] = React.useState(false);
 
   return (
@@ -80,7 +83,7 @@ export function Item({ item, itemNameId, outfitState, dispatchToOutfit }) {
       <SupportOnly>
         <LoadableItemSupportDrawer
           item={item}
-          outfitState={outfitState}
+          outfitState="STOPSHIP"
           isOpen={supportDrawerIsOpen}
           onClose={() => setSupportDrawerIsOpen(false)}
         />
@@ -290,3 +293,5 @@ export function ItemListSkeleton({ count }) {
  */
 const containerHasFocus =
   ".item-container:hover &, input:focus + .item-container &";
+
+export default React.memo(Item);

@@ -4,7 +4,7 @@ import { Box, Text, VisuallyHidden } from "@chakra-ui/core";
 import { useQuery } from "@apollo/client";
 
 import { Delay, Heading1, useDebounce } from "../util";
-import { Item, ItemListContainer, ItemListSkeleton } from "./Item";
+import Item, { ItemListContainer, ItemListSkeleton } from "./Item";
 import { itemAppearanceFragment } from "../components/useOutfitAppearance";
 
 /**
@@ -173,7 +173,8 @@ function SearchResults({
             />
             <Item
               item={item}
-              outfitState={outfitState}
+              isWorn={outfitState.wornItemIds.includes(item.id)}
+              isInOutfit={outfitState.allItemIds.includes(item.id)}
               dispatchToOutfit={dispatchToOutfit}
             />
           </label>
