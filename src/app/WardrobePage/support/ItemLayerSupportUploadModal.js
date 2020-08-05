@@ -9,8 +9,11 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  useToast,
 } from "@chakra-ui/core";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
+
+import useSupportSecret from "./useSupportSecret";
 
 /**
  * ItemLayerSupportUploadModal helps Support users create and upload PNGs for
@@ -23,7 +26,33 @@ function ItemLayerSupportUploadModal({ item, itemLayer, isOpen, onClose }) {
   const [imageOnWhiteUrl, setImageOnWhiteUrl] = React.useState(null);
 
   const [imageWithAlphaUrl, setImageWithAlphaUrl] = React.useState(null);
+  const [imageWithAlphaBlob, setImageWithAlphaBlob] = React.useState(null);
   const [numWarnings, setNumWarnings] = React.useState(null);
+
+  const [isUploading, setIsUploading] = React.useState(false);
+  const [uploadError, setUploadError] = React.useState(null);
+
+  const supportSecret = useSupportSecret();
+  const toast = useToast();
+
+  // Once both images are ready, merge them!
+  React.useEffect(() => {
+    if (!imageOnBlackUrl || !imageOnWhiteUrl) {
+      return;
+    }
+
+    setImageWithAlphaUrl(null);
+    setNumWarnings(null);
+    setIsUploading(false);
+
+    mergeIntoImageWithAlpha(imageOnBlackUrl, imageOnWhiteUrl).then(
+      ([url, blob, numWarnings]) => {
+        setImageWithAlphaUrl(url);
+        setImageWithAlphaBlob(blob);
+        setNumWarnings(numWarnings);
+      }
+    );
+  }, [imageOnBlackUrl, imageOnWhiteUrl]);
 
   const onUpload = React.useCallback(
     (e) => {
@@ -52,22 +81,58 @@ function ItemLayerSupportUploadModal({ item, itemLayer, isOpen, onClose }) {
     [step]
   );
 
-  // Once both images are ready, merge them!
-  React.useEffect(() => {
-    if (!imageOnBlackUrl || !imageOnWhiteUrl) {
-      return;
-    }
+  const onSubmitFinalImage = React.useCallback(async () => {
+    setIsUploading(true);
+    setUploadError(null);
+    try {
+      const res = await fetch(`/api/uploadLayerImage?layerId=${itemLayer.id}`, {
+        method: "POST",
+        headers: {
+          "DTI-Support-Secret": supportSecret,
+        },
+        body: imageWithAlphaBlob,
+      });
 
-    setImageWithAlphaUrl(null);
-    setNumWarnings(null);
-
-    mergeIntoImageWithAlpha(imageOnBlackUrl, imageOnWhiteUrl).then(
-      ([url, numWarnings]) => {
-        setImageWithAlphaUrl(url);
-        setNumWarnings(numWarnings);
+      if (!res.ok) {
+        setIsUploading(false);
+        setUploadError(
+          new Error(`Network error: ${res.status} ${res.statusText}`)
+        );
+        return;
       }
-    );
-  }, [imageOnBlackUrl, imageOnWhiteUrl]);
+
+      setIsUploading(false);
+      onClose();
+      toast({
+        status: "success",
+        title: "Image successfully uploaded",
+        description: "Reload the page to see!",
+      });
+
+      // TODO: This seemed to be unreliable, I got it to work once but I don't
+      //       know what configuration of stuff did it! :/
+      // const { imageUrl600, imageUrl300, imageUrl150 } = await res.json();
+
+      // apolloClient.writeFragment({
+      //   id: `AppearanceLayer:${itemLayer.id}`,
+      //   fragment: gql`
+      //     fragment LayerImage on AppearanceLayer {
+      //       imageUrl600: imageUrl(size: SIZE_600)
+      //       imageUrl300: imageUrl(size: SIZE_300)
+      //       imageUrl150: imageUrl(size: SIZE_150)
+      //     }
+      //   `,
+      //   data: {
+      //     imageUrl600,
+      //     imageUrl300,
+      //     imageUrl150,
+      //   },
+      // });
+    } catch (e) {
+      setIsUploading(false);
+      setUploadError(e);
+    }
+  }, [imageWithAlphaBlob, supportSecret, itemLayer.id, toast, onClose]);
 
   return (
     <Modal
@@ -112,9 +177,24 @@ function ItemLayerSupportUploadModal({ item, itemLayer, isOpen, onClose }) {
               Restart
             </Button>
             <Box flex="1 1 0" />
+            {uploadError && (
+              <Box
+                color="red.400"
+                fontSize="sm"
+                marginRight="2"
+                textAlign="right"
+              >
+                {uploadError.message}
+              </Box>
+            )}
             <Button onClick={onClose}>Close</Button>
             {step === 3 && (
-              <Button colorScheme="green" marginLeft="4">
+              <Button
+                colorScheme="green"
+                marginLeft="2"
+                onClick={onSubmitFinalImage}
+                isLoading={isUploading}
+              >
                 Upload
               </Button>
             )}
@@ -259,9 +339,12 @@ async function mergeIntoImageWithAlpha(imageOnBlackUrl, imageOnWhiteUrl) {
     imageOnBlack,
     imageOnWhite
   );
-  const imageWithAlphaUrl = writeImageDataToUrl(imageWithAlphaData);
+  const [
+    imageWithAlphaUrl,
+    imageWithAlphaBlob,
+  ] = await writeImageDataToUrlAndBlob(imageWithAlphaData);
 
-  return [imageWithAlphaUrl, numWarnings];
+  return [imageWithAlphaUrl, imageWithAlphaBlob, numWarnings];
 }
 
 function mergeDataIntoImageWithAlpha(imageOnBlack, imageOnWhite) {
@@ -372,17 +455,22 @@ async function readImageDataFromUrl(url) {
 }
 
 /**
- * writeImageDataToUrl writes an ImageData to a data URL, by drawing it on a
- * canvas and reading a URL back from it.
+ * writeImageDataToUrl writes an ImageData to a data URL and Blob, by drawing
+ * it on a canvas and reading the URL and Blob back from it.
  */
-function writeImageDataToUrl(imageData) {
+async function writeImageDataToUrlAndBlob(imageData) {
   const canvas = document.createElement("canvas");
   canvas.width = 600;
   canvas.height = 600;
 
   const ctx = canvas.getContext("2d");
   ctx.putImageData(imageData, 0, 0);
-  return canvas.toDataURL("image/png");
+
+  const dataUrl = canvas.toDataURL("image/png");
+  const blob = await new Promise((resolve) =>
+    canvas.toBlob(resolve, "image/png")
+  );
+  return [dataUrl, blob];
 }
 
 export default ItemLayerSupportUploadModal;
