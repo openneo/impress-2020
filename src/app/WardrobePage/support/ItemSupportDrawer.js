@@ -277,7 +277,6 @@ function ItemSupportAppearanceLayer({
       width="150px"
       textAlign="center"
       fontSize="xs"
-      position="relative"
       onClick={onOpen}
     >
       <Box
@@ -286,35 +285,49 @@ function ItemSupportAppearanceLayer({
         marginBottom="1"
         boxShadow="md"
         borderRadius="md"
+        position="relative"
       >
         <OutfitLayers visibleLayers={[...biologyLayers, itemLayer]} />
+        <Box
+          className={css`
+            opacity: 0;
+            transition: opacity 0.2s;
+
+            button:hover &,
+            button:focus & {
+              opacity: 1;
+            }
+
+            /* On touch devices, always show the icon, to clarify that this is
+             * an interactable object! (Whereas I expect other devices to
+             * discover things by exploratory hover or focus!) */
+            @media (hover: none) {
+              opacity: 1;
+            }
+          `}
+          background="green.100"
+          borderRadius="full"
+          boxShadow="sm"
+          position="absolute"
+          bottom="2"
+          right="2"
+          padding="2"
+          alignItems="center"
+          justifyContent="center"
+          width="32px"
+          height="32px"
+        >
+          <EditIcon
+            boxSize="16px"
+            position="relative"
+            top="-2px"
+            right="-1px"
+          />
+        </Box>
       </Box>
       <Box fontWeight="bold">{itemLayer.zone.label}</Box>
       <Box>Zone ID: {itemLayer.zone.id}</Box>
       <Box>DTI ID: {itemLayer.id}</Box>
-      <Box
-        className={css`
-          opacity: 0;
-          transition: opacity 0.2s;
-
-          button:hover > &,
-          button:focus > & {
-            opacity: 1;
-          }
-        `}
-        background="rgba(255, 255, 255, 0.8)"
-        borderRadius="full"
-        position="absolute"
-        top="2"
-        right="2"
-        padding="2"
-        alignItems="center"
-        justifyContent="center"
-        width="32px"
-        height="32px"
-      >
-        <EditIcon boxSize="16px" position="relative" top="-2px" right="-1px" />
-      </Box>
       <ItemLayerSupportModal
         item={item}
         itemLayer={itemLayer}
