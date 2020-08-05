@@ -38,7 +38,8 @@ async function processImage(assetType, remoteId, size, imageData) {
   const id3 = paddedId.slice(6, 9);
   const key = `${assetType}/${id1}/${id2}/${id3}/${remoteId}/${size}x${size}.png`;
 
-  upload("impress-asset-images", key, imageData);
+  await upload("impress-asset-images", key, imageData);
+  console.log(`Successfully uploaded ${key} to impress-asset-images`);
 }
 
 export default async (req, res) => {
