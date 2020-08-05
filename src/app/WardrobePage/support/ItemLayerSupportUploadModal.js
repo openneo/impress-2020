@@ -211,6 +211,8 @@ function ItemLayerSupportScreenshotStep({ itemLayer, step, onUpload }) {
       <Box>
         <b>Step {step}:</b> Take a screenshot of exactly the 600&times;600 Flash
         region, then upload it below.
+        <br />
+        The border will turn green once the entire region is in view.
       </Box>
       <Box
         display="flex"
@@ -288,12 +290,58 @@ function ItemLayerSupportReviewStep({ imageWithAlphaUrl, numWarnings }) {
 }
 
 function ItemLayerSupportFlashPlayer({ swfUrl, backgroundColor }) {
+  const [isVisible, setIsVisible] = React.useState(null);
+  const regionRef = React.useRef(null);
+
+  // We detect whether the entire SWF region is visible, because Flash only
+  // bothers to render in visible places. So, screenshotting a SWF container
+  // that isn't fully visible will fill the not-visible space with black,
+  // instead of the actual SWF content. We change the border color to hint this
+  // to the user!
+  React.useEffect(() => {
+    const region = regionRef.current;
+    if (!region) {
+      return;
+    }
+
+    const scrollParent = region.closest(".chakra-modal__overlay");
+    if (!scrollParent) {
+      throw new Error(`could not find .chakra-modal__overlay scroll parent`);
+    }
+
+    const onMountAndOnScroll = () => {
+      const regionBox = region.getBoundingClientRect();
+      const scrollParentBox = scrollParent.getBoundingClientRect();
+      const isVisible =
+        regionBox.left > scrollParentBox.left &&
+        regionBox.right < scrollParentBox.right &&
+        regionBox.top > scrollParentBox.top &&
+        regionBox.bottom < scrollParentBox.bottom;
+      setIsVisible(isVisible);
+    };
+
+    onMountAndOnScroll();
+
+    scrollParent.addEventListener("scroll", onMountAndOnScroll);
+
+    return () => scrollParent.removeEventListener("scroll", onMountAndOnScroll);
+  }, [regionRef.current]);
+
+  let borderColor;
+  if (isVisible === null) {
+    borderColor = "gray.400";
+  } else if (isVisible === false) {
+    borderColor = "red.400";
+  } else if (isVisible === true) {
+    borderColor = "green.400";
+  }
+
   return (
     <Box
       data-hint="No: Don't screenshot this node! Use the one below!"
       borderWidth="3px"
       borderStyle="dashed"
-      borderColor="green.400"
+      borderColor={borderColor}
       marginTop="4"
     >
       <Box
@@ -318,6 +366,7 @@ function ItemLayerSupportFlashPlayer({ swfUrl, backgroundColor }) {
           // But this disrupts the Firefox capture! So here, we do a cheap
           // browser detection, to shift left only in Chrome.
           marginLeft={navigator.userAgent.includes("Chrome") ? "-1px" : "0"}
+          ref={regionRef}
         >
           <object
             type="application/x-shockwave-flash"
