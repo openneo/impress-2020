@@ -59,7 +59,10 @@ function Item({ item, itemNameId, isWorn, isInOutfit, dispatchToOutfit }) {
             <ItemActionButton
               icon={<EditIcon />}
               label="Support"
-              onClick={() => setSupportDrawerIsOpen(true)}
+              onClick={(e) => {
+                setSupportDrawerIsOpen(true);
+                e.preventDefault();
+              }}
             />
           </SupportOnly>
           <ItemActionButton
@@ -68,14 +71,16 @@ function Item({ item, itemNameId, isWorn, isInOutfit, dispatchToOutfit }) {
             href={`https://impress.openneo.net/items/${
               item.id
             }-${item.name.replace(/ /g, "-")}`}
+            onClick={(e) => e.stopPropagation()}
           />
           {isInOutfit && (
             <ItemActionButton
               icon={<DeleteIcon />}
               label="Remove"
-              onClick={() =>
-                dispatchToOutfit({ type: "removeItem", itemId: item.id })
-              }
+              onClick={(e) => {
+                dispatchToOutfit({ type: "removeItem", itemId: item.id });
+                e.preventDefault();
+              }}
             />
           )}
         </Box>
@@ -233,10 +238,7 @@ function ItemActionButton({ icon, label, href, onClick }) {
         color="gray.400"
         href={href}
         target={href ? "_blank" : null}
-        onClick={(e) => {
-          if (onClick) onClick();
-          e.stopPropagation();
-        }}
+        onClick={onClick}
         className={css`
           opacity: 0;
           transition: all 0.2s;
