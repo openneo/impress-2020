@@ -28,15 +28,30 @@ import twemojiSick from "../../images/twemoji/sick.svg";
 import twemojiMasc from "../../images/twemoji/masc.svg";
 import twemojiFem from "../../images/twemoji/fem.svg";
 
+/**
+ * PosePicker shows the pet poses available on the current species/color, and
+ * lets the user choose which want they want!
+ *
+ * NOTE: This component is memoized with React.memo. It's relatively expensive
+ *       to re-render on every outfit change - the contents update even if the
+ *       popover is closed! This makes wearing/unwearing items noticeably
+ *       slower on lower-power devices.
+ *
+ *       So, instead of using `outfitState` like most components, we specify
+ *       exactly which props we need, so that `React.memo` can see the changes
+ *       that matter, and skip updates that don't.
+ */
 function PosePicker({
-  outfitState,
+  speciesId,
+  colorId,
+  pose,
   dispatchToOutfit,
   onLockFocus,
   onUnlockFocus,
 }) {
   const theme = useTheme();
   const checkedInputRef = React.useRef();
-  const { loading, error, poseInfos } = usePoses(outfitState);
+  const { loading, error, poseInfos } = usePoses(speciesId, colorId);
 
   if (loading) {
     return null;
@@ -98,13 +113,13 @@ function PosePicker({
                 isOpen && "is-open"
               )}
             >
-              {getEmotion(outfitState.pose) === "HAPPY" && (
+              {getEmotion(pose) === "HAPPY" && (
                 <EmojiImage src={twemojiSmile} alt="Choose a pose" />
               )}
-              {getEmotion(outfitState.pose) === "SAD" && (
+              {getEmotion(pose) === "SAD" && (
                 <EmojiImage src={twemojiCry} alt="Choose a pose" />
               )}
-              {getEmotion(outfitState.pose) === "SICK" && (
+              {getEmotion(pose) === "SICK" && (
                 <EmojiImage src={twemojiSick} alt="Choose a pose" />
               )}
             </Button>
@@ -345,9 +360,7 @@ function EmojiImage({ src, alt }) {
   return <img src={src} alt={alt} width="16px" height="16px" />;
 }
 
-function usePoses(outfitState) {
-  const { speciesId, colorId } = outfitState;
-
+function usePoses(speciesId, colorId, selectedPose) {
   const { loading, error, data } = useQuery(
     gql`
       query PosePicker($speciesId: ID!, $colorId: ID!) {
@@ -370,7 +383,7 @@ function usePoses(outfitState) {
     return {
       ...appearance,
       isAvailable: Boolean(appearance),
-      isSelected: outfitState.pose === pose,
+      isSelected: selectedPose === pose,
     };
   };
 
@@ -459,4 +472,4 @@ const transformsByBodyId = {
   default: "scale(2.5)",
 };
 
-export default PosePicker;
+export default React.memo(PosePicker);

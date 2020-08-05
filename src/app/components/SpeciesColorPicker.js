@@ -10,6 +10,11 @@ import { Delay, useFetch } from "../util";
  *
  * It preloads all species, colors, and valid species/color pairs; and then
  * ensures that the outfit is always in a valid state.
+ *
+ * NOTE: This component is memoized with React.memo. It's not the cheapest to
+ *       re-render on every outfit change. This contributes to
+ *       wearing/unwearing items being noticeably slower on lower-power
+ *       devices.
  */
 function SpeciesColorPicker({
   speciesId,
@@ -303,4 +308,4 @@ const closestPosesInOrder = {
   ],
 };
 
-export default SpeciesColorPicker;
+export default React.memo(SpeciesColorPicker);

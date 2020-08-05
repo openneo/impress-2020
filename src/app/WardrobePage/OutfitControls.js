@@ -27,7 +27,40 @@ import { Link } from "react-router-dom";
  */
 function OutfitControls({ outfitState, dispatchToOutfit }) {
   const [focusIsLocked, setFocusIsLocked] = React.useState(false);
-  const toast = useToast();
+  const onLockFocus = React.useCallback(() => setFocusIsLocked(true), [
+    setFocusIsLocked,
+  ]);
+  const onUnlockFocus = React.useCallback(() => setFocusIsLocked(false), [
+    setFocusIsLocked,
+  ]);
+
+  // HACK: As of 1.0.0-rc.0, Chakra's `toast` function rebuilds unnecessarily,
+  //       which triggers unnecessary rebuilds of the `onSpeciesColorChange`
+  //       callback, which causes the `React.memo` on `SpeciesColorPicker` to
+  //       fail, which harms performance. But it seems to work just fine if we
+  //       hold onto the first copy of the function we get! :/
+  const _toast = useToast();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const toast = React.useMemo(() => _toast, []);
+
+  const onSpeciesColorChange = React.useCallback(
+    (species, color, isValid, closestPose) => {
+      if (isValid) {
+        dispatchToOutfit({
+          type: "setSpeciesAndColor",
+          speciesId: species.id,
+          colorId: color.id,
+          pose: closestPose,
+        });
+      } else {
+        toast({
+          title: `We haven't seen a ${color.name} ${species.name} before! 😓`,
+          status: "warning",
+        });
+      }
+    },
+    [dispatchToOutfit, toast]
+  );
 
   return (
     <Box
@@ -94,29 +127,17 @@ function OutfitControls({ outfitState, dispatchToOutfit }) {
             colorId={outfitState.colorId}
             idealPose={outfitState.pose}
             dark
-            onChange={(species, color, isValid, closestPose) => {
-              if (isValid) {
-                dispatchToOutfit({
-                  type: "setSpeciesAndColor",
-                  speciesId: species.id,
-                  colorId: color.id,
-                  pose: closestPose,
-                });
-              } else {
-                toast({
-                  title: `We haven't seen a ${color.name} ${species.name} before! 😓`,
-                  status: "warning",
-                });
-              }
-            }}
+            onChange={onSpeciesColorChange}
           />
         </Box>
         <Flex flex="1 1 0" align="center" pl="4">
           <PosePicker
-            outfitState={outfitState}
+            speciesId={outfitState.speciesId}
+            colorId={outfitState.colorId}
+            pose={outfitState.pose}
             dispatchToOutfit={dispatchToOutfit}
-            onLockFocus={() => setFocusIsLocked(true)}
-            onUnlockFocus={() => setFocusIsLocked(false)}
+            onLockFocus={onLockFocus}
+            onUnlockFocus={onUnlockFocus}
           />
         </Flex>
       </Flex>
