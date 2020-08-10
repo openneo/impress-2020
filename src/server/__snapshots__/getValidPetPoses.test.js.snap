@@ -1434,7 +1434,7 @@ exports[`getValidPetPoses gets them and writes them to a buffer 1`] = `
 00111111
 00000000
 00111111
-00000000
+10000000
 10000000
 00111111
 10111011
@@ -2128,7 +2128,7 @@ exports[`getValidPetPoses gets them and writes them to a buffer 1`] = `
 00000000
 00000000
 00000000
-00000000
+10000000
 00000000
 00000000
 00000000
@@ -2658,7 +2658,7 @@ exports[`getValidPetPoses gets them and writes them to a buffer 1`] = `
 00111111
 00000000
 00000000
-00000000
+10000000
 00000000
 00000000
 00111111
@@ -4183,7 +4183,7 @@ exports[`getValidPetPoses gets them and writes them to a buffer 1`] = `
 00111111
 01111111
 10111111
-00000000
+10000000
 00000000
 00111111
 00000000
@@ -4685,7 +4685,7 @@ exports[`getValidPetPoses gets them and writes them to a buffer 1`] = `
 00000000
 10011111
 00000000
-00000000
+10000000
 10000000
 10011111
 10000000
@@ -5366,7 +5366,7 @@ exports[`getValidPetPoses gets them and writes them to a buffer 1`] = `
 10001111
 10111111
 00000000
-00000000
+10000000
 00000000
 00000000
 00000000

@@ -45,6 +45,14 @@ describe("PetAppearance", () => {
           ],
         ],
         Array [
+          "SELECT * FROM pet_states
+             WHERE pet_type_id IN (?) AND glitched = 0
+             ORDER BY (mood_id = 1) DESC",
+          Array [
+            "2",
+          ],
+        ],
+        Array [
           "SELECT sa.*, rel.parent_id FROM swf_assets sa
              INNER JOIN parents_swf_assets rel ON
                rel.parent_type = \\"PetState\\" AND
@@ -83,14 +91,6 @@ describe("PetAppearance", () => {
             "30",
             "33",
             "34",
-          ],
-        ],
-        Array [
-          "SELECT * FROM pet_states
-             WHERE pet_type_id IN (?) AND glitched = 0
-             ORDER BY (mood_id = 1) DESC",
-          Array [
-            "2",
           ],
         ],
       ]
@@ -138,47 +138,6 @@ describe("PetAppearance", () => {
           Array [
             "54",
             "75",
-          ],
-        ],
-        Array [
-          "SELECT sa.*, rel.parent_id FROM swf_assets sa
-             INNER JOIN parents_swf_assets rel ON
-               rel.parent_type = \\"PetState\\" AND
-               rel.swf_asset_id = sa.id
-             WHERE rel.parent_id IN (?)",
-          Array [
-            "17723",
-          ],
-        ],
-        Array [
-          "SELECT * FROM species_translations
-             WHERE species_id IN (?) AND locale = \\"en\\"",
-          Array [
-            "54",
-          ],
-        ],
-        Array [
-          "SELECT * FROM color_translations
-             WHERE color_id IN (?) AND locale = \\"en\\"",
-          Array [
-            "75",
-          ],
-        ],
-        Array [
-          "SELECT * FROM colors WHERE id IN (?) AND prank = 0",
-          Array [
-            "75",
-          ],
-        ],
-        Array [
-          "SELECT * FROM zones WHERE id IN (?,?,?,?,?,?)",
-          Array [
-            "15",
-            "5",
-            "37",
-            "30",
-            "33",
-            "34",
           ],
         ],
         Array [
