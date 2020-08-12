@@ -77,6 +77,7 @@ function ItemSupportDrawer({ item, isOpen, onClose }) {
             <Box paddingBottom="5">
               <Stack spacing="8">
                 <ItemSupportSpecialColorFields item={item} />
+                <ItemSupportPetCompatibilityRuleFields item={item} />
                 <ItemSupportAppearanceFields item={item} />
               </Stack>
             </Box>
@@ -228,6 +229,22 @@ function ItemSupportSpecialColorFields({ item }) {
           .
         </FormHelperText>
       )}
+    </FormControl>
+  );
+}
+
+function ItemSupportPetCompatibilityRuleFields({ item }) {
+  return (
+    <FormControl>
+      <FormLabel>Pet compatibility rule</FormLabel>
+      <Select>
+        <option>Default: Auto-detect whether this fits all pets</option>
+        <option>Body specific: Always different for each pet body</option>
+      </Select>
+      <FormHelperText>
+        By default, we assume Background-y zones fit all pets the same. When
+        items don't follow that rule, we can override it.
+      </FormHelperText>
     </FormControl>
   );
 }
