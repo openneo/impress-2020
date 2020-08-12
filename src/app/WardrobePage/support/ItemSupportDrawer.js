@@ -280,6 +280,9 @@ function ItemSupportAppearanceLayer({
 }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+  const iconButtonBgColor = useColorModeValue("green.100", "green.300");
+  const iconButtonColor = useColorModeValue("green.800", "gray.900");
+
   return (
     <Box
       as="button"
@@ -314,7 +317,8 @@ function ItemSupportAppearanceLayer({
               opacity: 1;
             }
           `}
-          background="green.100"
+          background={iconButtonBgColor}
+          color={iconButtonColor}
           borderRadius="full"
           boxShadow="sm"
           position="absolute"
