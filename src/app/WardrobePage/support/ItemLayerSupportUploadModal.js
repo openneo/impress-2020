@@ -316,6 +316,7 @@ function ItemLayerSupportReviewStep({
               <option value="onBlack">the version on black</option>
               <option value="onWhite">the version on white</option>
               <option value="transparent">transparent pixels</option>
+              <option value="moreColorful">the more colorful pixels</option>
             </Select>
           </Box>
         )}
@@ -474,24 +475,15 @@ function mergeDataIntoImageWithAlpha(imageOnBlack, imageOnWhite, conflictMode) {
           );
         }
 
-        if (conflictMode === "onBlack") {
-          imageWithAlpha.data[pixelIndex] = rOnBlack;
-          imageWithAlpha.data[pixelIndex + 1] = gOnBlack;
-          imageWithAlpha.data[pixelIndex + 2] = bOnBlack;
-          imageWithAlpha.data[pixelIndex + 3] = 255;
-        } else if (conflictMode === "onWhite") {
-          imageWithAlpha.data[pixelIndex] = rOnWhite;
-          imageWithAlpha.data[pixelIndex + 1] = gOnWhite;
-          imageWithAlpha.data[pixelIndex + 2] = bOnWhite;
-          imageWithAlpha.data[pixelIndex + 3] = 255;
-        } else if (conflictMode === "transparent") {
-          imageWithAlpha.data[pixelIndex] = 0;
-          imageWithAlpha.data[pixelIndex + 1] = 0;
-          imageWithAlpha.data[pixelIndex + 2] = 0;
-          imageWithAlpha.data[pixelIndex + 3] = 0;
-        } else {
-          throw new Error(`unexpected conflict mode ${conflictMode}`);
-        }
+        const [r, g, b, a] = resolveConflict(
+          [rOnBlack, gOnBlack, bOnBlack],
+          [rOnWhite, gOnWhite, bOnWhite],
+          conflictMode
+        );
+        imageWithAlpha.data[pixelIndex] = r;
+        imageWithAlpha.data[pixelIndex + 1] = g;
+        imageWithAlpha.data[pixelIndex + 2] = b;
+        imageWithAlpha.data[pixelIndex + 3] = a;
 
         numWarnings++;
         continue;
@@ -522,24 +514,15 @@ function mergeDataIntoImageWithAlpha(imageOnBlack, imageOnWhite, conflictMode) {
           );
         }
 
-        if (conflictMode === "onBlack") {
-          imageWithAlpha.data[pixelIndex] = rOnBlack;
-          imageWithAlpha.data[pixelIndex + 1] = gOnBlack;
-          imageWithAlpha.data[pixelIndex + 2] = bOnBlack;
-          imageWithAlpha.data[pixelIndex + 3] = 255;
-        } else if (conflictMode === "onWhite") {
-          imageWithAlpha.data[pixelIndex] = rOnWhite;
-          imageWithAlpha.data[pixelIndex + 1] = gOnWhite;
-          imageWithAlpha.data[pixelIndex + 2] = bOnWhite;
-          imageWithAlpha.data[pixelIndex + 3] = 255;
-        } else if (conflictMode === "transparent") {
-          imageWithAlpha.data[pixelIndex] = 0;
-          imageWithAlpha.data[pixelIndex + 1] = 0;
-          imageWithAlpha.data[pixelIndex + 2] = 0;
-          imageWithAlpha.data[pixelIndex + 3] = 0;
-        } else {
-          throw new Error(`unexpected conflict mode ${conflictMode}`);
-        }
+        const [r, g, b, a] = resolveConflict(
+          [rOnBlack, gOnBlack, bOnBlack],
+          [rOnWhite, gOnWhite, bOnWhite],
+          conflictMode
+        );
+        imageWithAlpha.data[pixelIndex] = r;
+        imageWithAlpha.data[pixelIndex + 1] = g;
+        imageWithAlpha.data[pixelIndex + 2] = b;
+        imageWithAlpha.data[pixelIndex + 3] = a;
 
         numWarnings++;
         continue;
@@ -602,6 +585,49 @@ async function writeImageDataToUrlAndBlob(imageData) {
     canvas.toBlob(resolve, "image/png")
   );
   return [dataUrl, blob];
+}
+
+function resolveConflict(
+  [rOnBlack, gOnBlack, bOnBlack],
+  [rOnWhite, gOnWhite, bOnWhite],
+  conflictMode
+) {
+  if (conflictMode === "onBlack") {
+    return [rOnBlack, gOnBlack, bOnBlack, 255];
+  } else if (conflictMode === "onWhite") {
+    return [rOnWhite, gOnWhite, bOnWhite, 255];
+  } else if (conflictMode === "transparent") {
+    return [0, 0, 0, 0];
+  } else if (conflictMode === "moreColorful") {
+    const sOnBlack = computeSaturation(rOnBlack, gOnBlack, bOnBlack);
+    const sOnWhite = computeSaturation(rOnWhite, gOnWhite, bOnWhite);
+    if (sOnBlack > sOnWhite) {
+      return [rOnBlack, gOnBlack, bOnBlack, 255];
+    } else {
+      return [rOnWhite, gOnWhite, bOnWhite, 255];
+    }
+  } else {
+    throw new Error(`unexpected conflict mode ${conflictMode}`);
+  }
+}
+
+/**
+ * Returns the given color's saturation, as a ratio from 0 to 1.
+ * Adapted from https://css-tricks.com/converting-color-spaces-in-javascript/
+ */
+function computeSaturation(r, g, b) {
+  r /= 255;
+  g /= 255;
+  b /= 255;
+
+  const cmin = Math.min(r, g, b);
+  const cmax = Math.max(r, g, b);
+  const delta = cmax - cmin;
+
+  const l = (cmax + cmin) / 2;
+  const s = delta === 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
+
+  return s;
 }
 
 export default ItemLayerSupportUploadModal;
