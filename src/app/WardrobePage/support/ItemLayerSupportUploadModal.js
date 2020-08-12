@@ -345,6 +345,8 @@ function ItemLayerSupportFlashPlayer({ swfUrl, backgroundColor }) {
       borderStyle="dashed"
       borderColor={borderColor}
       marginTop="4"
+      padding="1px"
+      backgroundColor={backgroundColor}
     >
       <Box
         // In Chrome on macOS, I observe that I need to shift the SWF
