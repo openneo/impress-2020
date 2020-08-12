@@ -176,7 +176,7 @@ export function OutfitLayers({
           />
         </FullScreenCenter>
         <FullScreenCenter zIndex="9001">
-          <HangerSpinner color="green.300" boxSize="48px" />
+          <HangerSpinner boxSize="48px" />
         </FullScreenCenter>
       </Box>
     </Box>

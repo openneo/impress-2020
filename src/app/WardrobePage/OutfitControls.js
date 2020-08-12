@@ -2,6 +2,7 @@ import React from "react";
 import { css, cx } from "emotion";
 import {
   Box,
+  DarkMode,
   Flex,
   IconButton,
   Stack,
@@ -155,13 +156,14 @@ function OutfitControls({ outfitState, dispatchToOutfit }) {
          */}
         <Box flex="1 1 0" />
         <Box flex="0 0 auto">
-          <SpeciesColorPicker
-            speciesId={outfitState.speciesId}
-            colorId={outfitState.colorId}
-            idealPose={outfitState.pose}
-            dark
-            onChange={onSpeciesColorChange}
-          />
+          <DarkMode>
+            <SpeciesColorPicker
+              speciesId={outfitState.speciesId}
+              colorId={outfitState.colorId}
+              idealPose={outfitState.pose}
+              onChange={onSpeciesColorChange}
+            />
+          </DarkMode>
         </Box>
         <Flex flex="1 1 0" align="center" pl="4">
           <PosePicker

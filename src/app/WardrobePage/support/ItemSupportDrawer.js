@@ -21,6 +21,7 @@ import {
   Spinner,
   Stack,
   useBreakpointValue,
+  useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/core";
 import { CheckCircleIcon, EditIcon, ExternalLinkIcon } from "@chakra-ui/icons";
@@ -66,13 +67,13 @@ function ItemSupportDrawer({ item, isOpen, onClose }) {
           overflow="auto"
         >
           <DrawerCloseButton />
-          <DrawerHeader color="green.800">
+          <DrawerHeader>
             {item.name}
             <Badge colorScheme="pink" marginLeft="3">
               Support <span aria-hidden="true">💖</span>
             </Badge>
           </DrawerHeader>
-          <DrawerBody color="green.800">
+          <DrawerBody>
             <Box paddingBottom="5">
               <Stack spacing="8">
                 <ItemSupportSpecialColorFields item={item} />
@@ -156,6 +157,8 @@ function ItemSupportSpecialColorFields({ item }) {
     colorsData?.allColors?.filter((c) => !c.isStandard) || [];
   nonStandardColors.sort((a, b) => a.name.localeCompare(b.name));
 
+  const linkColor = useColorModeValue("green.500", "green.300");
+
   return (
     <FormControl
       isInvalid={colorsError || itemError || mutationError ? true : false}
@@ -217,7 +220,7 @@ function ItemSupportSpecialColorFields({ item }) {
             href={`https://impress.openneo.net/items/${
               item.id
             }-${item.name.replace(/ /g, "-")}`}
-            color="green.500"
+            color={linkColor}
             isExternal
           >
             item page <ExternalLinkIcon />

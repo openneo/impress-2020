@@ -12,6 +12,7 @@ import {
   PopoverTrigger,
   Portal,
   VisuallyHidden,
+  useColorModeValue,
   useTheme,
 } from "@chakra-ui/core";
 
@@ -258,6 +259,11 @@ function PoseOption({ poseInfo, onChange, inputRef }) {
     label += ` (not modeled yet)`;
   }
 
+  const borderColor = useColorModeValue(
+    theme.colors.green["600"],
+    theme.colors.green["300"]
+  );
+
   return (
     <Box
       as="label"
@@ -316,7 +322,7 @@ function PoseOption({ poseInfo, onChange, inputRef }) {
           zIndex="2"
           className={cx(
             css`
-              border: 0px solid ${theme.colors.green["600"]};
+              border: 0px solid ${borderColor};
               transition: border-width 0.2s;
 
               &.not-available {

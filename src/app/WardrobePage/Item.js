@@ -7,6 +7,7 @@ import {
   Image,
   Skeleton,
   Tooltip,
+  useColorModeValue,
   useTheme,
 } from "@chakra-ui/core";
 import { EditIcon, DeleteIcon, InfoIcon } from "@chakra-ui/icons";
@@ -120,6 +121,21 @@ function ItemSkeleton() {
 function ItemContainer({ children }) {
   const theme = useTheme();
 
+  const focusBackgroundColor = useColorModeValue(
+    theme.colors.gray["100"],
+    theme.colors.gray["700"]
+  );
+
+  const activeBorderColor = useColorModeValue(
+    theme.colors.green["400"],
+    theme.colors.green["500"]
+  );
+
+  const focusCheckedBorderColor = useColorModeValue(
+    theme.colors.green["800"],
+    theme.colors.green["300"]
+  );
+
   return (
     <Box
       p="1"
@@ -135,15 +151,15 @@ function ItemContainer({ children }) {
         css`
           &:hover,
           input:focus + & {
-            background-color: ${theme.colors.gray["100"]};
+            background-color: ${focusBackgroundColor};
           }
 
           input:active + & {
-            border-color: ${theme.colors.green["400"]};
+            border-color: ${activeBorderColor};
           }
 
           input:checked:focus + & {
-            border-color: ${theme.colors.green["800"]};
+            border-color: ${focusCheckedBorderColor};
           }
         `,
       ])}
@@ -159,6 +175,17 @@ function ItemContainer({ children }) {
  */
 function ItemThumbnail({ src, isWorn }) {
   const theme = useTheme();
+
+  const borderColor = useColorModeValue(
+    theme.colors.green["700"],
+    "transparent"
+  );
+
+  const focusBorderColor = useColorModeValue(
+    theme.colors.green["600"],
+    "transparent"
+  );
+
   return (
     <Box
       borderRadius="lg"
@@ -171,14 +198,14 @@ function ItemThumbnail({ src, isWorn }) {
       transformOrigin="center"
       className={css([
         {
-          borderColor: theme.colors.green["700"],
+          borderColor: `${borderColor} !important`,
           transform: "scale(0.8)",
         },
         !isWorn && {
           [containerHasFocus]: {
             opacity: "0.9",
             transform: "scale(0.9)",
-            borderColor: theme.colors.green["600"],
+            borderColor: `${focusBorderColor} !important`,
           },
         },
         isWorn && {
@@ -202,7 +229,6 @@ function ItemName({ children, ...props }) {
   return (
     <Box
       fontSize="md"
-      color="green.800"
       transition="all 0.15s"
       className={css`
         ${containerHasFocus} {
@@ -228,6 +254,15 @@ function ItemName({ children, ...props }) {
 function ItemActionButton({ icon, label, href, onClick }) {
   const theme = useTheme();
 
+  const focusBackgroundColor = useColorModeValue(
+    theme.colors.gray["300"],
+    theme.colors.gray["800"]
+  );
+  const focusColor = useColorModeValue(
+    theme.colors.gray["700"],
+    theme.colors.gray["200"]
+  );
+
   return (
     <Tooltip label={label} placement="top">
       <IconButton
@@ -250,8 +285,8 @@ function ItemActionButton({ icon, label, href, onClick }) {
           &:focus,
           &:hover {
             opacity: 1;
-            background-color: ${theme.colors.gray["300"]};
-            color: ${theme.colors.gray["700"]};
+            background-color: ${focusBackgroundColor};
+            color: ${focusColor};
           }
 
           /* On touch devices, always show the buttons! This avoids having to

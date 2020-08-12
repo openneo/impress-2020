@@ -33,7 +33,7 @@ function ItemsPanel({ outfitState, loading, dispatchToOutfit }) {
   const { zonesAndItems } = outfitState;
 
   return (
-    <Box color="green.800">
+    <Box>
       <Box px="1">
         <OutfitHeading
           outfitState={outfitState}
@@ -202,7 +202,6 @@ function OutfitHeading({ outfitState, dispatchToOutfit }) {
                     <IconButton
                       icon={<EditIcon />}
                       variant="link"
-                      color="green.600"
                       aria-label="Edit outfit name"
                       title="Edit outfit name"
                     />

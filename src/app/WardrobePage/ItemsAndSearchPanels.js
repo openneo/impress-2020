@@ -7,6 +7,7 @@ import {
   InputGroup,
   InputLeftElement,
   InputRightElement,
+  useColorModeValue,
 } from "@chakra-ui/core";
 import { CloseIcon, SearchIcon } from "@chakra-ui/icons";
 
@@ -103,6 +104,8 @@ function SearchToolbar({
     }
   };
 
+  const focusBorderColor = useColorModeValue("green.600", "green.400");
+
   return (
     <InputGroup>
       <InputLeftElement>
@@ -111,8 +114,7 @@ function SearchToolbar({
       <Input
         placeholder="Search for items to add…"
         aria-label="Search for items to add…"
-        focusBorderColor="green.600"
-        color="green.800"
+        focusBorderColor={focusBorderColor}
         value={query}
         ref={searchQueryRef}
         onChange={(e) => onChange(e.target.value)}

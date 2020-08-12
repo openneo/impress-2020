@@ -1,7 +1,7 @@
 import React from "react";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
-import { Box, Flex, Select, Text } from "@chakra-ui/core";
+import { Box, Flex, Select, Text, useColorModeValue } from "@chakra-ui/core";
 
 import { Delay, useFetch } from "../util";
 
@@ -55,9 +55,10 @@ function SpeciesColorPicker({
   const allSpecies = (meta && [...meta.allSpecies]) || [];
   allSpecies.sort((a, b) => a.name.localeCompare(b.name));
 
-  const backgroundColor = dark ? "gray.600" : "white";
-  const borderColor = dark ? "transparent" : "green.600";
-  const textColor = dark ? "gray.50" : "inherit";
+  const backgroundColor = useColorModeValue("white", "gray.600");
+  const borderColor = useColorModeValue("green.600", "transparent");
+  const textColor = useColorModeValue("inherit", "green.50");
+
   const SpeciesColorSelect = ({ isDisabled, isLoading, ...props }) => {
     const loadingProps = isLoading
       ? {

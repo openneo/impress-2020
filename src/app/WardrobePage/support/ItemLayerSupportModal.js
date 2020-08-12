@@ -122,7 +122,7 @@ function ItemLayerSupportModal({
   return (
     <Modal size="xl" isOpen={isOpen} onClose={onClose}>
       <ModalOverlay>
-        <ModalContent color="green.800">
+        <ModalContent>
           <ModalHeader>
             Layer {itemLayer.id}: {item.name}
           </ModalHeader>

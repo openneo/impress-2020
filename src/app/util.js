@@ -34,9 +34,9 @@ export function Delay({ children, ms = 300 }) {
 export function Heading1({ children, ...props }) {
   return (
     <Heading
+      size="2xl"
       fontFamily="Delicious, sans-serif"
       fontWeight="800"
-      size="2xl"
       {...props}
     >
       {children}
@@ -52,7 +52,6 @@ export function Heading2({ children, ...props }) {
   return (
     <Heading
       size="xl"
-      color="green.800"
       fontFamily="Delicious, sans-serif"
       fontWeight="700"
       {...props}

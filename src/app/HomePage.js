@@ -1,7 +1,18 @@
 import React from "react";
 import { css } from "emotion";
 import gql from "graphql-tag";
-import { Box, Button, Flex, Input, useTheme, useToast } from "@chakra-ui/core";
+import {
+  Box,
+  Button,
+  Flex,
+  IconButton,
+  Input,
+  useColorMode,
+  useColorModeValue,
+  useTheme,
+  useToast,
+} from "@chakra-ui/core";
+import { MoonIcon, SunIcon } from "@chakra-ui/icons";
 import { useHistory, useLocation } from "react-router-dom";
 import { useLazyQuery } from "@apollo/client";
 
@@ -19,13 +30,8 @@ function HomePage() {
   const [previewState, setPreviewState] = React.useState(null);
 
   return (
-    <Flex
-      color="green.800"
-      direction="column"
-      p="6"
-      align="center"
-      textAlign="center"
-    >
+    <Flex direction="column" p="6" align="center" textAlign="center">
+      <ColorModeToggleButton />
       <Box height="8" />
       <Box
         width="200px"
@@ -93,6 +99,9 @@ function StartOutfitForm({ onChange }) {
     history.push(`/outfits/new?${params}`);
   };
 
+  const buttonBgColor = useColorModeValue("green.600", "green.300");
+  const buttonBgColorHover = useColorModeValue("green.700", "green.200");
+
   return (
     <form onSubmit={onSubmit}>
       <Flex>
@@ -121,8 +130,8 @@ function StartOutfitForm({ onChange }) {
           type="submit"
           colorScheme="green"
           disabled={!isValid}
-          backgroundColor="green.600" // for AA contrast
-          _hover={{ backgroundColor: "green.700" }}
+          backgroundColor={buttonBgColor}
+          _hover={{ backgroundColor: buttonBgColorHover }}
         >
           Start
         </Button>
@@ -192,6 +201,11 @@ function SubmitPetForm() {
     import("./WardrobePage");
   };
 
+  const inputBorderColor = useColorModeValue("green.600", "green.500");
+  const inputBorderColorHover = useColorModeValue("green.400", "green.300");
+  const buttonBgColor = useColorModeValue("green.600", "green.300");
+  const buttonBgColorHover = useColorModeValue("green.700", "green.200");
+
   return (
     <form onSubmit={onSubmit}>
       <Flex>
@@ -201,8 +215,8 @@ function SubmitPetForm() {
           isDisabled={loading}
           placeholder="Enter a pet's name"
           aria-label="Enter a pet's name"
-          borderColor="green.600"
-          _hover={{ borderColor: "green.400" }}
+          borderColor={inputBorderColor}
+          _hover={{ borderColor: inputBorderColorHover }}
           boxShadow="md"
           width="14em"
           className={css`
@@ -217,13 +231,28 @@ function SubmitPetForm() {
           colorScheme="green"
           isDisabled={!petName}
           isLoading={loading}
-          backgroundColor="green.600" // for AA contrast
-          _hover={{ backgroundColor: "green.700" }}
+          backgroundColor={buttonBgColor} // for AA contrast
+          _hover={{ backgroundColor: buttonBgColorHover }}
         >
           Start
         </Button>
       </Flex>
     </form>
+  );
+}
+
+function ColorModeToggleButton() {
+  const { colorMode, toggleColorMode } = useColorMode();
+
+  return (
+    <IconButton
+      icon={colorMode === "light" ? <MoonIcon /> : <SunIcon />}
+      onClick={toggleColorMode}
+      variant="ghost"
+      position="absolute"
+      bottom="3"
+      right="3"
+    />
   );
 }
 

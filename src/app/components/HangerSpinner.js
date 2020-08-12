@@ -82,7 +82,7 @@ function HangerSpinner(props) {
           }
         `}
       >
-        <HangerIcon {...props} />
+        <HangerIcon color="green.300" {...props} />
       </Box>
     </>
   );

@@ -39,7 +39,6 @@ function SearchPanel({
 
   return (
     <Box
-      color="green.800"
       onKeyDown={(e) => {
         // This will catch any Escape presses when the user's focus is inside
         // the SearchPanel.
@@ -125,7 +124,7 @@ function SearchResults({
     );
   } else if (error) {
     return (
-      <Text color="green.500">
+      <Text>
         We hit an error trying to load your search results{" "}
         <span role="img" aria-label="(sweat emoji)">
           😓
@@ -135,7 +134,7 @@ function SearchResults({
     );
   } else if (items.length === 0) {
     return (
-      <Text color="green.500">
+      <Text>
         We couldn't find any matching items{" "}
         <span role="img" aria-label="(thinking emoji)">
           🤔

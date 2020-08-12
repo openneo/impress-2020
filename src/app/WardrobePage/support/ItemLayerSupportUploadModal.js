@@ -144,7 +144,7 @@ function ItemLayerSupportUploadModal({ item, itemLayer, isOpen, onClose }) {
       onClose={onClose}
     >
       <ModalOverlay>
-        <ModalContent color="green.800">
+        <ModalContent>
           <ModalHeader textAlign="center">
             Upload PNG for {item.name}
           </ModalHeader>

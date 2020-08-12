@@ -1,7 +1,7 @@
 import React from "react";
 import { ApolloProvider } from "@apollo/client";
 import { CSSReset, ChakraProvider } from "@chakra-ui/core";
-import theme from "@chakra-ui/theme";
+import defaultTheme from "@chakra-ui/theme";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import loadable from "@loadable/component";
 
@@ -9,6 +9,19 @@ import apolloClient from "./apolloClient";
 
 const WardrobePage = loadable(() => import("./WardrobePage"));
 const HomePage = loadable(() => import("./HomePage"));
+
+const theme = {
+  ...defaultTheme,
+  styles: {
+    ...defaultTheme.styles,
+    global: ({ colorMode, ...rest }) => ({
+      ...defaultTheme.styles.global({ colorMode, ...rest }),
+      color: colorMode === "light" ? "green.800" : "green.50",
+    }),
+  },
+};
+
+console.log(defaultTheme.styles.global, defaultTheme.styles);
 
 /**
  * App is the entry point of our application. There's not a ton of exciting
