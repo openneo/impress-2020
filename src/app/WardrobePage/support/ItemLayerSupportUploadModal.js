@@ -1,5 +1,4 @@
 import * as React from "react";
-import gql from "graphql-tag";
 import { useApolloClient } from "@apollo/client";
 import {
   Button,
@@ -124,7 +123,14 @@ function ItemLayerSupportUploadModal({ item, itemLayer, isOpen, onClose }) {
       setIsUploading(false);
       setUploadError(e);
     }
-  }, [imageWithAlphaBlob, supportSecret, itemLayer.id, toast, onClose]);
+  }, [
+    imageWithAlphaBlob,
+    supportSecret,
+    itemLayer.id,
+    toast,
+    onClose,
+    apolloClient.cache,
+  ]);
 
   return (
     <Modal
@@ -290,7 +296,7 @@ function ItemLayerSupportFlashPlayer({ swfUrl, backgroundColor }) {
   // that isn't fully visible will fill the not-visible space with black,
   // instead of the actual SWF content. We change the border color to hint this
   // to the user!
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     const region = regionRef.current;
     if (!region) {
       return;
@@ -301,7 +307,7 @@ function ItemLayerSupportFlashPlayer({ swfUrl, backgroundColor }) {
       throw new Error(`could not find .chakra-modal__overlay scroll parent`);
     }
 
-    const onMountAndOnScroll = () => {
+    const onMountOrScrollOrResize = () => {
       const regionBox = region.getBoundingClientRect();
       const scrollParentBox = scrollParent.getBoundingClientRect();
       const isVisible =
@@ -312,12 +318,16 @@ function ItemLayerSupportFlashPlayer({ swfUrl, backgroundColor }) {
       setIsVisible(isVisible);
     };
 
-    onMountAndOnScroll();
+    onMountOrScrollOrResize();
 
-    scrollParent.addEventListener("scroll", onMountAndOnScroll);
+    scrollParent.addEventListener("scroll", onMountOrScrollOrResize);
+    window.addEventListener("resize", onMountOrScrollOrResize);
 
-    return () => scrollParent.removeEventListener("scroll", onMountAndOnScroll);
-  }, [regionRef.current]);
+    return () => {
+      scrollParent.removeEventListener("scroll", onMountOrScrollOrResize);
+      window.removeEventListener("resize", onMountOrScrollOrResize);
+    };
+  }, []);
 
   let borderColor;
   if (isVisible === null) {
