@@ -231,21 +231,27 @@ function Cell({ children, as }) {
 }
 
 const EMOTION_STRINGS = {
-  HAPPY: "Happy",
-  SAD: "Sad",
-  SICK: "Sick",
+  HAPPY_MASC: "Happy",
+  HAPPY_FEM: "Happy",
+  SAD_MASC: "Sad",
+  SAD_FEM: "Sad",
+  SICK_MASC: "Sick",
+  SICK_FEM: "Sick",
 };
 
 const GENDER_PRESENTATION_STRINGS = {
-  MASCULINE: "Masculine",
-  FEMININE: "Feminine",
+  HAPPY_MASC: "Masculine",
+  SAD_MASC: "Masculine",
+  SICK_MASC: "Masculine",
+  HAPPY_FEM: "Feminine",
+  SAD_FEM: "Feminine",
+  SICK_FEM: "Feminine",
 };
 
 function PoseOption({ poseInfo, onChange, inputRef }) {
   const theme = useTheme();
-  const genderPresentationStr =
-    GENDER_PRESENTATION_STRINGS[poseInfo.genderPresentation];
-  const emotionStr = EMOTION_STRINGS[poseInfo.emotion];
+  const genderPresentationStr = GENDER_PRESENTATION_STRINGS[poseInfo.pose];
+  const emotionStr = EMOTION_STRINGS[poseInfo.pose];
 
   let label = `${emotionStr} and ${genderPresentationStr}`;
   if (!poseInfo.isAvailable) {
