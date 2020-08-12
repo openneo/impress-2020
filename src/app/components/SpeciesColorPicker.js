@@ -80,6 +80,7 @@ function SpeciesColorPicker({
         borderColor={borderColor}
         boxShadow="md"
         width="auto"
+        transition="all 0.25s"
         _hover={{
           borderColor: "green.400",
         }}

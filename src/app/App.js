@@ -17,6 +17,7 @@ const theme = {
     global: ({ colorMode, ...rest }) => ({
       ...defaultTheme.styles.global({ colorMode, ...rest }),
       color: colorMode === "light" ? "green.800" : "green.50",
+      transition: "all 0.25s",
     }),
   },
 };
