@@ -31,7 +31,6 @@ function HomePage() {
 
   return (
     <Flex direction="column" p="6" align="center" textAlign="center">
-      <ColorModeToggleButton />
       <Box height="8" />
       <Box
         width="200px"
@@ -66,6 +65,7 @@ function HomePage() {
       </Box>
       <Box height="4" />
       <SubmitPetForm />
+      <ColorModeToggleButton />
     </Flex>
   );
 }
@@ -246,6 +246,9 @@ function ColorModeToggleButton() {
 
   return (
     <IconButton
+      aria-label={
+        colorMode === "light" ? "Switch to dark mode" : "Switch to light mode"
+      }
       icon={colorMode === "light" ? <MoonIcon /> : <SunIcon />}
       onClick={toggleColorMode}
       variant="ghost"
