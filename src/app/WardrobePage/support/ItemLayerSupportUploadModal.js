@@ -10,6 +10,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Select,
   useToast,
 } from "@chakra-ui/core";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
@@ -33,6 +34,8 @@ function ItemLayerSupportUploadModal({ item, itemLayer, isOpen, onClose }) {
   const [isUploading, setIsUploading] = React.useState(false);
   const [uploadError, setUploadError] = React.useState(null);
 
+  const [conflictMode, setConflictMode] = React.useState("onBlack");
+
   const supportSecret = useSupportSecret();
   const toast = useToast();
   const apolloClient = useApolloClient();
@@ -47,14 +50,16 @@ function ItemLayerSupportUploadModal({ item, itemLayer, isOpen, onClose }) {
     setNumWarnings(null);
     setIsUploading(false);
 
-    mergeIntoImageWithAlpha(imageOnBlackUrl, imageOnWhiteUrl).then(
-      ([url, blob, numWarnings]) => {
-        setImageWithAlphaUrl(url);
-        setImageWithAlphaBlob(blob);
-        setNumWarnings(numWarnings);
-      }
-    );
-  }, [imageOnBlackUrl, imageOnWhiteUrl]);
+    mergeIntoImageWithAlpha(
+      imageOnBlackUrl,
+      imageOnWhiteUrl,
+      conflictMode
+    ).then(([url, blob, numWarnings]) => {
+      setImageWithAlphaUrl(url);
+      setImageWithAlphaBlob(blob);
+      setNumWarnings(numWarnings);
+    });
+  }, [imageOnBlackUrl, imageOnWhiteUrl, conflictMode]);
 
   const onUpload = React.useCallback(
     (e) => {
@@ -167,6 +172,8 @@ function ItemLayerSupportUploadModal({ item, itemLayer, isOpen, onClose }) {
               <ItemLayerSupportReviewStep
                 imageWithAlphaUrl={imageWithAlphaUrl}
                 numWarnings={numWarnings}
+                conflictMode={conflictMode}
+                onChangeConflictMode={setConflictMode}
               />
             )}
           </ModalBody>
@@ -250,7 +257,12 @@ function ItemLayerSupportScreenshotStep({ itemLayer, step, onUpload }) {
   );
 }
 
-function ItemLayerSupportReviewStep({ imageWithAlphaUrl, numWarnings }) {
+function ItemLayerSupportReviewStep({
+  imageWithAlphaUrl,
+  numWarnings,
+  conflictMode,
+  onChangeConflictMode,
+}) {
   if (imageWithAlphaUrl == null) {
     return <Box>Generating image…</Box>;
   }
@@ -281,6 +293,31 @@ function ItemLayerSupportReviewStep({ imageWithAlphaUrl, numWarnings }) {
             height={600}
             alt="Generated layer PNG, on a checkered background"
           />
+        )}
+      </Box>
+      <Box>
+        {numWarnings > 0 && (
+          <Box
+            display="flex"
+            flexDirection="row"
+            alignItems="center"
+            justifyContent="center"
+            width="600px"
+            marginTop="2"
+          >
+            <Box flex="0 1 auto" marginRight="2">
+              When pixels conflict, we use…
+            </Box>
+            <Select
+              flex="0 0 200px"
+              value={conflictMode}
+              onChange={(e) => onChangeConflictMode(e.target.value)}
+            >
+              <option value="onBlack">the version on black</option>
+              <option value="onWhite">the version on white</option>
+              <option value="transparent">transparent pixels</option>
+            </Select>
+          </Box>
         )}
       </Box>
     </>
@@ -386,7 +423,11 @@ function ItemLayerSupportFlashPlayer({ swfUrl, backgroundColor }) {
   );
 }
 
-async function mergeIntoImageWithAlpha(imageOnBlackUrl, imageOnWhiteUrl) {
+async function mergeIntoImageWithAlpha(
+  imageOnBlackUrl,
+  imageOnWhiteUrl,
+  conflictMode
+) {
   const [imageOnBlack, imageOnWhite] = await Promise.all([
     readImageDataFromUrl(imageOnBlackUrl),
     readImageDataFromUrl(imageOnWhiteUrl),
@@ -394,7 +435,8 @@ async function mergeIntoImageWithAlpha(imageOnBlackUrl, imageOnWhiteUrl) {
 
   const [imageWithAlphaData, numWarnings] = mergeDataIntoImageWithAlpha(
     imageOnBlack,
-    imageOnWhite
+    imageOnWhite,
+    conflictMode
   );
   const [
     imageWithAlphaUrl,
@@ -404,7 +446,7 @@ async function mergeIntoImageWithAlpha(imageOnBlackUrl, imageOnWhiteUrl) {
   return [imageWithAlphaUrl, imageWithAlphaBlob, numWarnings];
 }
 
-function mergeDataIntoImageWithAlpha(imageOnBlack, imageOnWhite) {
+function mergeDataIntoImageWithAlpha(imageOnBlack, imageOnWhite, conflictMode) {
   const imageWithAlpha = new ImageData(600, 600);
   let numWarnings = 0;
 
@@ -428,13 +470,29 @@ function mergeDataIntoImageWithAlpha(imageOnBlack, imageOnWhite) {
               ` vs ` +
               `#${rOnBlack.toString(16)}${bOnBlack.toString(16)}` +
               `${gOnWhite.toString(16)}. ` +
-              `Falling back to the pixel on black, with alpha = 100%. `
+              `Using conflict mode ${conflictMode} to fall back.`
           );
         }
-        imageWithAlpha.data[pixelIndex] = rOnBlack;
-        imageWithAlpha.data[pixelIndex + 1] = gOnBlack;
-        imageWithAlpha.data[pixelIndex + 2] = bOnBlack;
-        imageWithAlpha.data[pixelIndex + 3] = 255;
+
+        if (conflictMode === "onBlack") {
+          imageWithAlpha.data[pixelIndex] = rOnBlack;
+          imageWithAlpha.data[pixelIndex + 1] = gOnBlack;
+          imageWithAlpha.data[pixelIndex + 2] = bOnBlack;
+          imageWithAlpha.data[pixelIndex + 3] = 255;
+        } else if (conflictMode === "onWhite") {
+          imageWithAlpha.data[pixelIndex] = rOnWhite;
+          imageWithAlpha.data[pixelIndex + 1] = gOnWhite;
+          imageWithAlpha.data[pixelIndex + 2] = bOnWhite;
+          imageWithAlpha.data[pixelIndex + 3] = 255;
+        } else if (conflictMode === "transparent") {
+          imageWithAlpha.data[pixelIndex] = 0;
+          imageWithAlpha.data[pixelIndex + 1] = 0;
+          imageWithAlpha.data[pixelIndex + 2] = 0;
+          imageWithAlpha.data[pixelIndex + 3] = 0;
+        } else {
+          throw new Error(`unexpected conflict mode ${conflictMode}`);
+        }
+
         numWarnings++;
         continue;
       }
@@ -460,13 +518,29 @@ function mergeDataIntoImageWithAlpha(imageOnBlack, imageOnWhite) {
               ` vs ` +
               `#${rOnBlack.toString(16)}${bOnBlack.toString(16)}` +
               `${gOnWhite.toString(16)}. ` +
-              `Falling back to the pixel on black, with alpha = 100%. `
+              `Using conflict mode ${conflictMode} to fall back.`
           );
         }
-        imageWithAlpha.data[pixelIndex] = rOnBlack;
-        imageWithAlpha.data[pixelIndex + 1] = gOnBlack;
-        imageWithAlpha.data[pixelIndex + 2] = bOnBlack;
-        imageWithAlpha.data[pixelIndex + 3] = 255;
+
+        if (conflictMode === "onBlack") {
+          imageWithAlpha.data[pixelIndex] = rOnBlack;
+          imageWithAlpha.data[pixelIndex + 1] = gOnBlack;
+          imageWithAlpha.data[pixelIndex + 2] = bOnBlack;
+          imageWithAlpha.data[pixelIndex + 3] = 255;
+        } else if (conflictMode === "onWhite") {
+          imageWithAlpha.data[pixelIndex] = rOnWhite;
+          imageWithAlpha.data[pixelIndex + 1] = gOnWhite;
+          imageWithAlpha.data[pixelIndex + 2] = bOnWhite;
+          imageWithAlpha.data[pixelIndex + 3] = 255;
+        } else if (conflictMode === "transparent") {
+          imageWithAlpha.data[pixelIndex] = 0;
+          imageWithAlpha.data[pixelIndex + 1] = 0;
+          imageWithAlpha.data[pixelIndex + 2] = 0;
+          imageWithAlpha.data[pixelIndex + 3] = 0;
+        } else {
+          throw new Error(`unexpected conflict mode ${conflictMode}`);
+        }
+
         numWarnings++;
         continue;
       }
