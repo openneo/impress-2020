@@ -51,7 +51,7 @@ function PosePicker({
 }) {
   const theme = useTheme();
   const checkedInputRef = React.useRef();
-  const { loading, error, poseInfos } = usePoses(speciesId, colorId);
+  const { loading, error, poseInfos } = usePoses(speciesId, colorId, pose);
 
   if (loading) {
     return null;
