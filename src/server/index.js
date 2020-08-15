@@ -207,6 +207,12 @@ const typeDefs = gql`
       supportSecret: String!
     ): Item!
 
+    setItemExplicitlyBodySpecific(
+      itemId: ID!
+      explicitlyBodySpecific: Boolean!
+      supportSecret: String!
+    ): Item!
+
     setLayerBodyId(
       layerId: ID!
       bodyId: ID!
@@ -568,6 +574,31 @@ const resolvers = {
       ] = await db.execute(
         `UPDATE items SET manual_special_color_id = ? WHERE id = ? LIMIT 1`,
         [colorId, itemId]
+      );
+
+      if (result.affectedRows !== 1) {
+        throw new Error(
+          `Expected to affect 1 item, but affected ${result.affectedRows}`
+        );
+      }
+
+      return { id: itemId };
+    },
+
+    setItemExplicitlyBodySpecific: async (
+      _,
+      { itemId, explicitlyBodySpecific, supportSecret },
+      { db }
+    ) => {
+      if (supportSecret !== process.env["SUPPORT_SECRET"]) {
+        throw new Error(`Support secret is incorrect. Try setting up again?`);
+      }
+
+      const [
+        result,
+      ] = await db.execute(
+        `UPDATE items SET explicitly_body_specific = ? WHERE id = ? LIMIT 1`,
+        [explicitlyBodySpecific ? 1 : 0, itemId]
       );
 
       if (result.affectedRows !== 1) {
