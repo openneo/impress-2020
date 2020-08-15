@@ -252,7 +252,7 @@ function ColorModeToggleButton() {
       icon={colorMode === "light" ? <MoonIcon /> : <SunIcon />}
       onClick={toggleColorMode}
       variant="ghost"
-      position="absolute"
+      position="fixed"
       bottom="3"
       right="3"
     />
