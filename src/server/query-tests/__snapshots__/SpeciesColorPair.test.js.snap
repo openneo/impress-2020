@@ -1733,6 +1733,14 @@ Object {
     },
     Object {
       "color": Object {
+        "id": "104",
+      },
+      "species": Object {
+        "id": "3",
+      },
+    },
+    Object {
+      "color": Object {
         "id": "105",
       },
       "species": Object {
