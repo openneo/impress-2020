@@ -27,6 +27,7 @@ import {
 import { CheckCircleIcon, EditIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 
 import ItemLayerSupportModal from "./ItemLayerSupportModal";
+import Metadata, { MetadataLabel, MetadataValue } from "./Metadata";
 import { OutfitLayers } from "../../components/OutfitPreview";
 import useOutfitAppearance from "../../components/useOutfitAppearance";
 import { OutfitStateContext } from "../useOutfitState";
@@ -73,13 +74,15 @@ function ItemSupportDrawer({ item, isOpen, onClose }) {
               Support <span aria-hidden="true">💖</span>
             </Badge>
           </DrawerHeader>
-          <DrawerBody>
-            <Box paddingBottom="5">
-              <Stack spacing="8">
-                <ItemSupportFields item={item} />
-                <ItemSupportAppearanceLayers item={item} />
-              </Stack>
-            </Box>
+          <DrawerBody paddingBottom="5">
+            <Metadata>
+              <MetadataLabel>DTI ID:</MetadataLabel>
+              <MetadataValue>{item.id}</MetadataValue>
+            </Metadata>
+            <Stack spacing="8" marginTop="6">
+              <ItemSupportFields item={item} />
+              <ItemSupportAppearanceLayers item={item} />
+            </Stack>
           </DrawerBody>
         </DrawerContent>
       </DrawerOverlay>

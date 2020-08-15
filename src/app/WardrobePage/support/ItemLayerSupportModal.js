@@ -24,6 +24,7 @@ import {
 import { ChevronRightIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 
 import ItemLayerSupportUploadModal from "./ItemLayerSupportUploadModal";
+import Metadata, { MetadataLabel, MetadataValue } from "./Metadata";
 import { OutfitLayers } from "../../components/OutfitPreview";
 import SpeciesColorPicker from "../../components/SpeciesColorPicker";
 import useOutfitAppearance, {
@@ -338,36 +339,6 @@ function ItemLayerSupportPetCompatibilityFields({
         {error && <FormErrorMessage>{error.message}</FormErrorMessage>}
       </Box>
     </FormControl>
-  );
-}
-
-function Metadata({ children }) {
-  return (
-    <Box
-      as="dl"
-      display="grid"
-      gridTemplateColumns="max-content auto"
-      gridRowGap="1"
-      gridColumnGap="2"
-    >
-      {children}
-    </Box>
-  );
-}
-
-function MetadataLabel({ children }) {
-  return (
-    <Box as="dt" gridColumn="1" fontWeight="bold">
-      {children}
-    </Box>
-  );
-}
-
-function MetadataValue({ children }) {
-  return (
-    <Box as="dd" gridColumn="2">
-      {children}
-    </Box>
   );
 }
 
