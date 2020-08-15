@@ -101,7 +101,14 @@ const typeDefs = gql`
 
   # Cache for 1 week (unlikely to change)
   type AppearanceLayer @cacheControl(maxAge: 604800) {
+    # The DTI ID. Guaranteed unique across all layers of all types.
     id: ID!
+
+    # The Neopets ID. Guaranteed unique across layers of the _same_ type, but
+    # not of different types. That is, it's allowed and common for an item
+    # layer and a pet layer to have the same remoteId.
+    remoteId: ID!
+
     zone: Zone!
     imageUrl(size: LayerImageSize): String
 
@@ -326,6 +333,10 @@ const resolvers = {
     },
   },
   AppearanceLayer: {
+    bodyId: async ({ id }, _, { swfAssetLoader }) => {
+      const layer = await swfAssetLoader.load(id);
+      return layer.remoteId;
+    },
     bodyId: async ({ id }, _, { swfAssetLoader }) => {
       const layer = await swfAssetLoader.load(id);
       return layer.bodyId;

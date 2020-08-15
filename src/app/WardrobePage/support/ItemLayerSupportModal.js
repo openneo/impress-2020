@@ -132,6 +132,8 @@ function ItemLayerSupportModal({
             <Metadata>
               <MetadataLabel>DTI ID:</MetadataLabel>
               <MetadataValue>{itemLayer.id}</MetadataValue>
+              <MetadataLabel>Neopets ID:</MetadataLabel>
+              <MetadataValue>{itemLayer.remoteId}</MetadataValue>
               <MetadataLabel>Zone:</MetadataLabel>
               <MetadataValue>
                 {itemLayer.zone.label} ({itemLayer.zone.id})

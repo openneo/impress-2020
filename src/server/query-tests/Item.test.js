@@ -71,6 +71,7 @@ describe("Item", () => {
             appearanceOn(speciesId: "54", colorId: "75") {
               layers {
                 id
+                remoteId
                 imageUrl(size: SIZE_600)
                 svgUrl
                 zone {

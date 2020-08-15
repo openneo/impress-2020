@@ -9,6 +9,7 @@ Object {
           Object {
             "id": "37128",
             "imageUrl": "https://impress-asset-images.s3.amazonaws.com/object/000/000/014/14856/600x600.png?v2-1587653266000",
+            "remoteId": "14856",
             "svgUrl": null,
             "zone": Object {
               "depth": 30,
@@ -35,6 +36,7 @@ Object {
           Object {
             "id": "37129",
             "imageUrl": "https://impress-asset-images.s3.amazonaws.com/object/000/000/014/14857/600x600.png?v2-0",
+            "remoteId": "14857",
             "svgUrl": null,
             "zone": Object {
               "depth": 44,
@@ -61,6 +63,7 @@ Object {
           Object {
             "id": "30203",
             "imageUrl": "https://impress-asset-images.s3.amazonaws.com/object/000/000/006/6829/600x600.png?v2-0",
+            "remoteId": "6829",
             "svgUrl": null,
             "zone": Object {
               "depth": 3,

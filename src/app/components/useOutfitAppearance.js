@@ -118,6 +118,7 @@ export const itemAppearanceFragment = gql`
   fragment ItemAppearanceForOutfitPreview on ItemAppearance {
     layers {
       id
+      remoteId # HACK: This is for Support tools, but other views don't need it
       svgUrl
       imageUrl(size: SIZE_600)
       swfUrl # HACK: This is for Support tools, but other views don't need it
