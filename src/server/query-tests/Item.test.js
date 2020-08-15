@@ -6,7 +6,7 @@ describe("Item", () => {
     const res = await query({
       query: gql`
         query {
-          items(ids: ["38913", "38911", "38912", "77530", "78104"]) {
+          items(ids: ["38913", "38911", "38912", "55788", "77530", "78104"]) {
             id
             name
             description
@@ -17,6 +17,7 @@ describe("Item", () => {
               id
               name
             }
+            explicitlyBodySpecific
           }
         }
       `,
@@ -27,21 +28,23 @@ describe("Item", () => {
     expect(getDbCalls()).toMatchInlineSnapshot(`
       Array [
         Array [
-          "SELECT * FROM item_translations WHERE item_id IN (?,?,?,?,?) AND locale = \\"en\\"",
+          "SELECT * FROM item_translations WHERE item_id IN (?,?,?,?,?,?) AND locale = \\"en\\"",
           Array [
             "38913",
             "38911",
             "38912",
+            "55788",
             "77530",
             "78104",
           ],
         ],
         Array [
-          "SELECT * FROM items WHERE id IN (?,?,?,?,?)",
+          "SELECT * FROM items WHERE id IN (?,?,?,?,?,?)",
           Array [
             "38913",
             "38911",
             "38912",
+            "55788",
             "77530",
             "78104",
           ],

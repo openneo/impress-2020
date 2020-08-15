@@ -72,6 +72,14 @@ const typeDefs = gql`
     # this for the Support UI; it's not very helpful for most users, because it
     # can be empty even if the item _has_ an auto-detected special color.
     manualSpecialColor: Color
+
+    # This is set manually by Support users, when the item _seems_ to fit all
+    # pets the same because of its zones, but it actually doesn't - e.g.,
+    # the Dug Up Dirt Foreground actually looks different for each body. We
+    # provide this for the Support UI; it's not very helpful for most users,
+    # because it's only used at modeling time. This value does not change how
+    # layer data from this API should be interpreted!
+    explicitlyBodySpecific: Boolean!
   }
 
   # Cache for 1 week (unlikely to change)
@@ -274,6 +282,10 @@ const resolvers = {
       return item.manualSpecialColorId != null
         ? { id: item.manualSpecialColorId }
         : null;
+    },
+    explicitlyBodySpecific: async ({ id }, _, { itemLoader }) => {
+      const item = await itemLoader.load(id);
+      return item.explicitlyBodySpecific;
     },
   },
   PetAppearance: {

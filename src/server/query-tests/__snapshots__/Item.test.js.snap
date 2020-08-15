@@ -83,6 +83,7 @@ Object {
   "items": Array [
     Object {
       "description": "Dont leave any trace that you were there with these gloves.",
+      "explicitlyBodySpecific": false,
       "id": "38913",
       "isNc": false,
       "manualSpecialColor": null,
@@ -92,6 +93,7 @@ Object {
     },
     Object {
       "description": "Hide your face and hair so no one can recognise you.",
+      "explicitlyBodySpecific": false,
       "id": "38911",
       "isNc": false,
       "manualSpecialColor": null,
@@ -101,6 +103,7 @@ Object {
     },
     Object {
       "description": "This robe is great for being stealthy.",
+      "explicitlyBodySpecific": false,
       "id": "38912",
       "isNc": false,
       "manualSpecialColor": null,
@@ -109,7 +112,18 @@ Object {
       "thumbnailUrl": "http://images.neopets.com/items/clo_zafara_agent_robe.gif",
     },
     Object {
+      "description": "Maybe youll be discovered by some Neopets from the future and thawed out!",
+      "explicitlyBodySpecific": true,
+      "id": "55788",
+      "isNc": true,
+      "manualSpecialColor": null,
+      "name": "Encased in Ice",
+      "rarityIndex": 500,
+      "thumbnailUrl": "http://images.neopets.com/items/mall_petinice.gif",
+    },
+    Object {
       "description": "Made with the finest jewels of the sea!",
+      "explicitlyBodySpecific": false,
       "id": "77530",
       "isNc": true,
       "manualSpecialColor": Object {
@@ -122,6 +136,7 @@ Object {
     },
     Object {
       "description": "You truly are the number one fan of Altador Cup, and your room reflects this!",
+      "explicitlyBodySpecific": false,
       "id": "78104",
       "isNc": true,
       "manualSpecialColor": null,
