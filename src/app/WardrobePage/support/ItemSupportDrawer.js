@@ -76,9 +76,8 @@ function ItemSupportDrawer({ item, isOpen, onClose }) {
           <DrawerBody>
             <Box paddingBottom="5">
               <Stack spacing="8">
-                <ItemSupportSpecialColorFields item={item} />
-                <ItemSupportPetCompatibilityRuleFields item={item} />
-                <ItemSupportAppearanceFields item={item} />
+                <ItemSupportFields item={item} />
+                <ItemSupportAppearanceLayers item={item} />
               </Stack>
             </Box>
           </DrawerBody>
@@ -88,17 +87,16 @@ function ItemSupportDrawer({ item, isOpen, onClose }) {
   );
 }
 
-function ItemSupportSpecialColorFields({ item }) {
-  const supportSecret = useSupportSecret();
-
-  const { loading: itemLoading, error: itemError, data: itemData } = useQuery(
+function ItemSupportFields({ item }) {
+  const { loading, error, data } = useQuery(
     gql`
-      query ItemSupportDrawerManualSpecialColor($itemId: ID!) {
+      query ItemSupportFields($itemId: ID!) {
         item(id: $itemId) {
           id
           manualSpecialColor {
             id
           }
+          explicitlyBodySpecific
         }
       }
     `,
@@ -112,9 +110,38 @@ function ItemSupportSpecialColorFields({ item }) {
       //     This cheap trick of changing the display name every re-render
       //     persuades Apollo that this is a different query, so it re-checks
       //     its cache and finds the empty `manualSpecialColor`. Weird!
-      displayName: `ItemSupportDrawerManualSpecialColor-${new Date()}`,
+      displayName: `ItemSupportFields-${new Date()}`,
     }
   );
+
+  const errorColor = useColorModeValue("red.500", "red.300");
+
+  return (
+    <>
+      {error && <Box color={errorColor}>{error.message}</Box>}
+      <ItemSupportSpecialColorFields
+        loading={loading}
+        error={error}
+        item={item}
+        manualSpecialColor={data?.item?.manualSpecialColor?.id}
+      />
+      <ItemSupportPetCompatibilityRuleFields
+        loading={loading}
+        error={error}
+        item={item}
+        explicitlyBodySpecific={data?.item?.explicitlyBodySpecific}
+      />
+    </>
+  );
+}
+
+function ItemSupportSpecialColorFields({
+  loading,
+  error,
+  item,
+  manualSpecialColor,
+}) {
+  const supportSecret = useSupportSecret();
 
   const {
     loading: colorsLoading,
@@ -154,6 +181,32 @@ function ItemSupportSpecialColorFields({ item }) {
     }
   `);
 
+  const onChange = React.useCallback(
+    (e) => {
+      const colorId = e.target.value || null;
+      const color =
+        colorId != null ? { __typename: "Color", id: colorId } : null;
+      mutate({
+        variables: {
+          itemId: item.id,
+          colorId,
+          supportSecret,
+        },
+        optimisticResponse: {
+          __typename: "Mutation",
+          setManualSpecialColor: {
+            __typename: "Item",
+            id: item.id,
+            manualSpecialColor: color,
+          },
+        },
+      }).catch((e) => {
+        // Ignore errors from the promise, because we'll handle them on render!
+      });
+    },
+    [item.id, mutate, supportSecret]
+  );
+
   const nonStandardColors =
     colorsData?.allColors?.filter((c) => !c.isStandard) || [];
   nonStandardColors.sort((a, b) => a.name.localeCompare(b.name));
@@ -161,45 +214,24 @@ function ItemSupportSpecialColorFields({ item }) {
   const linkColor = useColorModeValue("green.500", "green.300");
 
   return (
-    <FormControl
-      isInvalid={colorsError || itemError || mutationError ? true : false}
-    >
+    <FormControl isInvalid={Boolean(error || colorsError || mutationError)}>
       <FormLabel>Special color</FormLabel>
       <Select
         placeholder={
-          colorsLoading || itemLoading
+          loading || colorsLoading
             ? "Loading…"
             : "Default: Auto-detect from item description"
         }
-        value={itemData?.item?.manualSpecialColor?.id}
+        value={manualSpecialColor?.id}
         isDisabled={mutationLoading}
         icon={
-          colorsLoading || itemLoading || mutationLoading ? (
+          loading || colorsLoading || mutationLoading ? (
             <Spinner />
           ) : mutationData ? (
             <CheckCircleIcon />
           ) : undefined
         }
-        onChange={(e) => {
-          const colorId = e.target.value || null;
-          const color =
-            colorId != null ? { __typename: "Color", id: colorId } : null;
-          mutate({
-            variables: {
-              itemId: item.id,
-              colorId,
-              supportSecret,
-            },
-            optimisticResponse: {
-              __typename: "Mutation",
-              setManualSpecialColor: {
-                __typename: "Item",
-                id: item.id,
-                manualSpecialColor: color,
-              },
-            },
-          });
-        }}
+        onChange={onChange}
       >
         {nonStandardColors.map((color) => (
           <option key={color.id} value={color.id}>
@@ -210,11 +242,10 @@ function ItemSupportSpecialColorFields({ item }) {
       {colorsError && (
         <FormErrorMessage>{colorsError.message}</FormErrorMessage>
       )}
-      {itemError && <FormErrorMessage>{itemError.message}</FormErrorMessage>}
       {mutationError && (
         <FormErrorMessage>{mutationError.message}</FormErrorMessage>
       )}
-      {!colorsError && !itemError && !mutationError && (
+      {!colorsError && !mutationError && (
         <FormHelperText>
           This controls which previews we show on the{" "}
           <Link
@@ -233,18 +264,95 @@ function ItemSupportSpecialColorFields({ item }) {
   );
 }
 
-function ItemSupportPetCompatibilityRuleFields({ item }) {
+function ItemSupportPetCompatibilityRuleFields({
+  loading,
+  error,
+  item,
+  explicitlyBodySpecific,
+}) {
+  const supportSecret = useSupportSecret();
+
+  const [
+    mutate,
+    { loading: mutationLoading, error: mutationError, data: mutationData },
+  ] = useMutation(gql`
+    mutation ItemSupportDrawerSetItemExplicitlyBodySpecific(
+      $itemId: ID!
+      $explicitlyBodySpecific: Boolean!
+      $supportSecret: String!
+    ) {
+      setItemExplicitlyBodySpecific(
+        itemId: $itemId
+        explicitlyBodySpecific: $explicitlyBodySpecific
+        supportSecret: $supportSecret
+      ) {
+        id
+        explicitlyBodySpecific
+      }
+    }
+  `);
+
+  const onChange = React.useCallback(
+    (e) => {
+      const explicitlyBodySpecific = e.target.value === "true";
+      mutate({
+        variables: {
+          itemId: item.id,
+          explicitlyBodySpecific,
+          supportSecret,
+        },
+        optimisticResponse: {
+          __typename: "Mutation",
+          setItemExplicitlyBodySpecific: {
+            __typename: "Item",
+            id: item.id,
+            explicitlyBodySpecific,
+          },
+        },
+      }).catch((e) => {
+        // Ignore errors from the promise, because we'll handle them on render!
+      });
+    },
+    [item.id, mutate, supportSecret]
+  );
+
   return (
-    <FormControl>
+    <FormControl isInvalid={Boolean(error || mutationError)}>
       <FormLabel>Pet compatibility rule</FormLabel>
-      <Select>
-        <option>Default: Auto-detect whether this fits all pets</option>
-        <option>Body specific: Always different for each pet body</option>
+      <Select
+        value={explicitlyBodySpecific ? "true" : "false"}
+        isDisabled={mutationLoading}
+        icon={
+          loading || mutationLoading ? (
+            <Spinner />
+          ) : mutationData ? (
+            <CheckCircleIcon />
+          ) : undefined
+        }
+        onChange={onChange}
+      >
+        {loading ? (
+          <option>Loading…</option>
+        ) : (
+          <>
+            <option value="false">
+              Default: Auto-detect whether this fits all pets
+            </option>
+            <option value="true">
+              Body specific: Always different for each pet body
+            </option>
+          </>
+        )}
       </Select>
-      <FormHelperText>
-        By default, we assume Background-y zones fit all pets the same. When
-        items don't follow that rule, we can override it.
-      </FormHelperText>
+      {mutationError && (
+        <FormErrorMessage>{mutationError.message}</FormErrorMessage>
+      )}
+      {!mutationError && (
+        <FormHelperText>
+          By default, we assume Background-y zones fit all pets the same. When
+          items don't follow that rule, we can override it.
+        </FormHelperText>
+      )}
     </FormControl>
   );
 }
@@ -256,7 +364,7 @@ function ItemSupportPetCompatibilityRuleFields({ item }) {
  *       sure the context isn't accessed when the drawer is closed. So we use
  *       it here, only when the drawer is open!
  */
-function ItemSupportAppearanceFields({ item }) {
+function ItemSupportAppearanceLayers({ item }) {
   const outfitState = React.useContext(OutfitStateContext);
   const { speciesId, colorId, pose } = outfitState;
   const { error, visibleLayers } = useOutfitAppearance({
