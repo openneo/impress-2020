@@ -130,7 +130,7 @@ function ItemLayerSupportModal({
           <ModalCloseButton />
           <ModalBody>
             <Metadata>
-              <MetadataLabel>DTI ID:</MetadataLabel>
+              <MetadataLabel>Item ID:</MetadataLabel>
               <MetadataValue>{itemLayer.id}</MetadataValue>
               <MetadataLabel>Neopets ID:</MetadataLabel>
               <MetadataValue>{itemLayer.remoteId}</MetadataValue>
