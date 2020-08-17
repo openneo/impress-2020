@@ -196,32 +196,35 @@ const buildPetTypeLoader = (db) =>
   });
 
 const buildPetTypeBySpeciesAndColorLoader = (db, loaders) =>
-  new DataLoader(async (speciesAndColorPairs) => {
-    const conditions = [];
-    const values = [];
-    for (const { speciesId, colorId } of speciesAndColorPairs) {
-      conditions.push("(species_id = ? AND color_id = ?)");
-      values.push(speciesId, colorId);
-    }
+  new DataLoader(
+    async (speciesAndColorPairs) => {
+      const conditions = [];
+      const values = [];
+      for (const { speciesId, colorId } of speciesAndColorPairs) {
+        conditions.push("(species_id = ? AND color_id = ?)");
+        values.push(speciesId, colorId);
+      }
 
-    const [rows, _] = await db.execute(
-      `SELECT * FROM pet_types WHERE ${conditions.join(" OR ")}`,
-      values
-    );
+      const [rows, _] = await db.execute(
+        `SELECT * FROM pet_types WHERE ${conditions.join(" OR ")}`,
+        values
+      );
 
-    const entities = rows.map(normalizeRow);
-    const entitiesBySpeciesAndColorPair = new Map(
-      entities.map((e) => [`${e.speciesId},${e.colorId}`, e])
-    );
+      const entities = rows.map(normalizeRow);
+      const entitiesBySpeciesAndColorPair = new Map(
+        entities.map((e) => [`${e.speciesId},${e.colorId}`, e])
+      );
 
-    for (const petType of entities) {
-      loaders.petTypeLoader.prime(petType.id, petType);
-    }
+      for (const petType of entities) {
+        loaders.petTypeLoader.prime(petType.id, petType);
+      }
 
-    return speciesAndColorPairs.map(({ speciesId, colorId }) =>
-      entitiesBySpeciesAndColorPair.get(`${speciesId},${colorId}`)
-    );
-  });
+      return speciesAndColorPairs.map(({ speciesId, colorId }) =>
+        entitiesBySpeciesAndColorPair.get(`${speciesId},${colorId}`)
+      );
+    },
+    { cacheKeyFn: ({ speciesId, colorId }) => `${speciesId},${colorId}` }
+  );
 
 const buildSwfAssetLoader = (db) =>
   new DataLoader(async (swfAssetIds) => {

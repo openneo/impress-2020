@@ -111,12 +111,8 @@ describe("Item", () => {
           ],
         ],
         Array [
-          "SELECT * FROM pet_types WHERE (species_id = ? AND color_id = ?) OR (species_id = ? AND color_id = ?) OR (species_id = ? AND color_id = ?)",
+          "SELECT * FROM pet_types WHERE (species_id = ? AND color_id = ?)",
           Array [
-            "54",
-            "75",
-            "54",
-            "75",
             "54",
             "75",
           ],
