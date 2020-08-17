@@ -676,7 +676,12 @@ const svgLogging = {
 };
 
 const schema = makeExecutableSchema({ typeDefs, resolvers });
-addBeelineToSchema(schema);
+const plugins = [svgLogging];
+
+if (process.env["NODE_ENV"] !== "test") {
+  addBeelineToSchema(schema);
+  plugins.push(beelinePlugin);
+}
 
 const config = {
   schema,
@@ -698,7 +703,7 @@ const config = {
     };
   },
 
-  plugins: [svgLogging, beelinePlugin],
+  plugins,
 
   // Enable Playground in production :)
   introspection: true,
