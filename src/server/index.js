@@ -1,4 +1,14 @@
-const { gql } = require("apollo-server");
+require("honeycomb-beeline")({
+  writeKey: process.env["HONEYCOMB_WRITE_KEY"],
+  dataset:
+    process.env["NODE_ENV"] === "production"
+      ? "Dress to Impress (2020)"
+      : "Dress to Impress (2020, dev)",
+  serviceName: "impress-2020-gql-server",
+});
+
+const { gql, makeExecutableSchema } = require("apollo-server");
+import { addBeelineToSchema, beelinePlugin } from "./lib/beeline-graphql";
 
 const connectToDb = require("./db");
 const buildLoaders = require("./loaders");
@@ -12,6 +22,8 @@ const {
 } = require("./util");
 
 const typeDefs = gql`
+  directive @cacheControl(maxAge: Int!) on FIELD_DEFINITION | OBJECT
+
   enum LayerImageSize {
     SIZE_600
     SIZE_300
@@ -672,9 +684,11 @@ const svgLogging = {
   },
 };
 
+const schema = makeExecutableSchema({ typeDefs, resolvers });
+addBeelineToSchema(schema);
+
 const config = {
-  typeDefs,
-  resolvers,
+  schema,
   context: async () => {
     const db = await connectToDb();
 
@@ -693,7 +707,7 @@ const config = {
     };
   },
 
-  plugins: [svgLogging],
+  plugins: [svgLogging, beelinePlugin],
 
   // Enable Playground in production :)
   introspection: true,

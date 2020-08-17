@@ -20,6 +20,7 @@
     "dataloader": "^2.0.0",
     "emotion": "^10.0.27",
     "graphql": "^15.0.0",
+    "honeycomb-beeline": "^2.2.0",
     "immer": "^6.0.3",
     "jimp": "^0.14.0",
     "mysql2": "^2.1.0",
