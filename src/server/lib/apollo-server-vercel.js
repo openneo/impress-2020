@@ -17,35 +17,37 @@ function graphqlVercel(options) {
     );
   }
 
-  const graphqlHandler = (req, res) => {
+  const graphqlHandler = async (req, res) => {
     if (req.httpMethod === "POST" && !req.body) {
-      return res.status(500).send("POST body missing.");
+      res.status(500).write("POST body missing.");
+      return;
     }
-    runHttpQuery([req, res], {
-      method: req.method,
-      options: options,
-      query: req.method === "POST" && req.body ? req.body : req.query,
-      request: {
-        url: req.path,
+    let result;
+    try {
+      result = await runHttpQuery([req, res], {
         method: req.method,
-        headers: new Headers(req.headers),
-      },
-    }).then(
-      ({ graphqlResponse, responseInit }) => {
-        setHeaders(res, new Headers(responseInit.headers)).send(
-          graphqlResponse
-        );
-      },
-      (error) => {
-        if ("HttpQueryError" !== error.name) {
-          console.error(error);
-          return;
-        }
-        setHeaders(res, new Headers(error.headers))
-          .status(error.statusCode)
-          .send(error.message);
+        options: options,
+        query: req.method === "POST" && req.body ? req.body : req.query,
+        request: {
+          url: req.path,
+          method: req.method,
+          headers: new Headers(req.headers),
+        },
+      });
+    } catch (error) {
+      if ("HttpQueryError" !== error.name) {
+        console.error(error);
+        return;
       }
-    );
+      setHeaders(res, new Headers(error.headers))
+        .status(error.statusCode)
+        .write(error.message);
+      return;
+    }
+
+    const { graphqlResponse, responseInit } = result;
+    setHeaders(res, new Headers(responseInit.headers));
+    res.write(graphqlResponse);
   };
 
   return graphqlHandler;
@@ -122,7 +124,7 @@ class ApolloServer extends ApolloServerBase {
       }
     }
 
-    return (req, res) => {
+    return async (req, res) => {
       // Make a request-specific copy of the CORS headers, based on the server
       // global CORS headers we've set above.
       const requestCorsHeaders = new Headers(corsHeaders);
@@ -164,7 +166,8 @@ class ApolloServer extends ApolloServerBase {
       );
 
       if (res.method === "OPTIONS") {
-        setHeaders(res, requestCorsHeadersObject).status(204).send("");
+        setHeaders(res, requestCorsHeadersObject).status(204);
+        return;
       }
 
       if (this.playgroundOptions && req.method === "GET") {
@@ -177,7 +180,7 @@ class ApolloServer extends ApolloServerBase {
             ...this.playgroundOptions,
           };
 
-          return setHeaders(
+          setHeaders(
             res,
             new Headers({
               "Content-Type": "text/html",
@@ -185,11 +188,12 @@ class ApolloServer extends ApolloServerBase {
             })
           )
             .status(200)
-            .send(renderPlaygroundPage(playgroundRenderPageOptions));
+            .write(renderPlaygroundPage(playgroundRenderPageOptions));
+          return;
         }
       }
 
-      graphqlVercel(async () => {
+      await graphqlVercel(async () => {
         // In a world where this `createHandler` was async, we might avoid this
         // but since we don't want to introduce a breaking change to this API
         // (by switching it to `async`), we'll leverage the

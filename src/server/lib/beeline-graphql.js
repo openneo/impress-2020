@@ -18,8 +18,6 @@ export function addBeelineToSchema(schema) {
           result = oldResolve(source, args, { ...context, span }, info);
           if (result.then) await result;
         } catch (error) {
-          // TODO(matchu): Not sure why this is here, it seems like we should
-          // re-throw the error, and even then this seems to not be happening?
           span.addContext({ "error.message": error.message });
           span.addContext({ "error.stacktrace": error.stack });
         }
@@ -75,8 +73,10 @@ export const beelinePlugin = {
     const trace = beeline.startTrace();
     return {
       didResolveOperation({ operationName }) {
-        trace.payload["name"] = operationName;
-        trace.payload["operation_name"] = operationName;
+        beeline.addContext({
+          name: operationName,
+          operation_name: operationName,
+        });
       },
       willSendResponse() {
         beeline.finishTrace(trace);

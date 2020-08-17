@@ -1,12 +1,3 @@
-require("honeycomb-beeline")({
-  writeKey: process.env["HONEYCOMB_WRITE_KEY"],
-  dataset:
-    process.env["NODE_ENV"] === "production"
-      ? "Dress to Impress (2020)"
-      : "Dress to Impress (2020, dev)",
-  serviceName: "impress-2020-gql-server",
-});
-
 const { gql, makeExecutableSchema } = require("apollo-server");
 import { addBeelineToSchema, beelinePlugin } from "./lib/beeline-graphql";
 
