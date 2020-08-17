@@ -101,42 +101,121 @@ Object {
   "itemSearchToFit": Object {
     "items": Array [
       Object {
+        "appearanceOn": Object {
+          "layers": Array [
+            Object {
+              "id": "395669",
+            },
+          ],
+        },
         "id": "74967",
         "name": "17th Birthday Party Hat",
       },
       Object {
+        "appearanceOn": Object {
+          "layers": Array [
+            Object {
+              "id": "79262",
+            },
+          ],
+        },
         "id": "49026",
         "name": "Abominable Snowman Hat",
       },
       Object {
+        "appearanceOn": Object {
+          "layers": Array [
+            Object {
+              "id": "248670",
+            },
+            Object {
+              "id": "248671",
+            },
+          ],
+        },
         "id": "67242",
         "name": "Accessories Shop Wig and Hat",
       },
       Object {
+        "appearanceOn": Object {
+          "layers": Array [
+            Object {
+              "id": "207062",
+            },
+          ],
+        },
         "id": "64177",
         "name": "Acorn Hat",
       },
       Object {
+        "appearanceOn": Object {
+          "layers": Array [
+            Object {
+              "id": "293566",
+            },
+            Object {
+              "id": "293567",
+            },
+          ],
+        },
         "id": "69995",
         "name": "Adventure in Pastel Hat and Wig",
       },
       Object {
+        "appearanceOn": Object {
+          "layers": Array [
+            Object {
+              "id": "186927",
+            },
+          ],
+        },
         "id": "62375",
         "name": "Altador Cup Trophy Hat",
       },
       Object {
+        "appearanceOn": Object {
+          "layers": Array [
+            Object {
+              "id": "392019",
+            },
+          ],
+        },
         "id": "56654",
         "name": "Altador Team Hat",
       },
       Object {
+        "appearanceOn": Object {
+          "layers": Array [
+            Object {
+              "id": "201066",
+            },
+          ],
+        },
         "id": "62322",
         "name": "Altador Team Jester Hat",
       },
       Object {
+        "appearanceOn": Object {
+          "layers": Array [
+            Object {
+              "id": "144021",
+            },
+          ],
+        },
         "id": "58733",
         "name": "Apple Bobbing Bart Hat",
       },
       Object {
+        "appearanceOn": Object {
+          "layers": Array [
+            Object {
+              "id": "495043",
+            },
+            Object {
+              "id": "495044",
+            },
+          ],
+        },
         "id": "80401",
         "name": "Aurricks Finest Hat",
       },

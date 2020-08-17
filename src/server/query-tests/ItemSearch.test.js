@@ -101,6 +101,11 @@ describe("ItemSearch", () => {
             items {
               id
               name
+              appearanceOn(speciesId: "54", colorId: "75") {
+                layers {
+                  id
+                }
+              }
             }
           }
         }
@@ -133,6 +138,35 @@ describe("ItemSearch", () => {
             "180",
             10,
             0,
+          ],
+        ],
+        Array [
+          "SELECT sa.*, rel.parent_id FROM swf_assets sa
+             INNER JOIN parents_swf_assets rel ON
+               rel.parent_type = \\"Item\\" AND
+               rel.swf_asset_id = sa.id
+             WHERE (rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0)) OR (rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0)) OR (rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0)) OR (rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0)) OR (rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0)) OR (rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0)) OR (rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0)) OR (rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0)) OR (rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0)) OR (rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0))",
+          Array [
+            "74967",
+            "180",
+            "49026",
+            "180",
+            "67242",
+            "180",
+            "64177",
+            "180",
+            "69995",
+            "180",
+            "62375",
+            "180",
+            "56654",
+            "180",
+            "62322",
+            "180",
+            "58733",
+            "180",
+            "80401",
+            "180",
           ],
         ],
       ]

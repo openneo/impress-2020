@@ -121,7 +121,7 @@ const buildItemTranslationLoader = (db) =>
     );
   });
 
-const buildItemSearchLoader = (db) =>
+const buildItemSearchLoader = (db, loaders) =>
   new DataLoader(async (queries) => {
     // This isn't actually optimized as a batch query, we're just using a
     // DataLoader API consistency with our other loaders!
@@ -138,6 +138,10 @@ const buildItemSearchLoader = (db) =>
 
       const entities = rows.map(normalizeRow);
 
+      for (const item of entities) {
+        loaders.itemLoader.prime(item.id, item);
+      }
+
       return entities;
     });
 
@@ -146,7 +150,7 @@ const buildItemSearchLoader = (db) =>
     return responses;
   });
 
-const buildItemSearchToFitLoader = (db) =>
+const buildItemSearchToFitLoader = (db, loaders) =>
   new DataLoader(async (queryAndBodyIdPairs) => {
     // This isn't actually optimized as a batch query, we're just using a
     // DataLoader API consistency with our other loaders!
@@ -170,6 +174,10 @@ const buildItemSearchToFitLoader = (db) =>
         );
 
         const entities = rows.map(normalizeRow);
+
+        for (const item of entities) {
+          loaders.itemLoader.prime(item.id, item);
+        }
 
         return entities;
       }
@@ -407,8 +415,8 @@ function buildLoaders(db) {
   loaders.colorTranslationLoader = buildColorTranslationLoader(db);
   loaders.itemLoader = buildItemLoader(db);
   loaders.itemTranslationLoader = buildItemTranslationLoader(db);
-  loaders.itemSearchLoader = buildItemSearchLoader(db);
-  loaders.itemSearchToFitLoader = buildItemSearchToFitLoader(db);
+  loaders.itemSearchLoader = buildItemSearchLoader(db, loaders);
+  loaders.itemSearchToFitLoader = buildItemSearchToFitLoader(db, loaders);
   loaders.petTypeLoader = buildPetTypeLoader(db);
   loaders.petTypeBySpeciesAndColorLoader = buildPetTypeBySpeciesAndColorLoader(
     db,
