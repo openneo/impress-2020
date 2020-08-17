@@ -82,17 +82,6 @@ describe("PetAppearance", () => {
             "75",
           ],
         ],
-        Array [
-          "SELECT * FROM zones WHERE id IN (?,?,?,?,?,?)",
-          Array [
-            "15",
-            "5",
-            "37",
-            "30",
-            "33",
-            "34",
-          ],
-        ],
       ]
     `);
   });
@@ -177,17 +166,6 @@ describe("PetAppearance", () => {
              WHERE color_id IN (?) AND locale = \\"en\\"",
           Array [
             "75",
-          ],
-        ],
-        Array [
-          "SELECT * FROM zones WHERE id IN (?,?,?,?,?,?)",
-          Array [
-            "15",
-            "5",
-            "37",
-            "30",
-            "33",
-            "34",
           ],
         ],
       ]

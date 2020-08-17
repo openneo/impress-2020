@@ -32,8 +32,9 @@
     "react-transition-group": "^4.3.0"
   },
   "scripts": {
-    "start": "react-app-rewired start",
-    "build": "react-app-rewired build",
+    "start": "yarn build-cached-data && react-app-rewired start",
+    "build-cached-data": "node -r dotenv/config build-cached-data.js",
+    "build": "react-app-rewired build && yarn build-cached-data",
     "test": "react-app-rewired test --env=jsdom",
     "eject": "react-scripts eject",
     "setup-mysql-user": "mysql -h impress.openneo.net -u matchu -p < setup-mysql-user.sql",
