@@ -33,13 +33,14 @@
   },
   "scripts": {
     "start": "yarn build-cached-data && react-app-rewired start",
-    "build-cached-data": "node -r dotenv/config build-cached-data.js",
+    "build-cached-data": "node -r dotenv/config scripts/build-cached-data.js",
     "build": "react-app-rewired build && yarn build-cached-data",
     "test": "react-app-rewired test --env=jsdom",
     "eject": "react-scripts eject",
     "setup-mysql-user": "mysql -h impress.openneo.net -u matchu -p < setup-mysql-user.sql",
     "mysql": "mysql --host=impress.openneo.net --user=$(dotenv -p IMPRESS_MYSQL_USER) --password=$(dotenv -p IMPRESS_MYSQL_PASSWORD) --database=openneo_impress",
-    "mysql-admin": "mysql --host=impress.openneo.net --user=matchu --password --database=openneo_impress"
+    "mysql-admin": "mysql --host=impress.openneo.net --user=matchu --password --database=openneo_impress",
+    "cache-asset-manifests": "node -r dotenv/config scripts/cache-asset-manifests.js"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -61,6 +62,7 @@
     "customize-cra": "^1.0.0",
     "customize-cra-react-refresh": "^1.1.0",
     "dotenv-cli": "^3.1.0",
+    "es6-promise-pool": "^2.5.0",
     "prettier": "^2.0.5",
     "react-app-rewired": "^2.1.6"
   }

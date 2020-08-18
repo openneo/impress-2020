@@ -1,10 +1,11 @@
+// We run this on build to cache some stable database tables on the server!
 const fs = require("fs").promises;
 const path = require("path");
 
-const connectToDb = require("./src/server/db");
-const { normalizeRow } = require("./src/server/util");
+const connectToDb = require("../src/server/db");
+const { normalizeRow } = require("../src/server/util");
 
-const cachedDataPath = path.join(__dirname, "build", "cached-data");
+const cachedDataPath = path.join(__dirname, "..", "build", "cached-data");
 
 async function buildZonesCache(db) {
   const [rows] = await db.query(`SELECT * FROM zones;`);
