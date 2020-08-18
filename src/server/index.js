@@ -382,10 +382,39 @@ const resolvers = {
         `/${rid1}/${rid2}/${rid3}/${rid}/${sizeNum}x${sizeNum}.png?v2-${time}`
       );
     },
-    svgUrl: async ({ id }, _, { swfAssetLoader, svgLogger }) => {
+    svgUrl: async ({ id }, _, { db, swfAssetLoader, svgLogger }) => {
       const layer = await swfAssetLoader.load(id);
+      let manifest = layer.manifest && JSON.parse(layer.manifest);
 
-      const manifest = await neopets.loadAssetManifest(layer.url);
+      // When the manifest is specifically null, that means we don't know if
+      // it exists yet. Load it to find out!
+      if (manifest === null) {
+        manifest = await neopets.loadAssetManifest(layer.url);
+
+        // Then, write the new manifest. We make sure to write an empty string
+        // if there was no manifest, to signify that it doesn't exist, so we
+        // don't need to bother looking it up again.
+        //
+        // TODO: Someday the manifests will all exist, right? So we'll want to
+        //       reload all the missing ones at that time.
+        manifest = manifest || "";
+        const [
+          result,
+        ] = await db.execute(
+          `UPDATE swf_assets SET manifest = ? WHERE id = ? LIMIT 1;`,
+          [manifest, layer.id]
+        );
+        if (result.affectedRows !== 1) {
+          throw new Error(
+            `Expected to affect 1 asset, but affected ${result.affectedRows}`
+          );
+        }
+        console.log(
+          `Loaded and saved manifest for ${layer.type} ${layer.remoteId}. ` +
+            `DTI ID: ${layer.id}. Exists?: ${Boolean(manifest)}`
+        );
+      }
+
       if (!manifest) {
         svgLogger.log("no-manifest");
         return null;
