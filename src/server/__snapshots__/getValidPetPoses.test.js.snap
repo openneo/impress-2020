@@ -330,7 +330,7 @@ exports[`getValidPetPoses gets them and writes them to a buffer 1`] = `
 00000000
 10111011
 00000000
-00000000
+10000000
 10000000
 00000000
 10000000
