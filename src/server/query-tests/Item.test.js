@@ -132,6 +132,22 @@ describe("Item", () => {
             "180",
           ],
         ],
+        Array [
+          "SELECT * FROM zones WHERE id IN (?,?,?)",
+          Array [
+            "26",
+            "40",
+            "3",
+          ],
+        ],
+        Array [
+          "SELECT * FROM zone_translations WHERE zone_id IN (?,?,?) AND locale = \\"en\\"",
+          Array [
+            "26",
+            "40",
+            "3",
+          ],
+        ],
       ]
     `);
   });

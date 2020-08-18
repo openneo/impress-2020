@@ -370,6 +370,42 @@ const buildPetStatesForPetTypeLoader = (db, loaders) =>
     );
   });
 
+const buildZoneLoader = (db) =>
+  new DataLoader(async (ids) => {
+    const qs = ids.map((_) => "?").join(",");
+    const [rows, _] = await db.execute(
+      `SELECT * FROM zones WHERE id IN (${qs})`,
+      ids
+    );
+
+    const entities = rows.map(normalizeRow);
+    const entitiesById = new Map(entities.map((e) => [e.id, e]));
+
+    return ids.map(
+      (id) =>
+        entitiesById.get(String(id)) ||
+        new Error(`could not find zone with ID: ${id}`)
+    );
+  });
+
+const buildZoneTranslationLoader = (db) =>
+  new DataLoader(async (zoneIds) => {
+    const qs = zoneIds.map((_) => "?").join(",");
+    const [rows, _] = await db.execute(
+      `SELECT * FROM zone_translations WHERE zone_id IN (${qs}) AND locale = "en"`,
+      zoneIds
+    );
+
+    const entities = rows.map(normalizeRow);
+    const entitiesByZoneId = new Map(entities.map((e) => [e.zoneId, e]));
+
+    return zoneIds.map(
+      (zoneId) =>
+        entitiesByZoneId.get(String(zoneId)) ||
+        new Error(`could not find translation for zone ${zoneId}`)
+    );
+  });
+
 function buildLoaders(db) {
   const loaders = {};
   loaders.loadAllSpecies = loadAllSpecies(db);
@@ -399,6 +435,8 @@ function buildLoaders(db) {
     loaders
   );
   loaders.speciesTranslationLoader = buildSpeciesTranslationLoader(db);
+  loaders.zoneLoader = buildZoneLoader(db);
+  loaders.zoneTranslationLoader = buildZoneTranslationLoader(db);
 
   return loaders;
 }

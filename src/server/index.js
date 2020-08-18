@@ -1,5 +1,5 @@
 const { gql, makeExecutableSchema } = require("apollo-server");
-const { addBeelineToSchema, beelinePlugin } = require("./lib/beeline-graphql");
+import { addBeelineToSchema, beelinePlugin } from "./lib/beeline-graphql";
 
 const connectToDb = require("./db");
 const buildLoaders = require("./loaders");
@@ -11,15 +11,6 @@ const {
   getEmotion,
   getGenderPresentation,
 } = require("./util");
-
-// These are caches of stable database tables. They're built in the
-// `build-cached-data` script, at build time and dev-start time.
-const zoneRows = require("../../build/cached-data/zones.json");
-const zones = new Map(zoneRows.map((z) => [z.id, z]));
-const zoneTranslationRows = require("../../build/cached-data/zone_translations.json");
-const zoneTranslations = new Map(
-  zoneTranslationRows.map((zt) => [`${zt.zoneId}-${zt.locale}`, zt])
-);
 
 const typeDefs = gql`
   directive @cacheControl(maxAge: Int!) on FIELD_DEFINITION | OBJECT
@@ -353,9 +344,10 @@ const resolvers = {
       const layer = await swfAssetLoader.load(id);
       return layer.bodyId;
     },
-    zone: async ({ id }, _, { swfAssetLoader }) => {
+    zone: async ({ id }, _, { swfAssetLoader, zoneLoader }) => {
       const layer = await swfAssetLoader.load(id);
-      return { id: layer.zoneId };
+      const zone = await zoneLoader.load(layer.zoneId);
+      return zone;
     },
     swfUrl: async ({ id }, _, { swfAssetLoader }) => {
       const layer = await swfAssetLoader.load(id);
@@ -461,8 +453,17 @@ const resolvers = {
     },
   },
   Zone: {
-    depth: ({ id }) => zones.get(id).depth,
-    label: ({ id }) => zoneTranslations.get(`${id}-en`).label,
+    depth: async ({ id }, _, { zoneLoader }) => {
+      // TODO: Should we extend this loader-in-field pattern elsewhere? I like
+      //       that we avoid the fetch in cases where we only want the zone ID,
+      //       but it adds complexity 🤔
+      const zone = await zoneLoader.load(id);
+      return zone.depth;
+    },
+    label: async ({ id }, _, { zoneTranslationLoader }) => {
+      const zoneTranslation = await zoneTranslationLoader.load(id);
+      return zoneTranslation.label;
+    },
   },
   Color: {
     name: async ({ id }, _, { colorTranslationLoader }) => {
