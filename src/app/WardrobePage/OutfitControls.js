@@ -54,6 +54,9 @@ function OutfitControls({ outfitState, dispatchToOutfit }) {
           pose: closestPose,
         });
       } else {
+        // NOTE: This shouldn't be possible to trigger, because the
+        //       `stateMustAlwaysBeValid` prop should prevent it. But we have
+        //       it as a fallback, just in case!
         toast({
           title: `We haven't seen a ${color.name} ${species.name} before! 😓`,
           status: "warning",
@@ -162,6 +165,7 @@ function OutfitControls({ outfitState, dispatchToOutfit }) {
               colorId={outfitState.colorId}
               idealPose={outfitState.pose}
               onChange={onSpeciesColorChange}
+              stateMustAlwaysBeValid
             />
           </DarkMode>
         </Box>

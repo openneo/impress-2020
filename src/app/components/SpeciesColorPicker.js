@@ -21,6 +21,7 @@ function SpeciesColorPicker({
   colorId,
   idealPose,
   showPlaceholders = false,
+  stateMustAlwaysBeValid = false,
   isDisabled = false,
   size = "md",
   dark = false,
@@ -120,6 +121,13 @@ function SpeciesColorPicker({
     const newColor = allColors.find((c) => c.id === newColorId);
     const validPoses = getValidPoses(valids, speciesId, newColorId);
     const isValid = validPoses.size > 0;
+    if (stateMustAlwaysBeValid && !isValid) {
+      // NOTE: This shouldn't happen, because we should hide invalid colors.
+      console.error(
+        `Assertion error in SpeciesColorPicker: Entered an invalid state, ` +
+          `with prop stateMustAlwaysBeValid.`
+      );
+    }
     const closestPose = getClosestPose(validPoses, idealPose);
     onChange(species, newColor, isValid, closestPose);
   };
@@ -130,12 +138,39 @@ function SpeciesColorPicker({
     const newSpeciesId = e.target.value;
 
     const newSpecies = allSpecies.find((s) => s.id === newSpeciesId);
-    const color = allColors.find((c) => c.id === colorId);
-    const validPoses = getValidPoses(valids, newSpeciesId, colorId);
-    const isValid = validPoses.size > 0;
+    let color = allColors.find((c) => c.id === colorId);
+    let validPoses = getValidPoses(valids, newSpeciesId, colorId);
+    let isValid = validPoses.size > 0;
+
+    if (stateMustAlwaysBeValid && !isValid) {
+      // If `stateMustAlwaysBeValid`, but the user switches to a species that
+      // doesn't support this color, that's okay and normal! We'll just switch
+      // to one of the four basic colors instead.
+      const basicColorId = ["8", "34", "61", "84"][
+        Math.floor(Math.random() * 4)
+      ];
+      const basicColor = allColors.find((c) => c.id === basicColorId);
+      color = basicColor;
+      validPoses = getValidPoses(valids, newSpeciesId, color.id);
+      isValid = true;
+    }
+
     const closestPose = getClosestPose(validPoses, idealPose);
     onChange(newSpecies, color, isValid, closestPose);
   };
+
+  // In `stateMustAlwaysBeValid` mode, we hide colors that are invalid on this
+  // species, so the user can't switch. (We handle species differently: if you
+  // switch to a new species and the color is invalid, we reset the color. We
+  // think this matches users' mental hierarchy of species -> color: showing
+  // supported colors for a species makes sense, but the other way around feels
+  // confusing and restrictive.)
+  let visibleColors = allColors;
+  if (stateMustAlwaysBeValid && valids) {
+    visibleColors = visibleColors.filter(
+      (c) => getValidPoses(valids, speciesId, c.id).size > 0
+    );
+  }
 
   return (
     <Flex direction="row">
@@ -153,7 +188,7 @@ function SpeciesColorPicker({
             <option>Dimensional</option>
           </>
         )}
-        {allColors.map((color) => (
+        {visibleColors.map((color) => (
           <option key={color.id} value={color.id}>
             {color.name}
           </option>
