@@ -2,6 +2,7 @@ import { ApolloClient, createHttpLink, InMemoryCache } from "@apollo/client";
 import { createPersistedQueryLink } from "apollo-link-persisted-queries";
 
 const cachedZones = require("./cached-data/zones.json");
+const cachedZonesById = new Map(cachedZones.map((z) => [z.id, z]));
 
 const typePolicies = {
   Query: {
@@ -30,11 +31,13 @@ const typePolicies = {
   Zone: {
     fields: {
       depth: (depth, { readField }) => {
-        return depth || cachedZones[readField("id")].depth;
+        const id = readField("id");
+        return depth || cachedZonesById.get(id)?.depth || 0;
       },
 
       label: (label, { readField }) => {
-        return label || cachedZones[readField("id")].label;
+        const id = readField("id");
+        return label || cachedZonesById.get(id)?.label || `Zone #${id}`;
       },
     },
   },
