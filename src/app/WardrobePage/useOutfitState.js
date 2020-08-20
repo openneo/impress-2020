@@ -47,7 +47,7 @@ function useOutfitState() {
             layers {
               zone {
                 id
-                label
+                label @client
               }
             }
           }

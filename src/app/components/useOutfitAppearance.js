@@ -125,8 +125,8 @@ export const itemAppearanceFragment = gql`
       bodyId
       zone {
         id
-        depth
-        label # HACK: This is for Support tools, but other views don't need it
+        depth @client
+        label @client # HACK: This is for Support tools, but other views don't need it
       }
     }
 
@@ -146,7 +146,7 @@ export const petAppearanceFragment = gql`
       imageUrl(size: SIZE_600)
       zone {
         id
-        depth
+        depth @client
       }
     }
   }

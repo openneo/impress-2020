@@ -346,8 +346,7 @@ const resolvers = {
     },
     zone: async ({ id }, _, { swfAssetLoader, zoneLoader }) => {
       const layer = await swfAssetLoader.load(id);
-      const zone = await zoneLoader.load(layer.zoneId);
-      return zone;
+      return { id: layer.zoneId };
     },
     swfUrl: async ({ id }, _, { swfAssetLoader }) => {
       const layer = await swfAssetLoader.load(id);

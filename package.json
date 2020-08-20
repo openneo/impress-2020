@@ -32,13 +32,14 @@
     "react-transition-group": "^4.3.0"
   },
   "scripts": {
-    "start": "react-app-rewired start",
-    "build": "react-app-rewired build",
+    "start": "yarn build-cached-data && react-app-rewired start",
+    "build": "yarn build-cached-data && react-app-rewired build",
     "test": "react-app-rewired test --env=jsdom",
     "eject": "react-scripts eject",
     "setup-mysql-user": "mysql -h impress.openneo.net -u matchu -p < setup-mysql-user.sql",
     "mysql": "mysql --host=impress.openneo.net --user=$(dotenv -p IMPRESS_MYSQL_USER) --password=$(dotenv -p IMPRESS_MYSQL_PASSWORD) --database=openneo_impress",
     "mysql-admin": "mysql --host=impress.openneo.net --user=matchu --password --database=openneo_impress",
+    "build-cached-data": "node -r dotenv/config scripts/build-cached-data.js",
     "cache-asset-manifests": "node -r dotenv/config scripts/cache-asset-manifests.js"
   },
   "eslintConfig": {

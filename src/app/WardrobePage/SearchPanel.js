@@ -239,7 +239,7 @@ function useSearchResults(query, outfitState) {
               layers {
                 zone {
                   id
-                  label
+                  label @client
                 }
               }
             }

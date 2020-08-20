@@ -1,6 +1,8 @@
 import { ApolloClient, createHttpLink, InMemoryCache } from "@apollo/client";
 import { createPersistedQueryLink } from "apollo-link-persisted-queries";
 
+const cachedZones = require("./cached-data/zones.json");
+
 const typePolicies = {
   Query: {
     fields: {
@@ -21,6 +23,18 @@ const typePolicies = {
         const { speciesId, colorId, pose } = args;
         const id = `${speciesId}-${colorId}-${pose}`;
         return toReference({ __typename: "PetAppearance", id }, true);
+      },
+    },
+  },
+
+  Zone: {
+    fields: {
+      depth: (depth, { readField }) => {
+        return depth || cachedZones[readField("id")].depth;
+      },
+
+      label: (label, { readField }) => {
+        return label || cachedZones[readField("id")].label;
       },
     },
   },
