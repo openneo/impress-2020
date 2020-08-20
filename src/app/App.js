@@ -22,8 +22,6 @@ const theme = {
   },
 };
 
-console.log(defaultTheme.styles.global, defaultTheme.styles);
-
 /**
  * App is the entry point of our application. There's not a ton of exciting
  * stuff happening here, mostly just setting up some globals and theming!
