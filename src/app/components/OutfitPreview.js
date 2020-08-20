@@ -212,7 +212,7 @@ function loadImage(url) {
   const image = new Image();
   const promise = new Promise((resolve, reject) => {
     image.onload = () => resolve();
-    image.onerror = () => reject();
+    image.onerror = (e) => reject(e);
     image.src = url;
   });
   promise.cancel = () => {
