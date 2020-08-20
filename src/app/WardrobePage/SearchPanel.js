@@ -273,15 +273,16 @@ function useSearchResults(query, outfitState) {
   // Okay, what kind of loading state is this?
   let loading;
   let loadingMore;
-  if ((loadingGQL && items.length === 0) || resultQuery !== query) {
-    // If it's our first run, or the first run _since the query changed_, we're
-    // `loading`.
-    loading = true;
-    loadingMore = false;
-  } else if (loadingGQL) {
-    // Or, if we're loading GQL but it's not our first run, we're `loadingMore`.
+  if (loadingGQL && items.length > 0 && resultQuery === query) {
+    // If we already have items for this query, but we're also loading GQL,
+    // then we're `loadingMore`.
     loading = false;
     loadingMore = true;
+  } else if (loadingGQL || query !== debouncedQuery) {
+    // Otherwise, if we're loading GQL or the user has changed the query, we're
+    // just `loading`.
+    loading = true;
+    loadingMore = false;
   } else {
     // Otherwise, we're not loading at all!
     loading = false;
