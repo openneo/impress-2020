@@ -9,14 +9,19 @@
 // re-run it once Neopets adds more manifests. Right now, we save an empty
 // placeholder when no manifest exists, but someday we want to fill it in
 // instead!
+const { argv } = require("yargs");
 const PromisePool = require("es6-promise-pool");
 
 const connectToDb = require("../src/server/db");
 const neopets = require("../src/server/neopets");
 
 async function cacheAssetManifests(db) {
-  const [rows] = await db.query(
-    `SELECT id, url FROM swf_assets WHERE manifest IS NULL`
+  const [
+    rows,
+  ] = await db.execute(
+    `SELECT id, url FROM swf_assets WHERE manifest IS NULL AND id >= ? ` +
+      `ORDER BY id`,
+    [argv.start || 0]
   );
 
   const numRowsTotal = rows.length;
@@ -34,22 +39,33 @@ async function cacheAssetManifests(db) {
       // TODO: Someday the manifests will all exist, right? So we'll want to
       //       reload all the missing ones at that time.
       manifest = manifest || "";
-      const [
-        result,
-      ] = await db.execute(
-        `UPDATE swf_assets SET manifest = ? WHERE id = ? LIMIT 1;`,
-        [manifest, row.id]
-      );
-      if (result.affectedRows !== 1) {
-        throw new Error(
-          `Expected to affect 1 asset, but affected ${result.affectedRows}`
+      if (argv.mode === "dump") {
+        // Make it a JSON string, then escape the string for the query.
+        // Hacky for sure!
+        const escapedManifest = JSON.stringify(JSON.stringify(manifest));
+        console.log(
+          `UPDATE swf_assets SET manifest = ${escapedManifest} ` +
+            `WHERE id = ${row.id} LIMIT 1;`
         );
+      } else {
+        const [
+          result,
+        ] = await db.execute(
+          `UPDATE swf_assets SET manifest = ? WHERE id = ? LIMIT 1;`,
+          [manifest, row.id]
+        );
+        if (result.affectedRows !== 1) {
+          throw new Error(
+            `Expected to affect 1 asset, but affected ${result.affectedRows}`
+          );
+        }
       }
 
       numRowsDone++;
 
       const percent = Math.floor((numRowsDone / numRowsTotal) * 100);
-      console.log(
+      // write to stderr, to not disrupt the dump
+      console.error(
         `${percent}% ${numRowsDone}/${numRowsTotal} ` +
           `(Exists? ${Boolean(manifest)}. Layer: ${row.id}, ${row.url}.)`
       );
@@ -71,7 +87,8 @@ async function cacheAssetManifests(db) {
   const pool = new PromisePool(promiseProducer, 10);
   await pool.start();
 
-  console.log("Done!");
+  // write to stderr, to not disrupt the dump
+  console.error("Done!");
 }
 
 async function main() {
