@@ -10,6 +10,7 @@ const {
   getPoseFromPetData,
   getEmotion,
   getGenderPresentation,
+  logToDiscord,
 } = require("./util");
 
 const typeDefs = gql`
@@ -616,11 +617,13 @@ const resolvers = {
     setManualSpecialColor: async (
       _,
       { itemId, colorId, supportSecret },
-      { db }
+      { itemLoader, itemTranslationLoader, colorTranslationLoader, db }
     ) => {
       if (supportSecret !== process.env["SUPPORT_SECRET"]) {
         throw new Error(`Support secret is incorrect. Try setting up again?`);
       }
+
+      const item = await itemLoader.load(itemId);
 
       const [
         result,
@@ -633,6 +636,55 @@ const resolvers = {
         throw new Error(
           `Expected to affect 1 item, but affected ${result.affectedRows}`
         );
+      }
+
+      if (process.env["SUPPORT_TOOLS_DISCORD_WEBHOOK_URL"]) {
+        try {
+          const [
+            itemTranslation,
+            oldColorTranslation,
+            newColorTranslation,
+          ] = await Promise.all([
+            itemTranslationLoader.load(itemId),
+            item.manualSpecialColorId
+              ? colorTranslationLoader.load(item.manualSpecialColorId)
+              : Promise.resolve(null),
+            colorId
+              ? colorTranslationLoader.load(colorId)
+              : Promise.resolve(null),
+          ]);
+
+          const oldColorName = oldColorTranslation
+            ? capitalize(oldColorTranslation.name)
+            : "Auto-detect";
+          const newColorName = newColorTranslation
+            ? capitalize(newColorTranslation.name)
+            : "Auto-detect";
+          await logToDiscord({
+            embeds: [
+              {
+                title: `🛠 ${itemTranslation.name}`,
+                thumbnail: {
+                  url: item.thumbnailUrl,
+                  height: 80,
+                  width: 80,
+                },
+                fields: [
+                  {
+                    name: "Special color",
+                    value: `${oldColorName} → **${newColorName}**`,
+                  },
+                ],
+                timestamp: new Date().toISOString(),
+                url: `https://impress.openneo.net/items/${item.id}`,
+              },
+            ],
+          });
+        } catch (e) {
+          console.error("Error sending Discord support log", e);
+        }
+      } else {
+        console.warn("No Discord support webhook provided, skipping");
       }
 
       return { id: itemId };

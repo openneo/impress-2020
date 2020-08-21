@@ -1,3 +1,6 @@
+const beeline = require("honeycomb-beeline");
+const fetch = require("node-fetch");
+
 function capitalize(str) {
   return str[0].toUpperCase() + str.slice(1);
 }
@@ -82,6 +85,29 @@ function getPoseFromPetData(petMetaData, petCustomData) {
   }
 }
 
+async function logToDiscord(body) {
+  const span = beeline.startSpan({ name: "logToDiscord" });
+
+  try {
+    const res = await fetch(process.env["SUPPORT_TOOLS_DISCORD_WEBHOOK_URL"], {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      const resText = await res.text();
+      throw new Error(
+        `Discord returned ${res.status} ${res.statusText}: ` + `${resText}`
+      );
+    }
+  } finally {
+    beeline.finishSpan(span);
+  }
+}
+
 function normalizeRow(row) {
   const normalizedRow = {};
   for (let [key, value] of Object.entries(row)) {
@@ -100,5 +126,6 @@ module.exports = {
   getGenderPresentation,
   getPoseFromPetState,
   getPoseFromPetData,
+  logToDiscord,
   normalizeRow,
 };
