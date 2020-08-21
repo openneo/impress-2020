@@ -85,6 +85,29 @@ function getPoseFromPetData(petMetaData, petCustomData) {
   }
 }
 
+async function loadBodyName(bodyId, db) {
+  if (String(bodyId) === "0") {
+    return "All bodies";
+  }
+
+  const [rows] = await db.execute(
+    `SELECT pt.body_id, st.name AS species_name,
+        ct.name AS color_name, c.standard FROM pet_types pt
+      INNER JOIN species_translations st
+        ON pt.species_id = st.species_id AND st.locale = "en"
+      INNER JOIN color_translations ct
+        ON pt.color_id = ct.color_id AND ct.locale = "en"
+      INNER JOIN colors c ON c.id = pt.color_id
+        WHERE pt.body_id = ?
+      ORDER BY ct.name, st.name LIMIT 1;`,
+    [bodyId]
+  );
+  const row = normalizeRow(rows[0]);
+  const speciesName = capitalize(row.speciesName);
+  const colorName = row.standard ? "Standard" : capitalize(row.colorName);
+  return `${colorName} ${speciesName}`;
+}
+
 async function logToDiscord(body) {
   const span = beeline.startSpan({ name: "logToDiscord" });
 
@@ -126,6 +149,7 @@ module.exports = {
   getGenderPresentation,
   getPoseFromPetState,
   getPoseFromPetData,
+  loadBodyName,
   logToDiscord,
   normalizeRow,
 };
