@@ -19,6 +19,7 @@ import {
   Radio,
   RadioGroup,
   Spinner,
+  useDisclosure,
   useToast,
 } from "@chakra-ui/core";
 import { ChevronRightIcon, ExternalLinkIcon } from "@chakra-ui/icons";
@@ -209,10 +210,18 @@ function ItemLayerSupportModal({
             />
           </ModalBody>
           <ModalFooter>
+            <ItemLayerSupportModalRemoveButton
+              item={item}
+              itemLayer={itemLayer}
+              outfitState={outfitState}
+              onRemoveSuccess={onClose}
+            />
+            <Box flex="1 0 0" />
             {mutationError && (
               <Box
                 color="red.400"
                 fontSize="sm"
+                marginLeft="8"
                 marginRight="2"
                 textAlign="right"
               >
@@ -223,6 +232,7 @@ function ItemLayerSupportModal({
               isLoading={mutationLoading}
               colorScheme="green"
               onClick={mutate}
+              flex="0 0 auto"
             >
               Save changes
             </Button>
@@ -341,6 +351,135 @@ function ItemLayerSupportPetCompatibilityFields({
         {error && <FormErrorMessage>{error.message}</FormErrorMessage>}
       </Box>
     </FormControl>
+  );
+}
+
+function ItemLayerSupportModalRemoveButton({
+  item,
+  itemLayer,
+  outfitState,
+  onRemoveSuccess,
+}) {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const toast = useToast();
+  const supportSecret = useSupportSecret();
+
+  const [mutate, { loading, error }] = useMutation(
+    gql`
+      mutation ItemLayerSupportRemoveButton(
+        $layerId: ID!
+        $itemId: ID!
+        $outfitSpeciesId: ID!
+        $outfitColorId: ID!
+        $supportSecret: String!
+      ) {
+        removeLayerFromItem(
+          layerId: $layerId
+          itemId: $itemId
+          supportSecret: $supportSecret
+        ) {
+          # This mutation returns the affected layer, and the affected item.
+          # Fetch the updated appearance for the current outfit, which should
+          # no longer include this layer. This means you should be able to see
+          # your changes immediately!
+          item {
+            id
+            appearanceOn(speciesId: $outfitSpeciesId, colorId: $outfitColorId) {
+              ...ItemAppearanceForOutfitPreview
+            }
+          }
+
+          # The layer's item should be null now, fetch to confirm and update!
+          layer {
+            id
+            item {
+              id
+            }
+          }
+        }
+      }
+      ${itemAppearanceFragment}
+    `,
+    {
+      variables: {
+        layerId: itemLayer.id,
+        itemId: item.id,
+        outfitSpeciesId: outfitState.speciesId,
+        outfitColorId: outfitState.colorId,
+        supportSecret,
+      },
+      onCompleted: () => {
+        onClose();
+        onRemoveSuccess();
+        toast({
+          status: "success",
+          title: `Removed layer ${itemLayer.id} from ${item.name}`,
+        });
+      },
+    }
+  );
+
+  return (
+    <>
+      <Button colorScheme="red" flex="0 0 auto" onClick={onOpen}>
+        Remove
+      </Button>
+      <Modal isOpen={isOpen} onClose={onClose} size="xl" isCentered>
+        <ModalOverlay>
+          <ModalContent>
+            <ModalCloseButton />
+            <ModalHeader>
+              Remove Layer {itemLayer.id} ({itemLayer.zone.label}) from{" "}
+              {item.name}?
+            </ModalHeader>
+            <ModalBody>
+              <Box as="p" marginBottom="4">
+                This will permanently-ish remove Layer {itemLayer.id} (
+                {itemLayer.zone.label}) from this item.
+              </Box>
+              <Box as="p" marginBottom="4">
+                If you remove a correct layer by mistake, re-modeling should fix
+                it, or Matchu can restore it if you write down the layer ID
+                before proceeding!
+              </Box>
+              <Box as="p" marginBottom="4">
+                Are you sure you want to remove Layer {itemLayer.id} from this
+                item?
+              </Box>
+            </ModalBody>
+            <ModalFooter>
+              <Button flex="0 0 auto" onClick={onClose}>
+                Close
+              </Button>
+              <Box flex="1 0 0" />
+              {error && (
+                <Box
+                  color="red.400"
+                  fontSize="sm"
+                  marginLeft="8"
+                  marginRight="2"
+                  textAlign="right"
+                >
+                  {error.message}
+                </Box>
+              )}
+              <Button
+                colorScheme="red"
+                flex="0 0 auto"
+                onClick={() =>
+                  mutate().catch((e) => {
+                    /* Discard errors here; we'll show them in the UI! */
+                  })
+                }
+                isLoading={loading}
+              >
+                Yes, remove permanently
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </ModalOverlay>
+      </Modal>
+    </>
   );
 }
 

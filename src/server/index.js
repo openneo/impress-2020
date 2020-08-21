@@ -210,6 +210,11 @@ const typeDefs = gql`
     petOnNeopetsDotCom(petName: String!): Outfit
   }
 
+  type RemoveLayerFromItemMutationResult {
+    layer: AppearanceLayer!
+    item: Item!
+  }
+
   type Mutation {
     setManualSpecialColor(
       itemId: ID!
@@ -228,6 +233,12 @@ const typeDefs = gql`
       bodyId: ID!
       supportSecret: String!
     ): AppearanceLayer!
+
+    removeLayerFromItem(
+      layerId: ID!
+      itemId: ID!
+      supportSecret: String!
+    ): RemoveLayerFromItemMutationResult!
   }
 `;
 
@@ -671,6 +682,31 @@ const resolvers = {
       }
 
       return { id: layerId };
+    },
+
+    removeLayerFromItem: async (
+      _,
+      { layerId, itemId, supportSecret },
+      { db }
+    ) => {
+      if (supportSecret !== process.env["SUPPORT_SECRET"]) {
+        throw new Error(`Support secret is incorrect. Try setting up again?`);
+      }
+
+      const [result] = await db.execute(
+        `DELETE FROM parents_swf_assets ` +
+          `WHERE swf_asset_id = ? AND parent_type = "Item" AND parent_id = ? ` +
+          `LIMIT 1`,
+        [layerId, itemId]
+      );
+
+      if (result.affectedRows !== 1) {
+        throw new Error(
+          `Expected to affect 1 layer, but affected ${result.affectedRows}`
+        );
+      }
+
+      return { layer: { id: layerId }, item: { id: itemId } };
     },
   },
 };
