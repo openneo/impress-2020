@@ -11,6 +11,7 @@ const {
   getEmotion,
   getGenderPresentation,
   logToDiscord,
+  normalizeRow,
 } = require("./util");
 
 const typeDefs = gql`
@@ -623,7 +624,7 @@ const resolvers = {
         throw new Error(`Support secret is incorrect. Try setting up again?`);
       }
 
-      const item = await itemLoader.load(itemId);
+      const oldItem = await itemLoader.load(itemId);
 
       const [
         result,
@@ -638,6 +639,8 @@ const resolvers = {
         );
       }
 
+      itemLoader.clear(itemId); // we changed the item, so clear it from cache
+
       if (process.env["SUPPORT_TOOLS_DISCORD_WEBHOOK_URL"]) {
         try {
           const [
@@ -646,8 +649,8 @@ const resolvers = {
             newColorTranslation,
           ] = await Promise.all([
             itemTranslationLoader.load(itemId),
-            item.manualSpecialColorId
-              ? colorTranslationLoader.load(item.manualSpecialColorId)
+            oldItem.manualSpecialColorId
+              ? colorTranslationLoader.load(oldItem.manualSpecialColorId)
               : Promise.resolve(null),
             colorId
               ? colorTranslationLoader.load(colorId)
@@ -665,7 +668,7 @@ const resolvers = {
               {
                 title: `🛠 ${itemTranslation.name}`,
                 thumbnail: {
-                  url: item.thumbnailUrl,
+                  url: oldItem.thumbnailUrl,
                   height: 80,
                   width: 80,
                 },
@@ -676,7 +679,7 @@ const resolvers = {
                   },
                 ],
                 timestamp: new Date().toISOString(),
-                url: `https://impress.openneo.net/items/${item.id}`,
+                url: `https://impress.openneo.net/items/${oldItem.id}`,
               },
             ],
           });
@@ -693,11 +696,13 @@ const resolvers = {
     setItemExplicitlyBodySpecific: async (
       _,
       { itemId, explicitlyBodySpecific, supportSecret },
-      { db }
+      { itemLoader, itemTranslationLoader, db }
     ) => {
       if (supportSecret !== process.env["SUPPORT_SECRET"]) {
         throw new Error(`Support secret is incorrect. Try setting up again?`);
       }
+
+      const oldItem = await itemLoader.load(itemId);
 
       const [
         result,
@@ -712,13 +717,63 @@ const resolvers = {
         );
       }
 
+      itemLoader.clear(itemId); // we changed the item, so clear it from cache
+
+      if (process.env["SUPPORT_TOOLS_DISCORD_WEBHOOK_URL"]) {
+        try {
+          const itemTranslation = await itemTranslationLoader.load(itemId);
+          const oldRuleName = oldItem.explicitlyBodySpecific
+            ? "Body specific"
+            : "Auto-detect";
+          const newRuleName = explicitlyBodySpecific
+            ? "Body specific"
+            : "Auto-detect";
+          await logToDiscord({
+            embeds: [
+              {
+                title: `🛠 ${itemTranslation.name}`,
+                thumbnail: {
+                  url: oldItem.thumbnailUrl,
+                  height: 80,
+                  width: 80,
+                },
+                fields: [
+                  {
+                    name: "Pet compatibility rule",
+                    value: `${oldRuleName} → **${newRuleName}**`,
+                  },
+                ],
+                timestamp: new Date().toISOString(),
+                url: `https://impress.openneo.net/items/${oldItem.id}`,
+              },
+            ],
+          });
+        } catch (e) {
+          console.error("Error sending Discord support log", e);
+        }
+      } else {
+        console.warn("No Discord support webhook provided, skipping");
+      }
+
       return { id: itemId };
     },
 
-    setLayerBodyId: async (_, { layerId, bodyId, supportSecret }, { db }) => {
+    setLayerBodyId: async (
+      _,
+      { layerId, bodyId, supportSecret },
+      {
+        itemLoader,
+        itemTranslationLoader,
+        swfAssetLoader,
+        zoneTranslationLoader,
+        db,
+      }
+    ) => {
       if (supportSecret !== process.env["SUPPORT_SECRET"]) {
         throw new Error(`Support secret is incorrect. Try setting up again?`);
       }
+
+      const oldSwfAsset = await swfAssetLoader.load(layerId);
 
       const [
         result,
@@ -733,17 +788,105 @@ const resolvers = {
         );
       }
 
+      swfAssetLoader.clear(layerId); // we changed it, so clear it from cache
+
+      if (process.env["SUPPORT_TOOLS_DISCORD_WEBHOOK_URL"]) {
+        try {
+          async function loadBodyName(bodyId) {
+            if (String(bodyId) === "0") {
+              return "All bodies";
+            }
+
+            const [rows] = await db.execute(
+              `SELECT pt.body_id, st.name AS species_name,
+                 ct.name AS color_name, c.standard FROM pet_types pt
+               INNER JOIN species_translations st
+                 ON pt.species_id = st.species_id AND st.locale = "en"
+               INNER JOIN color_translations ct
+                 ON pt.color_id = ct.color_id AND ct.locale = "en"
+               INNER JOIN colors c ON c.id = pt.color_id
+                 WHERE pt.body_id = ?
+               ORDER BY ct.name, st.name LIMIT 1;`,
+              [bodyId]
+            );
+            const row = normalizeRow(rows[0]);
+            const speciesName = capitalize(row.speciesName);
+            const colorName = row.standard
+              ? "Standard"
+              : capitalize(row.colorName);
+            return `${colorName} ${speciesName}`;
+          }
+
+          const itemId = await db
+            .execute(
+              `SELECT parent_id FROM parents_swf_assets
+             WHERE swf_asset_id = ? AND parent_type = "Item" LIMIT 1;`,
+              [layerId]
+            )
+            .then(([rows]) => normalizeRow(rows[0]).parentId);
+
+          const [
+            item,
+            itemTranslation,
+            zoneTranslation,
+            oldBodyName,
+            newBodyName,
+          ] = await Promise.all([
+            itemLoader.load(itemId),
+            itemTranslationLoader.load(itemId),
+            zoneTranslationLoader.load(oldSwfAsset.zoneId),
+            loadBodyName(oldSwfAsset.bodyId),
+            loadBodyName(bodyId),
+          ]);
+
+          await logToDiscord({
+            embeds: [
+              {
+                title: `🛠 ${itemTranslation.name}`,
+                thumbnail: {
+                  url: item.thumbnailUrl,
+                  height: 80,
+                  width: 80,
+                },
+                fields: [
+                  {
+                    name:
+                      `Layer ${layerId} (${zoneTranslation.label}): ` +
+                      `Pet compatibility`,
+                    value: `${oldBodyName} → **${newBodyName}**`,
+                  },
+                ],
+                timestamp: new Date().toISOString(),
+                url: `https://impress.openneo.net/items/${itemId}`,
+              },
+            ],
+          });
+        } catch (e) {
+          console.error("Error sending Discord support log", e);
+        }
+      } else {
+        console.warn("No Discord support webhook provided, skipping");
+      }
+
       return { id: layerId };
     },
 
     removeLayerFromItem: async (
       _,
       { layerId, itemId, supportSecret },
-      { db }
+      {
+        itemLoader,
+        itemTranslationLoader,
+        swfAssetLoader,
+        zoneTranslationLoader,
+        db,
+      }
     ) => {
       if (supportSecret !== process.env["SUPPORT_SECRET"]) {
         throw new Error(`Support secret is incorrect. Try setting up again?`);
       }
+
+      const oldSwfAsset = await swfAssetLoader.load(layerId);
 
       const [result] = await db.execute(
         `DELETE FROM parents_swf_assets ` +
@@ -756,6 +899,43 @@ const resolvers = {
         throw new Error(
           `Expected to affect 1 layer, but affected ${result.affectedRows}`
         );
+      }
+
+      swfAssetLoader.clear(layerId); // we changed it, so clear it from cache
+
+      if (process.env["SUPPORT_TOOLS_DISCORD_WEBHOOK_URL"]) {
+        try {
+          const [item, itemTranslation, zoneTranslation] = await Promise.all([
+            itemLoader.load(itemId),
+            itemTranslationLoader.load(itemId),
+            zoneTranslationLoader.load(oldSwfAsset.zoneId),
+          ]);
+
+          await logToDiscord({
+            embeds: [
+              {
+                title: `🛠 ${itemTranslation.name}`,
+                thumbnail: {
+                  url: item.thumbnailUrl,
+                  height: 80,
+                  width: 80,
+                },
+                fields: [
+                  {
+                    name: `Layer ${layerId} (${zoneTranslation.label})`,
+                    value: `❌ Removed from item`,
+                  },
+                ],
+                timestamp: new Date().toISOString(),
+                url: `https://impress.openneo.net/items/${itemId}`,
+              },
+            ],
+          });
+        } catch (e) {
+          console.error("Error sending Discord support log", e);
+        }
+      } else {
+        console.warn("No Discord support webhook provided, skipping");
       }
 
       return { layer: { id: layerId }, item: { id: itemId } };
