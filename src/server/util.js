@@ -99,7 +99,7 @@ async function loadBodyName(bodyId, db) {
         ON pt.color_id = ct.color_id AND ct.locale = "en"
       INNER JOIN colors c ON c.id = pt.color_id
         WHERE pt.body_id = ?
-      ORDER BY ct.name, st.name LIMIT 1;`,
+      ORDER BY c.standard DESC, ct.name, st.name LIMIT 1;`,
     [bodyId]
   );
   const row = normalizeRow(rows[0]);
