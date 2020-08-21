@@ -20,12 +20,16 @@ beforeAll(() => {
   });
 });
 afterEach(() => {
-  dbExecuteFn.mockClear();
+  if (dbExecuteFn) {
+    dbExecuteFn.mockClear();
+  }
 });
 afterAll(() => {
-  db.end();
+  if (db) {
+    db.end();
+  }
 });
-const getDbCalls = () => dbExecuteFn.mock.calls;
+const getDbCalls = () => (dbExecuteFn ? dbExecuteFn.mock.calls : []);
 
 // Add a new `expect(res).toHaveNoErrors()` to call after GraphQL calls!
 expect.extend({

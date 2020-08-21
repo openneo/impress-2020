@@ -1,0 +1,1086 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`loadBodyName loads body name for all body IDs 1`] = `
+Array [
+  Array [
+    "0",
+    "All bodies",
+  ],
+  Array [
+    "46",
+    "Standard Shoyru",
+  ],
+  Array [
+    "47",
+    "Standard Blumaroo",
+  ],
+  Array [
+    "48",
+    "Baby Blumaroo",
+  ],
+  Array [
+    "49",
+    "Maraquan Blumaroo",
+  ],
+  Array [
+    "50",
+    "Mutant Blumaroo",
+  ],
+  Array [
+    "51",
+    "Standard Kiko",
+  ],
+  Array [
+    "52",
+    "Standard Lutari",
+  ],
+  Array [
+    "53",
+    "Maraquan Shoyru",
+  ],
+  Array [
+    "54",
+    "Mutant Shoyru",
+  ],
+  Array [
+    "55",
+    "Standard Peophin",
+  ],
+  Array [
+    "56",
+    "8-bit Elephante",
+  ],
+  Array [
+    "66",
+    "Baby Hissi",
+  ],
+  Array [
+    "67",
+    "Standard Hissi",
+  ],
+  Array [
+    "68",
+    "Standard Xweetok",
+  ],
+  Array [
+    "69",
+    "Baby Xweetok",
+  ],
+  Array [
+    "70",
+    "Maraquan Hissi",
+  ],
+  Array [
+    "71",
+    "Mutant Hissi",
+  ],
+  Array [
+    "72",
+    "Mutant Xweetok",
+  ],
+  Array [
+    "73",
+    "Baby Kiko",
+  ],
+  Array [
+    "74",
+    "Standard Chomby",
+  ],
+  Array [
+    "75",
+    "Baby Poogle",
+  ],
+  Array [
+    "76",
+    "Standard Poogle",
+  ],
+  Array [
+    "77",
+    "Baby Quiggle",
+  ],
+  Array [
+    "78",
+    "Standard Quiggle",
+  ],
+  Array [
+    "79",
+    "Baby Jubjub",
+  ],
+  Array [
+    "80",
+    "Standard Jubjub",
+  ],
+  Array [
+    "82",
+    "Baby Bori",
+  ],
+  Array [
+    "83",
+    "Mutant Quiggle",
+  ],
+  Array [
+    "84",
+    "Standard Bori",
+  ],
+  Array [
+    "85",
+    "Maraquan Jubjub",
+  ],
+  Array [
+    "86",
+    "Mutant Jubjub",
+  ],
+  Array [
+    "87",
+    "Maraquan Chomby",
+  ],
+  Array [
+    "88",
+    "Baby Chomby",
+  ],
+  Array [
+    "89",
+    "Baby Eyrie",
+  ],
+  Array [
+    "90",
+    "Standard Eyrie",
+  ],
+  Array [
+    "91",
+    "Mutant Bori",
+  ],
+  Array [
+    "92",
+    "Maraquan Eyrie",
+  ],
+  Array [
+    "93",
+    "Standard Acara",
+  ],
+  Array [
+    "94",
+    "Standard Cybunny",
+  ],
+  Array [
+    "95",
+    "Standard Mynci",
+  ],
+  Array [
+    "96",
+    "Standard Nimmo",
+  ],
+  Array [
+    "97",
+    "Baby Cybunny",
+  ],
+  Array [
+    "98",
+    "Baby Nimmo",
+  ],
+  Array [
+    "99",
+    "Maraquan Cybunny",
+  ],
+  Array [
+    "100",
+    "Standard Techo",
+  ],
+  Array [
+    "101",
+    "Standard Wocky",
+  ],
+  Array [
+    "102",
+    "Baby Techo",
+  ],
+  Array [
+    "103",
+    "Maraquan Techo",
+  ],
+  Array [
+    "104",
+    "Mutant Techo",
+  ],
+  Array [
+    "105",
+    "Mutant Cybunny",
+  ],
+  Array [
+    "106",
+    "Standard Aisha",
+  ],
+  Array [
+    "107",
+    "Baby Aisha",
+  ],
+  Array [
+    "108",
+    "Baby Meerca",
+  ],
+  Array [
+    "109",
+    "Standard Meerca",
+  ],
+  Array [
+    "110",
+    "Baby Acara",
+  ],
+  Array [
+    "112",
+    "Maraquan Acara",
+  ],
+  Array [
+    "115",
+    "Maraquan Aisha",
+  ],
+  Array [
+    "116",
+    "Mutant Aisha",
+  ],
+  Array [
+    "117",
+    "Standard Kacheek",
+  ],
+  Array [
+    "118",
+    "Baby Grarrl",
+  ],
+  Array [
+    "119",
+    "Standard Grarrl",
+  ],
+  Array [
+    "120",
+    "Baby Wocky",
+  ],
+  Array [
+    "121",
+    "Mutant Kacheek",
+  ],
+  Array [
+    "122",
+    "Maraquan Grarrl",
+  ],
+  Array [
+    "123",
+    "Mutant Grarrl",
+  ],
+  Array [
+    "124",
+    "Maraquan Meerca",
+  ],
+  Array [
+    "125",
+    "Mutant Meerca",
+  ],
+  Array [
+    "126",
+    "Standard Grundo",
+  ],
+  Array [
+    "127",
+    "Baby Grundo",
+  ],
+  Array [
+    "129",
+    "Baby Tonu",
+  ],
+  Array [
+    "130",
+    "Standard Tonu",
+  ],
+  Array [
+    "131",
+    "Baby Draik",
+  ],
+  Array [
+    "132",
+    "8-bit Draik",
+  ],
+  Array [
+    "133",
+    "Baby Moehog",
+  ],
+  Array [
+    "134",
+    "Standard Moehog",
+  ],
+  Array [
+    "135",
+    "Baby Flotsam",
+  ],
+  Array [
+    "136",
+    "Standard Flotsam",
+  ],
+  Array [
+    "137",
+    "Baby Gelert",
+  ],
+  Array [
+    "138",
+    "Standard Gelert",
+  ],
+  Array [
+    "139",
+    "Mutant Flotsam",
+  ],
+  Array [
+    "140",
+    "Baby Mynci",
+  ],
+  Array [
+    "141",
+    "Maraquan Draik",
+  ],
+  Array [
+    "142",
+    "Baby Kougra",
+  ],
+  Array [
+    "143",
+    "Standard Kougra",
+  ],
+  Array [
+    "144",
+    "Maraquan Grundo",
+  ],
+  Array [
+    "145",
+    "Mutant Draik",
+  ],
+  Array [
+    "146",
+    "Standard Bruce",
+  ],
+  Array [
+    "147",
+    "Standard Jetsam",
+  ],
+  Array [
+    "148",
+    "Mutant Grundo",
+  ],
+  Array [
+    "149",
+    "Mutant Mynci",
+  ],
+  Array [
+    "150",
+    "Standard Krawk",
+  ],
+  Array [
+    "151",
+    "Maraquan Kougra",
+  ],
+  Array [
+    "152",
+    "Mutant Kougra",
+  ],
+  Array [
+    "153",
+    "Baby Ogrin",
+  ],
+  Array [
+    "154",
+    "Standard Ogrin",
+  ],
+  Array [
+    "155",
+    "Baby Pteri",
+  ],
+  Array [
+    "156",
+    "Standard Pteri",
+  ],
+  Array [
+    "157",
+    "Baby Jetsam",
+  ],
+  Array [
+    "158",
+    "Mutant Jetsam",
+  ],
+  Array [
+    "159",
+    "Maraquan Gelert",
+  ],
+  Array [
+    "160",
+    "Baby Bruce",
+  ],
+  Array [
+    "161",
+    "Maraquan Bruce",
+  ],
+  Array [
+    "162",
+    "Mutant Bruce",
+  ],
+  Array [
+    "163",
+    "Standard Ixi",
+  ],
+  Array [
+    "164",
+    "Baby Ixi",
+  ],
+  Array [
+    "165",
+    "Mutant Moehog",
+  ],
+  Array [
+    "166",
+    "Standard Gnorbu",
+  ],
+  Array [
+    "167",
+    "Maraquan Moehog",
+  ],
+  Array [
+    "168",
+    "Maraquan Pteri",
+  ],
+  Array [
+    "169",
+    "Maraquan Krawk",
+  ],
+  Array [
+    "170",
+    "Mutant Krawk",
+  ],
+  Array [
+    "171",
+    "Mutant Tonu",
+  ],
+  Array [
+    "172",
+    "Baby Lenny",
+  ],
+  Array [
+    "173",
+    "Standard Lenny",
+  ],
+  Array [
+    "174",
+    "Maraquan Ixi",
+  ],
+  Array [
+    "175",
+    "8-bit Kyrii",
+  ],
+  Array [
+    "176",
+    "Mutant Ixi",
+  ],
+  Array [
+    "177",
+    "Mutant Gelert",
+  ],
+  Array [
+    "178",
+    "Standard Skeith",
+  ],
+  Array [
+    "179",
+    "Mutant Lenny",
+  ],
+  Array [
+    "180",
+    "Standard Zafara",
+  ],
+  Array [
+    "181",
+    "Baby Gnorbu",
+  ],
+  Array [
+    "182",
+    "Standard Yurble",
+  ],
+  Array [
+    "183",
+    "Mutant Gnorbu",
+  ],
+  Array [
+    "184",
+    "Maraquan Skeith",
+  ],
+  Array [
+    "185",
+    "Baby Skeith",
+  ],
+  Array [
+    "186",
+    "Mutant Skeith",
+  ],
+  Array [
+    "187",
+    "Standard Scorchio",
+  ],
+  Array [
+    "188",
+    "Standard Tuskaninny",
+  ],
+  Array [
+    "189",
+    "Baby Ruki",
+  ],
+  Array [
+    "190",
+    "Baby Tuskaninny",
+  ],
+  Array [
+    "191",
+    "8-bit Ruki",
+  ],
+  Array [
+    "192",
+    "Maraquan Ruki",
+  ],
+  Array [
+    "193",
+    "Mutant Ruki",
+  ],
+  Array [
+    "194",
+    "Baby Zafara",
+  ],
+  Array [
+    "195",
+    "Baby Korbat",
+  ],
+  Array [
+    "196",
+    "Standard Korbat",
+  ],
+  Array [
+    "197",
+    "Maraquan Zafara",
+  ],
+  Array [
+    "198",
+    "Mutant Tuskaninny",
+  ],
+  Array [
+    "199",
+    "Standard Lupe",
+  ],
+  Array [
+    "200",
+    "Baby Kau",
+  ],
+  Array [
+    "201",
+    "Standard Kau",
+  ],
+  Array [
+    "202",
+    "Maraquan Korbat",
+  ],
+  Array [
+    "203",
+    "Baby Usul",
+  ],
+  Array [
+    "204",
+    "Mutant Korbat",
+  ],
+  Array [
+    "205",
+    "Maraquan Kau",
+  ],
+  Array [
+    "206",
+    "Standard Usul",
+  ],
+  Array [
+    "207",
+    "Baby Koi",
+  ],
+  Array [
+    "208",
+    "Standard Koi",
+  ],
+  Array [
+    "209",
+    "Baby Elephante",
+  ],
+  Array [
+    "210",
+    "Maraquan Elephante",
+  ],
+  Array [
+    "211",
+    "Mutant Elephante",
+  ],
+  Array [
+    "212",
+    "8-bit Chia",
+  ],
+  Array [
+    "213",
+    "Apple Chia",
+  ],
+  Array [
+    "214",
+    "Asparagus Chia",
+  ],
+  Array [
+    "215",
+    "Aubergine Chia",
+  ],
+  Array [
+    "216",
+    "Avocado Chia",
+  ],
+  Array [
+    "217",
+    "Baby Chia",
+  ],
+  Array [
+    "218",
+    "Baby Lupe",
+  ],
+  Array [
+    "219",
+    "Blueberry Chia",
+  ],
+  Array [
+    "220",
+    "Maraquan Lupe",
+  ],
+  Array [
+    "221",
+    "Carrot Chia",
+  ],
+  Array [
+    "222",
+    "Mutant Lupe",
+  ],
+  Array [
+    "223",
+    "Chokato Chia",
+  ],
+  Array [
+    "225",
+    "Durian Chia",
+  ],
+  Array [
+    "226",
+    "Mutant Usul",
+  ],
+  Array [
+    "227",
+    "Maraquan Kyrii",
+  ],
+  Array [
+    "228",
+    "Gooseberry Chia",
+  ],
+  Array [
+    "229",
+    "Grape Chia",
+  ],
+  Array [
+    "230",
+    "Lemon Chia",
+  ],
+  Array [
+    "231",
+    "Lime Chia",
+  ],
+  Array [
+    "232",
+    "Mutant Kyrii",
+  ],
+  Array [
+    "233",
+    "Mutant Chia",
+  ],
+  Array [
+    "234",
+    "Orange Chia",
+  ],
+  Array [
+    "235",
+    "Pea Chia",
+  ],
+  Array [
+    "236",
+    "Peach Chia",
+  ],
+  Array [
+    "237",
+    "Pear Chia",
+  ],
+  Array [
+    "238",
+    "Pepper Chia",
+  ],
+  Array [
+    "239",
+    "Pineapple Chia",
+  ],
+  Array [
+    "240",
+    "Plum Chia",
+  ],
+  Array [
+    "242",
+    "Thornberry Chia",
+  ],
+  Array [
+    "243",
+    "Tomato Chia",
+  ],
+  Array [
+    "244",
+    "Mutant Kiko",
+  ],
+  Array [
+    "245",
+    "Baby Peophin",
+  ],
+  Array [
+    "246",
+    "Mutant Koi",
+  ],
+  Array [
+    "247",
+    "Baby Yurble",
+  ],
+  Array [
+    "248",
+    "Baby Kacheek",
+  ],
+  Array [
+    "249",
+    "Baby Buzz",
+  ],
+  Array [
+    "250",
+    "Standard Buzz",
+  ],
+  Array [
+    "251",
+    "Maraquan Buzz",
+  ],
+  Array [
+    "252",
+    "Mutant Buzz",
+  ],
+  Array [
+    "253",
+    "Baby Kyrii",
+  ],
+  Array [
+    "254",
+    "Mutant Zafara",
+  ],
+  Array [
+    "256",
+    "Baby Uni",
+  ],
+  Array [
+    "257",
+    "Standard Uni",
+  ],
+  Array [
+    "258",
+    "Maraquan Uni",
+  ],
+  Array [
+    "259",
+    "Baby Scorchio",
+  ],
+  Array [
+    "260",
+    "Maraquan Scorchio",
+  ],
+  Array [
+    "261",
+    "Mutant Scorchio",
+  ],
+  Array [
+    "262",
+    "Baby Shoyru",
+  ],
+  Array [
+    "264",
+    "Mutant Yurble",
+  ],
+  Array [
+    "265",
+    "Standard Chia",
+  ],
+  Array [
+    "266",
+    "Mutant Peophin",
+  ],
+  Array [
+    "268",
+    "Mutant Eyrie",
+  ],
+  Array [
+    "269",
+    "Onion Chia",
+  ],
+  Array [
+    "270",
+    "Mutant Kau",
+  ],
+  Array [
+    "271",
+    "Mutant Pteri",
+  ],
+  Array [
+    "272",
+    "Maraquan Poogle",
+  ],
+  Array [
+    "273",
+    "Maraquan Usul",
+  ],
+  Array [
+    "274",
+    "Baby Krawk",
+  ],
+  Array [
+    "275",
+    "Baby Lutari",
+  ],
+  Array [
+    "276",
+    "Mutant Uni",
+  ],
+  Array [
+    "277",
+    "Mutant Ogrin",
+  ],
+  Array [
+    "278",
+    "Maraquan Bori",
+  ],
+  Array [
+    "279",
+    "Mutant Acara",
+  ],
+  Array [
+    "280",
+    "8-bit Chomby",
+  ],
+  Array [
+    "281",
+    "8-bit Grundo",
+  ],
+  Array [
+    "282",
+    "8-bit Kougra",
+  ],
+  Array [
+    "283",
+    "8-bit Moehog",
+  ],
+  Array [
+    "284",
+    "Mutant Chomby",
+  ],
+  Array [
+    "285",
+    "8-bit Aisha",
+  ],
+  Array [
+    "286",
+    "Maraquan Kacheek",
+  ],
+  Array [
+    "287",
+    "Maraquan Tonu",
+  ],
+  Array [
+    "289",
+    "8-bit Quiggle",
+  ],
+  Array [
+    "291",
+    "8-bit Meerca",
+  ],
+  Array [
+    "292",
+    "8-bit Poogle",
+  ],
+  Array [
+    "293",
+    "Mutant Lutari",
+  ],
+  Array [
+    "294",
+    "Maraquan Ogrin",
+  ],
+  Array [
+    "295",
+    "8-bit Bruce",
+  ],
+  Array [
+    "296",
+    "Agueena Chia",
+  ],
+  Array [
+    "297",
+    "8-bit Shoyru",
+  ],
+  Array [
+    "298",
+    "8-bit Lupe",
+  ],
+  Array [
+    "299",
+    "8-bit Koi",
+  ],
+  Array [
+    "300",
+    "Mutant Poogle",
+  ],
+  Array [
+    "301",
+    "Maraquan Wocky",
+  ],
+  Array [
+    "302",
+    "8-bit Scorchio",
+  ],
+  Array [
+    "303",
+    "Maraquan Yurble",
+  ],
+  Array [
+    "304",
+    "8-bit Flotsam",
+  ],
+  Array [
+    "305",
+    "Standard Chia",
+  ],
+  Array [
+    "306",
+    "Standard Vandagyre",
+  ],
+  Array [
+    "307",
+    "8-bit Zafara",
+  ],
+  Array [
+    "308",
+    "Maraquan Xweetok",
+  ],
+  Array [
+    "309",
+    "8-bit Uni",
+  ],
+  Array [
+    "310",
+    "8-bit Cybunny",
+  ],
+  Array [
+    "311",
+    "8-bit Korbat",
+  ],
+  Array [
+    "312",
+    "Baby Vandagyre",
+  ],
+  Array [
+    "313",
+    "Mutant Wocky",
+  ],
+  Array [
+    "314",
+    "8-bit Wocky",
+  ],
+  Array [
+    "315",
+    "8-bit Lenny",
+  ],
+  Array [
+    "316",
+    "Maraquan Chia",
+  ],
+  Array [
+    "317",
+    "8-bit Hissi",
+  ],
+  Array [
+    "318",
+    "8-bit Jubjub",
+  ],
+  Array [
+    "319",
+    "8-bit Nimmo",
+  ],
+  Array [
+    "320",
+    "8-bit Acara",
+  ],
+  Array [
+    "321",
+    "8-bit Pteri",
+  ],
+  Array [
+    "322",
+    "Mutant Nimmo",
+  ],
+  Array [
+    "323",
+    "Standard Gelert",
+  ],
+  Array [
+    "324",
+    "Standard Shoyru",
+  ],
+  Array [
+    "325",
+    "Standard Lutari",
+  ],
+  Array [
+    "326",
+    "Standard Jubjub",
+  ],
+  Array [
+    "327",
+    "Standard Poogle",
+  ],
+  Array [
+    "328",
+    "8-bit Techo",
+  ],
+  Array [
+    "329",
+    "8-bit Usul",
+  ],
+  Array [
+    "330",
+    "Standard Zafara",
+  ],
+  Array [
+    "331",
+    "Maraquan Lenny",
+  ],
+  Array [
+    "332",
+    "8-bit Mynci",
+  ],
+  Array [
+    "333",
+    "Standard Chomby",
+  ],
+  Array [
+    "334",
+    "Standard Techo",
+  ],
+  Array [
+    "335",
+    "Maraquan Lutari",
+  ],
+]
+`;
