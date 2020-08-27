@@ -587,7 +587,6 @@ const resolvers = {
         colorId,
       });
       const petStates = await petStatesForPetTypeLoader.load(petType.id);
-      petStates.sort((a, b) => a.id - b.id);
       return petStates.map((petState) => ({ id: petState.id }));
     },
     outfit: (_, { id }) => ({ id }),

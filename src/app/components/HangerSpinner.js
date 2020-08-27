@@ -81,6 +81,7 @@ function HangerSpinner(props) {
             animation: 1.6s infinite fade-pulse;
           }
         `}
+        {...props}
       >
         <HangerIcon color="green.300" {...props} />
       </Box>

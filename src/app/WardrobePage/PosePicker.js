@@ -15,12 +15,14 @@ import {
   useColorModeValue,
   useTheme,
 } from "@chakra-ui/core";
+import loadable from "@loadable/component";
 
 import {
   getVisibleLayers,
   petAppearanceFragment,
 } from "../components/useOutfitAppearance";
 import { OutfitLayers } from "../components/OutfitPreview";
+import SupportOnly from "./support/SupportOnly";
 
 // From https://twemoji.twitter.com/, thank you!
 import twemojiSmile from "../../images/twemoji/smile.svg";
@@ -28,6 +30,12 @@ import twemojiCry from "../../images/twemoji/cry.svg";
 import twemojiSick from "../../images/twemoji/sick.svg";
 import twemojiMasc from "../../images/twemoji/masc.svg";
 import twemojiFem from "../../images/twemoji/fem.svg";
+
+const PosePickerSupport = loadable(() => import("./support/PosePickerSupport"));
+
+const PosePickerSupportSwitch = loadable(() =>
+  import("./support/PosePickerSupport").then((m) => m.PosePickerSupportSwitch)
+);
 
 /**
  * PosePicker shows the pet poses available on the current species/color, and
@@ -53,6 +61,7 @@ function PosePicker({
   const theme = useTheme();
   const checkedInputRef = React.useRef();
   const { loading, error, poseInfos } = usePoses(speciesId, colorId, pose);
+  const [isInSupportMode, setIsInSupportMode] = React.useState(false);
 
   if (loading) {
     return null;
@@ -127,89 +136,28 @@ function PosePicker({
           </PopoverTrigger>
           <Portal>
             <PopoverContent>
-              <Box p="4">
-                <table width="100%">
-                  <thead>
-                    <tr>
-                      <th />
-                      <Cell as="th">
-                        <EmojiImage src={twemojiSmile} alt="Happy" />
-                      </Cell>
-                      <Cell as="th">
-                        <EmojiImage src={twemojiCry} alt="Sad" />
-                      </Cell>
-                      <Cell as="th">
-                        <EmojiImage src={twemojiSick} alt="Sick" />
-                      </Cell>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <Cell as="th">
-                        <EmojiImage src={twemojiMasc} alt="Masculine" />
-                      </Cell>
-                      <Cell as="td">
-                        <PoseOption
-                          poseInfo={poseInfos.happyMasc}
-                          onChange={onChange}
-                          inputRef={
-                            poseInfos.happyMasc.isSelected && checkedInputRef
-                          }
-                        />
-                      </Cell>
-                      <Cell as="td">
-                        <PoseOption
-                          poseInfo={poseInfos.sadMasc}
-                          onChange={onChange}
-                          inputRef={
-                            poseInfos.sadMasc.isSelected && checkedInputRef
-                          }
-                        />
-                      </Cell>
-                      <Cell as="td">
-                        <PoseOption
-                          poseInfo={poseInfos.sickMasc}
-                          onChange={onChange}
-                          inputRef={
-                            poseInfos.sickMasc.isSelected && checkedInputRef
-                          }
-                        />
-                      </Cell>
-                    </tr>
-                    <tr>
-                      <Cell as="th">
-                        <EmojiImage src={twemojiFem} alt="Feminine" />
-                      </Cell>
-                      <Cell as="td">
-                        <PoseOption
-                          poseInfo={poseInfos.happyFem}
-                          onChange={onChange}
-                          inputRef={
-                            poseInfos.happyFem.isSelected && checkedInputRef
-                          }
-                        />
-                      </Cell>
-                      <Cell as="td">
-                        <PoseOption
-                          poseInfo={poseInfos.sadFem}
-                          onChange={onChange}
-                          inputRef={
-                            poseInfos.sadFem.isSelected && checkedInputRef
-                          }
-                        />
-                      </Cell>
-                      <Cell as="td">
-                        <PoseOption
-                          poseInfo={poseInfos.sickFem}
-                          onChange={onChange}
-                          inputRef={
-                            poseInfos.sickFem.isSelected && checkedInputRef
-                          }
-                        />
-                      </Cell>
-                    </tr>
-                  </tbody>
-                </table>
+              <Box p="4" position="relative">
+                {isInSupportMode ? (
+                  <PosePickerSupport
+                    speciesId={speciesId}
+                    colorId={colorId}
+                    onChange={onChange}
+                  />
+                ) : (
+                  <PosePickerTable
+                    poseInfos={poseInfos}
+                    onChange={onChange}
+                    checkedInputRef={checkedInputRef}
+                  />
+                )}
+                <SupportOnly>
+                  <Box position="absolute" top="5" left="3">
+                    <PosePickerSupportSwitch
+                      isChecked={isInSupportMode}
+                      onChange={(e) => setIsInSupportMode(e.target.checked)}
+                    />
+                  </Box>
+                </SupportOnly>
               </Box>
               <PopoverArrow />
             </PopoverContent>
@@ -217,6 +165,81 @@ function PosePicker({
         </>
       )}
     </Popover>
+  );
+}
+
+function PosePickerTable({ poseInfos, onChange, checkedInputRef }) {
+  return (
+    <table width="100%">
+      <thead>
+        <tr>
+          <th />
+          <Cell as="th">
+            <EmojiImage src={twemojiSmile} alt="Happy" />
+          </Cell>
+          <Cell as="th">
+            <EmojiImage src={twemojiCry} alt="Sad" />
+          </Cell>
+          <Cell as="th">
+            <EmojiImage src={twemojiSick} alt="Sick" />
+          </Cell>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <Cell as="th">
+            <EmojiImage src={twemojiMasc} alt="Masculine" />
+          </Cell>
+          <Cell as="td">
+            <PoseOption
+              poseInfo={poseInfos.happyMasc}
+              onChange={onChange}
+              inputRef={poseInfos.happyMasc.isSelected && checkedInputRef}
+            />
+          </Cell>
+          <Cell as="td">
+            <PoseOption
+              poseInfo={poseInfos.sadMasc}
+              onChange={onChange}
+              inputRef={poseInfos.sadMasc.isSelected && checkedInputRef}
+            />
+          </Cell>
+          <Cell as="td">
+            <PoseOption
+              poseInfo={poseInfos.sickMasc}
+              onChange={onChange}
+              inputRef={poseInfos.sickMasc.isSelected && checkedInputRef}
+            />
+          </Cell>
+        </tr>
+        <tr>
+          <Cell as="th">
+            <EmojiImage src={twemojiFem} alt="Feminine" />
+          </Cell>
+          <Cell as="td">
+            <PoseOption
+              poseInfo={poseInfos.happyFem}
+              onChange={onChange}
+              inputRef={poseInfos.happyFem.isSelected && checkedInputRef}
+            />
+          </Cell>
+          <Cell as="td">
+            <PoseOption
+              poseInfo={poseInfos.sadFem}
+              onChange={onChange}
+              inputRef={poseInfos.sadFem.isSelected && checkedInputRef}
+            />
+          </Cell>
+          <Cell as="td">
+            <PoseOption
+              poseInfo={poseInfos.sickFem}
+              onChange={onChange}
+              inputRef={poseInfos.sickFem.isSelected && checkedInputRef}
+            />
+          </Cell>
+        </tr>
+      </tbody>
+    </table>
   );
 }
 
