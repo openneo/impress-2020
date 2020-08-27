@@ -1,7 +1,21 @@
+const beeline = require("honeycomb-beeline")({
+  writeKey: process.env["HONEYCOMB_WRITE_KEY"],
+  dataset:
+    process.env["NODE_ENV"] === "production"
+      ? "Dress to Impress (2020)"
+      : "Dress to Impress (2020, dev)",
+  serviceName: "impress-2020-gql-server",
+});
 const AWS = require("aws-sdk");
 const Jimp = require("jimp");
 
-const connectToDb = require("../src/server/db.js");
+const connectToDb = require("../src/server/db");
+const buildLoaders = require("../src/server/loaders");
+const {
+  loadBodyName,
+  logToDiscord,
+  normalizeRow,
+} = require("../src/server/util");
 
 if (
   !process.env["DTI_AWS_ACCESS_KEY_ID"] ||
@@ -52,7 +66,7 @@ async function processImage(assetType, remoteId, size, imageData) {
   console.log(`Successfully uploaded ${key} to impress-asset-images`);
 }
 
-export default async (req, res) => {
+async function handle(req, res) {
   if (req.headers["dti-support-secret"] !== process.env["SUPPORT_SECRET"]) {
     res.status(401).send(`Support secret is incorrect. Try setting up again?`);
     return;
@@ -75,13 +89,13 @@ export default async (req, res) => {
     `SELECT * FROM swf_assets WHERE id = ?`,
     [layerId]
   );
-  const layer = layerRows[0];
+  const layer = normalizeRow(layerRows[0]);
   if (!layer) {
     res.status(404).send(`Layer not found`);
   }
 
-  const { remote_id: remoteId, type: assetType } = layer;
-  const [imageUrl600, imageUrl300, imageUrl150] = await Promise.all([
+  const { remoteId, type: assetType } = layer;
+  await Promise.all([
     processImage(assetType, remoteId, 600, imageData),
     processImage(assetType, remoteId, 300, imageData),
     processImage(assetType, remoteId, 150, imageData),
@@ -99,5 +113,63 @@ export default async (req, res) => {
       .send(`expected 1 affected row but found ${result.affectedRows}`);
   }
 
-  res.status(200).send({ imageUrl600, imageUrl300, imageUrl150 });
+  if (process.env["SUPPORT_TOOLS_DISCORD_WEBHOOK_URL"]) {
+    try {
+      const {
+        itemLoader,
+        itemTranslationLoader,
+        zoneTranslationLoader,
+      } = buildLoaders(db);
+
+      // Copied from setLayerBodyId mutation
+      const itemId = await db
+        .execute(
+          `SELECT parent_id FROM parents_swf_assets
+          WHERE swf_asset_id = ? AND parent_type = "Item" LIMIT 1;`,
+          [layerId]
+        )
+        .then(([rows]) => normalizeRow(rows[0]).parentId);
+
+      const [
+        item,
+        itemTranslation,
+        zoneTranslation,
+        bodyName,
+      ] = await Promise.all([
+        itemLoader.load(itemId),
+        itemTranslationLoader.load(itemId),
+        zoneTranslationLoader.load(layer.zoneId),
+        loadBodyName(layer.bodyId, db),
+      ]);
+
+      await logToDiscord({
+        embeds: [
+          {
+            title: `🛠 ${itemTranslation.name}`,
+            thumbnail: {
+              url: item.thumbnailUrl,
+              height: 80,
+              width: 80,
+            },
+            fields: [
+              {
+                name: `Layer ${layerId} (${zoneTranslation.label})`,
+                value: `🎨 Uploaded new PNG for ${bodyName}`,
+              },
+            ],
+            timestamp: new Date().toISOString(),
+            url: `https://impress.openneo.net/items/${itemId}`,
+          },
+        ],
+      });
+    } catch (e) {
+      console.error("Error sending Discord support log", e);
+    }
+  }
+
+  res.status(200).send();
+}
+
+export default async (req, res) => {
+  beeline.withTrace({ name: "uploadLayerImage" }, () => handle(req, res));
 };
