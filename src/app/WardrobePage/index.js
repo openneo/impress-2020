@@ -4,8 +4,9 @@ import loadable from "@loadable/component";
 
 import ItemsAndSearchPanels from "./ItemsAndSearchPanels";
 import OutfitPreview from "../components/OutfitPreview";
-import useOutfitState, { OutfitStateContext } from "./useOutfitState.js";
+import useOutfitState, { OutfitStateContext } from "./useOutfitState";
 import { usePageTitle } from "../util";
+import useWardrobeDevHacks from "./useWardrobeDevHacks";
 
 const OutfitControls = loadable(() =>
   import(/* webpackPreload: true */ "./OutfitControls")
@@ -27,6 +28,8 @@ function WardrobePage() {
   const { loading, error, outfitState, dispatchToOutfit } = useOutfitState();
 
   usePageTitle(`${outfitState.name || "Untitled outfit"} | Dress to Impress`);
+
+  useWardrobeDevHacks();
 
   // TODO: I haven't found a great place for this error UI yet, and this case
   // isn't very common, so this lil toast notification seems good enough!
