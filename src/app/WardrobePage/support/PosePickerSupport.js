@@ -12,7 +12,6 @@ function PosePickerSupport({ speciesId, colorId }) {
       query PosePickerSupport($speciesId: ID!, $colorId: ID!) {
         petAppearances(speciesId: $speciesId, colorId: $colorId) {
           id
-          petStateId
           bodyId
           pose
           ...PetAppearanceForOutfitPreview
@@ -44,8 +43,8 @@ function PosePickerSupport({ speciesId, colorId }) {
       <Box display="flex" justifyContent="flex-end">
         <Select size="sm" width="auto">
           {data.petAppearances.map((pa) => (
-            <option key={pa.petStateId}>
-              {POSE_NAMES[pa.pose]} ({pa.petStateId})
+            <option key={pa.id}>
+              {POSE_NAMES[pa.pose]} ({pa.id})
             </option>
           ))}
         </Select>
