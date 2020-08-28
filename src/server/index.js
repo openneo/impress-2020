@@ -71,7 +71,10 @@ const typeDefs = gql`
     thumbnailUrl: String!
     rarityIndex: Int!
     isNc: Boolean!
-    appearanceOn(speciesId: ID!, colorId: ID!): ItemAppearance
+
+    # How this item appears on the given species/color combo. If it does not
+    # fit the pet, we'll return an empty ItemAppearance with no layers.
+    appearanceOn(speciesId: ID!, colorId: ID!): ItemAppearance!
 
     # This is set manually by Support users, when the pet is only for e.g.
     # Maraquan pets, and our usual auto-detection isn't working. We provide
@@ -101,7 +104,10 @@ const typeDefs = gql`
   }
 
   type ItemAppearance {
-    layers: [AppearanceLayer!]!
+    id: ID!
+    item: Item!
+    bodyId: ID!
+    layers: [AppearanceLayer!]
     restrictedZones: [Zone!]!
   }
 
@@ -275,37 +281,13 @@ const resolvers = {
     appearanceOn: async (
       { id },
       { speciesId, colorId },
-      { petTypeBySpeciesAndColorLoader, itemSwfAssetLoader, itemLoader }
+      { petTypeBySpeciesAndColorLoader }
     ) => {
-      const itemPromise = itemLoader.load(id);
       const petType = await petTypeBySpeciesAndColorLoader.load({
-        speciesId: speciesId,
-        colorId: colorId,
+        speciesId,
+        colorId,
       });
-      const allSwfAssets = await itemSwfAssetLoader.load({
-        itemId: id,
-        bodyId: petType.bodyId,
-      });
-
-      if (allSwfAssets.length === 0) {
-        // If there's no assets at all, treat it as non-fitting: no appearance.
-        // (If there are assets but they're non-SWF, we'll treat this as
-        // fitting, but with an *empty* appearance.)
-        return null;
-      }
-
-      const swfAssets = allSwfAssets.filter((sa) => sa.url.endsWith(".swf"));
-
-      const restrictedZones = [];
-      const item = await itemPromise;
-      for (const [i, bit] of Array.from(item.zonesRestrict).entries()) {
-        if (bit === "1") {
-          const zone = { id: i + 1 };
-          restrictedZones.push(zone);
-        }
-      }
-
-      return { layers: swfAssets, restrictedZones };
+      return { item: { id }, bodyId: petType.bodyId };
     },
     manualSpecialColor: async ({ id }, _, { itemLoader }) => {
       const item = await itemLoader.load(id);
@@ -316,6 +298,28 @@ const resolvers = {
     explicitlyBodySpecific: async ({ id }, _, { itemLoader }) => {
       const item = await itemLoader.load(id);
       return item.explicitlyBodySpecific;
+    },
+  },
+  ItemAppearance: {
+    id: ({ item, bodyId }) => `item-${item.id}-body-${bodyId}`,
+    layers: async ({ item, bodyId }, _, { itemSwfAssetLoader }) => {
+      const allSwfAssets = await itemSwfAssetLoader.load({
+        itemId: item.id,
+        bodyId,
+      });
+
+      return allSwfAssets.filter((sa) => sa.url.endsWith(".swf"));
+    },
+    restrictedZones: async ({ item: { id: itemId } }, _, { itemLoader }) => {
+      const item = await itemLoader.load(itemId);
+      const restrictedZones = [];
+      for (const [i, bit] of Array.from(item.zonesRestrict).entries()) {
+        if (bit === "1") {
+          const zone = { id: i + 1 };
+          restrictedZones.push(zone);
+        }
+      }
+      return restrictedZones;
     },
   },
   PetAppearance: {

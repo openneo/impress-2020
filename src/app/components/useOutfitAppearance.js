@@ -116,6 +116,7 @@ export function getVisibleLayers(petAppearance, itemAppearances) {
 
 export const itemAppearanceFragment = gql`
   fragment ItemAppearanceForOutfitPreview on ItemAppearance {
+    id
     layers {
       id
       remoteId # HACK: This is for Support tools, but other views don't need it
@@ -129,7 +130,6 @@ export const itemAppearanceFragment = gql`
         label @client # HACK: This is for Support tools, but other views don't need it
       }
     }
-
     restrictedZones {
       id
     }

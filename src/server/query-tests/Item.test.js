@@ -103,14 +103,6 @@ describe("Item", () => {
           ],
         ],
         Array [
-          "SELECT * FROM items WHERE id IN (?,?,?)",
-          Array [
-            "38912",
-            "38911",
-            "37375",
-          ],
-        ],
-        Array [
           "SELECT * FROM pet_types WHERE (species_id = ? AND color_id = ?)",
           Array [
             "54",
@@ -130,6 +122,14 @@ describe("Item", () => {
             "180",
             "37375",
             "180",
+          ],
+        ],
+        Array [
+          "SELECT * FROM items WHERE id IN (?,?,?)",
+          Array [
+            "38912",
+            "38911",
+            "37375",
           ],
         ],
         Array [
@@ -192,12 +192,6 @@ describe("Item", () => {
           ],
         ],
         Array [
-          "SELECT * FROM items WHERE id IN (?)",
-          Array [
-            "42829",
-          ],
-        ],
-        Array [
           "SELECT * FROM pet_types WHERE (species_id = ? AND color_id = ?)",
           Array [
             "54",
@@ -213,6 +207,12 @@ describe("Item", () => {
           Array [
             "42829",
             "180",
+          ],
+        ],
+        Array [
+          "SELECT * FROM items WHERE id IN (?)",
+          Array [
+            "42829",
           ],
         ],
       ]
