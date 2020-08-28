@@ -376,36 +376,93 @@ function usePoses(speciesId, colorId, selectedPose) {
   const { loading, error, data } = useQuery(
     gql`
       query PosePicker($speciesId: ID!, $colorId: ID!) {
-        petAppearances(speciesId: $speciesId, colorId: $colorId) {
-          id
-          petStateId
-          bodyId
-          pose
-          ...PetAppearanceForOutfitPreview
+        happyMasc: petAppearance(
+          speciesId: $speciesId
+          colorId: $colorId
+          pose: HAPPY_MASC
+        ) {
+          ...PetAppearanceForPosePicker
         }
+        sadMasc: petAppearance(
+          speciesId: $speciesId
+          colorId: $colorId
+          pose: SAD_MASC
+        ) {
+          ...PetAppearanceForPosePicker
+        }
+        sickMasc: petAppearance(
+          speciesId: $speciesId
+          colorId: $colorId
+          pose: SICK_MASC
+        ) {
+          ...PetAppearanceForPosePicker
+        }
+        happyFem: petAppearance(
+          speciesId: $speciesId
+          colorId: $colorId
+          pose: HAPPY_FEM
+        ) {
+          ...PetAppearanceForPosePicker
+        }
+        sadFem: petAppearance(
+          speciesId: $speciesId
+          colorId: $colorId
+          pose: SAD_FEM
+        ) {
+          ...PetAppearanceForPosePicker
+        }
+        sickFem: petAppearance(
+          speciesId: $speciesId
+          colorId: $colorId
+          pose: SICK_FEM
+        ) {
+          ...PetAppearanceForPosePicker
+        }
+      }
+
+      fragment PetAppearanceForPosePicker on PetAppearance {
+        id
+        petStateId
+        bodyId
+        pose
+        ...PetAppearanceForOutfitPreview
       }
       ${petAppearanceFragment}
     `,
     { variables: { speciesId, colorId } }
   );
 
-  const petAppearances = data?.petAppearances || [];
-  const buildPoseInfo = (pose) => {
-    const appearance = petAppearances.find((pa) => pa.pose === pose);
-    return {
-      ...appearance,
-      isAvailable: Boolean(appearance),
-      isSelected: selectedPose === pose,
-    };
-  };
-
   const poseInfos = {
-    happyMasc: buildPoseInfo("HAPPY_MASC"),
-    sadMasc: buildPoseInfo("SAD_MASC"),
-    sickMasc: buildPoseInfo("SICK_MASC"),
-    happyFem: buildPoseInfo("HAPPY_FEM"),
-    sadFem: buildPoseInfo("SAD_FEM"),
-    sickFem: buildPoseInfo("SICK_FEM"),
+    happyMasc: {
+      ...data?.happyMasc,
+      isAvailable: Boolean(data?.happyMasc),
+      isSelected: selectedPose === "HAPPY_MASC",
+    },
+    sadMasc: {
+      ...data?.sadMasc,
+      isAvailable: Boolean(data?.sadMasc),
+      isSelected: selectedPose === "SAD_MASC",
+    },
+    sickMasc: {
+      ...data?.sickMasc,
+      isAvailable: Boolean(data?.sickMasc),
+      isSelected: selectedPose === "SICK_MASC",
+    },
+    happyFem: {
+      ...data?.happyFem,
+      isAvailable: Boolean(data?.happyFem),
+      isSelected: selectedPose === "HAPPY_FEM",
+    },
+    sadFem: {
+      ...data?.sadFem,
+      isAvailable: Boolean(data?.sadFem),
+      isSelected: selectedPose === "SAD_FEM",
+    },
+    sickFem: {
+      ...data?.sickFem,
+      isAvailable: Boolean(data?.sickFem),
+      isSelected: selectedPose === "SICK_FEM",
+    },
   };
 
   return { loading, error, poseInfos };

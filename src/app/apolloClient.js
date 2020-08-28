@@ -16,15 +16,6 @@ const typePolicies = {
           toReference({ __typename: "Item", id }, true)
         );
       },
-
-      // Teach Apollo how to serve `petAppearance` queries from the cache. That
-      // way, when you switch pet poses, Apollo knows it already has the
-      // appearance data and doesn't need to ask the server again!
-      petAppearance: (_, { args, toReference }) => {
-        const { speciesId, colorId, pose } = args;
-        const id = `${speciesId}-${colorId}-${pose}`;
-        return toReference({ __typename: "PetAppearance", id }, true);
-      },
     },
   },
 
