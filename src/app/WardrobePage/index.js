@@ -4,13 +4,14 @@ import loadable from "@loadable/component";
 
 import ItemsAndSearchPanels from "./ItemsAndSearchPanels";
 import OutfitPreview from "../components/OutfitPreview";
+import SupportOnly from "./support/SupportOnly";
 import useOutfitState, { OutfitStateContext } from "./useOutfitState";
 import { usePageTitle } from "../util";
-import useWardrobeDevHacks from "./useWardrobeDevHacks";
 
 const OutfitControls = loadable(() =>
   import(/* webpackPreload: true */ "./OutfitControls")
 );
+const WardrobeDevHacks = loadable(() => import("./WardrobeDevHacks"));
 
 /**
  * WardrobePage is the most fun page on the site - it's where you create
@@ -28,8 +29,6 @@ function WardrobePage() {
   const { loading, error, outfitState, dispatchToOutfit } = useOutfitState();
 
   usePageTitle(`${outfitState.name || "Untitled outfit"} | Dress to Impress`);
-
-  useWardrobeDevHacks();
 
   // TODO: I haven't found a great place for this error UI yet, and this case
   // isn't very common, so this lil toast notification seems good enough!
@@ -52,6 +51,9 @@ function WardrobePage() {
   //       via context.
   return (
     <OutfitStateContext.Provider value={outfitState}>
+      <SupportOnly>
+        <WardrobeDevHacks />
+      </SupportOnly>
       <Box
         position="absolute"
         top="0"
