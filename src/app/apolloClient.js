@@ -16,6 +16,11 @@ const typePolicies = {
           toReference({ __typename: "Item", id }, true)
         );
       },
+
+      // Similar for a single item lookup!
+      item: (_, { args, toReference }) => {
+        return toReference({ __typename: "Item", id: args.id }, true);
+      },
     },
   },
 

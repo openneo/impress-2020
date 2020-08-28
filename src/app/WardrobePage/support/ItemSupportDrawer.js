@@ -20,6 +20,7 @@ import {
   Select,
   Spinner,
   Stack,
+  Text,
   useBreakpointValue,
   useColorModeValue,
   useDisclosure,
@@ -78,6 +79,10 @@ function ItemSupportDrawer({ item, isOpen, onClose }) {
             <Metadata>
               <MetadataLabel>Item ID:</MetadataLabel>
               <MetadataValue>{item.id}</MetadataValue>
+              <MetadataLabel>Restricted zones:</MetadataLabel>
+              <MetadataValue>
+                <ItemSupportRestrictedZones item={item} />
+              </MetadataValue>
             </Metadata>
             <Stack spacing="8" marginTop="6">
               <ItemSupportFields item={item} />
@@ -88,6 +93,52 @@ function ItemSupportDrawer({ item, isOpen, onClose }) {
       </DrawerOverlay>
     </Drawer>
   );
+}
+
+function ItemSupportRestrictedZones({ item }) {
+  const { speciesId, colorId } = React.useContext(OutfitStateContext);
+
+  // NOTE: It would be a better reflection of the data to just query restricted
+  //       zones right off the item... but we already have them in cache from
+  //       the appearance, so query them that way to be instant in practice!
+  const { loading, error, data } = useQuery(
+    gql`
+      query ItemSupportRestrictedZones(
+        $itemId: ID!
+        $speciesId: ID!
+        $colorId: ID!
+      ) {
+        item(id: $itemId) {
+          id
+          appearanceOn(speciesId: $speciesId, colorId: $colorId) {
+            restrictedZones {
+              id
+              label
+            }
+          }
+        }
+      }
+    `,
+    { variables: { itemId: item.id, speciesId, colorId } }
+  );
+
+  if (loading) {
+    return <Spinner size="xs" />;
+  }
+
+  if (error) {
+    return <Text color="red.400">{error.message}</Text>;
+  }
+
+  const restrictedZones = data?.item?.appearanceOn?.restrictedZones || [];
+  if (restrictedZones.length === 0) {
+    return "None";
+  }
+
+  return restrictedZones
+    .map((z) => `${z.label} (${z.id})`)
+    .sort()
+    .join(", ");
 }
 
 function ItemSupportFields({ item }) {
