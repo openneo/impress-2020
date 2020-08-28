@@ -297,7 +297,7 @@ function PoseOption({ poseInfo, onChange, inputRef }) {
             ? // A lil debug output, so that we can quickly identify glitched
               // PetStates and manually mark them as glitched!
               window.location.hostname.includes("localhost") &&
-              `#${poseInfo.petStateId}`
+              `#${poseInfo.id}`
             : "Not modeled yet"
         }
         position="relative"
@@ -422,7 +422,6 @@ function usePoses(speciesId, colorId, selectedPose) {
 
       fragment PetAppearanceForPosePicker on PetAppearance {
         id
-        petStateId
         bodyId
         pose
         ...PetAppearanceForOutfitPreview

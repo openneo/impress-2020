@@ -97,7 +97,7 @@ const typeDefs = gql`
     bodyId: ID!
 
     layers: [AppearanceLayer!]!
-    petStateId: ID! # Convenience field for developers
+    petStateId: ID! # Deprecated, an alias for id
   }
 
   type ItemAppearance {
@@ -319,35 +319,30 @@ const resolvers = {
     },
   },
   PetAppearance: {
-    id: async ({ petStateId }, _, { petStateLoader, petTypeLoader }) => {
-      const petState = await petStateLoader.load(petStateId);
-      const petType = await petTypeLoader.load(petState.petTypeId);
-      const pose = getPoseFromPetState(petState);
-      return `${petType.speciesId}-${petType.colorId}-${pose}`;
-    },
-    color: async ({ petStateId }, _, { petStateLoader, petTypeLoader }) => {
-      const petState = await petStateLoader.load(petStateId);
+    color: async ({ id }, _, { petStateLoader, petTypeLoader }) => {
+      const petState = await petStateLoader.load(id);
       const petType = await petTypeLoader.load(petState.petTypeId);
       return { id: petType.colorId };
     },
-    species: async ({ petStateId }, _, { petStateLoader, petTypeLoader }) => {
-      const petState = await petStateLoader.load(petStateId);
+    species: async ({ id }, _, { petStateLoader, petTypeLoader }) => {
+      const petState = await petStateLoader.load(id);
       const petType = await petTypeLoader.load(petState.petTypeId);
       return { id: petType.speciesId };
     },
-    bodyId: async ({ petStateId }, _, { petStateLoader, petTypeLoader }) => {
-      const petState = await petStateLoader.load(petStateId);
+    bodyId: async ({ id }, _, { petStateLoader, petTypeLoader }) => {
+      const petState = await petStateLoader.load(id);
       const petType = await petTypeLoader.load(petState.petTypeId);
       return petType.bodyId;
     },
-    pose: async ({ petStateId }, _, { petStateLoader }) => {
-      const petState = await petStateLoader.load(petStateId);
+    pose: async ({ id }, _, { petStateLoader }) => {
+      const petState = await petStateLoader.load(id);
       return getPoseFromPetState(petState);
     },
-    layers: async ({ petStateId }, _, { petSwfAssetLoader }) => {
-      const swfAssets = await petSwfAssetLoader.load(petStateId);
+    layers: async ({ id }, _, { petSwfAssetLoader }) => {
+      const swfAssets = await petSwfAssetLoader.load(id);
       return swfAssets;
     },
+    petStateId: ({ id }) => id,
   },
   AppearanceLayer: {
     bodyId: async ({ id }, _, { swfAssetLoader }) => {
@@ -501,7 +496,7 @@ const resolvers = {
     },
     petAppearance: async ({ id }, _, { outfitLoader }) => {
       const outfit = await outfitLoader.load(id);
-      return { petStateId: outfit.petStateId };
+      return { id: outfit.petStateId };
     },
     wornItems: async ({ id }, _, { itemOutfitRelationshipsLoader }) => {
       const relationships = await itemOutfitRelationshipsLoader.load(id);
@@ -576,7 +571,7 @@ const resolvers = {
         return null;
       }
 
-      return { petStateId: petState.id };
+      return { id: petState.id };
     },
     petAppearances: async (
       _,
@@ -589,7 +584,7 @@ const resolvers = {
       });
       const petStates = await petStatesForPetTypeLoader.load(petType.id);
       petStates.sort((a, b) => a.id - b.id);
-      return petStates.map((petState) => ({ petStateId: petState.id }));
+      return petStates.map((petState) => ({ id: petState.id }));
     },
     outfit: (_, { id }) => ({ id }),
     petOnNeopetsDotCom: async (_, { petName }) => {
