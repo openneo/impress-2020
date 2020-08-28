@@ -48,4 +48,5 @@ const httpLink = createHttpLink({ uri: "/api/graphql" });
 export default new ApolloClient({
   link: persistedQueryLink.concat(httpLink),
   cache: new InMemoryCache({ typePolicies }),
+  connectToDevTools: true,
 });
