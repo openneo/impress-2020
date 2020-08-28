@@ -76,7 +76,7 @@ function ItemSupportDrawer({ item, isOpen, onClose }) {
           </DrawerHeader>
           <DrawerBody paddingBottom="5">
             <Metadata>
-              <MetadataLabel>DTI ID:</MetadataLabel>
+              <MetadataLabel>Item ID:</MetadataLabel>
               <MetadataValue>{item.id}</MetadataValue>
             </Metadata>
             <Stack spacing="8" marginTop="6">
