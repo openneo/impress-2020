@@ -76,6 +76,20 @@ function PosePickerSupport({
     { variables: { speciesId, colorId } }
   );
 
+  // Resize the Popover when we toggle loading state, because it probably will
+  // affect the content size.
+  //
+  // NOTE: This also triggers an additional necessary resize when the component
+  //       first mounts, because PosePicker lazy-loads it, so it actually
+  //       mounting affects size too.
+  React.useLayoutEffect(() => {
+    // HACK: To trigger a Popover resize, we simulate a window resize event,
+    //       because Popover listens for window resizes to reposition itself.
+    //       I've also filed an issue requesting an official API!
+    //       https://github.com/chakra-ui/chakra-ui/issues/1853
+    window.dispatchEvent(new Event("resize"));
+  }, [loading]);
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center">

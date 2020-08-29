@@ -68,6 +68,16 @@ function PosePicker({
     false
   );
 
+  // Resize the Popover when we toggle support mode, because it probably will
+  // affect the content size.
+  React.useLayoutEffect(() => {
+    // HACK: To trigger a Popover resize, we simulate a window resize event,
+    //       because Popover listens for window resizes to reposition itself.
+    //       I've also filed an issue requesting an official API!
+    //       https://github.com/chakra-ui/chakra-ui/issues/1853
+    window.dispatchEvent(new Event("resize"));
+  }, [isInSupportMode]);
+
   if (loading) {
     return null;
   }
@@ -141,7 +151,7 @@ function PosePicker({
           </PopoverTrigger>
           <Portal>
             <PopoverContent>
-              <Box p="4" position="relative" minWidth="200px" minHeight="150px">
+              <Box p="4" position="relative">
                 {isInSupportMode ? (
                   <PosePickerSupport
                     speciesId={speciesId}
