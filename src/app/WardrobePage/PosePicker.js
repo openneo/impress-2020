@@ -23,12 +23,14 @@ import {
 } from "../components/useOutfitAppearance";
 import { OutfitLayers } from "../components/OutfitPreview";
 import SupportOnly from "./support/SupportOnly";
+import useSupport from "./support/useSupport";
 import { useLocalStorage } from "../util";
 
 // From https://twemoji.twitter.com/, thank you!
 import twemojiSmile from "../../images/twemoji/smile.svg";
 import twemojiCry from "../../images/twemoji/cry.svg";
 import twemojiSick from "../../images/twemoji/sick.svg";
+import twemojiQuestion from "../../images/twemoji/question.svg";
 import twemojiMasc from "../../images/twemoji/masc.svg";
 import twemojiFem from "../../images/twemoji/fem.svg";
 
@@ -67,6 +69,7 @@ function PosePicker({
     "DTIPosePickerIsInSupportMode",
     false
   );
+  const { isSupportUser } = useSupport();
 
   // Resize the Popover when we toggle support mode, because it probably will
   // affect the content size.
@@ -89,10 +92,12 @@ function PosePicker({
   }
 
   // If there's only one pose anyway, don't bother showing a picker!
+  // (Unless we're Support, in which case we want the ability to pop it open to
+  // inspect and label the Unknown poses!)
   const numAvailablePoses = Object.values(poseInfos).filter(
     (p) => p.isAvailable
   ).length;
-  if (numAvailablePoses <= 1) {
+  if (numAvailablePoses <= 1 && !isSupportUser) {
     return null;
   }
 
@@ -147,6 +152,9 @@ function PosePicker({
               {getEmotion(pose) === "SICK" && (
                 <EmojiImage src={twemojiSick} alt="Choose a pose" />
               )}
+              {getEmotion(pose) === null && (
+                <EmojiImage src={twemojiQuestion} alt="Choose a pose" />
+              )}
             </Button>
           </PopoverTrigger>
           <Portal>
@@ -161,11 +169,28 @@ function PosePicker({
                     dispatchToOutfit={dispatchToOutfit}
                   />
                 ) : (
-                  <PosePickerTable
-                    poseInfos={poseInfos}
-                    onChange={onChange}
-                    checkedInputRef={checkedInputRef}
-                  />
+                  <>
+                    <PosePickerTable
+                      poseInfos={poseInfos}
+                      onChange={onChange}
+                      checkedInputRef={checkedInputRef}
+                    />
+                    {numAvailablePoses <= 1 && (
+                      <SupportOnly>
+                        <Box
+                          fontSize="xs"
+                          fontStyle="italic"
+                          textAlign="center"
+                          opacity="0.7"
+                          marginTop="2"
+                        >
+                          The empty picker is hidden for most users!
+                          <br />
+                          You can see it because you're a Support user.
+                        </Box>
+                      </SupportOnly>
+                    )}
+                  </>
                 )}
                 <SupportOnly>
                   <Box position="absolute" top="5" left="3">

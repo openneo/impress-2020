@@ -71,6 +71,13 @@ function PosePickerSupport({
         ) {
           id
         }
+        unknown: petAppearance(
+          speciesId: $speciesId
+          colorId: $colorId
+          pose: UNKNOWN
+        ) {
+          id
+        }
       }
     `,
     { variables: { speciesId, colorId } }
@@ -113,6 +120,7 @@ function PosePickerSupport({
     HAPPY_FEM: data.happyFem?.id,
     SAD_FEM: data.sadFem?.id,
     SICK_FEM: data.sickFem?.id,
+    UNKNOWN: data.unknown?.id,
   };
   const canonicalAppearanceIds = Object.values(
     canonicalAppearanceIdsByPose
