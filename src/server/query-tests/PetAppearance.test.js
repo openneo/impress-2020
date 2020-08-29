@@ -46,8 +46,8 @@ describe("PetAppearance", () => {
         ],
         Array [
           "SELECT * FROM pet_states
-             WHERE pet_type_id IN (?) AND glitched = 0
-             ORDER BY (mood_id = 1) DESC",
+             WHERE pet_type_id IN (?)
+             ORDER BY mood_id ASC, female DESC, id DESC",
           Array [
             "2",
           ],
@@ -142,8 +142,8 @@ describe("PetAppearance", () => {
         ],
         Array [
           "SELECT * FROM pet_states
-             WHERE pet_type_id IN (?) AND glitched = 0
-             ORDER BY (mood_id = 1) DESC",
+             WHERE pet_type_id IN (?)
+             ORDER BY mood_id ASC, female DESC, id DESC",
           Array [
             "2",
           ],
@@ -155,14 +155,14 @@ describe("PetAppearance", () => {
                rel.swf_asset_id = sa.id
              WHERE rel.parent_id IN (?,?,?,?,?,?,?,?)",
           Array [
-            "2",
-            "436",
             "4751",
-            "5991",
-            "10014",
-            "11089",
+            "2",
             "17723",
             "17742",
+            "5991",
+            "436",
+            "10014",
+            "11089",
           ],
         ],
         Array [
@@ -186,8 +186,8 @@ describe("PetAppearance", () => {
             "5",
             "37",
             "30",
-            "33",
             "34",
+            "33",
           ],
         ],
       ]

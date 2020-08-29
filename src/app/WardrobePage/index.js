@@ -87,6 +87,7 @@ function WardrobePage() {
                 speciesId={outfitState.speciesId}
                 colorId={outfitState.colorId}
                 pose={outfitState.pose}
+                appearanceId={outfitState.appearanceId}
                 wornItemIds={outfitState.wornItemIds}
               />
             </Box>

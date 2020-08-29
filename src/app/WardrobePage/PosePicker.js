@@ -23,6 +23,7 @@ import {
 } from "../components/useOutfitAppearance";
 import { OutfitLayers } from "../components/OutfitPreview";
 import SupportOnly from "./support/SupportOnly";
+import { useLocalStorage } from "../util";
 
 // From https://twemoji.twitter.com/, thank you!
 import twemojiSmile from "../../images/twemoji/smile.svg";
@@ -54,6 +55,7 @@ function PosePicker({
   speciesId,
   colorId,
   pose,
+  appearanceId,
   dispatchToOutfit,
   onLockFocus,
   onUnlockFocus,
@@ -61,7 +63,10 @@ function PosePicker({
   const theme = useTheme();
   const checkedInputRef = React.useRef();
   const { loading, error, poseInfos } = usePoses(speciesId, colorId, pose);
-  const [isInSupportMode, setIsInSupportMode] = React.useState(false);
+  const [isInSupportMode, setIsInSupportMode] = useLocalStorage(
+    "DTIPosePickerIsInSupportMode",
+    false
+  );
 
   if (loading) {
     return null;
@@ -136,12 +141,14 @@ function PosePicker({
           </PopoverTrigger>
           <Portal>
             <PopoverContent>
-              <Box p="4" position="relative">
+              <Box p="4" position="relative" minWidth="200px" minHeight="150px">
                 {isInSupportMode ? (
                   <PosePickerSupport
                     speciesId={speciesId}
                     colorId={colorId}
-                    onChange={onChange}
+                    pose={pose}
+                    appearanceId={appearanceId}
+                    dispatchToOutfit={dispatchToOutfit}
                   />
                 ) : (
                   <PosePickerTable

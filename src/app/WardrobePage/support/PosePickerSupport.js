@@ -3,21 +3,75 @@ import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
 import { Box, Select, Switch } from "@chakra-ui/core";
 
-import { petAppearanceFragment } from "../../components/useOutfitAppearance";
 import HangerSpinner from "../../components/HangerSpinner";
+import Metadata, { MetadataLabel, MetadataValue } from "./Metadata";
 
-function PosePickerSupport({ speciesId, colorId }) {
+function PosePickerSupport({
+  speciesId,
+  colorId,
+  pose,
+  appearanceId,
+  dispatchToOutfit,
+}) {
   const { loading, error, data } = useQuery(
     gql`
       query PosePickerSupport($speciesId: ID!, $colorId: ID!) {
         petAppearances(speciesId: $speciesId, colorId: $colorId) {
           id
-          bodyId
           pose
-          ...PetAppearanceForOutfitPreview
+          isGlitched
+          layers {
+            id
+            zone {
+              id
+              label
+            }
+          }
+        }
+
+        happyMasc: petAppearance(
+          speciesId: $speciesId
+          colorId: $colorId
+          pose: HAPPY_MASC
+        ) {
+          id
+        }
+        sadMasc: petAppearance(
+          speciesId: $speciesId
+          colorId: $colorId
+          pose: SAD_MASC
+        ) {
+          id
+        }
+        sickMasc: petAppearance(
+          speciesId: $speciesId
+          colorId: $colorId
+          pose: SICK_MASC
+        ) {
+          id
+        }
+        happyFem: petAppearance(
+          speciesId: $speciesId
+          colorId: $colorId
+          pose: HAPPY_FEM
+        ) {
+          id
+        }
+        sadFem: petAppearance(
+          speciesId: $speciesId
+          colorId: $colorId
+          pose: SAD_FEM
+        ) {
+          id
+        }
+        sickFem: petAppearance(
+          speciesId: $speciesId
+          colorId: $colorId
+          pose: SICK_FEM
+        ) {
+          id
         }
       }
-      ${petAppearanceFragment}
     `,
     { variables: { speciesId, colorId } }
   );
@@ -38,17 +92,102 @@ function PosePickerSupport({ speciesId, colorId }) {
     );
   }
 
+  const canonicalAppearanceIdsByPose = {
+    HAPPY_MASC: data.happyMasc?.id,
+    SAD_MASC: data.sadMasc?.id,
+    SICK_MASC: data.sickMasc?.id,
+    HAPPY_FEM: data.happyFem?.id,
+    SAD_FEM: data.sadFem?.id,
+    SICK_FEM: data.sickFem?.id,
+  };
+  const canonicalAppearanceIds = Object.values(
+    canonicalAppearanceIdsByPose
+  ).filter((id) => id);
+
+  if (!appearanceId) {
+    appearanceId = canonicalAppearanceIdsByPose[pose];
+  }
+
+  const currentPetAppearance = data.petAppearances.find(
+    (pa) => pa.id === appearanceId
+  );
+  if (!currentPetAppearance) {
+    return (
+      <Box color="red.400" marginTop="8">
+        Pet appearance with ID {JSON.stringify(appearanceId)} not found
+      </Box>
+    );
+  }
+
   return (
     <Box>
-      <Box display="flex" justifyContent="flex-end">
-        <Select size="sm" width="auto">
+      <Box display="flex" justifyContent="flex-end" marginBottom="4">
+        <Select
+          size="sm"
+          width="auto"
+          value={appearanceId}
+          onChange={(e) => {
+            const id = e.target.value;
+            const petAppearance = data.petAppearances.find(
+              (pa) => pa.id === id
+            );
+            dispatchToOutfit({
+              type: "setPose",
+              pose: petAppearance.pose,
+              appearanceId: petAppearance.id,
+            });
+          }}
+        >
           {data.petAppearances.map((pa) => (
-            <option key={pa.id}>
-              {POSE_NAMES[pa.pose]} ({pa.id})
+            <option key={pa.id} value={pa.id}>
+              {POSE_NAMES[pa.pose]} ({pa.id}){" "}
+              {canonicalAppearanceIds.includes(pa.id) && "⭐️"}
+              {pa.isGlitched && "👾"}
             </option>
           ))}
         </Select>
       </Box>
+      <Metadata>
+        <MetadataLabel>DTI ID:</MetadataLabel>
+        <MetadataValue>{appearanceId}</MetadataValue>
+        <MetadataLabel>Pose:</MetadataLabel>
+        <MetadataValue>
+          <Box display="flex" flexDirection="row" alignItems="center">
+            <Select
+              size="sm"
+              value={currentPetAppearance.pose}
+              flex="0 1 200px"
+              cursor="not-allowed"
+              isReadOnly
+            >
+              {Object.entries(POSE_NAMES).map(([pose, name]) => (
+                <option key={pose} value={pose}>
+                  {name}
+                </option>
+              ))}
+            </Select>
+            <Select
+              size="sm"
+              marginLeft="2"
+              flex="0 1 150px"
+              value={currentPetAppearance.isGlitched}
+              cursor="not-allowed"
+              isReadOnly
+            >
+              <option value="false">Usable</option>
+              <option value="true">Glitched</option>
+            </Select>
+          </Box>
+        </MetadataValue>
+        <MetadataLabel>Zones:</MetadataLabel>
+        <MetadataValue>
+          {currentPetAppearance.layers
+            .map((l) => l.zone)
+            .map((z) => `${z.label} (${z.id})`)
+            .sort()
+            .join(", ")}
+        </MetadataValue>
+      </Metadata>
     </Box>
   );
 }

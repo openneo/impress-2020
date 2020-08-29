@@ -7,7 +7,7 @@ import { useQuery } from "@apollo/client";
  * visibleLayers for rendering.
  */
 export default function useOutfitAppearance(outfitState) {
-  const { wornItemIds, speciesId, colorId, pose } = outfitState;
+  const { wornItemIds, speciesId, colorId, pose, appearanceId } = outfitState;
 
   // We split this query out from the other one, so that we can HTTP cache it.
   //
@@ -24,19 +24,37 @@ export default function useOutfitAppearance(outfitState) {
   // HomePage. At time of writing, Vercel isn't actually edge-caching these, I
   // assume because our traffic isn't enough - so let's keep an eye on this!
   const { loading: loading1, error: error1, data: data1 } = useQuery(
-    gql`
-      query OutfitPetAppearance($speciesId: ID!, $colorId: ID!, $pose: Pose!) {
-        petAppearance(speciesId: $speciesId, colorId: $colorId, pose: $pose) {
-          ...PetAppearanceForOutfitPreview
-        }
-      }
-      ${petAppearanceFragment}
-    `,
+    appearanceId == null
+      ? gql`
+          query OutfitPetAppearance(
+            $speciesId: ID!
+            $colorId: ID!
+            $pose: Pose!
+          ) {
+            petAppearance(
+              speciesId: $speciesId
+              colorId: $colorId
+              pose: $pose
+            ) {
+              ...PetAppearanceForOutfitPreview
+            }
+          }
+          ${petAppearanceFragment}
+        `
+      : gql`
+          query OutfitPetAppearanceById($appearanceId: ID!) {
+            petAppearance: petAppearanceById(id: $appearanceId) {
+              ...PetAppearanceForOutfitPreview
+            }
+          }
+          ${petAppearanceFragment}
+        `,
     {
       variables: {
         speciesId,
         colorId,
         pose,
+        appearanceId,
       },
       skip: speciesId == null || colorId == null || pose == null,
     }

@@ -25,6 +25,7 @@ function OutfitPreview({
   speciesId,
   colorId,
   pose,
+  appearanceId,
   wornItemIds,
   placeholder,
   loadingDelay,
@@ -33,6 +34,7 @@ function OutfitPreview({
     speciesId,
     colorId,
     pose,
+    appearanceId,
     wornItemIds,
   });
 

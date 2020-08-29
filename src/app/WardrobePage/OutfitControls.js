@@ -174,6 +174,7 @@ function OutfitControls({ outfitState, dispatchToOutfit }) {
             speciesId={outfitState.speciesId}
             colorId={outfitState.colorId}
             pose={outfitState.pose}
+            appearanceId={outfitState.appearanceId}
             dispatchToOutfit={dispatchToOutfit}
             onLockFocus={onLockFocus}
             onUnlockFocus={onUnlockFocus}

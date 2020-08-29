@@ -17,7 +17,7 @@ function useOutfitState() {
     initialState
   );
 
-  const { name, speciesId, colorId, pose } = state;
+  const { name, speciesId, colorId, pose, appearanceId } = state;
 
   // It's more convenient to manage these as a Set in state, but most callers
   // will find it more convenient to access them as arrays! e.g. for `.map()`
@@ -87,6 +87,7 @@ function useOutfitState() {
     speciesId,
     colorId,
     pose,
+    appearanceId,
     url,
   };
 
@@ -108,6 +109,7 @@ const outfitStateReducer = (apolloClient) => (baseState, action) => {
         speciesId: action.speciesId,
         colorId: action.colorId,
         pose: action.pose,
+        appearanceId: null,
       };
     case "wearItem":
       return produce(baseState, (state) => {
@@ -161,7 +163,15 @@ const outfitStateReducer = (apolloClient) => (baseState, action) => {
         closetedItemIds.delete(itemId);
       });
     case "setPose":
-      return { ...baseState, pose: action.pose };
+      return {
+        ...baseState,
+        pose: action.pose,
+
+        // Usually only the `pose` is specified, but `PosePickerSupport` can
+        // also specify a corresponding `appearanceId`, to get even more
+        // particular about which version of the pose to show if more than one.
+        appearanceId: action.appearanceId || null,
+      };
     case "reset":
       return produce(baseState, (state) => {
         const {
@@ -195,6 +205,7 @@ function parseOutfitUrl() {
     speciesId: urlParams.get("species"),
     colorId: urlParams.get("color"),
     pose: urlParams.get("pose") || "HAPPY_FEM",
+    appearanceId: urlParams.get("state") || null,
     wornItemIds: new Set(urlParams.getAll("objects[]")),
     closetedItemIds: new Set(urlParams.getAll("closet[]")),
   };
@@ -330,6 +341,7 @@ function buildOutfitUrl(state) {
     speciesId,
     colorId,
     pose,
+    appearanceId,
     wornItemIds,
     closetedItemIds,
   } = state;
@@ -345,6 +357,11 @@ function buildOutfitUrl(state) {
   }
   for (const itemId of closetedItemIds) {
     params.append("closet[]", itemId);
+  }
+  if (appearanceId != null) {
+    // `state` is an old name for compatibility with old-style DTI URLs. It
+    // refers to "PetState", the database table name for pet appearances.
+    params.append("state", appearanceId);
   }
 
   const { origin, pathname } = window.location;

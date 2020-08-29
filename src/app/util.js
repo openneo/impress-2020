@@ -159,3 +159,32 @@ export function useFetch(url, { responseType }) {
 
   return { loading, error, data };
 }
+
+/**
+ * useLocalStorage is like React.useState, but it persists the value in the
+ * device's `localStorage`, so it comes back even after reloading the page.
+ *
+ * Adapted from https://usehooks.com/useLocalStorage/.
+ */
+export function useLocalStorage(key, initialValue) {
+  const [storedValue, setStoredValue] = React.useState(() => {
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      console.log(error);
+      return initialValue;
+    }
+  });
+
+  const setValue = (value) => {
+    try {
+      setStoredValue(value);
+      window.localStorage.setItem(key, JSON.stringify(value));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return [storedValue, setValue];
+}

@@ -9205,6 +9205,14 @@ Object {
     },
     Object {
       "color": Object {
+        "id": "105",
+      },
+      "species": Object {
+        "id": "17",
+      },
+    },
+    Object {
+      "color": Object {
         "id": "106",
       },
       "species": Object {
@@ -17534,6 +17542,14 @@ Object {
     Object {
       "color": Object {
         "id": "106",
+      },
+      "species": Object {
+        "id": "33",
+      },
+    },
+    Object {
+      "color": Object {
+        "id": "112",
       },
       "species": Object {
         "id": "33",

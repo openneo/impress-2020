@@ -101,6 +101,10 @@ const typeDefs = gql`
 
     layers: [AppearanceLayer!]!
     petStateId: ID! # Deprecated, an alias for id
+    # Whether this PetAppearance is known to look incorrect. This is a manual
+    # flag that we set, in the case where this glitchy PetAppearance really did
+    # appear on Neopets.com, and has since been fixed.
+    isGlitched: Boolean!
   }
 
   type ItemAppearance {
@@ -210,10 +214,17 @@ const typeDefs = gql`
       offset: Int
       limit: Int
     ): ItemSearchResult!
+
+    petAppearanceById(id: ID!): PetAppearance @cacheControl(maxAge: 10800) # Cache for 3 hours (Support might edit!)
+    # The canonical pet appearance for the given species, color, and pose.
+    # Null if we don't have any data for this combination.
     petAppearance(speciesId: ID!, colorId: ID!, pose: Pose!): PetAppearance
-      @cacheControl(maxAge: 604800) # Cache for 1 week (unlikely to change)
+      @cacheControl(maxAge: 10800) # Cache for 3 hours (we might model more!)
+    # All pet appearances we've ever seen for the given species and color. Note
+    # that this might include multiple copies for the same pose, and they might
+    # even be glitched data. We use this for Support tools.
     petAppearances(speciesId: ID!, colorId: ID!): [PetAppearance!]!
-      @cacheControl(maxAge: 10800) # Cache for 3 hours (we might add more!)
+      @cacheControl(maxAge: 10800) # Cache for 3 hours (we might model more!)
     outfit(id: ID!): Outfit
 
     petOnNeopetsDotCom(petName: String!): Outfit
@@ -347,6 +358,10 @@ const resolvers = {
       return swfAssets;
     },
     petStateId: ({ id }) => id,
+    isGlitched: async ({ id }, _, { petStateLoader }) => {
+      const petState = await petStateLoader.load(id);
+      return petState.glitched;
+    },
   },
   AppearanceLayer: {
     bodyId: async ({ id }, _, { swfAssetLoader }) => {
@@ -558,6 +573,7 @@ const resolvers = {
       });
       return { query, items };
     },
+    petAppearanceById: (_, { id }) => ({ id }),
     petAppearance: async (
       _,
       { speciesId, colorId, pose },
@@ -568,9 +584,12 @@ const resolvers = {
         colorId,
       });
 
+      // TODO: We could query for this more directly, instead of loading all
+      //       appearances 🤔
       const petStates = await petStatesForPetTypeLoader.load(petType.id);
-      // TODO: This could be optimized into the query condition 🤔
-      const petState = petStates.find((ps) => getPoseFromPetState(ps) === pose);
+      const petState = petStates.find(
+        (ps) => getPoseFromPetState(ps) === pose && !ps.glitched
+      );
       if (!petState) {
         return null;
       }

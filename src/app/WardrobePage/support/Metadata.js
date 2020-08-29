@@ -5,7 +5,7 @@ import { Box } from "@chakra-ui/core";
  * Metadata is a UI component for showing metadata about something, as labels
  * and their values.
  */
-function Metadata({ children }) {
+function Metadata({ children, ...otherProps }) {
   return (
     <Box
       as="dl"

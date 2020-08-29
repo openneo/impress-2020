@@ -354,8 +354,8 @@ const buildPetStatesForPetTypeLoader = (db, loaders) =>
     const qs = petTypeIds.map((_) => "?").join(",");
     const [rows, _] = await db.execute(
       `SELECT * FROM pet_states
-       WHERE pet_type_id IN (${qs}) AND glitched = 0
-       ORDER BY (mood_id = 1) DESC, id`,
+       WHERE pet_type_id IN (${qs})
+       ORDER BY mood_id ASC, female DESC, id DESC`,
       petTypeIds
     );
 

@@ -420,11 +420,12 @@ function ItemSupportPetCompatibilityRuleFields({
  */
 function ItemSupportAppearanceLayers({ item }) {
   const outfitState = React.useContext(OutfitStateContext);
-  const { speciesId, colorId, pose } = outfitState;
+  const { speciesId, colorId, pose, appearanceId } = outfitState;
   const { error, visibleLayers } = useOutfitAppearance({
     speciesId,
     colorId,
     pose,
+    appearanceId,
     wornItemIds: [item.id],
   });
 
