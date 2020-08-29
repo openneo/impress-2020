@@ -21,6 +21,10 @@ const typePolicies = {
       item: (_, { args, toReference }) => {
         return toReference({ __typename: "Item", id: args.id }, true);
       },
+
+      petAppearanceById: (_, { args, toReference }) => {
+        return toReference({ __typename: "PetAppearance", id: args.id }, true);
+      },
     },
   },
 
