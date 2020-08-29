@@ -15,7 +15,7 @@ import {
 } from "@chakra-ui/core";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 
-import useSupportSecret from "./useSupportSecret";
+import useSupport from "./useSupport";
 
 /**
  * ItemLayerSupportUploadModal helps Support users create and upload PNGs for
@@ -36,7 +36,7 @@ function ItemLayerSupportUploadModal({ item, itemLayer, isOpen, onClose }) {
 
   const [conflictMode, setConflictMode] = React.useState("onBlack");
 
-  const supportSecret = useSupportSecret();
+  const { supportSecret } = useSupport();
   const toast = useToast();
   const apolloClient = useApolloClient();
 

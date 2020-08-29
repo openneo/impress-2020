@@ -32,7 +32,7 @@ import Metadata, { MetadataLabel, MetadataValue } from "./Metadata";
 import { OutfitLayers } from "../../components/OutfitPreview";
 import useOutfitAppearance from "../../components/useOutfitAppearance";
 import { OutfitStateContext } from "../useOutfitState";
-import useSupportSecret from "./useSupportSecret";
+import useSupport from "./useSupport";
 
 /**
  * ItemSupportDrawer shows Support UI for the item when open.
@@ -195,7 +195,7 @@ function ItemSupportSpecialColorFields({
   item,
   manualSpecialColor,
 }) {
-  const supportSecret = useSupportSecret();
+  const { supportSecret } = useSupport();
 
   const {
     loading: colorsLoading,
@@ -324,7 +324,7 @@ function ItemSupportPetCompatibilityRuleFields({
   item,
   explicitlyBodySpecific,
 }) {
-  const supportSecret = useSupportSecret();
+  const { supportSecret } = useSupport();
 
   const [
     mutate,

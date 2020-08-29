@@ -1,4 +1,4 @@
-import useSupportSecret from "./useSupportSecret";
+import useSupport from "./useSupport";
 
 /**
  * SupportOnly only shows its contents to Support users. For most users, the
@@ -12,8 +12,8 @@ import useSupportSecret from "./useSupportSecret";
  * the server checks the provided secret for each Support request.
  */
 function SupportOnly({ children }) {
-  const supportSecret = useSupportSecret();
-  return supportSecret ? children : null;
+  const { isSupportUser } = useSupport();
+  return isSupportUser ? children : null;
 }
 
 export default SupportOnly;

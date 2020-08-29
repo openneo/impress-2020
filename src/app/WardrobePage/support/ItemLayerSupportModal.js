@@ -31,7 +31,7 @@ import SpeciesColorPicker from "../../components/SpeciesColorPicker";
 import useOutfitAppearance, {
   itemAppearanceFragment,
 } from "../../components/useOutfitAppearance";
-import useSupportSecret from "./useSupportSecret";
+import useSupport from "./useSupport";
 
 /**
  * ItemLayerSupportModal offers Support info and tools for a specific item
@@ -52,7 +52,7 @@ function ItemLayerSupportModal({
     isValid: true,
   });
   const [uploadModalIsOpen, setUploadModalIsOpen] = React.useState(false);
-  const supportSecret = useSupportSecret();
+  const { supportSecret } = useSupport();
   const toast = useToast();
 
   const [
@@ -362,7 +362,7 @@ function ItemLayerSupportModalRemoveButton({
 }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
-  const supportSecret = useSupportSecret();
+  const { supportSecret } = useSupport();
 
   const [mutate, { loading, error }] = useMutation(
     gql`
