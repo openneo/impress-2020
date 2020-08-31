@@ -267,6 +267,12 @@ const typeDefs = gql`
       pose: Pose!
       supportSecret: String!
     ): PetAppearance!
+
+    setPetAppearanceIsGlitched(
+      appearanceId: ID!
+      isGlitched: Boolean!
+      supportSecret: String!
+    ): PetAppearance!
   }
 `;
 
@@ -1007,6 +1013,91 @@ const resolvers = {
                   {
                     name: `Appearance ${appearanceId}: Pose`,
                     value: `${getPoseName(oldPose)} → **${getPoseName(pose)}**`,
+                  },
+                  {
+                    name: "As a reminder…",
+                    value: "…the thumbnail might not match!",
+                  },
+                ],
+                timestamp: new Date().toISOString(),
+                url: `https://impress-2020.openneo.net/outfits/new?species=${petType.speciesId}&color=${petType.colorId}&pose=${pose}&state=${appearanceId}`,
+              },
+            ],
+          });
+        } catch (e) {
+          console.error("Error sending Discord support log", e);
+        }
+      } else {
+        console.warn("No Discord support webhook provided, skipping");
+      }
+
+      return { id: appearanceId };
+    },
+
+    setPetAppearanceIsGlitched: async (
+      _,
+      { appearanceId, isGlitched, supportSecret },
+      {
+        colorTranslationLoader,
+        speciesTranslationLoader,
+        petStateLoader,
+        petTypeLoader,
+        db,
+      }
+    ) => {
+      if (supportSecret !== process.env["SUPPORT_SECRET"]) {
+        throw new Error(`Support secret is incorrect. Try setting up again?`);
+      }
+
+      const oldPetState = await petStateLoader.load(appearanceId);
+
+      const [
+        result,
+      ] = await db.execute(
+        `UPDATE pet_states SET glitched = ? WHERE id = ? LIMIT 1`,
+        [isGlitched, appearanceId]
+      );
+
+      if (result.affectedRows !== 1) {
+        throw new Error(
+          `Expected to affect 1 layer, but affected ${result.affectedRows}`
+        );
+      }
+
+      // we changed it, so clear it from cache
+      petStateLoader.clear(appearanceId);
+
+      if (process.env["SUPPORT_TOOLS_DISCORD_WEBHOOK_URL"]) {
+        try {
+          const petType = await petTypeLoader.load(oldPetState.petTypeId);
+          const [colorTranslation, speciesTranslation] = await Promise.all([
+            colorTranslationLoader.load(petType.colorId),
+            speciesTranslationLoader.load(petType.speciesId),
+          ]);
+
+          const colorName = capitalize(colorTranslation.name);
+          const speciesName = capitalize(speciesTranslation.name);
+
+          const pose = getPoseFromPetState(oldPetState);
+          const oldGlitchinessState =
+            String(oldPetState.glitched) === "1" ? "Glitched" : "Valid";
+          const newGlitchinessState = isGlitched ? "Glitched" : "Valid";
+
+          await logToDiscord({
+            embeds: [
+              {
+                title: `🛠 ${colorName} ${speciesName}`,
+                thumbnail: {
+                  url: `http://pets.neopets.com/cp/${
+                    petType.basicImageHash || petType.imageHash
+                  }/1/6.png`,
+                  height: 150,
+                  width: 150,
+                },
+                fields: [
+                  {
+                    name: `Appearance ${appearanceId}`,
+                    value: `${oldGlitchinessState} → **${newGlitchinessState}**`,
                   },
                   {
                     name: "As a reminder…",

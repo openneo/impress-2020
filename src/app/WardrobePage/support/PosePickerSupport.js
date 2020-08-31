@@ -213,7 +213,7 @@ function PosePickerSupportNavigator({
 function PosePickerSupportPoseFields({ petAppearance, speciesId, colorId }) {
   const { supportSecret } = useSupport();
 
-  const [mutate, { loading, error, data }] = useMutation(
+  const [mutatePose, poseMutation] = useMutation(
     gql`
       mutation PosePickerSupportSetPetAppearancePose(
         $appearanceId: ID!
@@ -248,6 +248,41 @@ function PosePickerSupportPoseFields({ petAppearance, speciesId, colorId }) {
     }
   );
 
+  const [mutateIsGlitched, isGlitchedMutation] = useMutation(
+    gql`
+      mutation PosePickerSupportSetPetAppearanceIsGlitched(
+        $appearanceId: ID!
+        $isGlitched: Boolean!
+        $supportSecret: String!
+      ) {
+        setPetAppearanceIsGlitched(
+          appearanceId: $appearanceId
+          isGlitched: $isGlitched
+          supportSecret: $supportSecret
+        ) {
+          id
+          isGlitched
+        }
+      }
+    `,
+    {
+      refetchQueries: [
+        {
+          query: gql`
+            query PosePickerSupportRefetchCanonicalAppearances(
+              $speciesId: ID!
+              $colorId: ID!
+            ) {
+              ...CanonicalPetAppearances
+            }
+            ${canonicalPetAppearancesFragment}
+          `,
+          variables: { speciesId, colorId },
+        },
+      ],
+    }
+  );
+
   return (
     <Box>
       <Box display="flex" flexDirection="row" alignItems="center">
@@ -255,10 +290,16 @@ function PosePickerSupportPoseFields({ petAppearance, speciesId, colorId }) {
           size="sm"
           value={petAppearance.pose}
           flex="0 1 200px"
-          icon={loading ? <Spinner /> : data ? <CheckCircleIcon /> : undefined}
+          icon={
+            poseMutation.loading ? (
+              <Spinner />
+            ) : poseMutation.data ? (
+              <CheckCircleIcon />
+            ) : undefined
+          }
           onChange={(e) => {
             const pose = e.target.value;
-            mutate({
+            mutatePose({
               variables: {
                 appearanceId: petAppearance.id,
                 pose,
@@ -276,7 +317,7 @@ function PosePickerSupportPoseFields({ petAppearance, speciesId, colorId }) {
               /* Discard errors here; we'll show them in the UI! */
             });
           }}
-          isInvalid={error != null}
+          isInvalid={poseMutation.error != null}
         >
           {Object.entries(POSE_NAMES).map(([pose, name]) => (
             <option key={pose} value={pose}>
@@ -289,14 +330,45 @@ function PosePickerSupportPoseFields({ petAppearance, speciesId, colorId }) {
           marginLeft="2"
           flex="0 1 150px"
           value={petAppearance.isGlitched}
-          cursor="not-allowed"
-          isReadOnly
+          icon={
+            isGlitchedMutation.loading ? (
+              <Spinner />
+            ) : isGlitchedMutation.data ? (
+              <CheckCircleIcon />
+            ) : undefined
+          }
+          onChange={(e) => {
+            const isGlitched = e.target.value === "true";
+            mutateIsGlitched({
+              variables: {
+                appearanceId: petAppearance.id,
+                isGlitched,
+                supportSecret,
+              },
+              optimisticResponse: {
+                __typename: "Mutation",
+                setPetAppearanceIsGlitched: {
+                  __typename: "PetAppearance",
+                  id: petAppearance.id,
+                  isGlitched,
+                },
+              },
+            }).catch((e) => {
+              /* Discard errors here; we'll show them in the UI! */
+            });
+          }}
+          isInvalid={isGlitchedMutation.error != null}
         >
           <option value="false">Valid</option>
           <option value="true">Glitched</option>
         </Select>
       </Box>
-      {error && <Box color="red.400">{error.message}</Box>}
+      {poseMutation.error && (
+        <Box color="red.400">{poseMutation.error.message}</Box>
+      )}
+      {isGlitchedMutation.error && (
+        <Box color="red.400">{isGlitchedMutation.error.message}</Box>
+      )}
     </Box>
   );
 }
