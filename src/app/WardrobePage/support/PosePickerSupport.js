@@ -43,7 +43,8 @@ function PosePickerSupport({
   );
 
   // Resize the Popover when we toggle loading state, because it probably will
-  // affect the content size.
+  // affect the content size. appearanceId might also affect content size, if
+  // it occupies different zones.
   //
   // NOTE: This also triggers an additional necessary resize when the component
   //       first mounts, because PosePicker lazy-loads it, so it actually
@@ -54,7 +55,7 @@ function PosePickerSupport({
     //       I've also filed an issue requesting an official API!
     //       https://github.com/chakra-ui/chakra-ui/issues/1853
     window.dispatchEvent(new Event("resize"));
-  }, [loading]);
+  }, [loading, appearanceId]);
 
   if (loading) {
     return (
