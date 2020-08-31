@@ -356,7 +356,7 @@ const buildPetStatesForPetTypeLoader = (db, loaders) =>
       `SELECT * FROM pet_states
        WHERE pet_type_id IN (${qs})
        ORDER BY (mood_id IS NULL) ASC, mood_id ASC, female DESC,
-                unconverted DESC, id DESC`,
+                unconverted DESC, glitched ASC, id DESC`,
       petTypeIds
     );
 

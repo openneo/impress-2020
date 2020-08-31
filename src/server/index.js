@@ -595,9 +595,7 @@ const resolvers = {
       // TODO: We could query for this more directly, instead of loading all
       //       appearances 🤔
       const petStates = await petStatesForPetTypeLoader.load(petType.id);
-      const petState = petStates.find(
-        (ps) => getPoseFromPetState(ps) === pose && !ps.glitched
-      );
+      const petState = petStates.find((ps) => getPoseFromPetState(ps) === pose);
       if (!petState) {
         return null;
       }
