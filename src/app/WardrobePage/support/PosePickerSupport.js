@@ -1,7 +1,8 @@
 import React from "react";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
-import { Box, Select, Switch } from "@chakra-ui/core";
+import { Box, IconButton, Select, Switch } from "@chakra-ui/core";
+import { ArrowBackIcon, ArrowForwardIcon } from "@chakra-ui/icons";
 
 import HangerSpinner from "../../components/HangerSpinner";
 import Metadata, { MetadataLabel, MetadataValue } from "./Metadata";
@@ -143,33 +144,13 @@ function PosePickerSupport({
 
   return (
     <Box>
-      <Box display="flex" justifyContent="flex-end" marginBottom="4">
-        <Select
-          size="sm"
-          width="auto"
-          value={appearanceId}
-          onChange={(e) => {
-            const id = e.target.value;
-            const petAppearance = data.petAppearances.find(
-              (pa) => pa.id === id
-            );
-            dispatchToOutfit({
-              type: "setPose",
-              pose: petAppearance.pose,
-              appearanceId: petAppearance.id,
-            });
-          }}
-        >
-          {data.petAppearances.map((pa) => (
-            <option key={pa.id} value={pa.id}>
-              {POSE_NAMES[pa.pose]} ({pa.id}){" "}
-              {canonicalAppearanceIds.includes(pa.id) && "⭐️"}
-              {pa.isGlitched && "👾"}
-            </option>
-          ))}
-        </Select>
-      </Box>
-      <Metadata>
+      <PosePickerSupportNavigator
+        petAppearances={data.petAppearances}
+        currentPetAppearance={currentPetAppearance}
+        canonicalAppearanceIds={canonicalAppearanceIds}
+        dispatchToOutfit={dispatchToOutfit}
+      />
+      <Metadata fontSize="sm">
         <MetadataLabel>DTI ID:</MetadataLabel>
         <MetadataValue>{appearanceId}</MetadataValue>
         <MetadataLabel>Pose:</MetadataLabel>
@@ -210,6 +191,78 @@ function PosePickerSupport({
             .join(", ")}
         </MetadataValue>
       </Metadata>
+    </Box>
+  );
+}
+
+function PosePickerSupportNavigator({
+  petAppearances,
+  currentPetAppearance,
+  canonicalAppearanceIds,
+  dispatchToOutfit,
+}) {
+  const currentIndex = petAppearances.indexOf(currentPetAppearance);
+  const prevPetAppearance = petAppearances[currentIndex - 1];
+  const nextPetAppearance = petAppearances[currentIndex + 1];
+
+  return (
+    <Box
+      display="flex"
+      justifyContent="flex-end"
+      marginBottom="4"
+      // Space for the position-absolute PosePicker mode switcher
+      paddingLeft="12"
+    >
+      <IconButton
+        aria-label="Go to previous appearance"
+        icon={<ArrowBackIcon />}
+        size="sm"
+        marginRight="2"
+        isDisabled={prevPetAppearance == null}
+        onClick={() =>
+          dispatchToOutfit({
+            type: "setPose",
+            pose: prevPetAppearance.pose,
+            appearanceId: prevPetAppearance.id,
+          })
+        }
+      />
+      <Select
+        size="sm"
+        width="auto"
+        value={currentPetAppearance.id}
+        onChange={(e) => {
+          const id = e.target.value;
+          const petAppearance = petAppearances.find((pa) => pa.id === id);
+          dispatchToOutfit({
+            type: "setPose",
+            pose: petAppearance.pose,
+            appearanceId: petAppearance.id,
+          });
+        }}
+      >
+        {petAppearances.map((pa) => (
+          <option key={pa.id} value={pa.id}>
+            {POSE_NAMES[pa.pose]}{" "}
+            {canonicalAppearanceIds.includes(pa.id) && "⭐️"}
+            {pa.isGlitched && "👾"} ({pa.id})
+          </option>
+        ))}
+      </Select>
+      <IconButton
+        aria-label="Go to next appearance"
+        icon={<ArrowForwardIcon />}
+        size="sm"
+        marginLeft="2"
+        isDisabled={nextPetAppearance == null}
+        onClick={() =>
+          dispatchToOutfit({
+            type: "setPose",
+            pose: nextPetAppearance.pose,
+            appearanceId: nextPetAppearance.id,
+          })
+        }
+      />
     </Box>
   );
 }

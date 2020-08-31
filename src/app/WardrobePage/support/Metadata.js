@@ -13,6 +13,7 @@ function Metadata({ children, ...otherProps }) {
       gridTemplateColumns="max-content auto"
       gridRowGap="1"
       gridColumnGap="2"
+      {...otherProps}
     >
       {children}
     </Box>
