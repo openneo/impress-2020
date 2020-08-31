@@ -74,9 +74,9 @@ function getPetStateFieldsFromPose(pose) {
   } else if (pose === "SAD_FEM") {
     return { moodId: "2", female: true, unconverted: false };
   } else if (pose === "SICK_MASC") {
-    return { moodId: "3", female: false, unconverted: false };
+    return { moodId: "4", female: false, unconverted: false };
   } else if (pose === "SICK_FEM") {
-    return { moodId: "3", female: true, unconverted: false };
+    return { moodId: "4", female: true, unconverted: false };
   } else {
     throw new Error(`unexpected pose ${pose}`);
   }
