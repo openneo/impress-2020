@@ -224,9 +224,11 @@ const typeDefs = gql`
       @cacheControl(maxAge: 10800) # Cache for 3 hours (we might model more!)
     # All pet appearances we've ever seen for the given species and color. Note
     # that this might include multiple copies for the same pose, and they might
-    # even be glitched data. We use this for Support tools.
+    # even be glitched data. We use this for Support tools, and we don't cache
+    # it to make sure that Support users are always seeing the most up-to-date
+    # version here (even if the standard pose picker is still showing outdated
+    # cached canonical poses).
     petAppearances(speciesId: ID!, colorId: ID!): [PetAppearance!]!
-      @cacheControl(maxAge: 10800) # Cache for 3 hours (we might model more!)
     outfit(id: ID!): Outfit
 
     petOnNeopetsDotCom(petName: String!): Outfit
