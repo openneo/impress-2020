@@ -1,11 +1,16 @@
 import React from "react";
 import gql from "graphql-tag";
-import { useQuery } from "@apollo/client";
-import { Box, IconButton, Select, Switch } from "@chakra-ui/core";
-import { ArrowBackIcon, ArrowForwardIcon } from "@chakra-ui/icons";
+import { useMutation, useQuery } from "@apollo/client";
+import { Box, IconButton, Select, Spinner, Switch } from "@chakra-ui/core";
+import {
+  ArrowBackIcon,
+  ArrowForwardIcon,
+  CheckCircleIcon,
+} from "@chakra-ui/icons";
 
 import HangerSpinner from "../../components/HangerSpinner";
 import Metadata, { MetadataLabel, MetadataValue } from "./Metadata";
+import useSupport from "./useSupport";
 
 function PosePickerSupport({
   speciesId,
@@ -30,56 +35,9 @@ function PosePickerSupport({
           }
         }
 
-        happyMasc: petAppearance(
-          speciesId: $speciesId
-          colorId: $colorId
-          pose: HAPPY_MASC
-        ) {
-          id
-        }
-        sadMasc: petAppearance(
-          speciesId: $speciesId
-          colorId: $colorId
-          pose: SAD_MASC
-        ) {
-          id
-        }
-        sickMasc: petAppearance(
-          speciesId: $speciesId
-          colorId: $colorId
-          pose: SICK_MASC
-        ) {
-          id
-        }
-        happyFem: petAppearance(
-          speciesId: $speciesId
-          colorId: $colorId
-          pose: HAPPY_FEM
-        ) {
-          id
-        }
-        sadFem: petAppearance(
-          speciesId: $speciesId
-          colorId: $colorId
-          pose: SAD_FEM
-        ) {
-          id
-        }
-        sickFem: petAppearance(
-          speciesId: $speciesId
-          colorId: $colorId
-          pose: SICK_FEM
-        ) {
-          id
-        }
-        unknown: petAppearance(
-          speciesId: $speciesId
-          colorId: $colorId
-          pose: UNKNOWN
-        ) {
-          id
-        }
+        ...CanonicalPetAppearances
       }
+      ${canonicalPetAppearancesFragment}
     `,
     { variables: { speciesId, colorId } }
   );
@@ -121,6 +79,7 @@ function PosePickerSupport({
     HAPPY_FEM: data.happyFem?.id,
     SAD_FEM: data.sadFem?.id,
     SICK_FEM: data.sickFem?.id,
+    UNCONVERTED: data.unconverted?.id,
     UNKNOWN: data.unknown?.id,
   };
   const canonicalAppearanceIds = Object.values(
@@ -150,37 +109,21 @@ function PosePickerSupport({
         canonicalAppearanceIds={canonicalAppearanceIds}
         dispatchToOutfit={dispatchToOutfit}
       />
-      <Metadata fontSize="sm">
+      <Metadata
+        fontSize="sm"
+        // Build a new copy of this tree when the appearance changes, to reset
+        // things like element focus and mutation state!
+        key={currentPetAppearance.id}
+      >
         <MetadataLabel>DTI ID:</MetadataLabel>
         <MetadataValue>{appearanceId}</MetadataValue>
         <MetadataLabel>Pose:</MetadataLabel>
         <MetadataValue>
-          <Box display="flex" flexDirection="row" alignItems="center">
-            <Select
-              size="sm"
-              value={currentPetAppearance.pose}
-              flex="0 1 200px"
-              cursor="not-allowed"
-              isReadOnly
-            >
-              {Object.entries(POSE_NAMES).map(([pose, name]) => (
-                <option key={pose} value={pose}>
-                  {name}
-                </option>
-              ))}
-            </Select>
-            <Select
-              size="sm"
-              marginLeft="2"
-              flex="0 1 150px"
-              value={currentPetAppearance.isGlitched}
-              cursor="not-allowed"
-              isReadOnly
-            >
-              <option value="false">Usable</option>
-              <option value="true">Glitched</option>
-            </Select>
-          </Box>
+          <PosePickerSupportPoseFields
+            petAppearance={currentPetAppearance}
+            speciesId={speciesId}
+            colorId={colorId}
+          />
         </MetadataValue>
         <MetadataLabel>Zones:</MetadataLabel>
         <MetadataValue>
@@ -267,6 +210,97 @@ function PosePickerSupportNavigator({
   );
 }
 
+function PosePickerSupportPoseFields({ petAppearance, speciesId, colorId }) {
+  const { supportSecret } = useSupport();
+
+  const [mutate, { loading, error, data }] = useMutation(
+    gql`
+      mutation PosePickerSupportSetPetAppearancePose(
+        $appearanceId: ID!
+        $pose: Pose!
+        $supportSecret: String!
+      ) {
+        setPetAppearancePose(
+          appearanceId: $appearanceId
+          pose: $pose
+          supportSecret: $supportSecret
+        ) {
+          id
+          pose
+        }
+      }
+    `,
+    {
+      refetchQueries: [
+        {
+          query: gql`
+            query PosePickerSupportRefetchCanonicalAppearances(
+              $speciesId: ID!
+              $colorId: ID!
+            ) {
+              ...CanonicalPetAppearances
+            }
+            ${canonicalPetAppearancesFragment}
+          `,
+          variables: { speciesId, colorId },
+        },
+      ],
+    }
+  );
+
+  return (
+    <Box>
+      <Box display="flex" flexDirection="row" alignItems="center">
+        <Select
+          size="sm"
+          value={petAppearance.pose}
+          flex="0 1 200px"
+          icon={loading ? <Spinner /> : data ? <CheckCircleIcon /> : undefined}
+          onChange={(e) => {
+            const pose = e.target.value;
+            mutate({
+              variables: {
+                appearanceId: petAppearance.id,
+                pose,
+                supportSecret,
+              },
+              optimisticResponse: {
+                __typename: "Mutation",
+                setPetAppearancePose: {
+                  __typename: "PetAppearance",
+                  id: petAppearance.id,
+                  pose,
+                },
+              },
+            }).catch((e) => {
+              /* Discard errors here; we'll show them in the UI! */
+            });
+          }}
+          isInvalid={error != null}
+        >
+          {Object.entries(POSE_NAMES).map(([pose, name]) => (
+            <option key={pose} value={pose}>
+              {name}
+            </option>
+          ))}
+        </Select>
+        <Select
+          size="sm"
+          marginLeft="2"
+          flex="0 1 150px"
+          value={petAppearance.isGlitched}
+          cursor="not-allowed"
+          isReadOnly
+        >
+          <option value="false">Valid</option>
+          <option value="true">Glitched</option>
+        </Select>
+      </Box>
+      {error && <Box color="red.400">{error.message}</Box>}
+    </Box>
+  );
+}
+
 export function PosePickerSupportSwitch({ isChecked, onChange }) {
   return (
     <Box as="label" display="flex" flexDirection="row" alignItems="center">
@@ -296,5 +330,73 @@ const POSE_NAMES = {
   UNCONVERTED: "Unconverted",
   UNKNOWN: "Unknown",
 };
+
+const canonicalPetAppearancesFragment = gql`
+  fragment CanonicalPetAppearances on Query {
+    happyMasc: petAppearance(
+      speciesId: $speciesId
+      colorId: $colorId
+      pose: HAPPY_MASC
+    ) {
+      id
+    }
+
+    sadMasc: petAppearance(
+      speciesId: $speciesId
+      colorId: $colorId
+      pose: SAD_MASC
+    ) {
+      id
+    }
+
+    sickMasc: petAppearance(
+      speciesId: $speciesId
+      colorId: $colorId
+      pose: SICK_MASC
+    ) {
+      id
+    }
+
+    happyFem: petAppearance(
+      speciesId: $speciesId
+      colorId: $colorId
+      pose: HAPPY_FEM
+    ) {
+      id
+    }
+
+    sadFem: petAppearance(
+      speciesId: $speciesId
+      colorId: $colorId
+      pose: SAD_FEM
+    ) {
+      id
+    }
+
+    sickFem: petAppearance(
+      speciesId: $speciesId
+      colorId: $colorId
+      pose: SICK_FEM
+    ) {
+      id
+    }
+
+    unconverted: petAppearance(
+      speciesId: $speciesId
+      colorId: $colorId
+      pose: UNCONVERTED
+    ) {
+      id
+    }
+
+    unknown: petAppearance(
+      speciesId: $speciesId
+      colorId: $colorId
+      pose: UNKNOWN
+    ) {
+      id
+    }
+  }
+`;
 
 export default PosePickerSupport;

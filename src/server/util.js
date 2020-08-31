@@ -21,9 +21,9 @@ function getEmotion(pose) {
 
 function getGenderPresentation(pose) {
   if (["HAPPY_MASC", "SAD_MASC", "SICK_MASC"].includes(pose)) {
-    return "MASCULINE";
+    return "MASC";
   } else if (["HAPPY_FEM", "SAD_FEM", "SICK_FEM"].includes(pose)) {
-    return "MASCULINE";
+    return "FEM";
   } else if (["UNCONVERTED", "UNKNOWN"].includes(pose)) {
     return null;
   } else {
@@ -60,6 +60,28 @@ function getPoseFromPetState(petState) {
   }
 }
 
+function getPetStateFieldsFromPose(pose) {
+  if (pose === "UNCONVERTED") {
+    return { moodId: null, female: null, unconverted: true };
+  } else if (pose === "UNKNOWN") {
+    return { moodId: null, female: null, unconverted: false };
+  } else if (pose === "HAPPY_MASC") {
+    return { moodId: "1", female: false, unconverted: false };
+  } else if (pose === "HAPPY_FEM") {
+    return { moodId: "1", female: true, unconverted: false };
+  } else if (pose === "SAD_MASC") {
+    return { moodId: "2", female: false, unconverted: false };
+  } else if (pose === "SAD_FEM") {
+    return { moodId: "2", female: true, unconverted: false };
+  } else if (pose === "SICK_MASC") {
+    return { moodId: "3", female: false, unconverted: false };
+  } else if (pose === "SICK_FEM") {
+    return { moodId: "3", female: true, unconverted: false };
+  } else {
+    throw new Error(`unexpected pose ${pose}`);
+  }
+}
+
 function getPoseFromPetData(petMetaData, petCustomData) {
   // TODO: Use custom data to decide if Unconverted.
   const moodId = petMetaData.mood;
@@ -83,6 +105,21 @@ function getPoseFromPetData(petMetaData, petCustomData) {
         `genderId=${genderId}`
     );
   }
+}
+
+const POSE_NAMES = {
+  HAPPY_MASC: "Happy Masc",
+  SAD_MASC: "Sad Masc",
+  SICK_MASC: "Sick Masc",
+  HAPPY_FEM: "Happy Fem",
+  SAD_FEM: "Sad Fem",
+  SICK_FEM: "Sick Fem",
+  UNCONVERTED: "Unconverted",
+  UNKNOWN: "Unknown",
+};
+
+function getPoseName(pose) {
+  return POSE_NAMES[pose];
 }
 
 async function loadBodyName(bodyId, db) {
@@ -148,7 +185,9 @@ module.exports = {
   getEmotion,
   getGenderPresentation,
   getPoseFromPetState,
+  getPetStateFieldsFromPose,
   getPoseFromPetData,
+  getPoseName,
   loadBodyName,
   logToDiscord,
   normalizeRow,
