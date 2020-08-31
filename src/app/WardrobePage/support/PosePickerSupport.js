@@ -17,6 +17,7 @@ function PosePickerSupport({
   colorId,
   pose,
   appearanceId,
+  initialFocusRef,
   dispatchToOutfit,
 }) {
   const { loading, error, data } = useQuery(
@@ -108,6 +109,7 @@ function PosePickerSupport({
         petAppearances={data.petAppearances}
         currentPetAppearance={currentPetAppearance}
         canonicalAppearanceIds={canonicalAppearanceIds}
+        dropdownRef={initialFocusRef}
         dispatchToOutfit={dispatchToOutfit}
       />
       <Metadata
@@ -143,6 +145,7 @@ function PosePickerSupportNavigator({
   petAppearances,
   currentPetAppearance,
   canonicalAppearanceIds,
+  dropdownRef,
   dispatchToOutfit,
 }) {
   const currentIndex = petAppearances.indexOf(currentPetAppearance);
@@ -175,6 +178,7 @@ function PosePickerSupportNavigator({
         size="sm"
         width="auto"
         value={currentPetAppearance.id}
+        ref={dropdownRef}
         onChange={(e) => {
           const id = e.target.value;
           const petAppearance = petAppearances.find((pa) => pa.id === id);

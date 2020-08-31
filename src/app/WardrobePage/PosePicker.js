@@ -63,7 +63,7 @@ function PosePicker({
   onUnlockFocus,
 }) {
   const theme = useTheme();
-  const checkedInputRef = React.useRef();
+  const initialFocusRef = React.useRef();
   const { loading, error, poseInfos } = usePoses(speciesId, colorId, pose);
   const [isInSupportMode, setIsInSupportMode] = useLocalStorage(
     "DTIPosePickerIsInSupportMode",
@@ -111,7 +111,7 @@ function PosePicker({
       returnFocusOnClose
       onOpen={onLockFocus}
       onClose={onUnlockFocus}
-      initialFocusRef={checkedInputRef}
+      initialFocusRef={initialFocusRef}
     >
       {({ isOpen }) => (
         <>
@@ -166,6 +166,7 @@ function PosePicker({
                     colorId={colorId}
                     pose={pose}
                     appearanceId={appearanceId}
+                    initialFocusRef={initialFocusRef}
                     dispatchToOutfit={dispatchToOutfit}
                   />
                 ) : (
@@ -173,7 +174,7 @@ function PosePicker({
                     <PosePickerTable
                       poseInfos={poseInfos}
                       onChange={onChange}
-                      checkedInputRef={checkedInputRef}
+                      initialFocusRef={initialFocusRef}
                     />
                     {numAvailablePoses <= 1 && (
                       <SupportOnly>
@@ -210,7 +211,7 @@ function PosePicker({
   );
 }
 
-function PosePickerTable({ poseInfos, onChange, checkedInputRef }) {
+function PosePickerTable({ poseInfos, onChange, initialFocusRef }) {
   return (
     <table width="100%">
       <thead>
@@ -236,21 +237,21 @@ function PosePickerTable({ poseInfos, onChange, checkedInputRef }) {
             <PoseOption
               poseInfo={poseInfos.happyMasc}
               onChange={onChange}
-              inputRef={poseInfos.happyMasc.isSelected && checkedInputRef}
+              inputRef={poseInfos.happyMasc.isSelected && initialFocusRef}
             />
           </Cell>
           <Cell as="td">
             <PoseOption
               poseInfo={poseInfos.sadMasc}
               onChange={onChange}
-              inputRef={poseInfos.sadMasc.isSelected && checkedInputRef}
+              inputRef={poseInfos.sadMasc.isSelected && initialFocusRef}
             />
           </Cell>
           <Cell as="td">
             <PoseOption
               poseInfo={poseInfos.sickMasc}
               onChange={onChange}
-              inputRef={poseInfos.sickMasc.isSelected && checkedInputRef}
+              inputRef={poseInfos.sickMasc.isSelected && initialFocusRef}
             />
           </Cell>
         </tr>
@@ -262,21 +263,21 @@ function PosePickerTable({ poseInfos, onChange, checkedInputRef }) {
             <PoseOption
               poseInfo={poseInfos.happyFem}
               onChange={onChange}
-              inputRef={poseInfos.happyFem.isSelected && checkedInputRef}
+              inputRef={poseInfos.happyFem.isSelected && initialFocusRef}
             />
           </Cell>
           <Cell as="td">
             <PoseOption
               poseInfo={poseInfos.sadFem}
               onChange={onChange}
-              inputRef={poseInfos.sadFem.isSelected && checkedInputRef}
+              inputRef={poseInfos.sadFem.isSelected && initialFocusRef}
             />
           </Cell>
           <Cell as="td">
             <PoseOption
               poseInfo={poseInfos.sickFem}
               onChange={onChange}
-              inputRef={poseInfos.sickFem.isSelected && checkedInputRef}
+              inputRef={poseInfos.sickFem.isSelected && initialFocusRef}
             />
           </Cell>
         </tr>
