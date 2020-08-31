@@ -1099,10 +1099,6 @@ const resolvers = {
                     name: `Appearance ${appearanceId}`,
                     value: `${oldGlitchinessState} → **${newGlitchinessState}**`,
                   },
-                  {
-                    name: "As a reminder…",
-                    value: "…the thumbnail might not match!",
-                  },
                 ],
                 timestamp: new Date().toISOString(),
                 url: `https://impress-2020.openneo.net/outfits/new?species=${petType.speciesId}&color=${petType.colorId}&pose=${pose}&state=${appearanceId}`,
