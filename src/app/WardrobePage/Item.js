@@ -415,7 +415,7 @@ function ZoneBadge({ variant, zoneLabel }) {
       >
         <Badge>
           <Box display="flex" alignItems="center">
-            <NotAllowedIcon marginRight="1" /> {shorthand}
+            {shorthand} <NotAllowedIcon marginLeft="1" />
           </Box>
         </Badge>
       </ItemBadgeTooltip>
