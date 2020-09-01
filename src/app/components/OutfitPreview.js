@@ -77,8 +77,8 @@ export function OutfitLayers({
   doAnimations = false,
 }) {
   const [isMounted, setIsMounted] = React.useState(false);
-  React.useEffect(() => {
-    setTimeout(() => setIsMounted(true), 0);
+  React.useLayoutEffect(() => {
+    setIsMounted(true);
   }, []);
 
   return (
@@ -158,7 +158,8 @@ export function OutfitLayers({
           </CSSTransition>
         ))}
       </TransitionGroup>
-      <Box
+      <FullScreenCenter
+        zIndex="9000"
         // This is similar to our Delay util component, but Delay disappears
         // immediately on load, whereas we want this to fade out smoothly. We
         // also delay the fade-in by 0.5s, but don't delay the fade-out at all.
@@ -169,23 +170,22 @@ export function OutfitLayers({
         opacity={isMounted && loading ? 1 : 0}
         transition={`opacity 0.2s ${loading ? loadingDelay : "0s"}`}
       >
-        <FullScreenCenter zIndex="9000">
-          <Box
-            width="100%"
-            height="100%"
-            backgroundColor="gray.900"
-            opacity="0.8"
-          />
-        </FullScreenCenter>
-        <FullScreenCenter zIndex="9001">
-          <HangerSpinner boxSize="48px" />
-        </FullScreenCenter>
-      </Box>
+        <Box
+          position="absolute"
+          top="0"
+          left="0"
+          right="0"
+          bottom="0"
+          backgroundColor="gray.900"
+          opacity="0.7"
+        />
+        <HangerSpinner boxSize="48px" />
+      </FullScreenCenter>
     </Box>
   );
 }
 
-export function FullScreenCenter({ children, zIndex }) {
+export function FullScreenCenter({ children, ...otherProps }) {
   return (
     <Flex
       pos="absolute"
@@ -195,7 +195,7 @@ export function FullScreenCenter({ children, zIndex }) {
       left="0"
       alignItems="center"
       justifyContent="center"
-      zIndex={zIndex}
+      {...otherProps}
     >
       {children}
     </Flex>
