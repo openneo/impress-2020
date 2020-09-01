@@ -2,6 +2,48 @@ const gql = require("graphql-tag");
 const { query, getDbCalls } = require("./setup.js");
 
 describe("Color", () => {
+  it("loads a single color", async () => {
+    const res = await query({
+      query: gql`
+        query {
+          color(id: "8") {
+            id
+            name
+            isStandard
+          }
+        }
+      `,
+    });
+
+    expect(res).toHaveNoErrors();
+    expect(res.data).toMatchInlineSnapshot(`
+      Object {
+        "color": Object {
+          "id": "8",
+          "isStandard": true,
+          "name": "Blue",
+        },
+      }
+    `);
+    expect(getDbCalls()).toMatchInlineSnapshot(`
+      Array [
+        Array [
+          "SELECT * FROM colors WHERE id IN (?) AND prank = 0",
+          Array [
+            "8",
+          ],
+        ],
+        Array [
+          "SELECT * FROM color_translations
+             WHERE color_id IN (?) AND locale = \\"en\\"",
+          Array [
+            "8",
+          ],
+        ],
+      ]
+    `);
+  });
+
   it("loads all colors", async () => {
     const res = await query({
       query: gql`

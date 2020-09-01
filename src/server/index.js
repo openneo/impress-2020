@@ -182,6 +182,11 @@ const typeDefs = gql`
   type Species @cacheControl(maxAge: 604800) {
     id: ID!
     name: String!
+
+    # The bodyId for PetAppearances that use this species and a standard color.
+    # We use this to preload the standard body IDs, so that items stay when
+    # switching between standard colors.
+    standardBodyId: ID!
   }
 
   type SpeciesColorPair {
@@ -230,6 +235,9 @@ const typeDefs = gql`
     # cached canonical poses).
     petAppearances(speciesId: ID!, colorId: ID!): [PetAppearance!]!
     outfit(id: ID!): Outfit
+
+    color(id: ID!): Color
+    species(id: ID!): Species
 
     petOnNeopetsDotCom(petName: String!): Outfit
   }
@@ -523,6 +531,13 @@ const resolvers = {
       const speciesTranslation = await speciesTranslationLoader.load(id);
       return capitalize(speciesTranslation.name);
     },
+    standardBodyId: async ({ id }, _, { petTypeBySpeciesAndColorLoader }) => {
+      const petType = await petTypeBySpeciesAndColorLoader.load({
+        speciesId: id,
+        colorId: "8", // Blue
+      });
+      return petType.bodyId;
+    },
   },
   Outfit: {
     name: async ({ id }, _, { outfitLoader }) => {
@@ -551,8 +566,8 @@ const resolvers = {
       const allColors = await colorLoader.loadAll();
       return allColors;
     },
-    allSpecies: async (_, { ids }, { loadAllSpecies }) => {
-      const allSpecies = await loadAllSpecies();
+    allSpecies: async (_, { ids }, { speciesLoader }) => {
+      const allSpecies = await speciesLoader.loadAll();
       return allSpecies;
     },
     allValidSpeciesColorPairs: async (_, __, { loadAllPetTypes }) => {
@@ -644,6 +659,20 @@ const resolvers = {
         })),
       };
       return outfit;
+    },
+    color: async (_, { id }, { colorLoader }) => {
+      const color = await colorLoader.load(id);
+      if (!color) {
+        return null;
+      }
+      return { id };
+    },
+    species: async (_, { id }, { speciesLoader }) => {
+      const species = await speciesLoader.load(id);
+      if (!species) {
+        return null;
+      }
+      return { id };
     },
   },
   Mutation: {

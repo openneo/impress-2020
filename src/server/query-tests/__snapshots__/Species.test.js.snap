@@ -6,222 +6,277 @@ Object {
     Object {
       "id": "1",
       "name": "Acara",
+      "standardBodyId": "93",
     },
     Object {
       "id": "2",
       "name": "Aisha",
+      "standardBodyId": "106",
     },
     Object {
       "id": "3",
       "name": "Blumaroo",
+      "standardBodyId": "47",
     },
     Object {
       "id": "4",
       "name": "Bori",
+      "standardBodyId": "84",
     },
     Object {
       "id": "5",
       "name": "Bruce",
+      "standardBodyId": "146",
     },
     Object {
       "id": "6",
       "name": "Buzz",
+      "standardBodyId": "250",
     },
     Object {
       "id": "7",
       "name": "Chia",
+      "standardBodyId": "212",
     },
     Object {
       "id": "8",
       "name": "Chomby",
+      "standardBodyId": "74",
     },
     Object {
       "id": "9",
       "name": "Cybunny",
+      "standardBodyId": "94",
     },
     Object {
       "id": "10",
       "name": "Draik",
+      "standardBodyId": "132",
     },
     Object {
       "id": "11",
       "name": "Elephante",
+      "standardBodyId": "56",
     },
     Object {
       "id": "12",
       "name": "Eyrie",
+      "standardBodyId": "90",
     },
     Object {
       "id": "13",
       "name": "Flotsam",
+      "standardBodyId": "136",
     },
     Object {
       "id": "14",
       "name": "Gelert",
+      "standardBodyId": "138",
     },
     Object {
       "id": "15",
       "name": "Gnorbu",
+      "standardBodyId": "166",
     },
     Object {
       "id": "16",
       "name": "Grarrl",
+      "standardBodyId": "119",
     },
     Object {
       "id": "17",
       "name": "Grundo",
+      "standardBodyId": "126",
     },
     Object {
       "id": "18",
       "name": "Hissi",
+      "standardBodyId": "67",
     },
     Object {
       "id": "19",
       "name": "Ixi",
+      "standardBodyId": "163",
     },
     Object {
       "id": "20",
       "name": "Jetsam",
+      "standardBodyId": "147",
     },
     Object {
       "id": "21",
       "name": "Jubjub",
+      "standardBodyId": "80",
     },
     Object {
       "id": "22",
       "name": "Kacheek",
+      "standardBodyId": "117",
     },
     Object {
       "id": "23",
       "name": "Kau",
+      "standardBodyId": "201",
     },
     Object {
       "id": "24",
       "name": "Kiko",
+      "standardBodyId": "51",
     },
     Object {
       "id": "25",
       "name": "Koi",
+      "standardBodyId": "208",
     },
     Object {
       "id": "26",
       "name": "Korbat",
+      "standardBodyId": "196",
     },
     Object {
       "id": "27",
       "name": "Kougra",
+      "standardBodyId": "143",
     },
     Object {
       "id": "28",
       "name": "Krawk",
+      "standardBodyId": "150",
     },
     Object {
       "id": "29",
       "name": "Kyrii",
+      "standardBodyId": "175",
     },
     Object {
       "id": "30",
       "name": "Lenny",
+      "standardBodyId": "173",
     },
     Object {
       "id": "31",
       "name": "Lupe",
+      "standardBodyId": "199",
     },
     Object {
       "id": "32",
       "name": "Lutari",
+      "standardBodyId": "52",
     },
     Object {
       "id": "33",
       "name": "Meerca",
+      "standardBodyId": "109",
     },
     Object {
       "id": "34",
       "name": "Moehog",
+      "standardBodyId": "134",
     },
     Object {
       "id": "35",
       "name": "Mynci",
+      "standardBodyId": "95",
     },
     Object {
       "id": "36",
       "name": "Nimmo",
+      "standardBodyId": "96",
     },
     Object {
       "id": "37",
       "name": "Ogrin",
+      "standardBodyId": "154",
     },
     Object {
       "id": "38",
       "name": "Peophin",
+      "standardBodyId": "55",
     },
     Object {
       "id": "39",
       "name": "Poogle",
+      "standardBodyId": "76",
     },
     Object {
       "id": "40",
       "name": "Pteri",
+      "standardBodyId": "156",
     },
     Object {
       "id": "41",
       "name": "Quiggle",
+      "standardBodyId": "78",
     },
     Object {
       "id": "42",
       "name": "Ruki",
+      "standardBodyId": "191",
     },
     Object {
       "id": "43",
       "name": "Scorchio",
+      "standardBodyId": "187",
     },
     Object {
       "id": "44",
       "name": "Shoyru",
+      "standardBodyId": "46",
     },
     Object {
       "id": "45",
       "name": "Skeith",
+      "standardBodyId": "178",
     },
     Object {
       "id": "46",
       "name": "Techo",
+      "standardBodyId": "100",
     },
     Object {
       "id": "47",
       "name": "Tonu",
+      "standardBodyId": "130",
     },
     Object {
       "id": "48",
       "name": "Tuskaninny",
+      "standardBodyId": "188",
     },
     Object {
       "id": "49",
       "name": "Uni",
+      "standardBodyId": "257",
     },
     Object {
       "id": "50",
       "name": "Usul",
+      "standardBodyId": "206",
     },
     Object {
       "id": "51",
       "name": "Wocky",
+      "standardBodyId": "101",
     },
     Object {
       "id": "52",
       "name": "Xweetok",
+      "standardBodyId": "68",
     },
     Object {
       "id": "53",
       "name": "Yurble",
+      "standardBodyId": "182",
     },
     Object {
       "id": "54",
       "name": "Zafara",
+      "standardBodyId": "180",
     },
     Object {
       "id": "55",
       "name": "Vandagyre",
+      "standardBodyId": "306",
     },
   ],
 }

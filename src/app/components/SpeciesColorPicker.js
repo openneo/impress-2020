@@ -32,12 +32,13 @@ function SpeciesColorPicker({
       allSpecies {
         id
         name
+        standardBodyId # Used for keeping items on during standard color changes
       }
 
       allColors {
         id
         name
-        isStandard # Not used here, but helpful for caching!
+        isStandard # Used for keeping items on during standard color changes
       }
     }
   `);

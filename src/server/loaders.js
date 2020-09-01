@@ -52,10 +52,36 @@ const buildColorTranslationLoader = (db) =>
     );
   });
 
-const loadAllSpecies = (db) => async () => {
-  const [rows, _] = await db.execute(`SELECT * FROM species`);
-  const entities = rows.map(normalizeRow);
-  return entities;
+const buildSpeciesLoader = (db) => {
+  const speciesLoader = new DataLoader(async (speciesIds) => {
+    const qs = speciesIds.map((_) => "?").join(",");
+    const [rows, _] = await db.execute(
+      `SELECT * FROM species WHERE id IN (${qs})`,
+      speciesIds
+    );
+
+    const entities = rows.map(normalizeRow);
+    const entitiesBySpeciesId = new Map(entities.map((e) => [e.id, e]));
+
+    return speciesIds.map(
+      (speciesId) =>
+        entitiesBySpeciesId.get(String(speciesId)) ||
+        new Error(`could not find color ${speciesId}`)
+    );
+  });
+
+  speciesLoader.loadAll = async () => {
+    const [rows, _] = await db.execute(`SELECT * FROM species`);
+    const entities = rows.map(normalizeRow);
+
+    for (const species of entities) {
+      speciesLoader.prime(species.id, species);
+    }
+
+    return entities;
+  };
+
+  return speciesLoader;
 };
 
 const buildSpeciesTranslationLoader = (db) =>
@@ -409,7 +435,6 @@ const buildZoneTranslationLoader = (db) =>
 
 function buildLoaders(db) {
   const loaders = {};
-  loaders.loadAllSpecies = loadAllSpecies(db);
   loaders.loadAllPetTypes = loadAllPetTypes(db);
 
   loaders.colorLoader = buildColorLoader(db);
@@ -435,6 +460,7 @@ function buildLoaders(db) {
     db,
     loaders
   );
+  loaders.speciesLoader = buildSpeciesLoader(db);
   loaders.speciesTranslationLoader = buildSpeciesTranslationLoader(db);
   loaders.zoneLoader = buildZoneLoader(db);
   loaders.zoneTranslationLoader = buildZoneTranslationLoader(db);
