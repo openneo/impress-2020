@@ -122,6 +122,16 @@ function getPoseName(pose) {
   return POSE_NAMES[pose];
 }
 
+function getRestrictedZoneIds(zonesRestrict) {
+  const restrictedZoneIds = [];
+  for (const [i, bit] of Array.from(zonesRestrict).entries()) {
+    if (bit === "1") {
+      restrictedZoneIds.push(i + 1);
+    }
+  }
+  return restrictedZoneIds;
+}
+
 async function loadBodyName(bodyId, db) {
   if (String(bodyId) === "0") {
     return "All bodies";
@@ -188,6 +198,7 @@ module.exports = {
   getPetStateFieldsFromPose,
   getPoseFromPetData,
   getPoseName,
+  getRestrictedZoneIds,
   loadBodyName,
   logToDiscord,
   normalizeRow,

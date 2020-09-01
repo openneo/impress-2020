@@ -12,6 +12,7 @@ const {
   getEmotion,
   getGenderPresentation,
   getPoseName,
+  getRestrictedZoneIds,
   loadBodyName,
   logToDiscord,
   normalizeRow,
@@ -102,6 +103,7 @@ const typeDefs = gql`
     bodyId: ID!
 
     layers: [AppearanceLayer!]!
+
     petStateId: ID! # Deprecated, an alias for id
     # Whether this PetAppearance is known to look incorrect. This is a manual
     # flag that we set, in the case where this glitchy PetAppearance really did
@@ -157,6 +159,14 @@ const typeDefs = gql`
     The item this layer is for, if any. (For pet layers, this is null.)
     """
     item: Item
+
+    """
+    The zones that this layer restricts, if any. Note that, for item layers,
+    this is generally empty and the restriction is on the ItemAppearance, not
+    the individual layers. For pet layers, this is generally used for
+    Unconverted pets.
+    """
+    restrictedZones: [Zone!]!
   }
 
   # Cache for 1 week (unlikely to change)
@@ -347,14 +357,7 @@ const resolvers = {
     },
     restrictedZones: async ({ item: { id: itemId } }, _, { itemLoader }) => {
       const item = await itemLoader.load(itemId);
-      const restrictedZones = [];
-      for (const [i, bit] of Array.from(item.zonesRestrict).entries()) {
-        if (bit === "1") {
-          const zone = { id: i + 1 };
-          restrictedZones.push(zone);
-        }
-      }
-      return restrictedZones;
+      return getRestrictedZoneIds(item.zonesRestrict).map((id) => ({ id }));
     },
   },
   PetAppearance: {
@@ -399,6 +402,10 @@ const resolvers = {
     zone: async ({ id }, _, { swfAssetLoader, zoneLoader }) => {
       const layer = await swfAssetLoader.load(id);
       return { id: layer.zoneId };
+    },
+    restrictedZones: async ({ id }, _, { swfAssetLoader }) => {
+      const layer = await swfAssetLoader.load(id);
+      return getRestrictedZoneIds(layer.zonesRestrict).map((id) => ({ id }));
     },
     swfUrl: async ({ id }, _, { swfAssetLoader }) => {
       const layer = await swfAssetLoader.load(id);
