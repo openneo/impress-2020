@@ -57,14 +57,10 @@ function Item({ item, itemNameId, isWorn, isInOutfit, dispatchToOutfit }) {
           flexDirection="row"
           alignItems="center"
         >
-          <ItemName id={itemNameId} isWorn={isWorn}>
+          <ItemName id={itemNameId} isWorn={isWorn} marginRight="2">
             {item.name}
           </ItemName>
-          {item.isNc && (
-            <Badge colorScheme="cyan" marginLeft="2">
-              NC
-            </Badge>
-          )}
+          {item.isNc && <Badge colorScheme="cyan">NC</Badge>}
         </Box>
         <Box flex="0 0 auto">
           <SupportOnly>
