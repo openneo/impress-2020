@@ -31,7 +31,7 @@ function PosePickerSupport({
             id
             zone {
               id
-              label
+              label @client
             }
           }
         }
