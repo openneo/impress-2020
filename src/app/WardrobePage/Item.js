@@ -9,6 +9,7 @@ import {
   Skeleton,
   Tooltip,
   Wrap,
+  useColorMode,
   useColorModeValue,
   useTheme,
 } from "@chakra-ui/core";
@@ -73,6 +74,7 @@ function Item({
           <ItemThumbnail
             src={safeImageUrl(item.thumbnailUrl)}
             isWorn={isWorn}
+            isNc={item.isNc}
           />
         </Box>
         <Box flex="1 1 0" minWidth="0">
@@ -107,7 +109,6 @@ function Item({
                   </Badge>
                 </Tooltip>
               ))}
-            {item.isNc && <Badge colorScheme="cyan">NC</Badge>}
           </Wrap>
         </Box>
         <Box flex="0 0 auto">
@@ -228,39 +229,35 @@ function ItemContainer({ children, isFocusable = true }) {
  * ItemThumbnail shows a small preview image for the item, including some
  * hover/focus and worn/unworn states.
  */
-function ItemThumbnail({ src, isWorn }) {
+function ItemThumbnail({ src, isWorn, isNc }) {
   const theme = useTheme();
+  const colorMode = useColorMode();
 
   const borderColor = useColorModeValue(
-    theme.colors.green["700"],
+    isNc ? theme.colors.purple["700"] : theme.colors.green["700"],
     "transparent"
   );
 
   const focusBorderColor = useColorModeValue(
-    theme.colors.green["600"],
+    isNc ? theme.colors.purple["600"] : theme.colors.green["600"],
     "transparent"
   );
 
   return (
     <Box
-      borderRadius="lg"
-      boxShadow="md"
-      border="1px"
       width="50px"
       height="50px"
-      overflow="hidden"
       transition="all 0.15s"
       transformOrigin="center"
+      position="relative"
       className={css([
         {
-          borderColor: `${borderColor} !important`,
           transform: "scale(0.8)",
         },
         !isWorn && {
           [containerHasFocus]: {
             opacity: "0.9",
             transform: "scale(0.9)",
-            borderColor: `${focusBorderColor} !important`,
           },
         },
         isWorn && {
@@ -269,7 +266,41 @@ function ItemThumbnail({ src, isWorn }) {
         },
       ])}
     >
-      <Image src={src} alt="" />
+      <Box
+        borderRadius="lg"
+        boxShadow="md"
+        border="1px"
+        overflow="hidden"
+        width="100%"
+        height="100%"
+        className={css([
+          {
+            borderColor: `${borderColor} !important`,
+          },
+          !isWorn && {
+            [containerHasFocus]: {
+              borderColor: `${focusBorderColor} !important`,
+            },
+          },
+        ])}
+      >
+        <Image width="100%" height="100%" src={src} alt="" />
+      </Box>
+      {isNc && (
+        <Badge
+          position="absolute"
+          top="-4px"
+          left="-6px"
+          colorScheme="purple"
+          boxShadow="sm"
+          fontSize="11px"
+          // Dark mode's default theme has a transparent background for badges.
+          // I want an opaque background!
+          backgroundColor={colorMode === "dark" ? "purple.700" : undefined}
+        >
+          NC
+        </Badge>
+      )}
     </Box>
   );
 }
