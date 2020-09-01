@@ -232,7 +232,23 @@ export function usePreloadLayers(layers) {
   const [error, setError] = React.useState(null);
   const [loadedLayers, setLoadedLayers] = React.useState([]);
 
+  // NOTE: This condition would need to change if we started loading one at a
+  // time, or if the error case would need to show a partial state!
+  const loading = loadedLayers !== layers;
+
   React.useEffect(() => {
+    // HACK: Don't clear the preview when we have zero layers, because it
+    // usually means the parent is still loading data. I feel like this isn't
+    // the right abstraction, though...
+    if (loadedLayers.length > 0 && layers.length === 0) {
+      return;
+    }
+
+    // If the layers already match, we can ignore extra effect triggers.
+    if (!loading) {
+      return;
+    }
+
     let canceled = false;
     setError(null);
 
@@ -258,11 +274,7 @@ export function usePreloadLayers(layers) {
     return () => {
       canceled = true;
     };
-  }, [layers]);
-
-  // NOTE: This condition would need to change if we started loading one at a
-  // time, or if the error case would need to show a partial state!
-  const loading = loadedLayers !== layers;
+  }, [layers, loadedLayers.length]);
 
   return { loading, error, loadedLayers };
 }
