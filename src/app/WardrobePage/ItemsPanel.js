@@ -123,7 +123,6 @@ function ItemZoneGroup({ zoneLabel, items, outfitState, dispatchToOutfit }) {
                     isWorn={outfitState.wornItemIds.includes(item.id)}
                     isInOutfit={outfitState.allItemIds.includes(item.id)}
                     dispatchToOutfit={dispatchToOutfit}
-                    hideSimpleZones
                   />
                 </label>
               </CSSTransition>

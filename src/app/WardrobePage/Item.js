@@ -62,10 +62,6 @@ function Item({
   const restrictedZoneLabels = getZoneLabels(
     item.appearanceOn.restrictedZones.filter((z) => z.isCommonlyUsedByItems)
   );
-  const zonesAreSimple =
-    occupiedZoneLabels.length <= 1 && restrictedZoneLabels.length === 0;
-  const shouldHideZones = hideSimpleZones && zonesAreSimple;
-  const shouldShowZones = !shouldHideZones;
 
   return (
     <>
@@ -84,35 +80,39 @@ function Item({
             {item.isNc ? (
               <Badge colorScheme="purple">NC</Badge>
             ) : (
+              // The main purpose of the NP badge is alignment: if there are
+              // zone badges, we want them to start at the same rough position,
+              // even if there's an NC badge at the start. But if this view
+              // generally avoids zone badges, we'd rather have the NC badge be
+              // a little extra that might pop up and hide the NP case, rather
+              // than try to line things up like a table.
               <Badge>NP</Badge>
             )}
-            {shouldShowZones &&
-              occupiedZoneLabels.map((zoneLabel) => (
-                <Badge key={zoneLabel}>{getZoneShorthand(zoneLabel)}</Badge>
-              ))}
-            {shouldShowZones &&
-              restrictedZoneLabels.map((zoneLabel) => (
-                <Tooltip
-                  label={
-                    <Box textAlign="center">
-                      Restricted: This isn't a {zoneLabel} item, but you can't
-                      wear {zoneLabel} items with it
-                    </Box>
-                  }
-                  placement="top"
-                  openDelay={250}
+            {occupiedZoneLabels.map((zoneLabel) => (
+              <Badge key={zoneLabel}>{getZoneShorthand(zoneLabel)}</Badge>
+            ))}
+            {restrictedZoneLabels.map((zoneLabel) => (
+              <Tooltip
+                label={
+                  <Box textAlign="center">
+                    Restricted: This isn't a {zoneLabel} item, but you can't
+                    wear {zoneLabel} items with it
+                  </Box>
+                }
+                placement="top"
+                openDelay={250}
+              >
+                <Badge
+                  key={zoneLabel}
+                  display="flex"
+                  flexDirection="row"
+                  alignItems="center"
                 >
-                  <Badge
-                    key={zoneLabel}
-                    display="flex"
-                    flexDirection="row"
-                    alignItems="center"
-                  >
-                    {getZoneShorthand(zoneLabel)}
-                    <NotAllowedIcon marginLeft="1" />
-                  </Badge>
-                </Tooltip>
-              ))}
+                  {getZoneShorthand(zoneLabel)}
+                  <NotAllowedIcon marginLeft="1" />
+                </Badge>
+              </Tooltip>
+            ))}
           </Wrap>
         </Box>
         <Box flex="0 0 auto">
