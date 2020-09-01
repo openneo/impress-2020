@@ -78,7 +78,9 @@ function Item({
           </ItemName>
           <Wrap spacing="2" marginTop="1" opacity="0.7">
             {item.isNc ? (
-              <Badge colorScheme="purple">NC</Badge>
+              <ItemBadgeTooltip label="Neocash">
+                <Badge colorScheme="purple">NC</Badge>
+              </ItemBadgeTooltip>
             ) : (
               // The main purpose of the NP badge is alignment: if there are
               // zone badges, we want them to start at the same rough position,
@@ -86,32 +88,15 @@ function Item({
               // generally avoids zone badges, we'd rather have the NC badge be
               // a little extra that might pop up and hide the NP case, rather
               // than try to line things up like a table.
-              <Badge>NP</Badge>
+              <ItemBadgeTooltip label="Neopoints">
+                <Badge>NP</Badge>
+              </ItemBadgeTooltip>
             )}
             {occupiedZoneLabels.map((zoneLabel) => (
-              <Badge key={zoneLabel}>{getZoneShorthand(zoneLabel)}</Badge>
+              <ZoneBadge variant="occupies" zoneLabel={zoneLabel} />
             ))}
             {restrictedZoneLabels.map((zoneLabel) => (
-              <Tooltip
-                label={
-                  <Box textAlign="center">
-                    Restricted: This isn't a {zoneLabel} item, but you can't
-                    wear {zoneLabel} items with it
-                  </Box>
-                }
-                placement="top"
-                openDelay={250}
-              >
-                <Badge
-                  key={zoneLabel}
-                  display="flex"
-                  flexDirection="row"
-                  alignItems="center"
-                >
-                  {getZoneShorthand(zoneLabel)}
-                  <NotAllowedIcon marginLeft="1" />
-                </Badge>
-              </Tooltip>
+              <ZoneBadge variant="restricts" zoneLabel={zoneLabel} />
             ))}
           </Wrap>
         </Box>
@@ -413,18 +398,51 @@ function getZoneLabels(zones) {
   return labels;
 }
 
-/**
- * getZoneShorthand returns a potentially shortened version of the zone label,
- * to make the Item badges a bit less bulky!
- */
-function getZoneShorthand(zoneLabel) {
-  return zoneLabel
+function ZoneBadge({ variant, zoneLabel }) {
+  // Shorten the label when necessary, to make the badges less bulky
+  const shorthand = zoneLabel
     .replace("Background Item", "BG Item")
     .replace("Foreground Item", "FG Item")
     .replace("Lower-body", "Lower")
     .replace("Upper-body", "Upper")
     .replace("Transient", "Trans")
     .replace("Biology", "Bio");
+
+  if (variant === "restricts") {
+    return (
+      <ItemBadgeTooltip
+        label={`Restricted: This item can't be worn with ${zoneLabel} items`}
+      >
+        <Badge>
+          <Box display="flex" alignItems="center">
+            <NotAllowedIcon marginRight="1" /> {shorthand}
+          </Box>
+        </Badge>
+      </ItemBadgeTooltip>
+    );
+  }
+
+  if (shorthand !== zoneLabel) {
+    return (
+      <ItemBadgeTooltip label={zoneLabel}>
+        <Badge>{shorthand}</Badge>
+      </ItemBadgeTooltip>
+    );
+  }
+
+  return <Badge>{shorthand}</Badge>;
+}
+
+function ItemBadgeTooltip({ label, children }) {
+  return (
+    <Tooltip
+      label={<Box textAlign="center">{label}</Box>}
+      placement="top"
+      openDelay={400}
+    >
+      {children}
+    </Tooltip>
+  );
 }
 
 /**
