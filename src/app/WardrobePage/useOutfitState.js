@@ -37,6 +37,7 @@ function useOutfitState() {
           id
           name
           thumbnailUrl
+          isNc
 
           appearanceOn(speciesId: $speciesId, colorId: $colorId) {
             # This enables us to quickly show the item when the user clicks it!

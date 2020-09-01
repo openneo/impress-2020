@@ -1,6 +1,7 @@
 import React from "react";
 import { css, cx } from "emotion";
 import {
+  Badge,
   Box,
   Flex,
   IconButton,
@@ -50,10 +51,20 @@ function Item({ item, itemNameId, isWorn, isInOutfit, dispatchToOutfit }) {
             isWorn={isWorn}
           />
         </Box>
-        <Box flex="1 1 auto">
+        <Box
+          flex="1 1 auto"
+          display="flex"
+          flexDirection="row"
+          alignItems="center"
+        >
           <ItemName id={itemNameId} isWorn={isWorn}>
             {item.name}
           </ItemName>
+          {item.isNc && (
+            <Badge colorScheme="cyan" marginLeft="2">
+              NC
+            </Badge>
+          )}
         </Box>
         <Box flex="0 0 auto">
           <SupportOnly>
