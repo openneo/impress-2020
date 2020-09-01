@@ -80,6 +80,6 @@ async function getDistinctPetStates(db) {
     SELECT DISTINCT species_id, color_id, mood_id, female, unconverted
         FROM pet_states
     INNER JOIN pet_types ON pet_types.id = pet_states.pet_type_id
-    WHERE glitched IS false AND color_id >= 1`);
+    WHERE color_id >= 1`);
   return rows.map(normalizeRow);
 }
