@@ -329,14 +329,44 @@ function getZonesAndItems(itemsById, wornItemIds, closetedItemIds) {
     }
   }
 
-  const zonesAndItems = Array.from(itemsByZoneLabel.entries()).map(
+  let zonesAndItems = Array.from(itemsByZoneLabel.entries()).map(
     ([zoneLabel, items]) => ({
       zoneLabel: zoneLabel,
       items: [...items].sort((a, b) => a.name.localeCompare(b.name)),
     })
   );
-
   zonesAndItems.sort((a, b) => a.zoneLabel.localeCompare(b.zoneLabel));
+
+  // As one last step, try to remove zone groups that aren't helpful.
+  const groupsWithConflicts = zonesAndItems.filter(
+    ({ items }) => items.length > 1
+  );
+  const itemIdsWithConflicts = new Set(
+    groupsWithConflicts
+      .map(({ items }) => items)
+      .flat()
+      .map((item) => item.id)
+  );
+  const itemIdsWeHaveSeen = new Set();
+  zonesAndItems = zonesAndItems.filter(({ items }) => {
+    // We need all groups with more than one item. If there's only one, we get
+    // to think harder :)
+    if (items.length > 1) {
+      items.forEach((item) => itemIdsWeHaveSeen.add(item.id));
+      return true;
+    }
+
+    const item = items[0];
+
+    // Has the item been seen a group we kept, or an upcoming group with
+    // multiple conflicting items? If so, skip this group. If not, keep it.
+    if (itemIdsWeHaveSeen.has(item.id) || itemIdsWithConflicts.has(item.id)) {
+      return false;
+    } else {
+      itemIdsWeHaveSeen.add(item.id);
+      return true;
+    }
+  });
 
   return zonesAndItems;
 }
