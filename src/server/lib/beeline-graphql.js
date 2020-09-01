@@ -3,7 +3,7 @@
 const beeline = require("honeycomb-beeline");
 const gql = require("graphql");
 
-export function addBeelineToSchema(schema) {
+function addBeelineToSchema(schema) {
   if (!beeline) return;
   forEachField(schema, (field) => {
     if (!field.resolve) return;
@@ -68,7 +68,7 @@ const fieldsFor = (name, path) => ({
   "graphql.key": path.split(".").pop(),
 });
 
-export const beelinePlugin = {
+const beelinePlugin = {
   requestDidStart() {
     const trace = beeline.startTrace();
     return {
@@ -83,4 +83,9 @@ export const beelinePlugin = {
       },
     };
   },
+};
+
+module.exports = {
+  addBeelineToSchema,
+  beelinePlugin,
 };

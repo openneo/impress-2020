@@ -105,6 +105,15 @@ const typePolicies = {
         const id = readField("id");
         return label || cachedZonesById.get(id)?.label || `Zone #${id}`;
       },
+
+      isCommonlyUsedByItems: (isCommonlyUsedByItems, { readField }) => {
+        const id = readField("id");
+        return (
+          isCommonlyUsedByItems ||
+          cachedZonesById.get(id)?.isCommonlyUsedByItems ||
+          false
+        );
+      },
     },
   },
 };

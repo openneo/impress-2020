@@ -1,5 +1,5 @@
 const { gql, makeExecutableSchema } = require("apollo-server");
-import { addBeelineToSchema, beelinePlugin } from "./lib/beeline-graphql";
+const { addBeelineToSchema, beelinePlugin } = require("./lib/beeline-graphql");
 
 const connectToDb = require("./db");
 const buildLoaders = require("./loaders");
@@ -177,6 +177,7 @@ const typeDefs = gql`
     id: ID!
     depth: Int!
     label: String!
+    isCommonlyUsedByItems: Boolean!
   }
 
   type ItemSearchResult {
@@ -224,6 +225,7 @@ const typeDefs = gql`
     allColors: [Color!]! @cacheControl(maxAge: 10800) # Cache for 3 hours (we might add more!)
     allSpecies: [Species!]! @cacheControl(maxAge: 10800) # Cache for 3 hours (we might add more!)
     allValidSpeciesColorPairs: [SpeciesColorPair!]! # deprecated
+    allZones: [Zone!]!
     item(id: ID!): Item
     items(ids: [ID!]!): [Item!]!
     itemSearch(query: String!): ItemSearchResult!
@@ -536,6 +538,15 @@ const resolvers = {
       const zoneTranslation = await zoneTranslationLoader.load(id);
       return zoneTranslation.label;
     },
+    isCommonlyUsedByItems: async ({ id }, _, { zoneLoader }) => {
+      // Zone metadata marks item zones with types 2, 3, and 4. But also, in
+      // practice, the Biology Effects zone (type 1) has been used for a few
+      // items too. So, that's what we return true for!
+      const zone = await zoneLoader.load(id);
+      const isMarkedForItems = ["2", "3", "4"].includes(zone.typeId);
+      const isBiologyEffects = zone.id === "4";
+      return isMarkedForItems || isBiologyEffects;
+    },
   },
   Color: {
     name: async ({ id }, _, { colorTranslationLoader }) => {
@@ -598,6 +609,10 @@ const resolvers = {
         species: { id: pt.speciesId },
       }));
       return allPairs;
+    },
+    allZones: async (_, __, { zoneLoader }) => {
+      const zones = await zoneLoader.loadAll();
+      return zones.map(({ id }) => ({ id }));
     },
     item: (_, { id }) => ({ id }),
     items: (_, { ids }) => {

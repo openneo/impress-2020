@@ -397,8 +397,8 @@ const buildPetStatesForPetTypeLoader = (db, loaders) =>
     );
   });
 
-const buildZoneLoader = (db) =>
-  new DataLoader(async (ids) => {
+const buildZoneLoader = (db) => {
+  const zoneLoader = new DataLoader(async (ids) => {
     const qs = ids.map((_) => "?").join(",");
     const [rows, _] = await db.execute(
       `SELECT * FROM zones WHERE id IN (${qs})`,
@@ -414,6 +414,20 @@ const buildZoneLoader = (db) =>
         new Error(`could not find zone with ID: ${id}`)
     );
   });
+
+  zoneLoader.loadAll = async () => {
+    const [rows, _] = await db.execute(`SELECT * FROM zones`);
+    const entities = rows.map(normalizeRow);
+
+    for (const zone of entities) {
+      zoneLoader.prime(zone.id, zone);
+    }
+
+    return entities;
+  };
+
+  return zoneLoader;
+};
 
 const buildZoneTranslationLoader = (db) =>
   new DataLoader(async (zoneIds) => {
