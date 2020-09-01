@@ -243,8 +243,7 @@ function getValidPoses(valids, speciesId, colorId) {
   if (pairByte & 0b00001000) validPoses.add("HAPPY_FEM");
   if (pairByte & 0b00010000) validPoses.add("SAD_FEM");
   if (pairByte & 0b00100000) validPoses.add("SICK_FEM");
-  // TODO: Add unconverted support!
-  // if (pairByte & 0b01000000) validPoses.add("UNCONVERTED");
+  if (pairByte & 0b01000000) validPoses.add("UNCONVERTED");
   if (pairByte & 0b10000000) validPoses.add("UNKNOWN");
 
   return validPoses;

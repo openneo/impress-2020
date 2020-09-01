@@ -30,6 +30,7 @@ import { useLocalStorage } from "../util";
 import twemojiSmile from "../../images/twemoji/smile.svg";
 import twemojiCry from "../../images/twemoji/cry.svg";
 import twemojiSick from "../../images/twemoji/sick.svg";
+import twemojiSunglasses from "../../images/twemoji/sunglasses.svg";
 import twemojiQuestion from "../../images/twemoji/question.svg";
 import twemojiMasc from "../../images/twemoji/masc.svg";
 import twemojiFem from "../../images/twemoji/fem.svg";
@@ -143,18 +144,7 @@ function PosePicker({
                 isOpen && "is-open"
               )}
             >
-              {getEmotion(pose) === "HAPPY" && (
-                <EmojiImage src={twemojiSmile} alt="Choose a pose" />
-              )}
-              {getEmotion(pose) === "SAD" && (
-                <EmojiImage src={twemojiCry} alt="Choose a pose" />
-              )}
-              {getEmotion(pose) === "SICK" && (
-                <EmojiImage src={twemojiSick} alt="Choose a pose" />
-              )}
-              {getEmotion(pose) === null && (
-                <EmojiImage src={twemojiQuestion} alt="Choose a pose" />
-              )}
+              <EmojiImage src={getIcon(pose)} alt="Choose a pose" />
             </Button>
           </PopoverTrigger>
           <Portal>
@@ -213,76 +203,88 @@ function PosePicker({
 
 function PosePickerTable({ poseInfos, onChange, initialFocusRef }) {
   return (
-    <table width="100%">
-      <thead>
-        <tr>
-          <th />
-          <Cell as="th">
-            <EmojiImage src={twemojiSmile} alt="Happy" />
-          </Cell>
-          <Cell as="th">
-            <EmojiImage src={twemojiCry} alt="Sad" />
-          </Cell>
-          <Cell as="th">
-            <EmojiImage src={twemojiSick} alt="Sick" />
-          </Cell>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <Cell as="th">
-            <EmojiImage src={twemojiMasc} alt="Masculine" />
-          </Cell>
-          <Cell as="td">
-            <PoseOption
-              poseInfo={poseInfos.happyMasc}
-              onChange={onChange}
-              inputRef={poseInfos.happyMasc.isSelected && initialFocusRef}
-            />
-          </Cell>
-          <Cell as="td">
-            <PoseOption
-              poseInfo={poseInfos.sadMasc}
-              onChange={onChange}
-              inputRef={poseInfos.sadMasc.isSelected && initialFocusRef}
-            />
-          </Cell>
-          <Cell as="td">
-            <PoseOption
-              poseInfo={poseInfos.sickMasc}
-              onChange={onChange}
-              inputRef={poseInfos.sickMasc.isSelected && initialFocusRef}
-            />
-          </Cell>
-        </tr>
-        <tr>
-          <Cell as="th">
-            <EmojiImage src={twemojiFem} alt="Feminine" />
-          </Cell>
-          <Cell as="td">
-            <PoseOption
-              poseInfo={poseInfos.happyFem}
-              onChange={onChange}
-              inputRef={poseInfos.happyFem.isSelected && initialFocusRef}
-            />
-          </Cell>
-          <Cell as="td">
-            <PoseOption
-              poseInfo={poseInfos.sadFem}
-              onChange={onChange}
-              inputRef={poseInfos.sadFem.isSelected && initialFocusRef}
-            />
-          </Cell>
-          <Cell as="td">
-            <PoseOption
-              poseInfo={poseInfos.sickFem}
-              onChange={onChange}
-              inputRef={poseInfos.sickFem.isSelected && initialFocusRef}
-            />
-          </Cell>
-        </tr>
-      </tbody>
-    </table>
+    <Box display="flex" flexDirection="column" alignItems="center">
+      <table width="100%">
+        <thead>
+          <tr>
+            <th />
+            <Cell as="th">
+              <EmojiImage src={twemojiSmile} alt="Happy" />
+            </Cell>
+            <Cell as="th">
+              <EmojiImage src={twemojiCry} alt="Sad" />
+            </Cell>
+            <Cell as="th">
+              <EmojiImage src={twemojiSick} alt="Sick" />
+            </Cell>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <Cell as="th">
+              <EmojiImage src={twemojiMasc} alt="Masculine" />
+            </Cell>
+            <Cell as="td">
+              <PoseOption
+                poseInfo={poseInfos.happyMasc}
+                onChange={onChange}
+                inputRef={poseInfos.happyMasc.isSelected && initialFocusRef}
+              />
+            </Cell>
+            <Cell as="td">
+              <PoseOption
+                poseInfo={poseInfos.sadMasc}
+                onChange={onChange}
+                inputRef={poseInfos.sadMasc.isSelected && initialFocusRef}
+              />
+            </Cell>
+            <Cell as="td">
+              <PoseOption
+                poseInfo={poseInfos.sickMasc}
+                onChange={onChange}
+                inputRef={poseInfos.sickMasc.isSelected && initialFocusRef}
+              />
+            </Cell>
+          </tr>
+          <tr>
+            <Cell as="th">
+              <EmojiImage src={twemojiFem} alt="Feminine" />
+            </Cell>
+            <Cell as="td">
+              <PoseOption
+                poseInfo={poseInfos.happyFem}
+                onChange={onChange}
+                inputRef={poseInfos.happyFem.isSelected && initialFocusRef}
+              />
+            </Cell>
+            <Cell as="td">
+              <PoseOption
+                poseInfo={poseInfos.sadFem}
+                onChange={onChange}
+                inputRef={poseInfos.sadFem.isSelected && initialFocusRef}
+              />
+            </Cell>
+            <Cell as="td">
+              <PoseOption
+                poseInfo={poseInfos.sickFem}
+                onChange={onChange}
+                inputRef={poseInfos.sickFem.isSelected && initialFocusRef}
+              />
+            </Cell>
+          </tr>
+        </tbody>
+      </table>
+      {poseInfos.unconverted.isAvailable && (
+        <PoseOption
+          poseInfo={poseInfos.unconverted}
+          onChange={onChange}
+          inputRef={poseInfos.unconverted.isSelected && initialFocusRef}
+          size="sm"
+          label="Unconverted"
+          marginTop="2"
+        />
+      )}
+    </Box>
   );
 }
 
@@ -315,14 +317,24 @@ const GENDER_PRESENTATION_STRINGS = {
   SICK_FEM: "Feminine",
 };
 
-function PoseOption({ poseInfo, onChange, inputRef }) {
+function PoseOption({
+  poseInfo,
+  onChange,
+  inputRef,
+  size = "50px",
+  label,
+  ...otherProps
+}) {
   const theme = useTheme();
   const genderPresentationStr = GENDER_PRESENTATION_STRINGS[poseInfo.pose];
   const emotionStr = EMOTION_STRINGS[poseInfo.pose];
 
-  let label = `${emotionStr} and ${genderPresentationStr}`;
+  let poseName =
+    poseInfo.pose === "UNCONVERTED"
+      ? "Unconverted"
+      : `${emotionStr} and ${genderPresentationStr}`;
   if (!poseInfo.isAvailable) {
-    label += ` (not modeled yet)`;
+    poseName += ` (not modeled yet)`;
   }
 
   const borderColor = useColorModeValue(
@@ -334,16 +346,24 @@ function PoseOption({ poseInfo, onChange, inputRef }) {
     <Box
       as="label"
       cursor="pointer"
+      display="flex"
+      alignItems="center"
+      borderColor={poseInfo.isSelected ? borderColor : "gray.400"}
+      boxShadow={label ? "md" : "none"}
+      borderWidth={label ? "1px" : "0"}
+      borderRadius={label ? "full" : "0"}
+      paddingRight={label ? "3" : "0"}
       onClick={(e) => {
         // HACK: We need the timeout to beat the popover's focus stealing!
         const input = e.currentTarget.querySelector("input");
         setTimeout(() => input.focus(), 0);
       }}
+      {...otherProps}
     >
       <VisuallyHidden
         as="input"
         type="radio"
-        aria-label={label}
+        aria-label={poseName}
         name="pose"
         value={poseInfo.pose}
         checked={poseInfo.isSelected}
@@ -356,8 +376,8 @@ function PoseOption({ poseInfo, onChange, inputRef }) {
         borderRadius="full"
         boxShadow="md"
         overflow="hidden"
-        width="50px"
-        height="50px"
+        width={size === "sm" ? "30px" : "50px"}
+        height={size === "sm" ? "30px" : "50px"}
         title={
           poseInfo.isAvailable
             ? // A lil debug output, so that we can quickly identify glitched
@@ -408,34 +428,30 @@ function PoseOption({ poseInfo, onChange, inputRef }) {
           )}
         />
         {poseInfo.isAvailable ? (
-          <Box
-            width="50px"
-            height="50px"
-            transform={
-              transformsByBodyId[poseInfo.bodyId] || transformsByBodyId.default
-            }
-          >
+          <Box width="100%" height="100%" transform={getTransform(poseInfo)}>
             <OutfitLayers visibleLayers={getVisibleLayers(poseInfo, [])} />
           </Box>
         ) : (
-          <Flex align="center" justify="center">
-            <Box
-              fontFamily="Delicious, sans-serif"
-              fontSize="3xl"
-              fontWeight="900"
-              color="gray.600"
-            >
-              ?
-            </Box>
+          <Flex align="center" justify="center" width="100%" height="100%">
+            <EmojiImage src={twemojiQuestion} boxSize="24px" />
           </Flex>
         )}
       </Box>
+      {label && (
+        <Box
+          marginLeft="2"
+          fontSize="xs"
+          fontWeight={poseInfo.isSelected ? "bold" : "normal"}
+        >
+          {label}
+        </Box>
+      )}
     </Box>
   );
 }
 
-function EmojiImage({ src, alt }) {
-  return <img src={src} alt={alt} width="16px" height="16px" />;
+function EmojiImage({ src, alt, boxSize = "16px" }) {
+  return <img src={src} alt={alt} width={boxSize} height={boxSize} />;
 }
 
 function usePoses(speciesId, colorId, selectedPose) {
@@ -484,6 +500,13 @@ function usePoses(speciesId, colorId, selectedPose) {
         ) {
           ...PetAppearanceForPosePicker
         }
+        unconverted: petAppearance(
+          speciesId: $speciesId
+          colorId: $colorId
+          pose: UNCONVERTED
+        ) {
+          ...PetAppearanceForPosePicker
+        }
       }
 
       fragment PetAppearanceForPosePicker on PetAppearance {
@@ -500,51 +523,74 @@ function usePoses(speciesId, colorId, selectedPose) {
   const poseInfos = {
     happyMasc: {
       ...data?.happyMasc,
+      pose: "HAPPY_MASC",
       isAvailable: Boolean(data?.happyMasc),
       isSelected: selectedPose === "HAPPY_MASC",
     },
     sadMasc: {
       ...data?.sadMasc,
+      pose: "SAD_MASC",
       isAvailable: Boolean(data?.sadMasc),
       isSelected: selectedPose === "SAD_MASC",
     },
     sickMasc: {
       ...data?.sickMasc,
+      pose: "SICK_MASC",
       isAvailable: Boolean(data?.sickMasc),
       isSelected: selectedPose === "SICK_MASC",
     },
     happyFem: {
       ...data?.happyFem,
+      pose: "HAPPY_FEM",
       isAvailable: Boolean(data?.happyFem),
       isSelected: selectedPose === "HAPPY_FEM",
     },
     sadFem: {
       ...data?.sadFem,
+      pose: "SAD_FEM",
       isAvailable: Boolean(data?.sadFem),
       isSelected: selectedPose === "SAD_FEM",
     },
     sickFem: {
       ...data?.sickFem,
+      pose: "SICK_FEM",
       isAvailable: Boolean(data?.sickFem),
       isSelected: selectedPose === "SICK_FEM",
+    },
+    unconverted: {
+      ...data?.unconverted,
+      pose: "UNCONVERTED",
+      isAvailable: Boolean(data?.unconverted),
+      isSelected: selectedPose === "UNCONVERTED",
     },
   };
 
   return { loading, error, poseInfos };
 }
 
-function getEmotion(pose) {
+function getIcon(pose) {
   if (["HAPPY_MASC", "HAPPY_FEM"].includes(pose)) {
-    return "HAPPY";
+    return twemojiSmile;
   } else if (["SAD_MASC", "SAD_FEM"].includes(pose)) {
-    return "SAD";
+    return twemojiCry;
   } else if (["SICK_MASC", "SICK_FEM"].includes(pose)) {
-    return "SICK";
-  } else if (["UNCONVERTED", "UNKNOWN"].includes(pose)) {
-    return null;
+    return twemojiSick;
+  } else if (pose === "UNCONVERTED") {
+    return twemojiSunglasses;
   } else {
-    throw new Error(`unrecognized pose ${JSON.stringify(pose)}`);
+    return twemojiQuestion;
   }
+}
+
+function getTransform(poseInfo) {
+  const { pose, bodyId } = poseInfo;
+  if (pose === "UNCONVERTED") {
+    return transformsByBodyId.default;
+  }
+  if (bodyId in transformsByBodyId) {
+    return transformsByBodyId[bodyId];
+  }
+  return transformsByBodyId.default;
 }
 
 const transformsByBodyId = {
