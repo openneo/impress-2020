@@ -51,16 +51,11 @@ function Item({ item, itemNameId, isWorn, isInOutfit, dispatchToOutfit }) {
             isWorn={isWorn}
           />
         </Box>
-        <Box
-          flex="1 1 auto"
-          display="flex"
-          flexDirection="row"
-          alignItems="center"
-        >
-          <ItemName id={itemNameId} isWorn={isWorn} marginRight="2">
+        <Box flex="1 1 0" minWidth="0">
+          <ItemName id={itemNameId} isWorn={isWorn}>
             {item.name}
           </ItemName>
-          {item.isNc && <Badge colorScheme="cyan">NC</Badge>}
+          <Box>{item.isNc && <Badge colorScheme="cyan">NC</Badge>}</Box>
         </Box>
         <Box flex="0 0 auto">
           <SupportOnly>
@@ -237,6 +232,9 @@ function ItemName({ children, ...props }) {
     <Box
       fontSize="md"
       transition="all 0.15s"
+      overflow="hidden"
+      whiteSpace="nowrap"
+      textOverflow="ellipsis"
       className={css`
         ${containerHasFocus} {
           opacity: 0.9;
