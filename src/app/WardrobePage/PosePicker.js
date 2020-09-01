@@ -321,7 +321,7 @@ function PoseOption({
   poseInfo,
   onChange,
   inputRef,
-  size = "50px",
+  size = "md",
   label,
   ...otherProps
 }) {
