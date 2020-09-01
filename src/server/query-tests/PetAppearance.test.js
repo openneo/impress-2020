@@ -27,9 +27,10 @@ describe("PetAppearance", () => {
               zone {
                 depth
               }
-              restrictedZones {
-                id
-              }
+            }
+
+            restrictedZones {
+              id
             }
           }
         }
@@ -224,9 +225,10 @@ describe("PetAppearance", () => {
               zone {
                 depth
               }
-              restrictedZones {
-                id
-              }
+            }
+
+            restrictedZones {
+              id
             }
           }
         }

@@ -103,6 +103,7 @@ const typeDefs = gql`
     bodyId: ID!
 
     layers: [AppearanceLayer!]!
+    restrictedZones: [Zone!]!
 
     petStateId: ID! # Deprecated, an alias for id
     # Whether this PetAppearance is known to look incorrect. This is a manual
@@ -165,6 +166,8 @@ const typeDefs = gql`
     this is generally empty and the restriction is on the ItemAppearance, not
     the individual layers. For pet layers, this is generally used for
     Unconverted pets.
+
+    Deprecated, aggregated into PetAppearance for a simpler API.
     """
     restrictedZones: [Zone!]!
   }
@@ -383,6 +386,17 @@ const resolvers = {
     layers: async ({ id }, _, { petSwfAssetLoader }) => {
       const swfAssets = await petSwfAssetLoader.load(id);
       return swfAssets;
+    },
+    restrictedZones: async ({ id }, _, { petSwfAssetLoader }) => {
+      // The restricted zones are defined on the layers. Load them and aggegate
+      // the zones, then uniquify and sort them for ease of use.
+      const swfAssets = await petSwfAssetLoader.load(id);
+      let restrictedZoneIds = swfAssets
+        .map((sa) => getRestrictedZoneIds(sa.zonesRestrict))
+        .flat();
+      restrictedZoneIds = [...new Set(restrictedZoneIds)];
+      restrictedZoneIds.sort((a, b) => parseInt(a) - parseInt(b));
+      return restrictedZoneIds.map((id) => ({ id }));
     },
     petStateId: ({ id }) => id,
     isGlitched: async ({ id }, _, { petStateLoader }) => {

@@ -123,10 +123,7 @@ export function getVisibleLayers(petAppearance, itemAppearances) {
     .map((a) => a.restrictedZones)
     .flat()
     .map((z) => z.id);
-  const petRestrictedZoneIds = petLayers
-    .map((l) => l.restrictedZones)
-    .flat()
-    .map((z) => z.id);
+  const petRestrictedZoneIds = petAppearance.restrictedZones.map((z) => z.id);
   const allRestrictedZoneIds = new Set([
     ...itemRestrictedZoneIds,
     ...petRestrictedZoneIds,
@@ -174,9 +171,9 @@ export const petAppearanceFragment = gql`
         id
         depth @client
       }
-      restrictedZones {
-        id
-      }
+    }
+    restrictedZones {
+      id
     }
   }
 `;
