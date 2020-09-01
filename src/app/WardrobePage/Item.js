@@ -102,7 +102,7 @@ function Item({ item, itemNameId, isWorn, isInOutfit, dispatchToOutfit }) {
  */
 function ItemSkeleton() {
   return (
-    <ItemContainer>
+    <ItemContainer isFocusable={false}>
       <Skeleton width="50px" height="50px" />
       <Box width="3" />
       <Skeleton height="1.5rem" width="12rem" />
@@ -117,7 +117,7 @@ function ItemSkeleton() {
  * styles - including for its children, who sometimes reference it as an
  * .item-container parent!
  */
-function ItemContainer({ children }) {
+function ItemContainer({ children, isFocusable = true }) {
   const theme = useTheme();
 
   const focusBackgroundColor = useColorModeValue(
@@ -142,25 +142,26 @@ function ItemContainer({ children }) {
       borderRadius="lg"
       d="flex"
       alignItems="center"
-      cursor="pointer"
+      cursor={isFocusable ? "pointer" : undefined}
       border="1px"
       borderColor="transparent"
       className={cx([
         "item-container",
-        css`
-          &:hover,
-          input:focus + & {
-            background-color: ${focusBackgroundColor};
-          }
+        isFocusable &&
+          css`
+            &:hover,
+            input:focus + & {
+              background-color: ${focusBackgroundColor};
+            }
 
-          input:active + & {
-            border-color: ${activeBorderColor};
-          }
+            input:active + & {
+              border-color: ${activeBorderColor};
+            }
 
-          input:checked:focus + & {
-            border-color: ${focusCheckedBorderColor};
-          }
-        `,
+            input:checked:focus + & {
+              border-color: ${focusCheckedBorderColor};
+            }
+          `,
       ])}
     >
       {children}
