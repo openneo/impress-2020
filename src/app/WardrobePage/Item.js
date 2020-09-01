@@ -8,10 +8,16 @@ import {
   Image,
   Skeleton,
   Tooltip,
+  Wrap,
   useColorModeValue,
   useTheme,
 } from "@chakra-ui/core";
-import { EditIcon, DeleteIcon, InfoIcon } from "@chakra-ui/icons";
+import {
+  EditIcon,
+  DeleteIcon,
+  InfoIcon,
+  NotAllowedIcon,
+} from "@chakra-ui/icons";
 import loadable from "@loadable/component";
 
 import { safeImageUrl } from "../util";
@@ -39,8 +45,26 @@ const LoadableItemSupportDrawer = loadable(() =>
  *       wearing/unwearing items being noticeably slower on lower-power
  *       devices.
  */
-function Item({ item, itemNameId, isWorn, isInOutfit, dispatchToOutfit }) {
+function Item({
+  item,
+  itemNameId,
+  isWorn,
+  isInOutfit,
+  dispatchToOutfit,
+  hideSimpleZones = false,
+}) {
   const [supportDrawerIsOpen, setSupportDrawerIsOpen] = React.useState(false);
+
+  const occupiedZoneLabels = getZoneLabels(
+    item.appearanceOn.layers.map((l) => l.zone)
+  );
+  const restrictedZoneLabels = getZoneLabels(
+    item.appearanceOn.restrictedZones.filter((z) => z.isCommonlyUsedByItems)
+  );
+  const zonesAreSimple =
+    occupiedZoneLabels.length <= 1 && restrictedZoneLabels.length === 0;
+  const shouldHideZones = hideSimpleZones && zonesAreSimple;
+  const shouldShowZones = !shouldHideZones;
 
   return (
     <>
@@ -55,7 +79,36 @@ function Item({ item, itemNameId, isWorn, isInOutfit, dispatchToOutfit }) {
           <ItemName id={itemNameId} isWorn={isWorn}>
             {item.name}
           </ItemName>
-          <Box>{item.isNc && <Badge colorScheme="cyan">NC</Badge>}</Box>
+          <Wrap spacing="2" marginTop="1">
+            {shouldShowZones &&
+              occupiedZoneLabels.map((zoneLabel) => (
+                <Badge key={zoneLabel}>{getZoneShorthand(zoneLabel)}</Badge>
+              ))}
+            {shouldShowZones &&
+              restrictedZoneLabels.map((zoneLabel) => (
+                <Tooltip
+                  label={
+                    <Box textAlign="center">
+                      Restricted: This isn't a {zoneLabel} item, but you can't
+                      wear {zoneLabel} items with it
+                    </Box>
+                  }
+                  placement="top"
+                  openDelay={250}
+                >
+                  <Badge
+                    key={zoneLabel}
+                    display="flex"
+                    flexDirection="row"
+                    alignItems="center"
+                  >
+                    {getZoneShorthand(zoneLabel)}
+                    <NotAllowedIcon marginLeft="1" />
+                  </Badge>
+                </Tooltip>
+              ))}
+            {item.isNc && <Badge colorScheme="cyan">NC</Badge>}
+          </Wrap>
         </Box>
         <Box flex="0 0 auto">
           <SupportOnly>
@@ -326,6 +379,32 @@ export function ItemListSkeleton({ count }) {
       ))}
     </ItemListContainer>
   );
+}
+
+/**
+ * getZoneLabels returns the set of labels for the given zones. Sometimes an
+ * item occupies multiple zones of the same name, so it's especially important
+ * to de-duplicate them here!
+ */
+function getZoneLabels(zones) {
+  let labels = zones.map((z) => z.label);
+  labels = new Set(labels);
+  labels = [...labels].sort();
+  return labels;
+}
+
+/**
+ * getZoneShorthand returns a potentially shortened version of the zone label,
+ * to make the Item badges a bit less bulky!
+ */
+function getZoneShorthand(zoneLabel) {
+  return zoneLabel
+    .replace("Background Item", "BG Item")
+    .replace("Foreground Item", "FG Item")
+    .replace("Lower-body", "Lower")
+    .replace("Upper-body", "Upper")
+    .replace("Transient", "Trans")
+    .replace("Biology", "Bio");
 }
 
 /**

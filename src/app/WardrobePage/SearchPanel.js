@@ -229,6 +229,7 @@ function useSearchResults(query, outfitState) {
             id
             name
             thumbnailUrl
+            isNc
 
             appearanceOn(speciesId: $speciesId, colorId: $colorId) {
               # This enables us to quickly show the item when the user clicks it!
@@ -241,6 +242,11 @@ function useSearchResults(query, outfitState) {
                   id
                   label @client
                 }
+              }
+              restrictedZones {
+                id
+                label @client
+                isCommonlyUsedByItems @client
               }
             }
           }

@@ -51,6 +51,11 @@ function useOutfitState() {
                 label @client
               }
             }
+            restrictedZones {
+              id
+              label @client
+              isCommonlyUsedByItems @client
+            }
           }
         }
 
