@@ -74,14 +74,18 @@ function Item({
           <ItemThumbnail
             src={safeImageUrl(item.thumbnailUrl)}
             isWorn={isWorn}
-            isNc={item.isNc}
           />
         </Box>
         <Box flex="1 1 0" minWidth="0">
           <ItemName id={itemNameId} isWorn={isWorn}>
             {item.name}
           </ItemName>
-          <Wrap spacing="2" marginTop="1">
+          <Wrap spacing="2" marginTop="1" opacity="0.7">
+            {item.isNc ? (
+              <Badge colorScheme="purple">NC</Badge>
+            ) : (
+              <Badge>NP</Badge>
+            )}
             {shouldShowZones &&
               occupiedZoneLabels.map((zoneLabel) => (
                 <Badge key={zoneLabel}>{getZoneShorthand(zoneLabel)}</Badge>
@@ -229,17 +233,17 @@ function ItemContainer({ children, isFocusable = true }) {
  * ItemThumbnail shows a small preview image for the item, including some
  * hover/focus and worn/unworn states.
  */
-function ItemThumbnail({ src, isWorn, isNc }) {
+function ItemThumbnail({ src, isWorn }) {
   const theme = useTheme();
   const colorMode = useColorMode();
 
   const borderColor = useColorModeValue(
-    isNc ? theme.colors.purple["700"] : theme.colors.green["700"],
+    theme.colors.green["700"],
     "transparent"
   );
 
   const focusBorderColor = useColorModeValue(
-    isNc ? theme.colors.purple["600"] : theme.colors.green["600"],
+    theme.colors.green["600"],
     "transparent"
   );
 
@@ -286,21 +290,6 @@ function ItemThumbnail({ src, isWorn, isNc }) {
       >
         <Image width="100%" height="100%" src={src} alt="" />
       </Box>
-      {isNc && (
-        <Badge
-          position="absolute"
-          top="-4px"
-          left="-6px"
-          colorScheme="purple"
-          boxShadow="sm"
-          fontSize="11px"
-          // Dark mode's default theme has a transparent background for badges.
-          // I want an opaque background!
-          backgroundColor={colorMode === "dark" ? "purple.700" : undefined}
-        >
-          NC
-        </Badge>
-      )}
     </Box>
   );
 }
