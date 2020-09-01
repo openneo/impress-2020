@@ -274,7 +274,7 @@ export function usePreloadLayers(layers) {
     return () => {
       canceled = true;
     };
-  }, [layers, loadedLayers.length]);
+  }, [layers, loadedLayers.length, loading]);
 
   return { loading, error, loadedLayers };
 }
