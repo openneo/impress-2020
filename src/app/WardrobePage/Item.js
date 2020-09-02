@@ -9,7 +9,6 @@ import {
   Skeleton,
   Tooltip,
   Wrap,
-  useColorMode,
   useColorModeValue,
   useTheme,
 } from "@chakra-ui/core";
@@ -94,10 +93,18 @@ function Item({
               </ItemBadgeTooltip>
             )}
             {occupiedZoneLabels.map((zoneLabel) => (
-              <ZoneBadge variant="occupies" zoneLabel={zoneLabel} />
+              <ZoneBadge
+                key={zoneLabel}
+                variant="occupies"
+                zoneLabel={zoneLabel}
+              />
             ))}
             {restrictedZoneLabels.map((zoneLabel) => (
-              <ZoneBadge variant="restricts" zoneLabel={zoneLabel} />
+              <ZoneBadge
+                key={zoneLabel}
+                variant="restricts"
+                zoneLabel={zoneLabel}
+              />
             ))}
           </Wrap>
         </Box>
@@ -221,7 +228,6 @@ function ItemContainer({ children, isDisabled = false }) {
  */
 function ItemThumbnail({ src, isWorn, isDisabled }) {
   const theme = useTheme();
-  const colorMode = useColorMode();
 
   const borderColor = useColorModeValue(
     theme.colors.green["700"],
