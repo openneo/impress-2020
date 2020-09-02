@@ -19,7 +19,7 @@ import SearchPanel from "./SearchPanel";
  * state and refs.
  */
 function ItemsAndSearchPanels({ loading, outfitState, dispatchToOutfit }) {
-  const [searchQuery, setSearchQuery] = React.useState("");
+  const [searchQuery, setSearchQuery] = React.useState(null);
   const scrollContainerRef = React.useRef();
   const searchQueryRef = React.useRef();
   const firstSearchResultRef = React.useRef();
@@ -44,7 +44,7 @@ function ItemsAndSearchPanels({ loading, outfitState, dispatchToOutfit }) {
         >
           <Box px="4" py="5">
             <SearchPanel
-              query={searchQuery}
+              query={searchQuery.value}
               outfitState={outfitState}
               dispatchToOutfit={dispatchToOutfit}
               scrollContainerRef={scrollContainerRef}

@@ -10,6 +10,11 @@ import cachedZones from "./cached-data/zones.json";
 const typePolicies = {
   Query: {
     fields: {
+      allZones: (_, { toReference }) => {
+        return cachedZones.map((z) =>
+          toReference({ __typename: "Zone", id: z.id }, true)
+        );
+      },
       items: (_, { args, toReference }) => {
         return args.ids.map((id) =>
           toReference({ __typename: "Item", id }, true)
