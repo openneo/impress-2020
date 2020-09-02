@@ -2,8 +2,7 @@ import { ApolloClient, createHttpLink, InMemoryCache } from "@apollo/client";
 import { createPersistedQueryLink } from "apollo-link-persisted-queries";
 import gql from "graphql-tag";
 
-const cachedZones = require("./cached-data/zones.json");
-const cachedZonesById = new Map(cachedZones.map((z) => [z.id, z]));
+import cachedZones from "./cached-data/zones.json";
 
 // Teach Apollo to load certain fields from the cache, to avoid extra network
 // requests. This happens a lot - e.g. reusing data from item search on the
@@ -93,29 +92,6 @@ const typePolicies = {
       },
     },
   },
-
-  Zone: {
-    fields: {
-      depth: (depth, { readField }) => {
-        const id = readField("id");
-        return depth || cachedZonesById.get(id)?.depth || 0;
-      },
-
-      label: (label, { readField }) => {
-        const id = readField("id");
-        return label || cachedZonesById.get(id)?.label || `Zone #${id}`;
-      },
-
-      isCommonlyUsedByItems: (isCommonlyUsedByItems, { readField }) => {
-        const id = readField("id");
-        return (
-          isCommonlyUsedByItems ||
-          cachedZonesById.get(id)?.isCommonlyUsedByItems ||
-          false
-        );
-      },
-    },
-  },
 };
 
 // The PersistedQueryLink in front of the HttpLink helps us send cacheable GET
@@ -125,13 +101,18 @@ const persistedQueryLink = createPersistedQueryLink({
 });
 const httpLink = createHttpLink({ uri: "/api/graphql" });
 
+const initialCache = {};
+for (const zone of cachedZones) {
+  initialCache[`Zone:${zone.id}`] = { __typename: "Zone", ...zone };
+}
+
 /**
  * apolloClient is the global Apollo Client instance we use for GraphQL
  * queries. This is how we communicate with the server!
  */
 const client = new ApolloClient({
   link: persistedQueryLink.concat(httpLink),
-  cache: new InMemoryCache({ typePolicies }),
+  cache: new InMemoryCache({ typePolicies }).restore(initialCache),
   connectToDevTools: true,
 });
 
