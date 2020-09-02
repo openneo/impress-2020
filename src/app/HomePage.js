@@ -79,12 +79,26 @@ function UserLoginLogout() {
   const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0();
 
   if (isAuthenticated) {
-    console.log(user);
+    // NOTE: Users created correctly should have these attributes... but I'm
+    //       coding defensively, because third-party integrations are always a
+    //       bit of a thing, and I don't want failures to crash us!
     const username = user["https://oauth.impress-2020.openneo.net/username"];
+    const id = user.sub?.match(/^auth0\|impress-([0-9]+)$/)?.[1];
 
     return (
       <Box display="flex" alignItems="center">
-        <Box fontSize="sm">Hi, {username}!</Box>
+        {username && <Box fontSize="sm">Hi, {username}!</Box>}
+        {id && (
+          <Button
+            as="a"
+            href={`https://impress.openneo.net/user/${id}-${username}/closet`}
+            size="sm"
+            variant="outline"
+            marginLeft="2"
+          >
+            Items
+          </Button>
+        )}
         <Button
           size="sm"
           variant="outline"
