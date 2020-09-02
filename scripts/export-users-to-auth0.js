@@ -47,7 +47,7 @@ async function main() {
       `SELECT dti.id, oid.name, email, encrypted_password, password_salt
        FROM openneo_id.users oid
        INNER JOIN openneo_impress.users dti ON dti.remote_id = oid.id
-       ORDER BY dti.id LIMIT 1`
+       ORDER BY dti.id`
     );
     users = rows.map(normalizeRow);
   } finally {
@@ -93,7 +93,6 @@ async function runAuth0ImportJob(usersBatchJson, connectionId, batchStart) {
   while (job.status === "pending") {
     await pause(5000);
     job = await auth0.jobs.get({ id: job.id });
-    console.log("beat...");
   }
 
   if (job.status !== "completed") {
