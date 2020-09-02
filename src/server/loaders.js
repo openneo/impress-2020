@@ -152,14 +152,22 @@ const buildItemSearchLoader = (db, loaders) =>
     // This isn't actually optimized as a batch query, we're just using a
     // DataLoader API consistency with our other loaders!
     const queryPromises = queries.map(async (query) => {
-      const queryForMysql = "%" + query.replace(/_%/g, "\\$0") + "%";
+      // Split the query into words, and search for each word as a substring
+      // of the name.
+      const words = query.split(/\s+/);
+      const wordMatchersForMysql = words.map(
+        (word) => "%" + word.replace(/_%/g, "\\$0") + "%"
+      );
+      const matcherPlaceholders = words
+        .map((_) => "t.name LIKE ?")
+        .join(" AND ");
       const [rows, _] = await db.execute(
         `SELECT items.*, t.name FROM items
          INNER JOIN item_translations t ON t.item_id = items.id
-         WHERE t.name LIKE ? AND t.locale="en"
+         WHERE ${matcherPlaceholders} AND t.locale="en"
          ORDER BY t.name
          LIMIT 30`,
-        [queryForMysql]
+        [...wordMatchersForMysql]
       );
 
       const entities = rows.map(normalizeRow);
@@ -185,18 +193,24 @@ const buildItemSearchToFitLoader = (db, loaders) =>
         const actualOffset = offset || 0;
         const actualLimit = Math.min(limit || 30, 30);
 
-        const queryForMysql = "%" + query.replace(/_%/g, "\\$0") + "%";
+        const words = query.split(/\s+/);
+        const wordMatchersForMysql = words.map(
+          (word) => "%" + word.replace(/_%/g, "\\$0") + "%"
+        );
+        const matcherPlaceholders = words
+          .map((_) => "t.name LIKE ?")
+          .join(" AND ");
         const [rows, _] = await db.execute(
           `SELECT DISTINCT items.*, t.name FROM items
            INNER JOIN item_translations t ON t.item_id = items.id
            INNER JOIN parents_swf_assets rel
                ON rel.parent_type = "Item" AND rel.parent_id = items.id
            INNER JOIN swf_assets ON rel.swf_asset_id = swf_assets.id
-           WHERE t.name LIKE ? AND t.locale="en" AND
+           WHERE ${matcherPlaceholders} AND t.locale="en" AND
                (swf_assets.body_id = ? OR swf_assets.body_id = 0)
            ORDER BY t.name
            LIMIT ? OFFSET ?`,
-          [queryForMysql, bodyId, actualLimit, actualOffset]
+          [...wordMatchersForMysql, bodyId, actualLimit, actualOffset]
         );
 
         const entities = rows.map(normalizeRow);

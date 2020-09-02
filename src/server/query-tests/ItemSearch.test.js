@@ -24,11 +24,58 @@ describe("ItemSearch", () => {
         Array [
           "SELECT items.*, t.name FROM items
                INNER JOIN item_translations t ON t.item_id = items.id
-               WHERE t.name LIKE ? AND t.locale=\\"en\\"
+               WHERE t.name LIKE ? AND t.name LIKE ? AND t.locale=\\"en\\"
                ORDER BY t.name
                LIMIT 30",
           Array [
-            "%Neopian Times%",
+            "%Neopian%",
+            "%Times%",
+          ],
+        ],
+      ]
+    `);
+  });
+
+  it("searches for each word separately", async () => {
+    const res = await query({
+      query: gql`
+        query {
+          itemSearch(query: "Tarla Workshop") {
+            query
+            items {
+              id
+              name
+            }
+          }
+        }
+      `,
+    });
+
+    expect(res).toHaveNoErrors();
+    expect(res.data).toMatchInlineSnapshot(`
+      Object {
+        "itemSearch": Object {
+          "items": Array [
+            Object {
+              "id": "50377",
+              "name": "Tarlas Underground Workshop Background",
+            },
+          ],
+          "query": "Tarla Workshop",
+        },
+      }
+    `);
+    expect(getDbCalls()).toMatchInlineSnapshot(`
+      Array [
+        Array [
+          "SELECT items.*, t.name FROM items
+               INNER JOIN item_translations t ON t.item_id = items.id
+               WHERE t.name LIKE ? AND t.name LIKE ? AND t.locale=\\"en\\"
+               ORDER BY t.name
+               LIMIT 30",
+          Array [
+            "%Tarla%",
+            "%Workshop%",
           ],
         ],
       ]
@@ -71,12 +118,77 @@ describe("ItemSearch", () => {
                  INNER JOIN parents_swf_assets rel
                      ON rel.parent_type = \\"Item\\" AND rel.parent_id = items.id
                  INNER JOIN swf_assets ON rel.swf_asset_id = swf_assets.id
-                 WHERE t.name LIKE ? AND t.locale=\\"en\\" AND
+                 WHERE t.name LIKE ? AND t.name LIKE ? AND t.locale=\\"en\\" AND
                      (swf_assets.body_id = ? OR swf_assets.body_id = 0)
                  ORDER BY t.name
                  LIMIT ? OFFSET ?",
           Array [
-            "%Neopian Times%",
+            "%Neopian%",
+            "%Times%",
+            "180",
+            30,
+            0,
+          ],
+        ],
+      ]
+    `);
+  });
+
+  it("searches for each word separately (fit mode)", async () => {
+    const res = await query({
+      query: gql`
+        query {
+          itemSearchToFit(
+            query: "Tarla Workshop"
+            speciesId: "54"
+            colorId: "75"
+          ) {
+            query
+            items {
+              id
+              name
+            }
+          }
+        }
+      `,
+    });
+
+    expect(res).toHaveNoErrors();
+    expect(res.data).toMatchInlineSnapshot(`
+      Object {
+        "itemSearchToFit": Object {
+          "items": Array [
+            Object {
+              "id": "50377",
+              "name": "Tarlas Underground Workshop Background",
+            },
+          ],
+          "query": "Tarla Workshop",
+        },
+      }
+    `);
+    expect(getDbCalls()).toMatchInlineSnapshot(`
+      Array [
+        Array [
+          "SELECT * FROM pet_types WHERE (species_id = ? AND color_id = ?)",
+          Array [
+            "54",
+            "75",
+          ],
+        ],
+        Array [
+          "SELECT DISTINCT items.*, t.name FROM items
+                 INNER JOIN item_translations t ON t.item_id = items.id
+                 INNER JOIN parents_swf_assets rel
+                     ON rel.parent_type = \\"Item\\" AND rel.parent_id = items.id
+                 INNER JOIN swf_assets ON rel.swf_asset_id = swf_assets.id
+                 WHERE t.name LIKE ? AND t.name LIKE ? AND t.locale=\\"en\\" AND
+                     (swf_assets.body_id = ? OR swf_assets.body_id = 0)
+                 ORDER BY t.name
+                 LIMIT ? OFFSET ?",
+          Array [
+            "%Tarla%",
+            "%Workshop%",
             "180",
             30,
             0,
