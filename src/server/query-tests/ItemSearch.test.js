@@ -150,6 +150,9 @@ describe("ItemSearch", () => {
               id
               name
             }
+            zones {
+              id
+            }
           }
         }
       `,
@@ -166,6 +169,11 @@ describe("ItemSearch", () => {
             },
           ],
           "query": "Neopian Times",
+          "zones": Array [
+            Object {
+              "id": "3",
+            },
+          ],
         },
       }
     `);

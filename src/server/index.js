@@ -182,6 +182,7 @@ const typeDefs = gql`
 
   type ItemSearchResult {
     query: String!
+    zones: [Zone!]!
     items: [Item!]!
   }
 
@@ -635,7 +636,7 @@ const resolvers = {
     },
     itemSearchToFit: async (
       _,
-      { query, speciesId, colorId, zoneIds, offset, limit },
+      { query, speciesId, colorId, zoneIds = [], offset, limit },
       { petTypeBySpeciesAndColorLoader, itemSearchToFitLoader }
     ) => {
       const petType = await petTypeBySpeciesAndColorLoader.load({
@@ -650,7 +651,8 @@ const resolvers = {
         offset,
         limit,
       });
-      return { query, items };
+      const zones = zoneIds.map((id) => ({ id }));
+      return { query, zones, items };
     },
     petAppearanceById: (_, { id }) => ({ id }),
     petAppearance: async (

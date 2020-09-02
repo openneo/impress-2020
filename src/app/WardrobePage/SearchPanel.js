@@ -243,6 +243,9 @@ function useSearchResults(query, outfitState) {
           limit: 50
         ) {
           query
+          zones {
+            id
+          }
           items {
             # TODO: De-dupe this from useOutfitState?
             id
@@ -297,14 +300,20 @@ function useSearchResults(query, outfitState) {
   );
 
   // Smooth over the data a bit, so that we can use key fields with confidence!
-  const result = data && data.itemSearchToFit;
-  const resultQuery = result && result.query;
-  const items = (result && result.items) || [];
+  const result = data?.itemSearchToFit;
+  const resultValue = result?.query;
+  const zoneStr = filterToZoneIds.sort().join(",");
+  const resultZoneStr = (result?.zones || [])
+    .map((z) => z.id)
+    .sort()
+    .join(",");
+  const queriesMatch = resultValue === query.value && resultZoneStr === zoneStr;
+  const items = result?.items || [];
 
   // Okay, what kind of loading state is this?
   let loading;
   let loadingMore;
-  if (loadingGQL && items.length > 0 && resultQuery === query) {
+  if (loadingGQL && items.length > 0 && queriesMatch) {
     // If we already have items for this query, but we're also loading GQL,
     // then we're `loadingMore`.
     loading = false;
@@ -329,10 +338,6 @@ function useSearchResults(query, outfitState) {
           offset: items.length,
         },
         updateQuery: (prev, { fetchMoreResult }) => {
-          if (!fetchMoreResult || fetchMoreResult.query !== prev.query) {
-            return prev;
-          }
-
           // Note: This is a bit awkward because, if the results count ends on
           // a multiple of 30, the user will see a flash of loading before
           // getting told it's actually the end. Ah well :/
@@ -349,10 +354,10 @@ function useSearchResults(query, outfitState) {
           return {
             ...prev,
             itemSearchToFit: {
-              ...prev.itemSearchToFit,
+              ...(prev?.itemSearchToFit || {}),
               items: [
-                ...prev.itemSearchToFit.items,
-                ...fetchMoreResult.itemSearchToFit.items,
+                ...(prev?.itemSearchToFit?.items || []),
+                ...(fetchMoreResult?.itemSearchToFit?.items || []),
               ],
             },
           };
