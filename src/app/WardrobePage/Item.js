@@ -109,6 +109,16 @@ function Item({
           </Wrap>
         </Box>
         <Box flex="0 0 auto">
+          {isInOutfit && (
+            <ItemActionButton
+              icon={<DeleteIcon />}
+              label="Remove"
+              onClick={(e) => {
+                dispatchToOutfit({ type: "removeItem", itemId: item.id });
+                e.preventDefault();
+              }}
+            />
+          )}
           <SupportOnly>
             <ItemActionButton
               icon={<EditIcon />}
@@ -127,16 +137,6 @@ function Item({
             }-${item.name.replace(/ /g, "-")}`}
             onClick={(e) => e.stopPropagation()}
           />
-          {isInOutfit && (
-            <ItemActionButton
-              icon={<DeleteIcon />}
-              label="Remove"
-              onClick={(e) => {
-                dispatchToOutfit({ type: "removeItem", itemId: item.id });
-                e.preventDefault();
-              }}
-            />
-          )}
         </Box>
       </ItemContainer>
       <SupportOnly>
