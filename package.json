@@ -42,7 +42,8 @@
     "mysql": "mysql --host=impress.openneo.net --user=$(dotenv -p IMPRESS_MYSQL_USER) --password=$(dotenv -p IMPRESS_MYSQL_PASSWORD) --database=openneo_impress",
     "mysql-admin": "mysql --host=impress.openneo.net --user=matchu --password --database=openneo_impress",
     "build-cached-data": "node -r dotenv/config scripts/build-cached-data.js",
-    "cache-asset-manifests": "node -r dotenv/config scripts/cache-asset-manifests.js"
+    "cache-asset-manifests": "node -r dotenv/config scripts/cache-asset-manifests.js",
+    "build-user-export-for-auth0": "node -r dotenv/config scripts/build-user-export-for-auth0.js"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -65,6 +66,7 @@
     "customize-cra-react-refresh": "^1.1.0",
     "dotenv-cli": "^3.1.0",
     "es6-promise-pool": "^2.5.0",
+    "inquirer": "^7.3.3",
     "prettier": "^2.0.5",
     "react-app-rewired": "^2.1.6"
   }
