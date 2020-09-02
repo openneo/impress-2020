@@ -36,7 +36,8 @@ const LoadableItemSupportDrawer = loadable(() =>
  *
  * In fact, this component can't trigger wear or unwear events! When you click
  * it in the app, you're actually clicking a <label> that wraps the radio or
- * checkbox. We _do_ control the Remove button in here, though!
+ * checkbox. Similarly, the parent provides the `onRemove` callback for the
+ * Remove button.
  *
  * NOTE: This component is memoized with React.memo. It's surpisingly expensive
  *       to re-render, because Chakra components are a lil bit expensive from
@@ -50,7 +51,7 @@ function Item({
   itemNameId,
   isWorn,
   isInOutfit,
-  dispatchToOutfit,
+  onRemove,
   isDisabled = false,
 }) {
   const [supportDrawerIsOpen, setSupportDrawerIsOpen] = React.useState(false);
@@ -114,7 +115,7 @@ function Item({
               icon={<DeleteIcon />}
               label="Remove"
               onClick={(e) => {
-                dispatchToOutfit({ type: "removeItem", itemId: item.id });
+                onRemove();
                 e.preventDefault();
               }}
             />

@@ -136,7 +136,9 @@ function ItemZoneGroup({
                   !isDisabled && outfitState.wornItemIds.includes(item.id)
                 }
                 isInOutfit={outfitState.allItemIds.includes(item.id)}
-                dispatchToOutfit={dispatchToOutfit}
+                onRemove={() =>
+                  dispatchToOutfit({ type: "removeItem", itemId: item.id })
+                }
                 isDisabled={isDisabled}
               />
             );

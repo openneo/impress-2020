@@ -48,6 +48,16 @@ function SearchPanel({
       }}
     >
       <SearchResults
+        // When the query changes, replace the SearchResults component with a
+        // new instance, to reset `itemIdsToReconsider`. That way, if you find
+        // an item you like in one search, then immediately do a second search
+        // and try a conflicting item, we'll restore the item you liked from
+        // your first search!
+        //
+        // NOTE: I wonder how this affects things like state. This component
+        //       also tries to gracefully handle changes in the query, but tbh
+        //       I wonder whether that's still necessary...
+        key={serializeQuery(query)}
         query={query}
         outfitState={outfitState}
         dispatchToOutfit={dispatchToOutfit}
@@ -81,14 +91,20 @@ function SearchResults({
   );
   useScrollTracker(scrollContainerRef, 300, fetchMore);
 
+  // This will save the `wornItemIds` when the SearchResults first mounts, and
+  // keep it saved even after the outfit changes. We use this to try to restore
+  // these items after the user makes changes, e.g., after they try on another
+  // Background we want to restore the previous one!
+  const [itemIdsToReconsider] = React.useState(outfitState.wornItemIds);
+
   // When the checkbox changes, we should wear/unwear the item!
   const onChange = (e) => {
     const itemId = e.target.value;
     const willBeWorn = e.target.checked;
     if (willBeWorn) {
-      dispatchToOutfit({ type: "wearItem", itemId });
+      dispatchToOutfit({ type: "wearItem", itemId, itemIdsToReconsider });
     } else {
-      dispatchToOutfit({ type: "unwearItem", itemId });
+      dispatchToOutfit({ type: "unwearItem", itemId, itemIdsToReconsider });
     }
   };
 
@@ -173,7 +189,13 @@ function SearchResults({
               item={item}
               isWorn={outfitState.wornItemIds.includes(item.id)}
               isInOutfit={outfitState.allItemIds.includes(item.id)}
-              dispatchToOutfit={dispatchToOutfit}
+              onRemove={() =>
+                dispatchToOutfit({
+                  type: "removeItem",
+                  itemId: item.id,
+                  itemIdsToReconsider,
+                })
+              }
             />
           </label>
         ))}
@@ -403,6 +425,14 @@ function useScrollTracker(scrollContainerRef, threshold, onScrolledToBottom) {
       }
     };
   }, [onScroll, scrollContainerRef]);
+}
+
+/**
+ * serializeQuery stably converts a search query object to a string, for easier
+ * JS comparison.
+ */
+function serializeQuery(query) {
+  return `${JSON.stringify([query.value, query.filterToZoneLabel])}`;
 }
 
 export default SearchPanel;

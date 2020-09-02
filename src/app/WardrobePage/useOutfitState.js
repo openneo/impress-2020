@@ -124,7 +124,7 @@ const outfitStateReducer = (apolloClient) => (baseState, action) => {
     case "wearItem":
       return produce(baseState, (state) => {
         const { wornItemIds, closetedItemIds } = state;
-        const { itemId } = action;
+        const { itemId, itemIdsToReconsider = [] } = action;
 
         // Move conflicting items to the closet.
         //
@@ -153,24 +153,30 @@ const outfitStateReducer = (apolloClient) => (baseState, action) => {
         // Move this item from the closet to the worn set.
         closetedItemIds.delete(itemId);
         wornItemIds.add(itemId);
+
+        reconsiderItems(itemIdsToReconsider, state, apolloClient);
       });
     case "unwearItem":
       return produce(baseState, (state) => {
         const { wornItemIds, closetedItemIds } = state;
-        const { itemId } = action;
+        const { itemId, itemIdsToReconsider = [] } = action;
 
         // Move this item from the worn set to the closet.
         wornItemIds.delete(itemId);
         closetedItemIds.add(itemId);
+
+        reconsiderItems(itemIdsToReconsider, state, apolloClient);
       });
     case "removeItem":
       return produce(baseState, (state) => {
         const { wornItemIds, closetedItemIds } = state;
-        const { itemId } = action;
+        const { itemId, itemIdsToReconsider = [] } = action;
 
         // Remove this item from both the worn set and the closet.
         wornItemIds.delete(itemId);
         closetedItemIds.delete(itemId);
+
+        reconsiderItems(itemIdsToReconsider, state, apolloClient);
       });
     case "setPose":
       return {
@@ -303,6 +309,28 @@ function setsIntersect(a, b) {
     }
   }
   return false;
+}
+
+/**
+ * Try to add these items back to the outfit, if there would be no conflicts.
+ * We use this in Search to try to restore these items after the user makes
+ * changes, e.g., after they try on another Background we want to restore the
+ * previous one!
+ *
+ * This mutates state.wornItemIds directly, on the assumption that we're in an
+ * immer block, in which case mutation is the simplest API!
+ */
+function reconsiderItems(itemIdsToReconsider, state, apolloClient) {
+  for (const itemIdToReconsider of itemIdsToReconsider) {
+    const conflictingIds = findItemConflicts(
+      itemIdToReconsider,
+      state,
+      apolloClient
+    );
+    if (conflictingIds.length === 0) {
+      state.wornItemIds.add(itemIdToReconsider);
+    }
+  }
 }
 
 // TODO: Get this out of here, tbh...
