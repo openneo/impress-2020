@@ -204,6 +204,21 @@ function useSearchResults(query, outfitState) {
     setIsEndOfResults(false);
   }, [query]);
 
+  // NOTE: This query should always load ~instantly, from the client cache.
+  const { data: zoneData } = useQuery(gql`
+    query SearchPanelZones {
+      allZones {
+        id
+        label
+      }
+    }
+  `);
+  const allZones = zoneData?.allZones || [];
+  const filterToZones = query.filterToZoneLabel
+    ? allZones.filter((z) => z.label === query.filterToZoneLabel)
+    : [];
+  const filterToZoneIds = filterToZones.map((z) => z.id);
+
   // Here's the actual GQL query! At the bottom we have more config than usual!
   const {
     loading: loadingGQL,
@@ -215,11 +230,13 @@ function useSearchResults(query, outfitState) {
       query SearchPanel(
         $query: String!
         $speciesId: ID!
+        $zoneIds: [ID!]!
         $colorId: ID!
         $offset: Int!
       ) {
         itemSearchToFit(
           query: $query
+          zoneIds: $zoneIds
           speciesId: $speciesId
           colorId: $colorId
           offset: $offset
@@ -257,7 +274,13 @@ function useSearchResults(query, outfitState) {
       ${itemAppearanceFragment}
     `,
     {
-      variables: { query: debouncedQuery.value, speciesId, colorId, offset: 0 },
+      variables: {
+        query: debouncedQuery.value,
+        zoneIds: filterToZoneIds,
+        speciesId,
+        colorId,
+        offset: 0,
+      },
       skip: !debouncedQuery.value && !debouncedQuery.filterToZoneLabel,
       notifyOnNetworkStatusChange: true,
       onCompleted: (d) => {

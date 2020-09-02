@@ -189,7 +189,7 @@ const buildItemSearchToFitLoader = (db, loaders) =>
     // This isn't actually optimized as a batch query, we're just using a
     // DataLoader API consistency with our other loaders!
     const queryPromises = queryAndBodyIdPairs.map(
-      async ({ query, bodyId, offset, limit }) => {
+      async ({ query, bodyId, zoneIds = [], offset, limit }) => {
         const actualOffset = offset || 0;
         const actualLimit = Math.min(limit || 30, 30);
 
@@ -200,6 +200,10 @@ const buildItemSearchToFitLoader = (db, loaders) =>
         const matcherPlaceholders = words
           .map((_) => "t.name LIKE ?")
           .join(" AND ");
+        const zoneIdsPlaceholder =
+          zoneIds.length > 0
+            ? `swf_assets.zone_id IN (${zoneIds.map((_) => "?").join(", ")})`
+            : "1";
         const [rows, _] = await db.execute(
           `SELECT DISTINCT items.*, t.name FROM items
            INNER JOIN item_translations t ON t.item_id = items.id
@@ -207,10 +211,17 @@ const buildItemSearchToFitLoader = (db, loaders) =>
                ON rel.parent_type = "Item" AND rel.parent_id = items.id
            INNER JOIN swf_assets ON rel.swf_asset_id = swf_assets.id
            WHERE ${matcherPlaceholders} AND t.locale="en" AND
-               (swf_assets.body_id = ? OR swf_assets.body_id = 0)
+               (swf_assets.body_id = ? OR swf_assets.body_id = 0) AND
+               ${zoneIdsPlaceholder}
            ORDER BY t.name
            LIMIT ? OFFSET ?`,
-          [...wordMatchersForMysql, bodyId, actualLimit, actualOffset]
+          [
+            ...wordMatchersForMysql,
+            bodyId,
+            ...zoneIds,
+            actualLimit,
+            actualOffset,
+          ]
         );
 
         const entities = rows.map(normalizeRow);

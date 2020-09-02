@@ -233,6 +233,7 @@ const typeDefs = gql`
       query: String!
       speciesId: ID!
       colorId: ID!
+      zoneIds: [ID!]
       offset: Int
       limit: Int
     ): ItemSearchResult!
@@ -634,7 +635,7 @@ const resolvers = {
     },
     itemSearchToFit: async (
       _,
-      { query, speciesId, colorId, offset, limit },
+      { query, speciesId, colorId, zoneIds, offset, limit },
       { petTypeBySpeciesAndColorLoader, itemSearchToFitLoader }
     ) => {
       const petType = await petTypeBySpeciesAndColorLoader.load({
@@ -645,6 +646,7 @@ const resolvers = {
       const items = await itemSearchToFitLoader.load({
         query: query.trim(),
         bodyId,
+        zoneIds,
         offset,
         limit,
       });

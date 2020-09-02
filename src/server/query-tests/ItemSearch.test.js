@@ -119,13 +119,81 @@ describe("ItemSearch", () => {
                      ON rel.parent_type = \\"Item\\" AND rel.parent_id = items.id
                  INNER JOIN swf_assets ON rel.swf_asset_id = swf_assets.id
                  WHERE t.name LIKE ? AND t.name LIKE ? AND t.locale=\\"en\\" AND
-                     (swf_assets.body_id = ? OR swf_assets.body_id = 0)
+                     (swf_assets.body_id = ? OR swf_assets.body_id = 0) AND
+                     1
                  ORDER BY t.name
                  LIMIT ? OFFSET ?",
           Array [
             "%Neopian%",
             "%Times%",
             "180",
+            30,
+            0,
+          ],
+        ],
+      ]
+    `);
+  });
+
+  it("loads Neopian Times items that fit the Starry Zafara as a Background", async () => {
+    const res = await query({
+      query: gql`
+        query {
+          itemSearchToFit(
+            query: "Neopian Times"
+            speciesId: "54"
+            colorId: "75"
+            zoneIds: ["3"]
+          ) {
+            query
+            items {
+              id
+              name
+            }
+          }
+        }
+      `,
+    });
+
+    expect(res).toHaveNoErrors();
+    expect(res.data).toMatchInlineSnapshot(`
+      Object {
+        "itemSearchToFit": Object {
+          "items": Array [
+            Object {
+              "id": "40431",
+              "name": "Neopian Times Background",
+            },
+          ],
+          "query": "Neopian Times",
+        },
+      }
+    `);
+    expect(getDbCalls()).toMatchInlineSnapshot(`
+      Array [
+        Array [
+          "SELECT * FROM pet_types WHERE (species_id = ? AND color_id = ?)",
+          Array [
+            "54",
+            "75",
+          ],
+        ],
+        Array [
+          "SELECT DISTINCT items.*, t.name FROM items
+                 INNER JOIN item_translations t ON t.item_id = items.id
+                 INNER JOIN parents_swf_assets rel
+                     ON rel.parent_type = \\"Item\\" AND rel.parent_id = items.id
+                 INNER JOIN swf_assets ON rel.swf_asset_id = swf_assets.id
+                 WHERE t.name LIKE ? AND t.name LIKE ? AND t.locale=\\"en\\" AND
+                     (swf_assets.body_id = ? OR swf_assets.body_id = 0) AND
+                     swf_assets.zone_id IN (?)
+                 ORDER BY t.name
+                 LIMIT ? OFFSET ?",
+          Array [
+            "%Neopian%",
+            "%Times%",
+            "180",
+            "3",
             30,
             0,
           ],
@@ -183,7 +251,8 @@ describe("ItemSearch", () => {
                      ON rel.parent_type = \\"Item\\" AND rel.parent_id = items.id
                  INNER JOIN swf_assets ON rel.swf_asset_id = swf_assets.id
                  WHERE t.name LIKE ? AND t.name LIKE ? AND t.locale=\\"en\\" AND
-                     (swf_assets.body_id = ? OR swf_assets.body_id = 0)
+                     (swf_assets.body_id = ? OR swf_assets.body_id = 0) AND
+                     1
                  ORDER BY t.name
                  LIMIT ? OFFSET ?",
           Array [
@@ -242,7 +311,8 @@ describe("ItemSearch", () => {
                      ON rel.parent_type = \\"Item\\" AND rel.parent_id = items.id
                  INNER JOIN swf_assets ON rel.swf_asset_id = swf_assets.id
                  WHERE t.name LIKE ? AND t.locale=\\"en\\" AND
-                     (swf_assets.body_id = ? OR swf_assets.body_id = 0)
+                     (swf_assets.body_id = ? OR swf_assets.body_id = 0) AND
+                     1
                  ORDER BY t.name
                  LIMIT ? OFFSET ?",
           Array [
@@ -324,7 +394,8 @@ describe("ItemSearch", () => {
                      ON rel.parent_type = \\"Item\\" AND rel.parent_id = items.id
                  INNER JOIN swf_assets ON rel.swf_asset_id = swf_assets.id
                  WHERE t.name LIKE ? AND t.locale=\\"en\\" AND
-                     (swf_assets.body_id = ? OR swf_assets.body_id = 0)
+                     (swf_assets.body_id = ? OR swf_assets.body_id = 0) AND
+                     1
                  ORDER BY t.name
                  LIMIT ? OFFSET ?",
           Array [
