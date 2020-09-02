@@ -425,6 +425,23 @@ const buildPetStatesForPetTypeLoader = (db, loaders) =>
     );
   });
 
+const buildUserLoader = (db) => new DataLoader(async (ids) => {
+  const qs = ids.map((_) => "?").join(",");
+    const [rows, _] = await db.execute(
+      `SELECT * FROM users WHERE id IN (${qs})`,
+      ids
+    );
+
+    const entities = rows.map(normalizeRow);
+    const entitiesById = new Map(entities.map((e) => [e.id, e]));
+
+    return ids.map(
+      (id) =>
+        entitiesById.get(String(id)) ||
+        new Error(`could not find user with ID: ${id}`)
+    );
+});
+
 const buildZoneLoader = (db) => {
   const zoneLoader = new DataLoader(async (ids) => {
     const qs = ids.map((_) => "?").join(",");
@@ -504,6 +521,7 @@ function buildLoaders(db) {
   );
   loaders.speciesLoader = buildSpeciesLoader(db);
   loaders.speciesTranslationLoader = buildSpeciesTranslationLoader(db);
+  loaders.userLoader = buildUserLoader(db);
   loaders.zoneLoader = buildZoneLoader(db);
   loaders.zoneTranslationLoader = buildZoneTranslationLoader(db);
 

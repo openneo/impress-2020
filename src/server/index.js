@@ -222,6 +222,11 @@ const typeDefs = gql`
     items: [Item!]! # deprecated alias for wornItems
   }
 
+  type User {
+    id: ID!
+    username: String!
+  }
+
   type Query {
     allColors: [Color!]! @cacheControl(maxAge: 10800) # Cache for 3 hours (we might add more!)
     allSpecies: [Species!]! @cacheControl(maxAge: 10800) # Cache for 3 hours (we might add more!)
@@ -255,6 +260,8 @@ const typeDefs = gql`
 
     color(id: ID!): Color
     species(id: ID!): Species
+
+    user(id: ID!): User
 
     petOnNeopetsDotCom(petName: String!): Outfit
   }
@@ -605,6 +612,12 @@ const resolvers = {
         .map((oir) => ({ id: oir.itemId }));
     },
   },
+  User: {
+    username: async ({ id }, _, { userLoader }) => {
+      const user = await userLoader.load(id);
+      return user.name;
+    },
+  },
   Query: {
     allColors: async (_, { ids }, { colorLoader }) => {
       const allColors = await colorLoader.loadAll();
@@ -688,6 +701,19 @@ const resolvers = {
       return petStates.map((petState) => ({ id: petState.id }));
     },
     outfit: (_, { id }) => ({ id }),
+    user: async (_, { id }, { userLoader }) => {
+      try {
+        const user = await userLoader.load(id);
+      } catch (e) {
+        if (e.message.includes("could not find user")) {
+          return null;
+        } else {
+          throw e;
+        }
+      }
+
+      return { id };
+    },
     petOnNeopetsDotCom: async (_, { petName }) => {
       const [petMetaData, customPetData] = await Promise.all([
         neopets.loadPetMetaData(petName),
