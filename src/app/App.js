@@ -1,5 +1,6 @@
 import React from "react";
 import { ApolloProvider } from "@apollo/client";
+import { Auth0Provider } from "@auth0/auth0-react";
 import { CSSReset, ChakraProvider } from "@chakra-ui/core";
 import defaultTheme from "@chakra-ui/theme";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
@@ -31,19 +32,25 @@ const theme = {
 function App() {
   return (
     <Router>
-      <ApolloProvider client={apolloClient}>
-        <ChakraProvider theme={theme}>
-          <CSSReset />
-          <Switch>
-            <Route path="/outfits/new">
-              <WardrobePage />
-            </Route>
-            <Route path="/">
-              <HomePage />
-            </Route>
-          </Switch>
-        </ChakraProvider>
-      </ApolloProvider>
+      <Auth0Provider
+        domain="openneo.us.auth0.com"
+        clientId="8LjFauVox7shDxVufQqnviUIywMuuC4r"
+        redirectUri={window.location.origin}
+      >
+        <ApolloProvider client={apolloClient}>
+          <ChakraProvider theme={theme}>
+            <CSSReset />
+            <Switch>
+              <Route path="/outfits/new">
+                <WardrobePage />
+              </Route>
+              <Route path="/">
+                <HomePage />
+              </Route>
+            </Switch>
+          </ChakraProvider>
+        </ApolloProvider>
+      </Auth0Provider>
     </Router>
   );
 }

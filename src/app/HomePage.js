@@ -15,6 +15,7 @@ import {
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
 import { useHistory, useLocation } from "react-router-dom";
 import { useLazyQuery } from "@apollo/client";
+import { useAuth0 } from "@auth0/auth0-react";
 
 import { Heading1, usePageTitle } from "./util";
 import OutfitPreview from "./components/OutfitPreview";
@@ -30,7 +31,12 @@ function HomePage() {
   const [previewState, setPreviewState] = React.useState(null);
 
   return (
-    <Flex direction="column" p="6" align="center" textAlign="center">
+    <Flex direction="column" p="6" pt="3" align="center" textAlign="center">
+      <Box width="100%" display="flex" alignItems="center">
+        <ColorModeToggleButton />
+        <Box flex="1 0 0" />
+        <UserLoginLogout />
+      </Box>
       <Box height="8" />
       <Box
         width="200px"
@@ -65,9 +71,37 @@ function HomePage() {
       </Box>
       <Box height="4" />
       <SubmitPetForm />
-      <ColorModeToggleButton />
     </Flex>
   );
+}
+
+function UserLoginLogout() {
+  const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0();
+
+  if (isAuthenticated) {
+    console.log(user);
+    const username = user["https://oauth.impress-2020.openneo.net/username"];
+
+    return (
+      <Box display="flex" alignItems="center">
+        <Box fontSize="sm">Hi, {username}!</Box>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => logout({ returnTo: window.location.origin })}
+          marginLeft="2"
+        >
+          Log out
+        </Button>
+      </Box>
+    );
+  } else {
+    return (
+      <Button size="sm" variant="outline" onClick={() => loginWithRedirect()}>
+        Log in
+      </Button>
+    );
+  }
 }
 
 function StartOutfitForm({ onChange }) {
@@ -252,9 +286,6 @@ function ColorModeToggleButton() {
       icon={colorMode === "light" ? <MoonIcon /> : <SunIcon />}
       onClick={toggleColorMode}
       variant="ghost"
-      position="fixed"
-      bottom="3"
-      right="3"
     />
   );
 }
