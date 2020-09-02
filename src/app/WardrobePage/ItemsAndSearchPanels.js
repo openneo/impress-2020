@@ -4,7 +4,6 @@ import { Box, Flex } from "@chakra-ui/core";
 import ItemsPanel from "./ItemsPanel";
 import SearchToolbar from "./SearchToolbar";
 import SearchPanel from "./SearchPanel";
-import { isNullableType } from "graphql";
 
 const emptyQuery = { value: "", filterToZoneLabel: null };
 
@@ -39,7 +38,7 @@ function ItemsAndSearchPanels({ loading, outfitState, dispatchToOutfit }) {
           query={searchQuery}
           searchQueryRef={searchQueryRef}
           firstSearchResultRef={firstSearchResultRef}
-          onChange={setSearchQuery}
+          onChange={onChange}
         />
       </Box>
       {searchQuery.value || searchQuery.filterToZoneLabel ? (
@@ -50,7 +49,7 @@ function ItemsAndSearchPanels({ loading, outfitState, dispatchToOutfit }) {
           overflow="auto"
           ref={scrollContainerRef}
         >
-          <Box px="4" py="5">
+          <Box px="4" py="2">
             <SearchPanel
               query={searchQuery.value}
               outfitState={outfitState}
@@ -68,7 +67,7 @@ function ItemsAndSearchPanels({ loading, outfitState, dispatchToOutfit }) {
           overflow="auto"
           key="items-panel"
         >
-          <Box px="4" py="5">
+          <Box px="4" py="2">
             <ItemsPanel
               loading={loading}
               outfitState={outfitState}

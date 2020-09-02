@@ -12,7 +12,7 @@ import {
   useColorModeValue,
 } from "@chakra-ui/core";
 import { CloseIcon, SearchIcon } from "@chakra-ui/icons";
-import { css } from "emotion";
+import { css, cx } from "emotion";
 import Autosuggest from "react-autosuggest";
 
 /**
@@ -57,12 +57,54 @@ function SearchToolbar({
     }
   };
 
+  const suggestionBgColor = useColorModeValue("transparent", "whiteAlpha.100");
+  const highlightedBgColor = useColorModeValue("gray.100", "whiteAlpha.300");
+
   const renderSuggestion = React.useCallback(
     (zoneLabel, { isHighlighted }) => (
-      <Box fontWeight={isHighlighted ? "bold" : "normal"}>{zoneLabel}</Box>
+      <Box
+        fontWeight={isHighlighted ? "bold" : "normal"}
+        background={isHighlighted ? highlightedBgColor : suggestionBgColor}
+        padding="2"
+        paddingLeft="2.5rem"
+        fontSize="sm"
+      >
+        {zoneLabel}
+      </Box>
     ),
+    [suggestionBgColor, highlightedBgColor]
+  );
+
+  const renderSuggestionsContainer = React.useCallback(
+    ({ containerProps, children }) => {
+      const { className, ...otherContainerProps } = containerProps;
+      return (
+        <Box
+          {...otherContainerProps}
+          borderBottomRadius="md"
+          boxShadow="md"
+          overflow="hidden"
+          transition="all 0.4s"
+          className={cx(
+            className,
+            css`
+              li {
+                list-style: none;
+              }
+            `
+          )}
+        >
+          {children}
+        </Box>
+      );
+    },
     []
   );
+
+  // When we change the filter zone, clear out the suggestions.
+  React.useEffect(() => {
+    setSuggestions([]);
+  }, [query.filterToZoneLabel]);
 
   const focusBorderColor = useColorModeValue("green.600", "green.400");
 
@@ -83,7 +125,9 @@ function SearchToolbar({
       }}
       getSuggestionValue={(zl) => zl}
       shouldRenderSuggestions={() => query.filterToZoneLabel == null}
+      highlightFirstSuggestion={true}
       renderSuggestion={renderSuggestion}
+      renderSuggestionsContainer={renderSuggestionsContainer}
       renderInputComponent={(props) => (
         <InputGroup>
           {query.filterToZoneLabel ? (
@@ -97,7 +141,7 @@ function SearchToolbar({
             </InputLeftElement>
           )}
           <Input {...props} />
-          {query && (
+          {(query.value || query.filterToZoneLabel) && (
             <InputRightElement>
               <IconButton
                 icon={<CloseIcon />}
@@ -123,6 +167,7 @@ function SearchToolbar({
         value: query.value || "",
         ref: searchQueryRef,
         minWidth: 0,
+        borderBottomRadius: suggestions.length > 0 ? "0" : "md",
         // HACK: Chakra isn't noticing the InputLeftElement swapping out
         //       for the InputLeftAddon, so the styles aren't updating...
         //       Hard override!

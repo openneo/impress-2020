@@ -3,7 +3,7 @@ import gql from "graphql-tag";
 import { Box, Text, VisuallyHidden } from "@chakra-ui/core";
 import { useQuery } from "@apollo/client";
 
-import { Delay, Heading1, useDebounce } from "../util";
+import { Delay, useDebounce } from "../util";
 import Item, { ItemListContainer, ItemListSkeleton } from "./Item";
 import { itemAppearanceFragment } from "../components/useOutfitAppearance";
 
@@ -47,7 +47,6 @@ function SearchPanel({
         }
       }}
     >
-      <Heading1 mb="4">Searching for "{query}"</Heading1>
       <SearchResults
         query={query}
         outfitState={outfitState}
