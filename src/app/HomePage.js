@@ -76,7 +76,17 @@ function HomePage() {
 }
 
 function UserLoginLogout() {
-  const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0();
+  const {
+    isLoading,
+    user,
+    isAuthenticated,
+    loginWithRedirect,
+    logout,
+  } = useAuth0();
+
+  if (isLoading) {
+    return null;
+  }
 
   if (isAuthenticated) {
     // NOTE: Users created correctly should have these attributes... but I'm
