@@ -4,6 +4,9 @@ import { Box, Flex } from "@chakra-ui/core";
 import ItemsPanel from "./ItemsPanel";
 import SearchToolbar from "./SearchToolbar";
 import SearchPanel from "./SearchPanel";
+import { isNullableType } from "graphql";
+
+const emptyQuery = { value: "", filterToZoneLabel: null };
 
 /**
  * ItemsAndSearchPanels manages the shared layout and state for:
@@ -19,10 +22,15 @@ import SearchPanel from "./SearchPanel";
  * state and refs.
  */
 function ItemsAndSearchPanels({ loading, outfitState, dispatchToOutfit }) {
-  const [searchQuery, setSearchQuery] = React.useState(null);
+  const [searchQuery, setSearchQuery] = React.useState(emptyQuery);
   const scrollContainerRef = React.useRef();
   const searchQueryRef = React.useRef();
   const firstSearchResultRef = React.useRef();
+
+  const onChange = React.useCallback(
+    (newQuery) => setSearchQuery(newQuery || emptyQuery),
+    [setSearchQuery]
+  );
 
   return (
     <Flex direction="column" height="100%">
@@ -34,7 +42,7 @@ function ItemsAndSearchPanels({ loading, outfitState, dispatchToOutfit }) {
           onChange={setSearchQuery}
         />
       </Box>
-      {searchQuery ? (
+      {searchQuery.value || searchQuery.filterToZoneLabel ? (
         <Box
           key="search-panel"
           gridArea="items"

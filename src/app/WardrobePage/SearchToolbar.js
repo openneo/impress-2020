@@ -12,6 +12,7 @@ import {
   useColorModeValue,
 } from "@chakra-ui/core";
 import { CloseIcon, SearchIcon } from "@chakra-ui/icons";
+import { css } from "emotion";
 import Autosuggest from "react-autosuggest";
 
 /**
@@ -81,11 +82,11 @@ function SearchToolbar({
         });
       }}
       getSuggestionValue={(zl) => zl}
-      shouldRenderSuggestions={() => query?.filterToZoneLabel == null}
+      shouldRenderSuggestions={() => query.filterToZoneLabel == null}
       renderSuggestion={renderSuggestion}
       renderInputComponent={(props) => (
         <InputGroup>
-          {query?.filterToZoneLabel ? (
+          {query.filterToZoneLabel ? (
             <InputLeftAddon>
               <SearchIcon color="gray.400" marginRight="3" />
               <Box fontSize="sm">{query.filterToZoneLabel}</Box>
@@ -119,12 +120,23 @@ function SearchToolbar({
         // placeholder: "Search for items to add…",
         "aria-label": "Search for items to add…",
         focusBorderColor: focusBorderColor,
-        value: query?.value || "",
+        value: query.value || "",
         ref: searchQueryRef,
         minWidth: 0,
         // HACK: Chakra isn't noticing the InputLeftElement swapping out
-        //       for the InputLeftAddon, so the padding isn't updating.
-        paddingLeft: query?.filterToZoneLabel ? "1rem" : "2.5rem",
+        //       for the InputLeftAddon, so the styles aren't updating...
+        //       Hard override!
+        className: css`
+          padding-left: ${query.filterToZoneLabel
+            ? "1rem"
+            : "2.5rem"} !important;
+          border-bottom-left-radius: ${query.filterToZoneLabel
+            ? "0"
+            : "0.25rem"} !important;
+          border-top-left-radius: ${query.filterToZoneLabel
+            ? "0"
+            : "0.25rem"} !important;
+        `,
         onChange: (e, { newValue, method }) => {
           // The Autosuggest tries to change the _entire_ value of the element
           // when navigating suggestions, which isn't actually what we want.
@@ -146,10 +158,8 @@ function SearchToolbar({
               return;
             }
             onMoveFocusDownToResults(e);
-          } else if (e.key === "Backspace") {
-            if (query.value === "") {
-              onChange({ ...query, filterToZoneLabel: null });
-            }
+          } else if (e.key === "Backspace" && e.target.selectionStart === 0) {
+            onChange({ ...query, filterToZoneLabel: null });
           }
         },
       }}
