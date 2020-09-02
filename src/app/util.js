@@ -78,10 +78,15 @@ export function safeImageUrl(url) {
  *
  * Adapted from https://usehooks.com/useDebounce/
  */
-export function useDebounce(value, delay, { waitForFirstPause = false } = {}) {
+export function useDebounce(
+  value,
+  delay,
+  { waitForFirstPause = false, initialValue = null } = {}
+) {
   // State and setters for debounced value
-  const initialValue = waitForFirstPause ? null : value;
-  const [debouncedValue, setDebouncedValue] = React.useState(initialValue);
+  const [debouncedValue, setDebouncedValue] = React.useState(
+    waitForFirstPause ? initialValue : value
+  );
 
   React.useEffect(
     () => {

@@ -193,7 +193,10 @@ function useSearchResults(query, outfitState) {
 
   // We debounce the search query, so that we don't resend a new query whenever
   // the user types anything.
-  const debouncedQuery = useDebounce(query, 300, { waitForFirstPause: true });
+  const debouncedQuery = useDebounce(query, 300, {
+    waitForFirstPause: true,
+    initialValue: { value: "", filterToZoneLabel: null },
+  });
 
   // When the query changes, we should update our impression of whether we've
   // reached the end!
@@ -254,8 +257,8 @@ function useSearchResults(query, outfitState) {
       ${itemAppearanceFragment}
     `,
     {
-      variables: { query: debouncedQuery, speciesId, colorId, offset: 0 },
-      skip: debouncedQuery === null,
+      variables: { query: debouncedQuery.value, speciesId, colorId, offset: 0 },
+      skip: !debouncedQuery.value && !debouncedQuery.filterToZoneLabel,
       notifyOnNetworkStatusChange: true,
       onCompleted: (d) => {
         // This is called each time the query completes, including on

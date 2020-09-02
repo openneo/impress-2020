@@ -51,7 +51,7 @@ function ItemsAndSearchPanels({ loading, outfitState, dispatchToOutfit }) {
         >
           <Box px="4" py="2">
             <SearchPanel
-              query={searchQuery.value}
+              query={searchQuery}
               outfitState={outfitState}
               dispatchToOutfit={dispatchToOutfit}
               scrollContainerRef={scrollContainerRef}
