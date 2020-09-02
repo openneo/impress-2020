@@ -73,7 +73,7 @@ function Item({
             isDisabled={isDisabled}
           />
         </Box>
-        <Box flex="1 1 0" minWidth="0">
+        <Box flex="1 1 0" minWidth="0" marginTop="1px">
           <ItemName id={itemNameId} isWorn={isWorn} isDisabled={isDisabled}>
             {item.name}
           </ItemName>
@@ -109,7 +109,7 @@ function Item({
             ))}
           </Wrap>
         </Box>
-        <Box flex="0 0 auto">
+        <Box flex="0 0 auto" marginTop="5px">
           {isInOutfit && (
             <ItemActionButton
               icon={<DeleteIcon />}
@@ -159,7 +159,7 @@ function ItemSkeleton() {
     <ItemContainer isDisabled>
       <Skeleton width="50px" height="50px" />
       <Box width="3" />
-      <Skeleton height="1.5rem" width="12rem" />
+      <Skeleton height="1.5rem" width="12rem" alignSelf="center" />
     </ItemContainer>
   );
 }
@@ -195,7 +195,6 @@ function ItemContainer({ children, isDisabled = false }) {
       my="1"
       borderRadius="lg"
       d="flex"
-      alignItems="center"
       cursor={isDisabled ? undefined : "pointer"}
       border="1px"
       borderColor="transparent"
