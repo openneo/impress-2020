@@ -8,6 +8,7 @@ import {
   useColorModeValue,
 } from "@chakra-ui/core";
 import { CloseIcon, SearchIcon } from "@chakra-ui/icons";
+import Autosuggest from "react-autosuggest";
 
 /**
  * SearchToolbar is rendered above both the ItemsPanel and the SearchPanel,
@@ -24,6 +25,8 @@ function SearchToolbar({
   firstSearchResultRef,
   onChange,
 }) {
+  const [suggestions, setSuggestions] = React.useState([]);
+
   const onMoveFocusDownToResults = (e) => {
     if (firstSearchResultRef.current) {
       firstSearchResultRef.current.focus();
@@ -34,42 +37,54 @@ function SearchToolbar({
   const focusBorderColor = useColorModeValue("green.600", "green.400");
 
   return (
-    <InputGroup>
-      <InputLeftElement>
-        <SearchIcon color="gray.400" />
-      </InputLeftElement>
-      <Input
-        placeholder="Search for items to add…"
-        aria-label="Search for items to add…"
-        focusBorderColor={focusBorderColor}
-        value={query}
-        ref={searchQueryRef}
-        onChange={(e) => onChange(e.target.value)}
-        onKeyDown={(e) => {
+    <Autosuggest
+      suggestions={suggestions}
+      onSuggestionsFetchRequested={({ value }) => {
+        if (value.includes("hat")) setSuggestions(["Zone: Hat"]);
+        else setSuggestions([]);
+      }}
+      onSuggestionsClearRequested={() => {}}
+      renderSuggestion={() => "Hat"}
+      renderInputComponent={(props) => (
+        <InputGroup>
+          <InputLeftElement>
+            <SearchIcon color="gray.400" />
+          </InputLeftElement>
+          <Input {...props} />
+          {query && (
+            <InputRightElement>
+              <IconButton
+                icon={<CloseIcon />}
+                color="gray.400"
+                variant="ghost"
+                colorScheme="green"
+                aria-label="Clear search"
+                onClick={() => onChange("")}
+                // Big style hacks here!
+                height="calc(100% - 2px)"
+                marginRight="2px"
+              />
+            </InputRightElement>
+          )}
+        </InputGroup>
+      )}
+      inputProps={{
+        placeholder: "Search for items to add…",
+        "aria-label": "Search for items to add…",
+        focusBorderColor: focusBorderColor,
+        value: query,
+        ref: searchQueryRef,
+        onChange: (e) => onChange(e.target.value),
+        onKeyDown: (e) => {
           if (e.key === "Escape") {
             onChange("");
             e.target.blur();
           } else if (e.key === "ArrowDown") {
             onMoveFocusDownToResults(e);
           }
-        }}
-      />
-      {query && (
-        <InputRightElement>
-          <IconButton
-            icon={<CloseIcon />}
-            color="gray.400"
-            variant="ghost"
-            colorScheme="green"
-            aria-label="Clear search"
-            onClick={() => onChange("")}
-            // Big style hacks here!
-            height="calc(100% - 2px)"
-            marginRight="2px"
-          />
-        </InputRightElement>
-      )}
-    </InputGroup>
+        },
+      }}
+    />
   );
 }
 
