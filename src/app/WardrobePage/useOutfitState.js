@@ -81,11 +81,15 @@ function useOutfitState() {
     wornItemIds,
     closetedItemIds
   );
+  const incompatibleItems = items
+    .filter((i) => i.appearanceOn.layers.length === 0)
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   const url = buildOutfitUrl(state);
 
   const outfitState = {
     zonesAndItems,
+    incompatibleItems,
     name,
     wornItemIds,
     closetedItemIds,

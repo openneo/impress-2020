@@ -8,9 +8,10 @@ import {
   Flex,
   IconButton,
   Skeleton,
+  Tooltip,
   VisuallyHidden,
 } from "@chakra-ui/core";
-import { EditIcon } from "@chakra-ui/icons";
+import { EditIcon, QuestionIcon } from "@chakra-ui/icons";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 
 import { Delay, Heading1, Heading2 } from "../util";
@@ -30,7 +31,7 @@ import Item, { ItemListContainer, ItemListSkeleton } from "./Item";
  * full width of the container, it doesn't look like it!
  */
 function ItemsPanel({ outfitState, loading, dispatchToOutfit }) {
-  const { zonesAndItems } = outfitState;
+  const { zonesAndItems, incompatibleItems } = outfitState;
 
   return (
     <Box>
@@ -55,6 +56,24 @@ function ItemsPanel({ outfitState, loading, dispatchToOutfit }) {
                 />
               </CSSTransition>
             ))}
+            {incompatibleItems.length > 0 && (
+              <ItemZoneGroup
+                zoneLabel="Incompatible"
+                afterHeader={
+                  <Tooltip
+                    label="These items don't fit this pet"
+                    placement="top"
+                    openDelay={100}
+                  >
+                    <QuestionIcon fontSize="sm" />
+                  </Tooltip>
+                }
+                items={incompatibleItems}
+                outfitState={outfitState}
+                dispatchToOutfit={dispatchToOutfit}
+                isDisabled
+              />
+            )}
           </TransitionGroup>
         )}
       </Flex>
@@ -70,7 +89,14 @@ function ItemsPanel({ outfitState, loading, dispatchToOutfit }) {
  * the Item component (which will visually reflect the radio's state). This
  * makes the list screen-reader- and keyboard-accessible!
  */
-function ItemZoneGroup({ zoneLabel, items, outfitState, dispatchToOutfit }) {
+function ItemZoneGroup({
+  zoneLabel,
+  items,
+  outfitState,
+  dispatchToOutfit,
+  isDisabled = false,
+  afterHeader = null,
+}) {
   // onChange is fired when the radio button becomes checked, not unchecked!
   const onChange = (e) => {
     const itemId = e.target.value;
@@ -93,38 +119,52 @@ function ItemZoneGroup({ zoneLabel, items, outfitState, dispatchToOutfit }) {
 
   return (
     <Box mb="10">
-      <Heading2 mx="1">{zoneLabel}</Heading2>
+      <Heading2 display="flex" alignItems="center" mx="1">
+        {zoneLabel}
+        {afterHeader && <Box marginLeft="2">{afterHeader}</Box>}
+      </Heading2>
       <ItemListContainer>
         <TransitionGroup component={null}>
           {items.map((item) => {
             const itemNameId =
               zoneLabel.replace(/ /g, "-") + `-item-${item.id}-name`;
+            const itemNode = (
+              <Item
+                item={item}
+                itemNameId={itemNameId}
+                isWorn={
+                  !isDisabled && outfitState.wornItemIds.includes(item.id)
+                }
+                isInOutfit={outfitState.allItemIds.includes(item.id)}
+                dispatchToOutfit={dispatchToOutfit}
+                isDisabled={isDisabled}
+              />
+            );
+
             return (
               <CSSTransition key={item.id} {...fadeOutAndRollUpTransition}>
-                <label>
-                  <VisuallyHidden
-                    as="input"
-                    type="radio"
-                    aria-labelledby={itemNameId}
-                    name={zoneLabel}
-                    value={item.id}
-                    checked={outfitState.wornItemIds.includes(item.id)}
-                    onChange={onChange}
-                    onClick={onClick}
-                    onKeyUp={(e) => {
-                      if (e.key === " ") {
-                        onClick(e);
-                      }
-                    }}
-                  />
-                  <Item
-                    item={item}
-                    itemNameId={itemNameId}
-                    isWorn={outfitState.wornItemIds.includes(item.id)}
-                    isInOutfit={outfitState.allItemIds.includes(item.id)}
-                    dispatchToOutfit={dispatchToOutfit}
-                  />
-                </label>
+                {isDisabled ? (
+                  itemNode
+                ) : (
+                  <label>
+                    <VisuallyHidden
+                      as="input"
+                      type="radio"
+                      aria-labelledby={itemNameId}
+                      name={zoneLabel}
+                      value={item.id}
+                      checked={outfitState.wornItemIds.includes(item.id)}
+                      onChange={onChange}
+                      onClick={onClick}
+                      onKeyUp={(e) => {
+                        if (e.key === " ") {
+                          onClick(e);
+                        }
+                      }}
+                    />
+                    {itemNode}
+                  </label>
+                )}
               </CSSTransition>
             );
           })}

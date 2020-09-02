@@ -52,7 +52,7 @@ function Item({
   isWorn,
   isInOutfit,
   dispatchToOutfit,
-  hideSimpleZones = false,
+  isDisabled = false,
 }) {
   const [supportDrawerIsOpen, setSupportDrawerIsOpen] = React.useState(false);
 
@@ -65,15 +65,16 @@ function Item({
 
   return (
     <>
-      <ItemContainer>
+      <ItemContainer isDisabled={isDisabled}>
         <Box flex="0 0 auto" marginRight="3">
           <ItemThumbnail
             src={safeImageUrl(item.thumbnailUrl)}
             isWorn={isWorn}
+            isDisabled={isDisabled}
           />
         </Box>
         <Box flex="1 1 0" minWidth="0">
-          <ItemName id={itemNameId} isWorn={isWorn}>
+          <ItemName id={itemNameId} isWorn={isWorn} isDisabled={isDisabled}>
             {item.name}
           </ItemName>
           <Wrap spacing="2" marginTop="1" opacity="0.7">
@@ -147,7 +148,7 @@ function Item({
  */
 function ItemSkeleton() {
   return (
-    <ItemContainer isFocusable={false}>
+    <ItemContainer isDisabled>
       <Skeleton width="50px" height="50px" />
       <Box width="3" />
       <Skeleton height="1.5rem" width="12rem" />
@@ -162,7 +163,7 @@ function ItemSkeleton() {
  * styles - including for its children, who sometimes reference it as an
  * .item-container parent!
  */
-function ItemContainer({ children, isFocusable = true }) {
+function ItemContainer({ children, isDisabled = false }) {
   const theme = useTheme();
 
   const focusBackgroundColor = useColorModeValue(
@@ -187,12 +188,12 @@ function ItemContainer({ children, isFocusable = true }) {
       borderRadius="lg"
       d="flex"
       alignItems="center"
-      cursor={isFocusable ? "pointer" : undefined}
+      cursor={isDisabled ? undefined : "pointer"}
       border="1px"
       borderColor="transparent"
       className={cx([
         "item-container",
-        isFocusable &&
+        !isDisabled &&
           css`
             &:hover,
             input:focus + & {
@@ -218,7 +219,7 @@ function ItemContainer({ children, isFocusable = true }) {
  * ItemThumbnail shows a small preview image for the item, including some
  * hover/focus and worn/unworn states.
  */
-function ItemThumbnail({ src, isWorn }) {
+function ItemThumbnail({ src, isWorn, isDisabled }) {
   const theme = useTheme();
   const colorMode = useColorMode();
 
@@ -243,16 +244,18 @@ function ItemThumbnail({ src, isWorn }) {
         {
           transform: "scale(0.8)",
         },
-        !isWorn && {
-          [containerHasFocus]: {
-            opacity: "0.9",
-            transform: "scale(0.9)",
+        !isDisabled &&
+          !isWorn && {
+            [containerHasFocus]: {
+              opacity: "0.9",
+              transform: "scale(0.9)",
+            },
           },
-        },
-        isWorn && {
-          opacity: 1,
-          transform: "none",
-        },
+        !isDisabled &&
+          isWorn && {
+            opacity: 1,
+            transform: "none",
+          },
       ])}
     >
       <Box
@@ -266,11 +269,12 @@ function ItemThumbnail({ src, isWorn }) {
           {
             borderColor: `${borderColor} !important`,
           },
-          !isWorn && {
-            [containerHasFocus]: {
-              borderColor: `${focusBorderColor} !important`,
+          !isDisabled &&
+            !isWorn && {
+              [containerHasFocus]: {
+                borderColor: `${focusBorderColor} !important`,
+              },
             },
-          },
         ])}
       >
         <Image width="100%" height="100%" src={src} alt="" />
@@ -283,7 +287,7 @@ function ItemThumbnail({ src, isWorn }) {
  * ItemName shows the item's name, including some hover/focus and worn/unworn
  * states.
  */
-function ItemName({ children, ...props }) {
+function ItemName({ children, isDisabled, ...props }) {
   const theme = useTheme();
 
   return (
@@ -293,17 +297,20 @@ function ItemName({ children, ...props }) {
       overflow="hidden"
       whiteSpace="nowrap"
       textOverflow="ellipsis"
-      className={css`
-        ${containerHasFocus} {
-          opacity: 0.9;
-          font-weight: ${theme.fontWeights.medium};
-        }
+      className={
+        !isDisabled &&
+        css`
+          ${containerHasFocus} {
+            opacity: 0.9;
+            font-weight: ${theme.fontWeights.medium};
+          }
 
-        input:checked + .item-container & {
-          opacity: 1;
-          font-weight: ${theme.fontWeights.bold};
-        }
-      `}
+          input:checked + .item-container & {
+            opacity: 1;
+            font-weight: ${theme.fontWeights.bold};
+          }
+        `
+      }
       {...props}
     >
       {children}
