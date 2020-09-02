@@ -152,6 +152,75 @@ describe("Item", () => {
     `);
   });
 
+  it("returns empty appearance for incompatible items", async () => {
+    const res = await query({
+      query: gql`
+        query {
+          items(ids: ["38912"]) {
+            id
+            name
+
+            appearanceOn(speciesId: "1", colorId: "8") {
+              layers {
+                id
+              }
+
+              # Pay particular attention to this: normally this item restricts
+              # zones, but not when the appearance is empty!
+              restrictedZones {
+                id
+              }
+            }
+          }
+        }
+      `,
+    });
+
+    expect(res).toHaveNoErrors();
+    expect(res.data).toMatchInlineSnapshot(`
+      Object {
+        "items": Array [
+          Object {
+            "appearanceOn": Object {
+              "layers": Array [],
+              "restrictedZones": Array [],
+            },
+            "id": "38912",
+            "name": "Zafara Agent Robe",
+          },
+        ],
+      }
+    `);
+    expect(getDbCalls()).toMatchInlineSnapshot(`
+      Array [
+        Array [
+          "SELECT * FROM item_translations WHERE item_id IN (?) AND locale = \\"en\\"",
+          Array [
+            "38912",
+          ],
+        ],
+        Array [
+          "SELECT * FROM pet_types WHERE (species_id = ? AND color_id = ?)",
+          Array [
+            "1",
+            "8",
+          ],
+        ],
+        Array [
+          "SELECT sa.*, rel.parent_id FROM swf_assets sa
+             INNER JOIN parents_swf_assets rel ON
+               rel.parent_type = \\"Item\\" AND
+               rel.swf_asset_id = sa.id
+             WHERE (rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0))",
+          Array [
+            "38912",
+            "93",
+          ],
+        ],
+      ]
+    `);
+  });
+
   it("skips appearance data for audio assets", async () => {
     const res = await query({
       query: gql`

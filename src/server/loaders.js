@@ -276,38 +276,41 @@ const buildSwfAssetLoader = (db) =>
   });
 
 const buildItemSwfAssetLoader = (db, loaders) =>
-  new DataLoader(async (itemAndBodyPairs) => {
-    const conditions = [];
-    const values = [];
-    for (const { itemId, bodyId } of itemAndBodyPairs) {
-      conditions.push(
-        "(rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0))"
-      );
-      values.push(itemId, bodyId);
-    }
+  new DataLoader(
+    async (itemAndBodyPairs) => {
+      const conditions = [];
+      const values = [];
+      for (const { itemId, bodyId } of itemAndBodyPairs) {
+        conditions.push(
+          "(rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0))"
+        );
+        values.push(itemId, bodyId);
+      }
 
-    const [rows, _] = await db.execute(
-      `SELECT sa.*, rel.parent_id FROM swf_assets sa
+      const [rows, _] = await db.execute(
+        `SELECT sa.*, rel.parent_id FROM swf_assets sa
        INNER JOIN parents_swf_assets rel ON
          rel.parent_type = "Item" AND
          rel.swf_asset_id = sa.id
        WHERE ${conditions.join(" OR ")}`,
-      values
-    );
+        values
+      );
 
-    const entities = rows.map(normalizeRow);
+      const entities = rows.map(normalizeRow);
 
-    for (const swfAsset of entities) {
-      loaders.swfAssetLoader.prime(swfAsset.id, swfAsset);
-    }
+      for (const swfAsset of entities) {
+        loaders.swfAssetLoader.prime(swfAsset.id, swfAsset);
+      }
 
-    return itemAndBodyPairs.map(({ itemId, bodyId }) =>
-      entities.filter(
-        (e) =>
-          e.parentId === itemId && (e.bodyId === bodyId || e.bodyId === "0")
-      )
-    );
-  });
+      return itemAndBodyPairs.map(({ itemId, bodyId }) =>
+        entities.filter(
+          (e) =>
+            e.parentId === itemId && (e.bodyId === bodyId || e.bodyId === "0")
+        )
+      );
+    },
+    { cacheKeyFn: ({ itemId, bodyId }) => `${itemId},${bodyId}` }
+  );
 
 const buildPetSwfAssetLoader = (db, loaders) =>
   new DataLoader(async (petStateIds) => {

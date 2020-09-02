@@ -360,7 +360,17 @@ const resolvers = {
 
       return allSwfAssets.filter((sa) => sa.url.endsWith(".swf"));
     },
-    restrictedZones: async ({ item: { id: itemId } }, _, { itemLoader }) => {
+    restrictedZones: async (
+      { item: { id: itemId }, bodyId },
+      _,
+      { itemSwfAssetLoader, itemLoader }
+    ) => {
+      // Check whether this appearance is empty. If so, restrict no zones.
+      const allSwfAssets = await itemSwfAssetLoader.load({ itemId, bodyId });
+      if (allSwfAssets.length === 0) {
+        return [];
+      }
+
       const item = await itemLoader.load(itemId);
       return getRestrictedZoneIds(item.zonesRestrict).map((id) => ({ id }));
     },
