@@ -1313,12 +1313,12 @@ async function getUserIdFromToken(token) {
     return null;
   }
 
-  const userId = payload.sub.match(/auth0\|impress-([0-9]+)/)?.[1];
-  if (!userId) {
+  const subMatch = payload.sub.match(/auth0\|impress-([0-9]+)/);
+  if (!subMatch) {
     console.log("Unexpected auth token sub format", payload.sub);
     return null;
   }
-
+  const userId = subMatch[1];
   return userId;
 }
 
@@ -1335,7 +1335,8 @@ const config = {
     };
     lastSvgLogger = svgLogger;
 
-    const token = req.headers.authorization?.match(/^Bearer (.+)$/)?.[1];
+    const tokenMatch = (req.headers.authorization || "").match(/^Bearer (.+)$/);
+    const token = tokenMatch && tokenMatch[1];
     const currentUserId = await getUserIdFromToken(token);
 
     return {

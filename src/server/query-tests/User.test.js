@@ -3,6 +3,9 @@ const { query, getDbCalls, logInAsTestUser } = require("./setup.js");
 
 describe("User", () => {
   it("looks up a user", async () => {
+    // TODO: I'm not sure why this is taking extra time, maybe the db conn?
+    jest.setTimeout(10000);
+
     const res = await query({
       query: gql`
         query {
