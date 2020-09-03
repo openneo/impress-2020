@@ -1335,8 +1335,9 @@ const config = {
     };
     lastSvgLogger = svgLogger;
 
-    const tokenMatch = (req.headers.authorization || "").match(/^Bearer (.+)$/);
-    const token = tokenMatch && tokenMatch[1];
+    const auth = (req && req.headers && req.headers.authorization) || "";
+    const authMatch = auth.match(/^Bearer (.+)$/);
+    const token = authMatch && authMatch[1];
     const currentUserId = await getUserIdFromToken(token);
 
     return {
