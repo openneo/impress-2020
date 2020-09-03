@@ -17,8 +17,8 @@ const { normalizeRow } = require("../src/server/util");
 
 const auth0 = new ManagementClient({
   domain: "openneo.us.auth0.com",
-  clientId: process.env.AUTH0_CLIENT_ID,
-  clientSecret: process.env.AUTH0_CLIENT_SECRET,
+  clientId: process.env.AUTH0_SUPPORT_CLIENT_ID,
+  clientSecret: process.env.AUTH0_SUPPORT_CLIENT_SECRET,
   scope: "read:users update:users",
 });
 

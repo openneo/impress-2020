@@ -36,6 +36,8 @@ function App() {
         domain="openneo.us.auth0.com"
         clientId="8LjFauVox7shDxVufQqnviUIywMuuC4r"
         redirectUri={window.location.origin}
+        audience="https://impress-2020.openneo.net/api"
+        scope=""
       >
         <ApolloProvider client={apolloClient}>
           <ChakraProvider theme={theme}>

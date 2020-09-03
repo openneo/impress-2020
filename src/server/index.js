@@ -1,5 +1,9 @@
-const { gql, makeExecutableSchema } = require("apollo-server");
+const util = require("util");
+
 const { addBeelineToSchema, beelinePlugin } = require("./lib/beeline-graphql");
+const { gql, makeExecutableSchema } = require("apollo-server");
+const jwtVerify = util.promisify(require("jsonwebtoken").verify);
+const jwksClient = require("jwks-rsa");
 
 const connectToDb = require("./db");
 const buildLoaders = require("./loaders");
@@ -262,6 +266,7 @@ const typeDefs = gql`
     species(id: ID!): Species
 
     user(id: ID!): User
+    currentUser: User
 
     petOnNeopetsDotCom(petName: String!): Outfit
   }
@@ -713,6 +718,23 @@ const resolvers = {
       }
 
       return { id };
+    },
+    currentUser: async (_, __, { currentUserId, userLoader }) => {
+      if (currentUserId == null) {
+        return null;
+      }
+
+      try {
+        const user = await userLoader.load(currentUserId);
+      } catch (e) {
+        if (e.message.includes("could not find user")) {
+          return null;
+        } else {
+          throw e;
+        }
+      }
+
+      return { id: currentUserId };
     },
     petOnNeopetsDotCom: async (_, { petName }) => {
       const [petMetaData, customPetData] = await Promise.all([
@@ -1260,9 +1282,49 @@ if (process.env["NODE_ENV"] !== "test") {
   plugins.push(beelinePlugin);
 }
 
+const jwks = jwksClient({
+  jwksUri: "https://openneo.us.auth0.com/.well-known/jwks.json",
+});
+
+async function getJwtKey(header, callback) {
+  jwks.getSigningKey(header.kid, (err, key) => {
+    if (err) {
+      return callback(null, signingKey);
+    }
+    const signingKey = key.publicKey || key.rsaPublicKey;
+    callback(null, signingKey);
+  });
+}
+
+async function getUserIdFromToken(token) {
+  if (!token) {
+    return null;
+  }
+
+  let payload;
+  try {
+    payload = await jwtVerify(token, getJwtKey, {
+      audience: "https://impress-2020.openneo.net/api",
+      issuer: "https://openneo.us.auth0.com/",
+      algorithms: ["RS256"],
+    });
+  } catch (e) {
+    console.error(`Invalid auth token: ${token}\n${e}`);
+    return null;
+  }
+
+  const userId = payload.sub.match(/auth0\|impress-([0-9]+)/)?.[1];
+  if (!userId) {
+    console.log("Unexpected auth token sub format", payload.sub);
+    return null;
+  }
+
+  return userId;
+}
+
 const config = {
   schema,
-  context: async () => {
+  context: async ({ req }) => {
     const db = await connectToDb();
 
     const svgLogger = {
@@ -1273,9 +1335,13 @@ const config = {
     };
     lastSvgLogger = svgLogger;
 
+    const token = req.headers.authorization?.match(/^Bearer (.+)$/)?.[1];
+    const currentUserId = await getUserIdFromToken(token);
+
     return {
       svgLogger,
       db,
+      currentUserId,
       ...buildLoaders(db),
     };
   },
