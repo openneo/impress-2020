@@ -1,68 +1,35 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+<img src="https://i.imgur.com/mZ2FCfX.png" width="200" height="200" alt="Dress to Impress beach logo" />
 
-## Available Scripts
+# Dress to Impress 2020
 
-In the project directory, you can run:
+This is a rewrite of the Neopets customization app, Dress to Impress!
 
-### `yarn start`
+It's a React app, built with `create-react-app`, running on Vercel, JAMstack-style.
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+The motivating goals of the rewrite are:
+- Mobile friendly, to match Neopets's move to mobile.
+- Simple modern tech, to be more maintainable over time and decrease hosting costs.
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+If you want to contribute, please reach out to Matchu! This repository is _almost_ shareable, but the main limitation is that we currently run even our development server against the production database, and those credentials are private. But we can change that if there's interest!
 
-### `yarn test`
+## Architecture sketch
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+First, there's the core app, in this repository.
+- **React app:** Runs on Vercel's CDN. Code in `src/app`.
+- **API functions:** Run on Vercel's Serverless Functions. Code in `api` and `src/server`.
 
-### `yarn build`
+Then, there's our various data storage components.
+- **MySQL database:** Runs on our Linode VPS, colocated with the old app.
+- **Amazon S3:** Stores PNGs of pet/item appearance layers, converted from the Neopets SWFs. *(Once Neopets releases HTML5-compatible assets for all their items, we can hopefully remove this!)*
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Finally, there's our third-party integrations.
+- **Auth0:** For authentication. Data imported from our old OpenNeo ID auth database.
+- **Honeycomb:** For observability & performance insights on the backend.
+- **Discord:** For logging Support users' actions to a private Discord server.
+- **Neopets:** We load pet data from them! And plenty of assets!
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `yarn eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `yarn build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+Notable old components _not_ currently included in Impress 2020:
+- **Elasticsearch:** Used for lightning-fast item search queries. So far, we're finding the MySQL queries to be fast enough in practice. Might consider using some kind of fulltext query engine if that doesn't scale with more users!
+- **Resque:** Used to schedule background tasks for modeling and outfit thumbnails.
+- **Outfit thumbnail generation:** Used for outfit thumbnails in the app. I'm wondering if there's a way to get away with not doing this, like just rendering the layers... but I suppose if we want a good social share experience, then we'll probably want this. Maybe we can generate them on the fly as API requests, instead of adding a data storage component?
+- **Memcache:** Used to cache common HTML and JSON snippets. Not yet needing anything similar in Impress 2020!
