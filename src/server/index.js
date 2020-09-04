@@ -229,6 +229,7 @@ const typeDefs = gql`
   type User {
     id: ID!
     username: String!
+    itemsTheyOwn: [Item!]!
   }
 
   type Query {
@@ -622,13 +623,38 @@ const resolvers = {
       const user = await userLoader.load(id);
       return user.name;
     },
+    itemsTheyOwn: async (
+      { id },
+      _,
+      { currentUserId, userLoader, userOwnedClosetHangersLoader }
+    ) => {
+      const user = await userLoader.load(id);
+      const hangersAreVisible =
+        user.ownedClosetHangersVisibility >= 2 || user.id === currentUserId;
+      if (!hangersAreVisible) {
+        return [];
+      }
+
+      const allClosetHangers = await userOwnedClosetHangersLoader.load(id);
+      const closetHangersWithNoList = allClosetHangers.filter(
+        (h) => h.listId == null
+      );
+
+      const items = closetHangersWithNoList.map((h) => ({
+        id: h.itemId,
+        // We get this for the ORDER BY clause anyway - may as well include it
+        // here to avoid an extra lookup!
+        name: h.itemName,
+      }));
+      return items;
+    },
   },
   Query: {
-    allColors: async (_, { ids }, { colorLoader }) => {
+    allColors: async (_, __, { colorLoader }) => {
       const allColors = await colorLoader.loadAll();
       return allColors;
     },
-    allSpecies: async (_, { ids }, { speciesLoader }) => {
+    allSpecies: async (_, __, { speciesLoader }) => {
       const allSpecies = await speciesLoader.loadAll();
       return allSpecies;
     },
@@ -708,7 +734,7 @@ const resolvers = {
     outfit: (_, { id }) => ({ id }),
     user: async (_, { id }, { userLoader }) => {
       try {
-        const user = await userLoader.load(id);
+        await userLoader.load(id);
       } catch (e) {
         if (e.message.includes("could not find user")) {
           return null;
@@ -725,7 +751,7 @@ const resolvers = {
       }
 
       try {
-        const user = await userLoader.load(currentUserId);
+        await userLoader.load(currentUserId);
       } catch (e) {
         if (e.message.includes("could not find user")) {
           return null;

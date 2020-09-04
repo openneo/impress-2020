@@ -19,6 +19,7 @@ GRANT UPDATE ON openneo_impress.pet_states TO impress2020;
 GRANT UPDATE ON openneo_impress.swf_assets TO impress2020;
 
 -- User data tables
+GRANT SELECT ON openneo_impress.closet_hangers TO impress2020;
 GRANT SELECT ON openneo_impress.item_outfit_relationships TO impress2020;
 GRANT SELECT ON openneo_impress.outfits TO impress2020;
 GRANT SELECT ON openneo_impress.users TO impress2020;

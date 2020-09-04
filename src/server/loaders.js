@@ -425,8 +425,9 @@ const buildPetStatesForPetTypeLoader = (db, loaders) =>
     );
   });
 
-const buildUserLoader = (db) => new DataLoader(async (ids) => {
-  const qs = ids.map((_) => "?").join(",");
+const buildUserLoader = (db) =>
+  new DataLoader(async (ids) => {
+    const qs = ids.map((_) => "?").join(",");
     const [rows, _] = await db.execute(
       `SELECT * FROM users WHERE id IN (${qs})`,
       ids
@@ -440,7 +441,26 @@ const buildUserLoader = (db) => new DataLoader(async (ids) => {
         entitiesById.get(String(id)) ||
         new Error(`could not find user with ID: ${id}`)
     );
-});
+  });
+
+const buildUserOwnedClosetHangersLoader = (db) =>
+  new DataLoader(async (userIds) => {
+    const qs = userIds.map((_) => "?").join(",");
+    const [rows, _] = await db.execute(
+      `SELECT closet_hangers.*, item_translations.name as item_name FROM closet_hangers
+       INNER JOIN items ON items.id = closet_hangers.item_id
+       INNER JOIN item_translations ON
+         item_translations.item_id = items.id AND locale = "en"
+       WHERE user_id IN (${qs}) AND owned = 1
+       ORDER BY item_name`,
+      userIds
+    );
+    const entities = rows.map(normalizeRow);
+
+    return userIds.map((userId) =>
+      entities.filter((e) => e.userId === String(userId))
+    );
+  });
 
 const buildZoneLoader = (db) => {
   const zoneLoader = new DataLoader(async (ids) => {
@@ -522,6 +542,7 @@ function buildLoaders(db) {
   loaders.speciesLoader = buildSpeciesLoader(db);
   loaders.speciesTranslationLoader = buildSpeciesTranslationLoader(db);
   loaders.userLoader = buildUserLoader(db);
+  loaders.userOwnedClosetHangersLoader = buildUserOwnedClosetHangersLoader(db);
   loaders.zoneLoader = buildZoneLoader(db);
   loaders.zoneTranslationLoader = buildZoneTranslationLoader(db);
 
