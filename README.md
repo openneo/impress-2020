@@ -33,3 +33,4 @@ Notable old components _not_ currently included in Impress 2020:
 - **Resque:** Used to schedule background tasks for modeling and outfit thumbnails.
 - **Outfit thumbnail generation:** Used for outfit thumbnails in the app. I'm wondering if there's a way to get away with not doing this, like just rendering the layers... but I suppose if we want a good social share experience, then we'll probably want this. Maybe we can generate them on the fly as API requests, instead of adding a data storage component?
 - **Memcache:** Used to cache common HTML and JSON snippets. Not yet needing anything similar in Impress 2020!
+- **The entire old Rails app!** No references to it in here, aside from some temporary URL links to features that aren't implemented here yet.
