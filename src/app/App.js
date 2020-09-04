@@ -5,11 +5,13 @@ import { CSSReset, ChakraProvider } from "@chakra-ui/core";
 import defaultTheme from "@chakra-ui/theme";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import loadable from "@loadable/component";
+import { useAuth0 } from "@auth0/auth0-react";
 
-import apolloClient from "./apolloClient";
+import buildApolloClient from "./apolloClient";
 
-const WardrobePage = loadable(() => import("./WardrobePage"));
+const ItemsPage = loadable(() => import("./ItemsPage"));
 const HomePage = loadable(() => import("./HomePage"));
+const WardrobePage = loadable(() => import("./WardrobePage"));
 
 const theme = {
   ...defaultTheme,
@@ -39,22 +41,40 @@ function App() {
         audience="https://impress-2020.openneo.net/api"
         scope=""
       >
-        <ApolloProvider client={apolloClient}>
+        <ApolloProviderWithAuth0>
           <ChakraProvider theme={theme}>
             <CSSReset />
             <Switch>
               <Route path="/outfits/new">
                 <WardrobePage />
               </Route>
+              <Route path="/user/:userId/items">
+                <ItemsPage />
+              </Route>
               <Route path="/">
                 <HomePage />
               </Route>
             </Switch>
           </ChakraProvider>
-        </ApolloProvider>
+        </ApolloProviderWithAuth0>
       </Auth0Provider>
     </Router>
   );
+}
+
+function ApolloProviderWithAuth0({ children }) {
+  const auth0 = useAuth0();
+  const auth0Ref = React.useRef(auth0);
+
+  React.useEffect(() => {
+    auth0Ref.current = auth0;
+  }, [auth0]);
+
+  const client = React.useMemo(
+    () => buildApolloClient(() => auth0Ref.current),
+    []
+  );
+  return <ApolloProvider client={client}>{children}</ApolloProvider>;
 }
 
 export default App;

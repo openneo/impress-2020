@@ -1,4 +1,5 @@
 import { ApolloClient, createHttpLink, InMemoryCache } from "@apollo/client";
+import { setContext } from "@apollo/client/link/context";
 import { createPersistedQueryLink } from "apollo-link-persisted-queries";
 import gql from "graphql-tag";
 
@@ -55,7 +56,7 @@ const typePolicies = {
         //       don't love escape-hatching to the client like this, but...
         let cachedData;
         try {
-          cachedData = client.readQuery({
+          cachedData = hackyEscapeHatchClient.readQuery({
             query: gql`
               query CacheLookupForItemAppearanceReader(
                 $speciesId: ID!
@@ -105,6 +106,32 @@ const persistedQueryLink = createPersistedQueryLink({
   useGETForHashedQueries: true,
 });
 const httpLink = createHttpLink({ uri: "/api/graphql" });
+const buildAuthLink = (getAuth0) =>
+  setContext(async (_, { headers }) => {
+    // Wait for auth0 to stop loading, so we can maybe get a token! We'll do
+    // this hackily by checking every 100ms until it's true.
+    await new Promise((resolve) => {
+      function check() {
+        if (getAuth0().isLoading) {
+          setTimeout(check, 100);
+        } else {
+          resolve();
+        }
+      }
+      check();
+    });
+
+    const { isAuthenticated, getAccessTokenSilently } = getAuth0();
+    if (isAuthenticated) {
+      const token = await getAccessTokenSilently();
+      return {
+        headers: {
+          ...headers,
+          authorization: token ? `Bearer ${token}` : "",
+        },
+      };
+    }
+  });
 
 const initialCache = {};
 for (const zone of cachedZones) {
@@ -115,10 +142,17 @@ for (const zone of cachedZones) {
  * apolloClient is the global Apollo Client instance we use for GraphQL
  * queries. This is how we communicate with the server!
  */
-const client = new ApolloClient({
-  link: persistedQueryLink.concat(httpLink),
-  cache: new InMemoryCache({ typePolicies }).restore(initialCache),
-  connectToDevTools: true,
-});
+let hackyEscapeHatchClient = null;
+const buildClient = (getAuth0) => {
+  const client = new ApolloClient({
+    link: buildAuthLink(getAuth0).concat(persistedQueryLink).concat(httpLink),
+    cache: new InMemoryCache({ typePolicies }).restore(initialCache),
+    connectToDevTools: true,
+  });
 
-export default client;
+  hackyEscapeHatchClient = client;
+
+  return client;
+};
+
+export default buildClient;

@@ -13,12 +13,13 @@ import {
   useToast,
 } from "@chakra-ui/core";
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
-import { useHistory, useLocation } from "react-router-dom";
+import { Link, useHistory, useLocation } from "react-router-dom";
 import { useLazyQuery } from "@apollo/client";
 import { useAuth0 } from "@auth0/auth0-react";
 
 import { Heading1, usePageTitle } from "./util";
 import OutfitPreview from "./components/OutfitPreview";
+import useCurrentUser from "./components/useCurrentUser";
 
 import HomepageSplashImg from "../images/homepage-splash.png";
 import HomepageSplashImg2x from "../images/homepage-splash@2x.png";
@@ -76,32 +77,21 @@ function HomePage() {
 }
 
 function UserLoginLogout() {
-  const {
-    isLoading,
-    user,
-    isAuthenticated,
-    loginWithRedirect,
-    logout,
-  } = useAuth0();
+  const { isLoading, isAuthenticated, loginWithRedirect, logout } = useAuth0();
+  const { id, username } = useCurrentUser();
 
   if (isLoading) {
     return null;
   }
 
   if (isAuthenticated) {
-    // NOTE: Users created correctly should have these attributes... but I'm
-    //       coding defensively, because third-party integrations are always a
-    //       bit of a thing, and I don't want failures to crash us!
-    const username = user["https://oauth.impress-2020.openneo.net/username"];
-    const id = user.sub?.match(/^auth0\|impress-([0-9]+)$/)?.[1];
-
     return (
       <Box display="flex" alignItems="center">
         {username && <Box fontSize="sm">Hi, {username}!</Box>}
         {id && (
           <Button
-            as="a"
-            href={`https://impress.openneo.net/user/${id}-${username}/closet`}
+            as={Link}
+            to={`/user/${id}/items`}
             size="sm"
             variant="outline"
             marginLeft="2"
