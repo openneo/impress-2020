@@ -1,8 +1,9 @@
 {
-    "editor.formatOnSave": true,
-    "editor.tabSize": 2,
-    "jest.pathToJest": "yarn test",
-    "jest.autoEnable": false,
-    "javascript.suggest.completeJSDocs": false,
-    "typescript.suggest.completeJSDocs": false
+  "editor.formatOnSave": true,
+  "editor.tabSize": 2,
+  "jest.pathToJest": "yarn test",
+  "jest.autoEnable": false,
+  "javascript.suggest.completeJSDocs": false,
+  "typescript.suggest.completeJSDocs": false,
+  "editor.rulers": [80]
 }
