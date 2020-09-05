@@ -1,7 +1,6 @@
 import { ApolloClient, createHttpLink, InMemoryCache } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { createPersistedQueryLink } from "apollo-link-persisted-queries";
-import gql from "graphql-tag";
 
 import cachedZones from "./cached-data/zones.json";
 
@@ -48,49 +47,25 @@ const typePolicies = {
         // case we can reuse the standard color appearance if we already have
         // it! This helps for fast loading when switching between standard
         // colors.
-
         const { speciesId, colorId } = args;
-
-        // HACK: I can't find a way to do bigger-picture queries like this from
-        //       Apollo's cache field reader API. Am I missing something? I
-        //       don't love escape-hatching to the client like this, but...
-        let cachedData;
-        try {
-          cachedData = hackyEscapeHatchClient.readQuery({
-            query: gql`
-              query CacheLookupForItemAppearanceReader(
-                $speciesId: ID!
-                $colorId: ID!
-              ) {
-                species(id: $speciesId) {
-                  standardBodyId
-                }
-                color(id: $colorId) {
-                  isStandard
-                }
-              }
-            `,
-            variables: { speciesId, colorId },
-          });
-        } catch (e) {
-          // Some errors are expected while setting up the cache... not sure
-          // how to distinguish from Real errors. Just gonna ignore them all
-          // for now!
-          return undefined;
-        }
-
-        if (!cachedData) {
+        const speciesStandardBodyId = readField(
+          "standardBodyId",
+          toReference({ __typename: "Species", id: speciesId })
+        );
+        const colorIsStandard = readField(
+          "isStandard",
+          toReference({ __typename: "Color", id: colorId })
+        );
+        if (speciesStandardBodyId == null || colorIsStandard == null) {
           // This is an expected case while the page is loading.
-          return undefined;
+          return null;
         }
 
-        const { species, color } = cachedData;
-        if (color.isStandard) {
+        if (colorIsStandard) {
           const itemId = readField("id");
-          const bodyId = species.standardBodyId;
           return toReference({
             __typename: "ItemAppearance",
-            id: `item-${itemId}-body-${bodyId}`,
+            id: `item-${itemId}-body-${speciesStandardBodyId}`,
           });
         } else {
           return undefined;
@@ -142,17 +117,11 @@ for (const zone of cachedZones) {
  * apolloClient is the global Apollo Client instance we use for GraphQL
  * queries. This is how we communicate with the server!
  */
-let hackyEscapeHatchClient = null;
-const buildClient = (getAuth0) => {
-  const client = new ApolloClient({
+const buildClient = (getAuth0) =>
+  new ApolloClient({
     link: buildAuthLink(getAuth0).concat(persistedQueryLink).concat(httpLink),
     cache: new InMemoryCache({ typePolicies }).restore(initialCache),
     connectToDevTools: true,
   });
-
-  hackyEscapeHatchClient = client;
-
-  return client;
-};
 
 export default buildClient;
