@@ -170,7 +170,7 @@ describe("User", () => {
              INNER JOIN items ON items.id = closet_hangers.item_id
              INNER JOIN item_translations ON
                item_translations.item_id = items.id AND locale = \\"en\\"
-             WHERE user_id IN (44743) AND owned = 1
+             WHERE user_id IN (?) AND owned = 1
              ORDER BY item_name",
           Array [
             "44743",

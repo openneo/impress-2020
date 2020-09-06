@@ -96,6 +96,44 @@ Object {
 }
 `;
 
+exports[`ItemSearch loads Neopian Times items that fit the Starry Zafara 5`] = `
+Object {
+  "itemSearchToFit": Object {
+    "items": Array [
+      Object {
+        "id": "40431",
+        "name": "Neopian Times Background",
+      },
+      Object {
+        "id": "51098",
+        "name": "Neopian Times Writing Quill",
+      },
+      Object {
+        "id": "61101",
+        "name": "Neopian Times Zafara Handkerchief",
+      },
+      Object {
+        "id": "61100",
+        "name": "Neopian Times Zafara Hat",
+      },
+      Object {
+        "id": "61102",
+        "name": "Neopian Times Zafara Shirt and Vest",
+      },
+      Object {
+        "id": "61104",
+        "name": "Neopian Times Zafara Shoes",
+      },
+      Object {
+        "id": "61103",
+        "name": "Neopian Times Zafara Trousers",
+      },
+    ],
+    "query": "Neopian Times",
+  },
+}
+`;
+
 exports[`ItemSearch loads the first 10 hats that fit the Starry Zafara 1`] = `
 Object {
   "itemSearchToFit": Object {

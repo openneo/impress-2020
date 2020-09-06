@@ -165,3 +165,18 @@ Object {
   ],
 }
 `;
+
+exports[`Item skips appearance data for audio assets 5`] = `
+Object {
+  "items": Array [
+    Object {
+      "appearanceOn": Object {
+        "layers": Array [],
+        "restrictedZones": Array [],
+      },
+      "id": "42829",
+      "name": "Time Tunnel Music Track",
+    },
+  ],
+}
+`;
