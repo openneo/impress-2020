@@ -16,6 +16,7 @@ async function connectToDb({
       user,
       password,
       database: "openneo_impress",
+      multipleStatements: true,
     })
     // We upgrade to promises here, instead of using the mysql2/promise import,
     // for compatibility with Honeycomb's automatic tracing.

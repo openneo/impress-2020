@@ -291,6 +291,11 @@ describe("Item", () => {
   it("loads items that need models", async () => {
     jest.setTimeout(20000);
 
+    const buildLoaders = require("../loaders");
+    const db = await require("../db")();
+    const { itemsThatNeedModelsLoader } = buildLoaders(db);
+    await itemsThatNeedModelsLoader.load("all");
+
     const res = await query({
       query: gql`
         query {

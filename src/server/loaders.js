@@ -239,6 +239,8 @@ const buildItemSearchToFitLoader = (db, loaders) =>
     return responses;
   });
 
+let lastKnownUpdate = "1970-01-01"; // start it out very old!
+let lastResult = [];
 const buildItemsThatNeedModelsLoader = (db) =>
   new DataLoader(async (keys) => {
     // Essentially, I want to take easy advantage of DataLoader's caching, for
@@ -248,38 +250,36 @@ const buildItemsThatNeedModelsLoader = (db) =>
       throw new Error(`this loader can only be loaded with the key "all"`);
     }
 
-    const [rows, _] = await db.execute(`
-      SELECT items.id, 
-        GROUP_CONCAT(DISTINCT pet_types.species_id ORDER BY pet_types.species_id)
-          AS modeled_species_ids,
-        -- Vandagyre was added on 2014-11-14, so we add some buffer here.
-        -- TODO: Some later Dyeworks items don't support Vandagyre.
-        -- Add a manual db flag?
-        items.created_at >= "2014-12-01" AS supports_vandagyre
-      FROM items
-      INNER JOIN parents_swf_assets psa
-        ON psa.parent_type = "Item" AND psa.parent_id = items.id
-      INNER JOIN swf_assets
-        ON swf_assets.id = psa.swf_asset_id
-      INNER JOIN pet_types
-        ON pet_types.body_id = swf_assets.body_id
-      WHERE
-        pet_types.color_id = "8"
-      GROUP BY items.id
-      HAVING
-        NOT (
-          -- Single species (probably just their item)
-          count(DISTINCT pet_types.species_id) = 1
-          -- All species modeled
-          OR modeled_species_ids = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55"
-          -- All species modeled except Vandagyre, for items that don't support it
-          OR (NOT supports_vandagyre AND modeled_species_ids = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54")
-          -- No species (either an All Bodies item, or a Capsule type thing)
-          OR modeled_species_ids = ""
-        )
-      ORDER BY items.id
-  `);
+    // Call the query as a procedure, defined in `setup-mysql.sql`. It will
+    // only run the query if modeling data has been changed since the timestamp
+    // we provide; otherwise, it skips the query and returns no rows, which is
+    // much faster! (The query takes a few seconds to run.)
+    const [results, _] = await db.query(
+      `
+        CALL GetItemsThatNeedModelsIfNotCached(?, @LastActualUpdate);
+        SELECT @LastActualUpdate;
+      `,
+      [lastKnownUpdate]
+    );
+
+    // The query will return 2 or 3 results.
+    // Result 1 (optional): The rows produced by the CALL, if it ran the query.
+    //                      Or, if it skipped the query, this is omitted.
+    // Result 2 (required): The MySQL summary of the effects of the CALL.
+    // Result 3 (required): The 1-row table contianing @LastActualUpdate.
+    //
+    // So, check the number of results. If it's 2, then there was no change,
+    // and we should return our cached value. Or, if it's 3, then we should
+    // update our cache.
+    if (results.length === 2) {
+      return [lastResult];
+    }
+
+    const [rows, __, varRows] = results;
     const entities = rows.map(normalizeRow);
+
+    lastKnownUpdate = varRows[0]["@LastActualUpdate"];
+    lastResult = entities;
 
     return [entities];
   });
