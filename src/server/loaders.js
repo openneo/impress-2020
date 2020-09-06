@@ -239,6 +239,51 @@ const buildItemSearchToFitLoader = (db, loaders) =>
     return responses;
   });
 
+const buildItemsThatNeedModelsLoader = (db) =>
+  new DataLoader(async (keys) => {
+    // Essentially, I want to take easy advantage of DataLoader's caching, for
+    // this query that can only run one way ^_^` There might be a better way to
+    // do this!
+    if (keys.length !== 1 && keys[0] !== "all") {
+      throw new Error(`this loader can only be loaded with the key "all"`);
+    }
+
+    const [rows, _] = await db.execute(`
+      SELECT items.id, 
+        GROUP_CONCAT(DISTINCT pet_types.species_id ORDER BY pet_types.species_id)
+          AS modeled_species_ids,
+        -- Vandagyre was added on 2014-11-14, so we add some buffer here.
+        -- TODO: Some later Dyeworks items don't support Vandagyre.
+        -- Add a manual db flag?
+        items.created_at >= "2014-12-01" AS supports_vandagyre
+      FROM items
+      INNER JOIN parents_swf_assets psa
+        ON psa.parent_type = "Item" AND psa.parent_id = items.id
+      INNER JOIN swf_assets
+        ON swf_assets.id = psa.swf_asset_id
+      INNER JOIN pet_types
+        ON pet_types.body_id = swf_assets.body_id
+      WHERE
+        pet_types.color_id = "8"
+      GROUP BY items.id
+      HAVING
+        NOT (
+          -- Single species (probably just their item)
+          count(DISTINCT pet_types.species_id) = 1
+          -- All species modeled
+          OR modeled_species_ids = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55"
+          -- All species modeled except Vandagyre, for items that don't support it
+          OR (NOT supports_vandagyre AND modeled_species_ids = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54")
+          -- No species (either an All Bodies item, or a Capsule type thing)
+          OR modeled_species_ids = ""
+        )
+      ORDER BY items.id
+  `);
+    const entities = rows.map(normalizeRow);
+
+    return [entities];
+  });
+
 const buildPetTypeLoader = (db) =>
   new DataLoader(async (petTypeIds) => {
     const qs = petTypeIds.map((_) => "?").join(",");
@@ -522,6 +567,7 @@ function buildLoaders(db) {
   loaders.itemTranslationLoader = buildItemTranslationLoader(db);
   loaders.itemSearchLoader = buildItemSearchLoader(db, loaders);
   loaders.itemSearchToFitLoader = buildItemSearchToFitLoader(db, loaders);
+  loaders.itemsThatNeedModelsLoader = buildItemsThatNeedModelsLoader(db);
   loaders.petTypeLoader = buildPetTypeLoader(db);
   loaders.petTypeBySpeciesAndColorLoader = buildPetTypeBySpeciesAndColorLoader(
     db,

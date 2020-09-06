@@ -27,6 +27,11 @@ const typeDefs = gql`
     # because it's only used at modeling time. This value does not change how
     # layer data from this API should be interpreted!
     explicitlyBodySpecific: Boolean!
+
+    # NOTE: I think we'll probably deprecate this and add more complexity to
+    #       this API, because right now we're only looking at standard colors
+    #       but it would be good to report gaps in Mutant etc items too.
+    speciesThatNeedModels: [Species!]!
   }
 
   type ItemAppearance {
@@ -55,6 +60,7 @@ const typeDefs = gql`
       offset: Int
       limit: Int
     ): ItemSearchResult!
+    itemsThatNeedModels: [Item!]!
   }
 `;
 
@@ -105,6 +111,20 @@ const resolvers = {
     explicitlyBodySpecific: async ({ id }, _, { itemLoader }) => {
       const item = await itemLoader.load(id);
       return item.explicitlyBodySpecific;
+    },
+    speciesThatNeedModels: async ({ id }, _, { itemsThatNeedModelsLoader }) => {
+      const allItems = await itemsThatNeedModelsLoader.load("all");
+      const item = allItems.find((i) => i.id === id);
+      const modeledSpeciesIds = item.modeledSpeciesIds.split(",");
+      // HACK: Needs to be updated if more species are added!
+      const allSpeciesIds = Array.from(
+        { length: item.supportsVandagyre ? 55 : 54 },
+        (_, i) => String(i + 1)
+      );
+      const unmodeledSpeciesIds = allSpeciesIds.filter(
+        (id) => !modeledSpeciesIds.includes(id)
+      );
+      return unmodeledSpeciesIds.map((id) => ({ id }));
     },
   },
 
@@ -162,6 +182,10 @@ const resolvers = {
       });
       const zones = zoneIds.map((id) => ({ id }));
       return { query, zones, items };
+    },
+    itemsThatNeedModels: async (_, __, { itemsThatNeedModelsLoader }) => {
+      const items = await itemsThatNeedModelsLoader.load("all");
+      return items.map(({ id }) => ({ id }));
     },
   },
 };
