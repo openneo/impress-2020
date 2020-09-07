@@ -1,5 +1,5 @@
 import React from "react";
-import { Badge, Box, SimpleGrid } from "@chakra-ui/core";
+import { Badge, Box, SimpleGrid, useColorModeValue } from "@chakra-ui/core";
 import { StarIcon } from "@chakra-ui/icons";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
@@ -74,6 +74,8 @@ function ItemModelsList() {
 }
 
 function ItemModelCard({ item, currentUserOwnsItem, ...props }) {
+  const borderColor = useColorModeValue("transparent", "green.500");
+
   return (
     <Box
       as="a"
@@ -82,6 +84,8 @@ function ItemModelCard({ item, currentUserOwnsItem, ...props }) {
       boxShadow="lg"
       borderRadius="lg"
       width="400px"
+      border="1px"
+      borderColor={borderColor}
       {...props}
     >
       <ItemSummary
