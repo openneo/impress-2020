@@ -20,8 +20,7 @@ function PageLayout({ children, hideHomeLink }) {
         marginBottom="6"
       >
         {!hideHomeLink && <HomeLink />}
-        <Box flex="1 0 0" />
-        <UserLoginLogout />
+        <UserLoginLogout marginLeft="auto" />
       </Box>
       {children}
     </Box>
@@ -69,7 +68,7 @@ function HomeLink() {
   );
 }
 
-function UserLoginLogout() {
+function UserLoginLogout(props) {
   const { isLoading, isAuthenticated, loginWithRedirect, logout } = useAuth0();
   const { id, username } = useCurrentUser();
 
@@ -79,8 +78,12 @@ function UserLoginLogout() {
 
   if (isAuthenticated) {
     return (
-      <HStack align="center" spacing="2">
-        {username && <Box fontSize="sm">Hi, {username}!</Box>}
+      <HStack align="center" spacing="2" {...props}>
+        {username && (
+          <Box fontSize="sm" textAlign="right">
+            Hi, {username}!
+          </Box>
+        )}
         <ColorModeToggleButton />
         {id && (
           <Button
@@ -103,7 +106,7 @@ function UserLoginLogout() {
     );
   } else {
     return (
-      <HStack align="center" spacing="2">
+      <HStack align="center" spacing="2" {...props}>
         <ColorModeToggleButton />
         <Button size="sm" variant="outline" onClick={() => loginWithRedirect()}>
           Log in
