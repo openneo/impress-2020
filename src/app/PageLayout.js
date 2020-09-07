@@ -6,8 +6,8 @@ import { ChevronLeftIcon, MoonIcon, SunIcon } from "@chakra-ui/icons";
 
 import useCurrentUser from "./components/useCurrentUser";
 
-// TODO: Replace with lower-res version
-import HomepageSplashImg from "../images/homepage-splash.png";
+import HomeLinkIcon from "../images/home-link-icon.png";
+import HomeLinkIcon2x from "../images/home-link-icon@2x.png";
 
 function PageLayout({ children, hideHomeLink }) {
   return (
@@ -47,7 +47,8 @@ function HomeLink() {
       </Box>
       <Box
         as="img"
-        src={HomepageSplashImg}
+        src={HomeLinkIcon}
+        srcSet={`${HomeLinkIcon} 1x, ${HomeLinkIcon2x} 2x`}
         alt=""
         height="2em"
         width="2em"
