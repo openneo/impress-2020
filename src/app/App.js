@@ -55,7 +55,7 @@ function App() {
                 </PageLayout>
               </Route>
               <Route path="/">
-                <PageLayout>
+                <PageLayout hideHomeLink>
                   <HomePage />
                 </PageLayout>
               </Route>
