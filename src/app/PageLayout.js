@@ -11,7 +11,7 @@ import HomeLinkIcon2x from "../images/home-link-icon@2x.png";
 
 function PageLayout({ children, hideHomeLink }) {
   return (
-    <Box padding="6" paddingTop="3" maxWidth="800px" margin="0 auto">
+    <Box padding="6" paddingTop="3" maxWidth="1024px" margin="0 auto">
       <Box
         width="100%"
         display="flex"
