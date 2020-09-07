@@ -4,6 +4,7 @@ import { StarIcon } from "@chakra-ui/icons";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
 
+import { Delay } from "./util";
 import HangerSpinner from "./components/HangerSpinner";
 import { Heading1, Heading2 } from "./util";
 import ItemSummary, { ItemSummaryBadgeList } from "./components/ItemSummary";
@@ -41,8 +42,16 @@ function ItemModelsList() {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center">
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        marginTop="16"
+      >
         <HangerSpinner />
+        <Box fontSize="xs" marginTop="1">
+          <Delay ms={2500}>Checking all the items…</Delay>
+        </Box>
       </Box>
     );
   }
