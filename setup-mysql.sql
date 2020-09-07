@@ -49,6 +49,7 @@ BEGIN
     ON pet_types.body_id = swf_assets.body_id
   WHERE
     pet_types.color_id = "8"
+    AND items.modeling_status_hint IS NULL
   GROUP BY items.id
   HAVING
     NOT (
