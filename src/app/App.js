@@ -8,6 +8,7 @@ import loadable from "@loadable/component";
 import { useAuth0 } from "@auth0/auth0-react";
 
 import buildApolloClient from "./apolloClient";
+import PageLayout from "./PageLayout";
 
 const ItemsPage = loadable(() => import("./ItemsPage"));
 const HomePage = loadable(() => import("./HomePage"));
@@ -49,10 +50,14 @@ function App() {
                 <WardrobePage />
               </Route>
               <Route path="/user/:userId/items">
-                <ItemsPage />
+                <PageLayout>
+                  <ItemsPage />
+                </PageLayout>
               </Route>
               <Route path="/">
-                <HomePage />
+                <PageLayout>
+                  <HomePage />
+                </PageLayout>
               </Route>
             </Switch>
           </ChakraProvider>

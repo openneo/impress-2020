@@ -32,23 +32,19 @@ function ItemsPage() {
 
   if (loading) {
     return (
-      <Box padding="6" display="flex" justifyContent="center">
+      <Box display="flex" justifyContent="center">
         <HangerSpinner boxSize="48px" />
       </Box>
     );
   }
 
   if (error) {
-    return (
-      <Box padding="6" color="red.400">
-        {error.message}
-      </Box>
-    );
+    return <Box color="red.400">{error.message}</Box>;
   }
 
   return (
-    <Box padding="6" maxWidth="800px" margin="0 auto">
-      <Heading1 marginBottom="6">
+    <Box maxWidth="800px" margin="0 auto">
+      <Heading1 marginBottom="8">
         {isCurrentUser ? "Items you own" : `Items ${data.user.username} owns`}
       </Heading1>
       <Wrap justify="center">

@@ -5,21 +5,16 @@ import {
   Box,
   Button,
   Flex,
-  IconButton,
   Input,
-  useColorMode,
   useColorModeValue,
   useTheme,
   useToast,
 } from "@chakra-ui/core";
-import { MoonIcon, SunIcon } from "@chakra-ui/icons";
-import { Link, useHistory, useLocation } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import { useLazyQuery } from "@apollo/client";
-import { useAuth0 } from "@auth0/auth0-react";
 
 import { Heading1, usePageTitle } from "./util";
 import OutfitPreview from "./components/OutfitPreview";
-import useCurrentUser from "./components/useCurrentUser";
 
 import HomepageSplashImg from "../images/homepage-splash.png";
 import HomepageSplashImg2x from "../images/homepage-splash@2x.png";
@@ -32,13 +27,7 @@ function HomePage() {
   const [previewState, setPreviewState] = React.useState(null);
 
   return (
-    <Flex direction="column" p="6" pt="3" align="center" textAlign="center">
-      <Box width="100%" display="flex" alignItems="center">
-        <ColorModeToggleButton />
-        <Box flex="1 0 0" />
-        <UserLoginLogout />
-      </Box>
-      <Box height="8" />
+    <Flex direction="column" align="center" textAlign="center" marginTop="8">
       <Box
         width="200px"
         height="200px"
@@ -74,48 +63,6 @@ function HomePage() {
       <SubmitPetForm />
     </Flex>
   );
-}
-
-function UserLoginLogout() {
-  const { isLoading, isAuthenticated, loginWithRedirect, logout } = useAuth0();
-  const { id, username } = useCurrentUser();
-
-  if (isLoading) {
-    return null;
-  }
-
-  if (isAuthenticated) {
-    return (
-      <Box display="flex" alignItems="center">
-        {username && <Box fontSize="sm">Hi, {username}!</Box>}
-        {id && (
-          <Button
-            as={Link}
-            to={`/user/${id}/items`}
-            size="sm"
-            variant="outline"
-            marginLeft="2"
-          >
-            Items
-          </Button>
-        )}
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => logout({ returnTo: window.location.origin })}
-          marginLeft="2"
-        >
-          Log out
-        </Button>
-      </Box>
-    );
-  } else {
-    return (
-      <Button size="sm" variant="outline" onClick={() => loginWithRedirect()}>
-        Log in
-      </Button>
-    );
-  }
 }
 
 function StartOutfitForm({ onChange }) {
@@ -286,21 +233,6 @@ function SubmitPetForm() {
         </Button>
       </Flex>
     </form>
-  );
-}
-
-function ColorModeToggleButton() {
-  const { colorMode, toggleColorMode } = useColorMode();
-
-  return (
-    <IconButton
-      aria-label={
-        colorMode === "light" ? "Switch to dark mode" : "Switch to light mode"
-      }
-      icon={colorMode === "light" ? <MoonIcon /> : <SunIcon />}
-      onClick={toggleColorMode}
-      variant="ghost"
-    />
   );
 }
 
