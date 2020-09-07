@@ -16,7 +16,9 @@ const HangerIcon = createIcon({
   ),
 });
 
-function HangerSpinner(props) {
+function HangerSpinner({ size = "md", ...props }) {
+  const boxSize = { sm: "32px", md: "48px" }[size];
+
   return (
     <>
       <Box
@@ -83,7 +85,7 @@ function HangerSpinner(props) {
         `}
         {...props}
       >
-        <HangerIcon color="green.300" {...props} />
+        <HangerIcon color="green.300" boxSize={boxSize} {...props} />
       </Box>
     </>
   );

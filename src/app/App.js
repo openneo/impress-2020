@@ -12,6 +12,7 @@ import PageLayout from "./PageLayout";
 
 const ItemsPage = loadable(() => import("./ItemsPage"));
 const HomePage = loadable(() => import("./HomePage"));
+const ModelingPage = loadable(() => import("./ModelingPage"));
 const WardrobePage = loadable(() => import("./WardrobePage"));
 
 const theme = {
@@ -52,6 +53,11 @@ function App() {
               <Route path="/user/:userId/items">
                 <PageLayout>
                   <ItemsPage />
+                </PageLayout>
+              </Route>
+              <Route path="/modeling">
+                <PageLayout>
+                  <ModelingPage />
                 </PageLayout>
               </Route>
               <Route path="/">
