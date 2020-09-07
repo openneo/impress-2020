@@ -86,6 +86,7 @@ function ItemModelCard({ item, currentUserOwnsItem, ...props }) {
       width="400px"
       border="1px"
       borderColor={borderColor}
+      className="item-model-card"
       {...props}
     >
       <ItemSummary
@@ -96,6 +97,7 @@ function ItemModelCard({ item, currentUserOwnsItem, ...props }) {
             currentUserOwnsItem={currentUserOwnsItem}
           />
         }
+        focusSelector=".item-model-card:hover &, .item-model-card:focus &"
       />
     </Box>
   );
