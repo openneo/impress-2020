@@ -18,6 +18,8 @@ function PageLayout({ children, hideHomeLink }) {
         alignItems="center"
         flexWrap="wrap"
         marginBottom="6"
+        // Leave space while content is still loading
+        minHeight="2rem"
       >
         {!hideHomeLink && <HomeLink />}
         <UserLoginLogout marginLeft="auto" />
