@@ -43,7 +43,7 @@ function ItemsPage() {
   }
 
   return (
-    <Box maxWidth="800px" margin="0 auto">
+    <Box>
       <Heading1 marginBottom="8">
         {isCurrentUser ? "Items you own" : `Items ${data.user.username} owns`}
       </Heading1>

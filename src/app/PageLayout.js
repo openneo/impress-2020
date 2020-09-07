@@ -11,7 +11,7 @@ import HomepageSplashImg from "../images/homepage-splash.png";
 
 function PageLayout({ children, hideHomeLink }) {
   return (
-    <Box padding="6" paddingTop="3">
+    <Box padding="6" paddingTop="3" maxWidth="800px" margin="0 auto">
       <Box
         width="100%"
         display="flex"
