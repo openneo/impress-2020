@@ -60,7 +60,15 @@ function ItemModelsList() {
 
 function ItemModelCard({ item, ...props }) {
   return (
-    <Box p="2" boxShadow="lg" borderRadius="lg" width="400px" {...props}>
+    <Box
+      as="a"
+      href={`https://impress.openneo.net/items/${item.id}`}
+      p="2"
+      boxShadow="lg"
+      borderRadius="lg"
+      width="400px"
+      {...props}
+    >
       <ItemSummary item={item} badges={<ItemModelBadges item={item} />} />
     </Box>
   );
