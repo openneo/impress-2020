@@ -1,5 +1,6 @@
 import React from "react";
 import { Badge, Box, SimpleGrid } from "@chakra-ui/core";
+import { StarIcon } from "@chakra-ui/icons";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
 
@@ -29,6 +30,12 @@ function ItemModelsList() {
           name
         }
       }
+
+      currentUser {
+        itemsTheyOwn {
+          id
+        }
+      }
     }
   `);
 
@@ -49,16 +56,24 @@ function ItemModelsList() {
     .filter((item) => !item.name.includes("MME"))
     .sort((a, b) => a.name.localeCompare(b.name));
 
+  const ownedItemIds = new Set(
+    data.currentUser?.itemsTheyOwn?.map((item) => item.id)
+  );
+
   return (
     <SimpleGrid columns={{ sm: 1, lg: 2 }} spacing="6">
       {items.map((item) => (
-        <ItemModelCard key={item.id} item={item} />
+        <ItemModelCard
+          key={item.id}
+          item={item}
+          currentUserOwnsItem={ownedItemIds.has(item.id)}
+        />
       ))}
     </SimpleGrid>
   );
 }
 
-function ItemModelCard({ item, ...props }) {
+function ItemModelCard({ item, currentUserOwnsItem, ...props }) {
   return (
     <Box
       as="a"
@@ -69,14 +84,28 @@ function ItemModelCard({ item, ...props }) {
       width="400px"
       {...props}
     >
-      <ItemSummary item={item} badges={<ItemModelBadges item={item} />} />
+      <ItemSummary
+        item={item}
+        badges={
+          <ItemModelBadges
+            item={item}
+            currentUserOwnsItem={currentUserOwnsItem}
+          />
+        }
+      />
     </Box>
   );
 }
 
-function ItemModelBadges({ item }) {
+function ItemModelBadges({ item, currentUserOwnsItem }) {
   return (
     <ItemSummaryBadgeList>
+      {currentUserOwnsItem && (
+        <Badge colorScheme="yellow" display="flex" alignItems="center">
+          <StarIcon aria-label="Star" marginRight="1" />
+          You own this!
+        </Badge>
+      )}
       {item.speciesThatNeedModels.map((species) => (
         <Badge>{species.name}</Badge>
       ))}
