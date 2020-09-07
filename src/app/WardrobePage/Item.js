@@ -5,10 +5,8 @@ import {
   Box,
   Flex,
   IconButton,
-  Image,
   Skeleton,
   Tooltip,
-  Wrap,
   useColorModeValue,
   useTheme,
 } from "@chakra-ui/core";
@@ -20,7 +18,7 @@ import {
 } from "@chakra-ui/icons";
 import loadable from "@loadable/component";
 
-import { safeImageUrl } from "../util";
+import ItemSummary, { ItemSummaryBadgeList } from "../components/ItemSummary";
 import SupportOnly from "./support/SupportOnly";
 
 const LoadableItemSupportDrawer = loadable(() =>
@@ -56,58 +54,18 @@ function Item({
 }) {
   const [supportDrawerIsOpen, setSupportDrawerIsOpen] = React.useState(false);
 
-  const occupiedZoneLabels = getZoneLabels(
-    item.appearanceOn.layers.map((l) => l.zone)
-  );
-  const restrictedZoneLabels = getZoneLabels(
-    item.appearanceOn.restrictedZones.filter((z) => z.isCommonlyUsedByItems)
-  );
-
   return (
     <>
       <ItemContainer isDisabled={isDisabled}>
-        <Box flex="0 0 auto" marginRight="3">
-          <ItemThumbnail
-            src={safeImageUrl(item.thumbnailUrl)}
+        <Box flex="1 1 0" minWidth="0">
+          <ItemSummary
+            item={item}
+            badges={<ItemBadges item={item} />}
+            itemNameId={itemNameId}
             isWorn={isWorn}
-            isDisabled={isDisabled}
+            isDiabled={isDisabled}
+            focusSelector={containerHasFocus}
           />
-        </Box>
-        <Box flex="1 1 0" minWidth="0" marginTop="1px">
-          <ItemName id={itemNameId} isWorn={isWorn} isDisabled={isDisabled}>
-            {item.name}
-          </ItemName>
-          <Wrap spacing="2" marginTop="1" opacity="0.7">
-            {item.isNc ? (
-              <ItemBadgeTooltip label="Neocash">
-                <Badge colorScheme="purple">NC</Badge>
-              </ItemBadgeTooltip>
-            ) : (
-              // The main purpose of the NP badge is alignment: if there are
-              // zone badges, we want them to start at the same rough position,
-              // even if there's an NC badge at the start. But if this view
-              // generally avoids zone badges, we'd rather have the NC badge be
-              // a little extra that might pop up and hide the NP case, rather
-              // than try to line things up like a table.
-              <ItemBadgeTooltip label="Neopoints">
-                <Badge>NP</Badge>
-              </ItemBadgeTooltip>
-            )}
-            {occupiedZoneLabels.map((zoneLabel) => (
-              <ZoneBadge
-                key={zoneLabel}
-                variant="occupies"
-                zoneLabel={zoneLabel}
-              />
-            ))}
-            {restrictedZoneLabels.map((zoneLabel) => (
-              <ZoneBadge
-                key={zoneLabel}
-                variant="restricts"
-                zoneLabel={zoneLabel}
-              />
-            ))}
-          </Wrap>
         </Box>
         <Box flex="0 0 auto" marginTop="5px">
           {isInOutfit && (
@@ -222,105 +180,38 @@ function ItemContainer({ children, isDisabled = false }) {
   );
 }
 
-/**
- * ItemThumbnail shows a small preview image for the item, including some
- * hover/focus and worn/unworn states.
- */
-function ItemThumbnail({ src, isWorn, isDisabled }) {
-  const theme = useTheme();
-
-  const borderColor = useColorModeValue(
-    theme.colors.green["700"],
-    "transparent"
+function ItemBadges({ item }) {
+  const occupiedZoneLabels = getZoneLabels(
+    item.appearanceOn.layers.map((l) => l.zone)
   );
-
-  const focusBorderColor = useColorModeValue(
-    theme.colors.green["600"],
-    "transparent"
+  const restrictedZoneLabels = getZoneLabels(
+    item.appearanceOn.restrictedZones.filter((z) => z.isCommonlyUsedByItems)
   );
 
   return (
-    <Box
-      width="50px"
-      height="50px"
-      transition="all 0.15s"
-      transformOrigin="center"
-      position="relative"
-      className={css([
-        {
-          transform: "scale(0.8)",
-        },
-        !isDisabled &&
-          !isWorn && {
-            [containerHasFocus]: {
-              opacity: "0.9",
-              transform: "scale(0.9)",
-            },
-          },
-        !isDisabled &&
-          isWorn && {
-            opacity: 1,
-            transform: "none",
-          },
-      ])}
-    >
-      <Box
-        borderRadius="lg"
-        boxShadow="md"
-        border="1px"
-        overflow="hidden"
-        width="100%"
-        height="100%"
-        className={css([
-          {
-            borderColor: `${borderColor} !important`,
-          },
-          !isDisabled &&
-            !isWorn && {
-              [containerHasFocus]: {
-                borderColor: `${focusBorderColor} !important`,
-              },
-            },
-        ])}
-      >
-        <Image width="100%" height="100%" src={src} alt="" />
-      </Box>
-    </Box>
-  );
-}
-
-/**
- * ItemName shows the item's name, including some hover/focus and worn/unworn
- * states.
- */
-function ItemName({ children, isDisabled, ...props }) {
-  const theme = useTheme();
-
-  return (
-    <Box
-      fontSize="md"
-      transition="all 0.15s"
-      overflow="hidden"
-      whiteSpace="nowrap"
-      textOverflow="ellipsis"
-      className={
-        !isDisabled &&
-        css`
-          ${containerHasFocus} {
-            opacity: 0.9;
-            font-weight: ${theme.fontWeights.medium};
-          }
-
-          input:checked + .item-container & {
-            opacity: 1;
-            font-weight: ${theme.fontWeights.bold};
-          }
-        `
-      }
-      {...props}
-    >
-      {children}
-    </Box>
+    <ItemSummaryBadgeList>
+      {item.isNc ? (
+        <ItemBadgeTooltip label="Neocash">
+          <Badge colorScheme="purple">NC</Badge>
+        </ItemBadgeTooltip>
+      ) : (
+        // The main purpose of the NP badge is alignment: if there are
+        // zone badges, we want them to start at the same rough position,
+        // even if there's an NC badge at the start. But if this view
+        // generally avoids zone badges, we'd rather have the NC badge be
+        // a little extra that might pop up and hide the NP case, rather
+        // than try to line things up like a table.
+        <ItemBadgeTooltip label="Neopoints">
+          <Badge>NP</Badge>
+        </ItemBadgeTooltip>
+      )}
+      {occupiedZoneLabels.map((zoneLabel) => (
+        <ZoneBadge key={zoneLabel} variant="occupies" zoneLabel={zoneLabel} />
+      ))}
+      {restrictedZoneLabels.map((zoneLabel) => (
+        <ZoneBadge key={zoneLabel} variant="restricts" zoneLabel={zoneLabel} />
+      ))}
+    </ItemSummaryBadgeList>
   );
 }
 
