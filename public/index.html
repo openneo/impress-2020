@@ -53,6 +53,40 @@
     />
   </head>
   <body>
+    <script>
+      // HACK: This is copy-pasted output from Chakra's <ColorModeScript />. It
+      //       initializes our color mode to match the system color mode. The
+      //       component is built for a special Document element like in
+      //       Next.js, but in create-react-app this is the best we can do!
+      (function setColorModeVar(initialValue) {
+        var mql = window.matchMedia("(prefers-color-scheme: dark)");
+        var systemPreference = mql.matches ? "dark" : "light";
+        var persistedPreference;
+
+        try {
+          persistedPreference = localStorage.getItem("chakra-ui-color-mode");
+        } catch (error) {
+          console.log(
+            "Chakra UI: localStorage is not available. Color mode persistence might not work as expected"
+          );
+        }
+
+        var isInStorage = typeof persistedPreference === "string";
+        var colorMode;
+
+        if (isInStorage) {
+          colorMode = persistedPreference;
+        } else {
+          colorMode =
+            initialValue === "system" ? systemPreference : initialValue;
+        }
+
+        if (colorMode) {
+          var root = document.documentElement;
+          root.style.setProperty("--chakra-ui-color-mode", colorMode);
+        }
+      })("system");
+    </script>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
     <!--
