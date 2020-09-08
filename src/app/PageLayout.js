@@ -191,9 +191,10 @@ function NavButtons() {
 
 const NavButton = React.forwardRef(({ icon, ...props }, ref) => {
   const Component = icon ? IconButton : Button;
+
+  // Opacity is in a separate Box, to avoid overriding the built-in Button
+  // hover/focus states.
   return (
-    // Opacity is in a separate Box, to avoid overriding the built-in Button
-    // hover/focus states.
     <Box opacity="0.8" _hover={{ opacity: "1" }} _focus={{ opacity: "1" }}>
       <Component size="sm" variant="outline" icon={icon} ref={ref} {...props} />
     </Box>
