@@ -1,7 +1,7 @@
 import React from "react";
 import { ApolloProvider } from "@apollo/client";
 import { Auth0Provider } from "@auth0/auth0-react";
-import { CSSReset, ChakraProvider, useColorMode } from "@chakra-ui/core";
+import { CSSReset, ChakraProvider } from "@chakra-ui/core";
 import defaultTheme from "@chakra-ui/theme";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import loadable from "@loadable/component";
@@ -19,20 +19,24 @@ const theme = {
   ...defaultTheme,
   styles: {
     ...defaultTheme.styles,
-    global: ({ colorMode, ...rest }) => ({
-      ...defaultTheme.styles.global({ colorMode, ...rest }),
-      html: {
-        // HACK: Chakra sets body as the relative position element, which is
-        //       fine, except its `min-height: 100%` doesn't actually work
-        //       unless paired with height on the root element too!
-        height: "100%",
-      },
-      body: {
-        background: colorMode === "light" ? "white" : "gray.800",
-        color: colorMode === "light" ? "green.800" : "green.50",
-        transition: "all 0.25s",
-      },
-    }),
+    global: ({ colorMode, ...rest }) => {
+      const defaultGlobals = defaultTheme.styles.global({ colorMode, ...rest });
+      return {
+        ...defaultGlobals,
+        html: {
+          ...defaultGlobals.html,
+          // HACK: Chakra sets body as the relative position element, which is
+          //       fine, except its `min-height: 100%` doesn't actually work
+          //       unless paired with height on the root element too!
+          height: "100%",
+        },
+        body: {
+          ...defaultGlobals.body,
+          color: colorMode === "light" ? "green.800" : "green.50",
+          transition: "all 0.25s",
+        },
+      };
+    },
   },
 };
 
