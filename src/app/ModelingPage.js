@@ -83,7 +83,7 @@ function ItemModelsList() {
 }
 
 function ItemModelCard({ item, currentUserOwnsItem, ...props }) {
-  const borderColor = useColorModeValue("transparent", "green.500");
+  const borderColor = useColorModeValue("gray.100", "green.500");
 
   return (
     <Box
