@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Button, HStack, IconButton, useColorMode } from "@chakra-ui/core";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import { ChevronLeftIcon, MoonIcon, SunIcon } from "@chakra-ui/icons";
 
@@ -9,7 +9,7 @@ import useCurrentUser from "./components/useCurrentUser";
 import HomeLinkIcon from "../images/home-link-icon.png";
 import HomeLinkIcon2x from "../images/home-link-icon@2x.png";
 
-function PageLayout({ children, hideHomeLink }) {
+function PageLayout({ children }) {
   return (
     <Box padding="6" paddingTop="3" maxWidth="1024px" margin="0 auto">
       <Box
@@ -21,8 +21,15 @@ function PageLayout({ children, hideHomeLink }) {
         // Leave space while content is still loading
         minHeight="2rem"
       >
-        {!hideHomeLink && <HomeLink />}
-        <UserLoginLogout marginLeft="auto" />
+        <HStack alignItems="center" spacing="2" marginRight="4">
+          <HomeLink />
+          <NavButton as={Link} to="/modeling">
+            Modeling
+          </NavButton>
+        </HStack>
+        <Box marginLeft="auto">
+          <UserNavBarSection />
+        </Box>
       </Box>
       {children}
     </Box>
@@ -30,6 +37,9 @@ function PageLayout({ children, hideHomeLink }) {
 }
 
 function HomeLink() {
+  const { pathname } = useLocation();
+  const isHomePage = pathname === "/";
+
   return (
     <Box
       as={Link}
@@ -38,11 +48,18 @@ function HomeLink() {
       alignItems="center"
       position="relative"
       role="group"
-      transition="transform 0.2s"
-      _hover={{ transform: "scale(1.1)" }}
-      _focus={{ outline: "0", transform: "scale(1.1)" }}
+      transition="all 0.2s"
+      opacity="0.8"
+      _hover={{ transform: "scale(1.1)", opacity: "1" }}
+      _focus={{ transform: "scale(1.1)", opacity: "1" }}
     >
-      <Box position="absolute" right="100%">
+      <Box
+        position="absolute"
+        right="100%"
+        opacity={isHomePage ? "0" : "1"}
+        transform={isHomePage ? "translateX(3px)" : "none"}
+        transition="all 0.2s"
+      >
         <ChevronLeftIcon />
       </Box>
       <Box
@@ -65,13 +82,12 @@ function HomeLink() {
         bottom="0"
         borderRadius="lg"
         transition="border 0.2s"
-        _groupFocus={{ border: "2px", borderColor: "green.400" }}
       />
     </Box>
   );
 }
 
-function UserLoginLogout(props) {
+function UserNavBarSection() {
   const { isLoading, isAuthenticated, loginWithRedirect, logout } = useAuth0();
   const { id, username } = useCurrentUser();
 
@@ -81,7 +97,7 @@ function UserLoginLogout(props) {
 
   if (isAuthenticated) {
     return (
-      <HStack align="center" spacing="2" {...props}>
+      <HStack align="center" spacing="2">
         {username && (
           <Box fontSize="sm" textAlign="right">
             Hi, {username}!
@@ -89,31 +105,25 @@ function UserLoginLogout(props) {
         )}
         <ColorModeToggleButton />
         {id && (
-          <Button
+          <NavButton
             as={Link}
             to={`/user/${id}/items`}
             size="sm"
             variant="outline"
           >
             Items
-          </Button>
+          </NavButton>
         )}
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => logout({ returnTo: window.location.origin })}
-        >
+        <NavButton onClick={() => logout({ returnTo: window.location.origin })}>
           Log out
-        </Button>
+        </NavButton>
       </HStack>
     );
   } else {
     return (
-      <HStack align="center" spacing="2" {...props}>
+      <HStack align="center" spacing="2">
         <ColorModeToggleButton />
-        <Button size="sm" variant="outline" onClick={() => loginWithRedirect()}>
-          Log in
-        </Button>
+        <NavButton onClick={() => loginWithRedirect()}>Log in</NavButton>
       </HStack>
     );
   }
@@ -123,15 +133,27 @@ function ColorModeToggleButton() {
   const { colorMode, toggleColorMode } = useColorMode();
 
   return (
-    <IconButton
+    <NavButton
+      kind="IconButton"
+      size="sm"
+      variant="outline"
       aria-label={
         colorMode === "light" ? "Switch to dark mode" : "Switch to light mode"
       }
       icon={colorMode === "light" ? <MoonIcon /> : <SunIcon />}
       onClick={toggleColorMode}
-      variant="outline"
-      size="sm"
     />
+  );
+}
+
+function NavButton({ kind = "Button", ...props }) {
+  const Component = kind === "IconButton" ? IconButton : Button;
+  return (
+    // Opacity is in a separate Box, to avoid overriding the built-in Button
+    // hover/focus states.
+    <Box opacity="0.8" _hover={{ opacity: "1" }} _focus={{ opacity: "1" }}>
+      <Component size="sm" variant="outline" {...props} />
+    </Box>
   );
 }
 
