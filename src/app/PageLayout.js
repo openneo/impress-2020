@@ -1,8 +1,24 @@
 import React from "react";
-import { Box, Button, HStack, IconButton, useColorMode } from "@chakra-ui/core";
+import {
+  Box,
+  Button,
+  HStack,
+  IconButton,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  useBreakpointValue,
+  useColorMode,
+} from "@chakra-ui/core";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
-import { ChevronLeftIcon, MoonIcon, SunIcon } from "@chakra-ui/icons";
+import {
+  ChevronLeftIcon,
+  HamburgerIcon,
+  MoonIcon,
+  SunIcon,
+} from "@chakra-ui/icons";
 
 import useCurrentUser from "./components/useCurrentUser";
 
@@ -10,6 +26,8 @@ import HomeLinkIcon from "../images/home-link-icon.png";
 import HomeLinkIcon2x from "../images/home-link-icon@2x.png";
 
 function PageLayout({ children }) {
+  const navStyle = useBreakpointValue({ base: "menu", md: "buttons" });
+
   return (
     <Box padding="6" paddingTop="3" maxWidth="1024px" margin="0 auto">
       <Box
@@ -23,9 +41,8 @@ function PageLayout({ children }) {
       >
         <HStack alignItems="center" spacing="2" marginRight="4">
           <HomeLink />
-          <NavButton as={Link} to="/modeling">
-            Modeling
-          </NavButton>
+          {navStyle === "menu" && <NavMenu />}
+          {navStyle === "buttons" && <NavButtons />}
         </HStack>
         <Box marginLeft="auto">
           <UserNavBarSection />
@@ -103,7 +120,6 @@ function UserNavBarSection() {
             Hi, {username}!
           </Box>
         )}
-        <ColorModeToggleButton />
         {id && (
           <NavButton
             as={Link}
@@ -120,41 +136,68 @@ function UserNavBarSection() {
       </HStack>
     );
   } else {
-    return (
-      <HStack align="center" spacing="2">
-        <ColorModeToggleButton />
-        <NavButton onClick={() => loginWithRedirect()}>Log in</NavButton>
-      </HStack>
-    );
+    return <NavButton onClick={() => loginWithRedirect()}>Log in</NavButton>;
   }
 }
 
-function ColorModeToggleButton() {
+function NavMenu() {
   const { colorMode, toggleColorMode } = useColorMode();
 
   return (
-    <NavButton
-      kind="IconButton"
-      size="sm"
-      variant="outline"
-      aria-label={
-        colorMode === "light" ? "Switch to dark mode" : "Switch to light mode"
-      }
-      icon={colorMode === "light" ? <MoonIcon /> : <SunIcon />}
-      onClick={toggleColorMode}
-    />
+    <Menu>
+      <MenuButton as={NavButton} icon={<HamburgerIcon />} />
+      <MenuList fontSize="sm">
+        <MenuItem as={Link} to="/modeling">
+          Modeling
+        </MenuItem>
+        <MenuItem onClick={toggleColorMode}>
+          {colorMode === "light" ? (
+            <Box display="flex" alignItems="center">
+              <Box>Dark mode</Box>
+              <MoonIcon marginLeft="2" />
+            </Box>
+          ) : (
+            <Box display="flex" alignItems="center">
+              <Box>Light mode</Box>
+              <SunIcon marginLeft="2" />
+            </Box>
+          )}
+        </MenuItem>
+      </MenuList>
+    </Menu>
   );
 }
 
-function NavButton({ kind = "Button", ...props }) {
-  const Component = kind === "IconButton" ? IconButton : Button;
+function NavButtons() {
+  const { colorMode, toggleColorMode } = useColorMode();
+
+  return (
+    <>
+      <NavButton as={Link} to="/modeling">
+        Modeling
+      </NavButton>
+      <NavButton
+        size="sm"
+        variant="outline"
+        aria-label={
+          colorMode === "light" ? "Switch to dark mode" : "Switch to light mode"
+        }
+        icon={colorMode === "light" ? <MoonIcon /> : <SunIcon />}
+        onClick={toggleColorMode}
+      />
+    </>
+  );
+}
+
+const NavButton = React.forwardRef(({ icon, ...props }, ref) => {
+  const Component = icon ? IconButton : Button;
   return (
     // Opacity is in a separate Box, to avoid overriding the built-in Button
     // hover/focus states.
     <Box opacity="0.8" _hover={{ opacity: "1" }} _focus={{ opacity: "1" }}>
-      <Component size="sm" variant="outline" {...props} />
+      <Component size="sm" variant="outline" icon={icon} ref={ref} {...props} />
     </Box>
   );
-}
+});
 
 export default PageLayout;
