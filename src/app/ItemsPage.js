@@ -33,7 +33,7 @@ function ItemsPage() {
   if (loading) {
     return (
       <Box display="flex" justifyContent="center">
-        <HangerSpinner boxSize="48px" />
+        <HangerSpinner />
       </Box>
     );
   }

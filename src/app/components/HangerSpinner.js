@@ -1,6 +1,6 @@
 import * as React from "react";
 import { css } from "emotion";
-import { Box } from "@chakra-ui/core";
+import { Box, useColorModeValue } from "@chakra-ui/core";
 import { createIcon } from "@chakra-ui/icons";
 
 const HangerIcon = createIcon({
@@ -18,6 +18,7 @@ const HangerIcon = createIcon({
 
 function HangerSpinner({ size = "md", ...props }) {
   const boxSize = { sm: "32px", md: "48px" }[size];
+  const color = useColorModeValue("green.500", "green.300");
 
   return (
     <>
@@ -85,7 +86,12 @@ function HangerSpinner({ size = "md", ...props }) {
         `}
         {...props}
       >
-        <HangerIcon color="green.300" boxSize={boxSize} {...props} />
+        <HangerIcon
+          boxSize={boxSize}
+          color={color}
+          transition="color 0.2s"
+          {...props}
+        />
       </Box>
     </>
   );

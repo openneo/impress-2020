@@ -1,7 +1,7 @@
 import React from "react";
 import { css, cx } from "emotion";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
-import { Box, Flex, Text } from "@chakra-ui/core";
+import { Box, Flex, DarkMode, Text } from "@chakra-ui/core";
 import { WarningIcon } from "@chakra-ui/icons";
 
 import HangerSpinner from "./HangerSpinner";
@@ -45,7 +45,7 @@ function OutfitPreview({
   if (error || error2) {
     return (
       <FullScreenCenter>
-        <Text color="gray.50" d="flex" alignItems="center">
+        <Text color="green.50" d="flex" alignItems="center">
           <WarningIcon />
           <Box width={2} />
           Could not load preview. Try again?
@@ -55,13 +55,15 @@ function OutfitPreview({
   }
 
   return (
-    <OutfitLayers
-      loading={loading || loading2}
-      visibleLayers={loadedLayers}
-      placeholder={placeholder}
-      loadingDelay={loadingDelay}
-      doAnimations
-    />
+    <DarkMode>
+      <OutfitLayers
+        loading={loading || loading2}
+        visibleLayers={loadedLayers}
+        placeholder={placeholder}
+        loadingDelay={loadingDelay}
+        doAnimations
+      />
+    </DarkMode>
   );
 }
 
@@ -179,7 +181,7 @@ export function OutfitLayers({
           backgroundColor="gray.900"
           opacity="0.7"
         />
-        <HangerSpinner boxSize="48px" />
+        <HangerSpinner />
       </FullScreenCenter>
     </Box>
   );

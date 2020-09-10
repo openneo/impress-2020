@@ -61,7 +61,7 @@ function PosePickerSupport({
   if (loading) {
     return (
       <Box display="flex" justifyContent="center">
-        <HangerSpinner boxSize="32px" />
+        <HangerSpinner size="sm" />
       </Box>
     );
   }
