@@ -66,10 +66,9 @@ function SpeciesColorPicker({
       ? {
           // Visually the disabled state is the same as the normal state, but
           // with a wait cursor. We don't expect this to take long, and the flash
-          // of content is rough! (The caret still flashes, but that's small and
-          // harder to style in Chakra.)
-          opacity: 1,
-          cursor: "wait",
+          // of content is rough!
+          opacity: "1 !important",
+          cursor: "wait !important",
         }
       : {};
 
