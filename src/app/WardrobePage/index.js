@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Grid, useToast } from "@chakra-ui/core";
+import { useToast } from "@chakra-ui/core";
 import loadable from "@loadable/component";
 
 import ItemsAndSearchPanels from "./ItemsAndSearchPanels";
@@ -7,6 +7,7 @@ import OutfitPreview from "../components/OutfitPreview";
 import SupportOnly from "./support/SupportOnly";
 import useOutfitState, { OutfitStateContext } from "./useOutfitState";
 import { usePageTitle } from "../util";
+import WardrobePageLayout from "./WardrobePageLayout";
 
 const OutfitControls = loadable(() =>
   import(/* webpackPreload: true */ "./OutfitControls")
@@ -54,59 +55,30 @@ function WardrobePage() {
       <SupportOnly>
         <WardrobeDevHacks />
       </SupportOnly>
-      <Box
-        position="absolute"
-        top="0"
-        bottom="0"
-        left="0"
-        right="0"
-        // Create a stacking context, so that our drawers and modals don't fight
-        // with the z-indexes in here!
-        zIndex="0"
-      >
-        <Grid
-          templateAreas={{
-            base: `"previewAndControls"
-                   "itemsAndSearch"`,
-            lg: `"previewAndControls itemsAndSearch"`,
-          }}
-          templateRows={{
-            base: "minmax(100px, 45%) minmax(300px, 55%)",
-            lg: "100%",
-          }}
-          templateColumns={{
-            base: "100%",
-            lg: "50% 50%",
-          }}
-          height="100%"
-          width="100%"
-        >
-          <Box gridArea="previewAndControls" bg="gray.900" pos="relative">
-            <Box position="absolute" top="0" bottom="0" left="0" right="0">
-              <OutfitPreview
-                speciesId={outfitState.speciesId}
-                colorId={outfitState.colorId}
-                pose={outfitState.pose}
-                appearanceId={outfitState.appearanceId}
-                wornItemIds={outfitState.wornItemIds}
-              />
-            </Box>
-            <Box position="absolute" top="0" bottom="0" left="0" right="0">
-              <OutfitControls
-                outfitState={outfitState}
-                dispatchToOutfit={dispatchToOutfit}
-              />
-            </Box>
-          </Box>
-          <Box gridArea="itemsAndSearch">
-            <ItemsAndSearchPanels
-              loading={loading}
-              outfitState={outfitState}
-              dispatchToOutfit={dispatchToOutfit}
-            />
-          </Box>
-        </Grid>
-      </Box>
+      <WardrobePageLayout
+        preview={
+          <OutfitPreview
+            speciesId={outfitState.speciesId}
+            colorId={outfitState.colorId}
+            pose={outfitState.pose}
+            appearanceId={outfitState.appearanceId}
+            wornItemIds={outfitState.wornItemIds}
+          />
+        }
+        controls={
+          <OutfitControls
+            outfitState={outfitState}
+            dispatchToOutfit={dispatchToOutfit}
+          />
+        }
+        itemsAndSearch={
+          <ItemsAndSearchPanels
+            loading={loading}
+            outfitState={outfitState}
+            dispatchToOutfit={dispatchToOutfit}
+          />
+        }
+      />
     </OutfitStateContext.Provider>
   );
 }

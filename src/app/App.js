@@ -9,11 +9,14 @@ import { useAuth0 } from "@auth0/auth0-react";
 
 import buildApolloClient from "./apolloClient";
 import PageLayout from "./PageLayout";
+import WardrobePageLayout from "./WardrobePage/WardrobePageLayout";
 
 const ItemsPage = loadable(() => import("./ItemsPage"));
 const HomePage = loadable(() => import("./HomePage"));
 const ModelingPage = loadable(() => import("./ModelingPage"));
-const WardrobePage = loadable(() => import("./WardrobePage"));
+const WardrobePage = loadable(() => import("./WardrobePage"), {
+  fallback: <WardrobePageLayout />,
+});
 
 const theme = {
   ...defaultTheme,
