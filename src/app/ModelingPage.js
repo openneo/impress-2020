@@ -1,14 +1,15 @@
 import React from "react";
 import { Badge, Box, SimpleGrid } from "@chakra-ui/core";
-import { StarIcon } from "@chakra-ui/icons";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
 
 import { Delay } from "./util";
 import HangerSpinner from "./components/HangerSpinner";
 import { Heading1, Heading2 } from "./util";
-import ItemCard from "./components/ItemCard";
-import { ItemBadgeList } from "./components/ItemCard";
+import ItemCard, {
+  ItemBadgeList,
+  YouOwnThisBadge,
+} from "./components/ItemCard";
 
 function ModelingPage() {
   return (
@@ -94,12 +95,7 @@ function ItemModelCard({ item, currentUserOwnsItem, ...props }) {
 function ItemModelBadges({ item, currentUserOwnsItem }) {
   return (
     <ItemBadgeList>
-      {currentUserOwnsItem && (
-        <Badge colorScheme="yellow" display="flex" alignItems="center">
-          <StarIcon aria-label="Star" marginRight="1" />
-          You own this!
-        </Badge>
-      )}
+      {currentUserOwnsItem && <YouOwnThisBadge />}
       {item.speciesThatNeedModels.map((species) => (
         <Badge>{species.name}</Badge>
       ))}

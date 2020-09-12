@@ -10,6 +10,8 @@ import ItemCard, {
   ItemBadgeList,
   NcBadge,
   NpBadge,
+  YouOwnThisBadge,
+  YouWantThisBadge,
 } from "./components/ItemCard";
 import useCurrentUser from "./components/useCurrentUser";
 
@@ -39,6 +41,16 @@ function ItemsPage() {
             thumbnailUrl
           }
         }
+
+        currentUser {
+          itemsTheyOwn {
+            id
+          }
+
+          itemsTheyWant {
+            id
+          }
+        }
       }
     `,
     { variables: { userId } }
@@ -56,6 +68,11 @@ function ItemsPage() {
     return <Box color="red.400">{error.message}</Box>;
   }
 
+  const itemIdsYouOwn = new Set(data.currentUser.itemsTheyOwn.map((i) => i.id));
+  const itemIdsYouWant = new Set(
+    data.currentUser.itemsTheyWant.map((i) => i.id)
+  );
+
   return (
     <Box>
       <Heading1 marginBottom="8">
@@ -69,6 +86,12 @@ function ItemsPage() {
             badges={
               <ItemBadgeList>
                 {item.isNc ? <NcBadge /> : <NpBadge />}
+                {
+                  // This helps you compare your owns/wants to other users.
+                  !isCurrentUser && itemIdsYouWant.has(item.id) && (
+                    <YouWantThisBadge />
+                  )
+                }
               </ItemBadgeList>
             }
           />
@@ -86,6 +109,12 @@ function ItemsPage() {
             badges={
               <ItemBadgeList>
                 {item.isNc ? <NcBadge /> : <NpBadge />}
+                {
+                  // This helps you compare your owns/wants to other users.
+                  !isCurrentUser && itemIdsYouOwn.has(item.id) && (
+                    <YouOwnThisBadge />
+                  )
+                }
               </ItemBadgeList>
             }
           />

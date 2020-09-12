@@ -9,6 +9,7 @@ import {
   useColorModeValue,
   useTheme,
 } from "@chakra-ui/core";
+import { StarIcon } from "@chakra-ui/icons";
 
 import { safeImageUrl } from "../util";
 
@@ -206,6 +207,24 @@ export function NpBadge() {
     <ItemBadgeTooltip label="Neopoints">
       <Badge>NP</Badge>
     </ItemBadgeTooltip>
+  );
+}
+
+export function YouOwnThisBadge() {
+  return (
+    <Badge colorScheme="yellow" display="flex" alignItems="center">
+      <StarIcon aria-label="Star" marginRight="1" />
+      You own this!
+    </Badge>
+  );
+}
+
+export function YouWantThisBadge() {
+  return (
+    <Badge colorScheme="blue" display="flex" alignItems="center">
+      <StarIcon aria-label="Star" marginRight="1" />
+      You want this!
+    </Badge>
   );
 }
 
