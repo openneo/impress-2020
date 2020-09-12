@@ -18,7 +18,13 @@ import {
 } from "@chakra-ui/icons";
 import loadable from "@loadable/component";
 
-import ItemSummary, { ItemSummaryBadgeList } from "../components/ItemSummary";
+import {
+  ItemCardContent,
+  ItemBadgeList,
+  ItemBadgeTooltip,
+  NcBadge,
+  NpBadge,
+} from "../components/ItemCard";
 import SupportOnly from "./support/SupportOnly";
 
 const LoadableItemSupportDrawer = loadable(() =>
@@ -58,7 +64,7 @@ function Item({
     <>
       <ItemContainer isDisabled={isDisabled}>
         <Box flex="1 1 0" minWidth="0">
-          <ItemSummary
+          <ItemCardContent
             item={item}
             badges={<ItemBadges item={item} />}
             itemNameId={itemNameId}
@@ -189,11 +195,9 @@ function ItemBadges({ item }) {
   );
 
   return (
-    <ItemSummaryBadgeList>
+    <ItemBadgeList>
       {item.isNc ? (
-        <ItemBadgeTooltip label="Neocash">
-          <Badge colorScheme="purple">NC</Badge>
-        </ItemBadgeTooltip>
+        <NcBadge />
       ) : (
         // The main purpose of the NP badge is alignment: if there are
         // zone badges, we want them to start at the same rough position,
@@ -201,9 +205,7 @@ function ItemBadges({ item }) {
         // generally avoids zone badges, we'd rather have the NC badge be
         // a little extra that might pop up and hide the NP case, rather
         // than try to line things up like a table.
-        <ItemBadgeTooltip label="Neopoints">
-          <Badge>NP</Badge>
-        </ItemBadgeTooltip>
+        <NpBadge />
       )}
       {occupiedZoneLabels.map((zoneLabel) => (
         <ZoneBadge key={zoneLabel} variant="occupies" zoneLabel={zoneLabel} />
@@ -211,7 +213,7 @@ function ItemBadges({ item }) {
       {restrictedZoneLabels.map((zoneLabel) => (
         <ZoneBadge key={zoneLabel} variant="restricts" zoneLabel={zoneLabel} />
       ))}
-    </ItemSummaryBadgeList>
+    </ItemBadgeList>
   );
 }
 
@@ -335,18 +337,6 @@ function ZoneBadge({ variant, zoneLabel }) {
   }
 
   return <Badge>{shorthand}</Badge>;
-}
-
-function ItemBadgeTooltip({ label, children }) {
-  return (
-    <Tooltip
-      label={<Box textAlign="center">{label}</Box>}
-      placement="top"
-      openDelay={400}
-    >
-      {children}
-    </Tooltip>
-  );
 }
 
 /**

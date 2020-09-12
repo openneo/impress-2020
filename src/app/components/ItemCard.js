@@ -1,10 +1,43 @@
 import React from "react";
 import { css } from "emotion";
-import { Box, Image, Wrap, useColorModeValue, useTheme } from "@chakra-ui/core";
+import {
+  Badge,
+  Box,
+  Image,
+  Tooltip,
+  Wrap,
+  useColorModeValue,
+  useTheme,
+} from "@chakra-ui/core";
 
 import { safeImageUrl } from "../util";
 
-function ItemSummary({
+function ItemCard({ item, badges, ...props }) {
+  const borderColor = useColorModeValue("gray.100", "green.500");
+
+  return (
+    <Box
+      as="a"
+      href={`https://impress.openneo.net/items/${item.id}`}
+      p="2"
+      boxShadow="lg"
+      borderRadius="lg"
+      width="400px"
+      border="1px"
+      borderColor={borderColor}
+      className="item-card"
+      {...props}
+    >
+      <ItemCardContent
+        item={item}
+        badges={badges}
+        focusSelector=".item-card:hover &, .item-card:focus &"
+      />
+    </Box>
+  );
+}
+
+export function ItemCardContent({
   item,
   badges,
   isWorn,
@@ -140,7 +173,7 @@ function ItemName({ children, isDisabled, focusSelector, ...props }) {
   );
 }
 
-export function ItemSummaryBadgeList({ children }) {
+export function ItemBadgeList({ children }) {
   return (
     <Wrap spacing="2" marginTop="1" opacity="0.7">
       {children}
@@ -148,4 +181,32 @@ export function ItemSummaryBadgeList({ children }) {
   );
 }
 
-export default ItemSummary;
+export function ItemBadgeTooltip({ label, children }) {
+  return (
+    <Tooltip
+      label={<Box textAlign="center">{label}</Box>}
+      placement="top"
+      openDelay={400}
+    >
+      {children}
+    </Tooltip>
+  );
+}
+
+export function NcBadge() {
+  return (
+    <ItemBadgeTooltip label="Neocash">
+      <Badge colorScheme="purple">NC</Badge>
+    </ItemBadgeTooltip>
+  );
+}
+
+export function NpBadge() {
+  return (
+    <ItemBadgeTooltip label="Neopoints">
+      <Badge>NP</Badge>
+    </ItemBadgeTooltip>
+  );
+}
+
+export default ItemCard;

@@ -1,5 +1,5 @@
 import React from "react";
-import { Badge, Box, SimpleGrid, useColorModeValue } from "@chakra-ui/core";
+import { Badge, Box, SimpleGrid } from "@chakra-ui/core";
 import { StarIcon } from "@chakra-ui/icons";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
@@ -7,7 +7,8 @@ import { useQuery } from "@apollo/client";
 import { Delay } from "./util";
 import HangerSpinner from "./components/HangerSpinner";
 import { Heading1, Heading2 } from "./util";
-import ItemSummary, { ItemSummaryBadgeList } from "./components/ItemSummary";
+import ItemCard from "./components/ItemCard";
+import { ItemBadgeList } from "./components/ItemCard";
 
 function ModelingPage() {
   return (
@@ -83,38 +84,16 @@ function ItemModelsList() {
 }
 
 function ItemModelCard({ item, currentUserOwnsItem, ...props }) {
-  const borderColor = useColorModeValue("gray.100", "green.500");
-
-  return (
-    <Box
-      as="a"
-      href={`https://impress.openneo.net/items/${item.id}`}
-      p="2"
-      boxShadow="lg"
-      borderRadius="lg"
-      width="400px"
-      border="1px"
-      borderColor={borderColor}
-      className="item-model-card"
-      {...props}
-    >
-      <ItemSummary
-        item={item}
-        badges={
-          <ItemModelBadges
-            item={item}
-            currentUserOwnsItem={currentUserOwnsItem}
-          />
-        }
-        focusSelector=".item-model-card:hover &, .item-model-card:focus &"
-      />
-    </Box>
+  const badges = (
+    <ItemModelBadges item={item} currentUserOwnsItem={currentUserOwnsItem} />
   );
+
+  return <ItemCard item={item} badges={badges} />;
 }
 
 function ItemModelBadges({ item, currentUserOwnsItem }) {
   return (
-    <ItemSummaryBadgeList>
+    <ItemBadgeList>
       {currentUserOwnsItem && (
         <Badge colorScheme="yellow" display="flex" alignItems="center">
           <StarIcon aria-label="Star" marginRight="1" />
@@ -124,7 +103,7 @@ function ItemModelBadges({ item, currentUserOwnsItem }) {
       {item.speciesThatNeedModels.map((species) => (
         <Badge>{species.name}</Badge>
       ))}
-    </ItemSummaryBadgeList>
+    </ItemBadgeList>
   );
 }
 

@@ -1,11 +1,16 @@
 import React from "react";
-import { Box, Image, Wrap } from "@chakra-ui/core";
+import { Box, Wrap } from "@chakra-ui/core";
 import gql from "graphql-tag";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@apollo/client";
 
 import HangerSpinner from "./components/HangerSpinner";
 import { Heading1 } from "./util";
+import ItemCard, {
+  ItemBadgeList,
+  NcBadge,
+  NpBadge,
+} from "./components/ItemCard";
 import useCurrentUser from "./components/useCurrentUser";
 
 function ItemsPage() {
@@ -21,6 +26,7 @@ function ItemsPage() {
           username
           itemsTheyOwn {
             id
+            isNc
             name
             thumbnailUrl
           }
@@ -49,17 +55,15 @@ function ItemsPage() {
       </Heading1>
       <Wrap justify="center">
         {data.user.itemsTheyOwn.map((item) => (
-          <Box key={item.id} width="100px" textAlign="center">
-            <Image
-              src={item.thumbnailUrl}
-              alt=""
-              height="80px"
-              width="80px"
-              boxShadow="md"
-              margin="0 auto"
-            />
-            {item.name}
-          </Box>
+          <ItemCard
+            key={item.id}
+            item={item}
+            badges={
+              <ItemBadgeList>
+                {item.isNc ? <NcBadge /> : <NpBadge />}
+              </ItemBadgeList>
+            }
+          />
         ))}
       </Wrap>
     </Box>
