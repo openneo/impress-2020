@@ -4,6 +4,7 @@ import {
   Badge,
   Box,
   Image,
+  SimpleGrid,
   Tooltip,
   Wrap,
   useColorModeValue,
@@ -27,6 +28,7 @@ function ItemCard({ item, badges, ...props }) {
       border="1px"
       borderColor={borderColor}
       className="item-card"
+      width="100%"
       {...props}
     >
       <ItemCardContent
@@ -171,6 +173,14 @@ function ItemName({ children, isDisabled, focusSelector, ...props }) {
     >
       {children}
     </Box>
+  );
+}
+
+export function ItemCardList({ children }) {
+  return (
+    <SimpleGrid columns={{ sm: 1, lg: 2 }} spacing="6">
+      {children}
+    </SimpleGrid>
   );
 }
 

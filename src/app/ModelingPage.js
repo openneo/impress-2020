@@ -8,6 +8,7 @@ import HangerSpinner from "./components/HangerSpinner";
 import { Heading1, Heading2 } from "./util";
 import ItemCard, {
   ItemBadgeList,
+  ItemCardList,
   YouOwnThisBadge,
 } from "./components/ItemCard";
 
@@ -72,7 +73,7 @@ function ItemModelsList() {
   );
 
   return (
-    <SimpleGrid columns={{ sm: 1, lg: 2 }} spacing="6">
+    <ItemCardList>
       {items.map((item) => (
         <ItemModelCard
           key={item.id}
@@ -80,7 +81,7 @@ function ItemModelsList() {
           currentUserOwnsItem={ownedItemIds.has(item.id)}
         />
       ))}
-    </SimpleGrid>
+    </ItemCardList>
   );
 }
 
@@ -89,7 +90,7 @@ function ItemModelCard({ item, currentUserOwnsItem, ...props }) {
     <ItemModelBadges item={item} currentUserOwnsItem={currentUserOwnsItem} />
   );
 
-  return <ItemCard item={item} badges={badges} />;
+  return <ItemCard item={item} badges={badges} {...props} />;
 }
 
 function ItemModelBadges({ item, currentUserOwnsItem }) {

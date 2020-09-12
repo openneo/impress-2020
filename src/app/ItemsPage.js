@@ -8,6 +8,7 @@ import HangerSpinner from "./components/HangerSpinner";
 import { Heading1 } from "./util";
 import ItemCard, {
   ItemBadgeList,
+  ItemCardList,
   NcBadge,
   NpBadge,
   YouOwnThisBadge,
@@ -78,7 +79,7 @@ function ItemsPage() {
       <Heading1 marginBottom="8">
         {isCurrentUser ? "Items you own" : `Items ${data.user.username} owns`}
       </Heading1>
-      <Wrap justify="center">
+      <ItemCardList>
         {data.user.itemsTheyOwn.map((item) => (
           <ItemCard
             key={item.id}
@@ -96,12 +97,12 @@ function ItemsPage() {
             }
           />
         ))}
-      </Wrap>
+      </ItemCardList>
 
       <Heading1 marginBottom="8" marginTop="8">
         {isCurrentUser ? "Items you want" : `Items ${data.user.username} wants`}
       </Heading1>
-      <Wrap justify="center">
+      <ItemCardList>
         {data.user.itemsTheyWant.map((item) => (
           <ItemCard
             key={item.id}
@@ -119,7 +120,7 @@ function ItemsPage() {
             }
           />
         ))}
-      </Wrap>
+      </ItemCardList>
     </Box>
   );
 }
