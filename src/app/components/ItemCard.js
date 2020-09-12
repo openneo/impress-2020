@@ -3,7 +3,6 @@ import { css } from "emotion";
 import {
   Badge,
   Box,
-  Image,
   SimpleGrid,
   Tooltip,
   Wrap,
@@ -52,8 +51,8 @@ export function ItemCardContent({
     <Box display="flex">
       <Box flex="0 0 auto" marginRight="3">
         <ItemThumbnail
-          src={safeImageUrl(item.thumbnailUrl)}
-          isWorn={isWorn}
+          item={item}
+          isActive={isWorn}
           isDisabled={isDisabled}
           focusSelector={focusSelector}
         />
@@ -78,7 +77,14 @@ export function ItemCardContent({
  * ItemThumbnail shows a small preview image for the item, including some
  * hover/focus and worn/unworn states.
  */
-function ItemThumbnail({ src, isWorn, isDisabled, focusSelector }) {
+export function ItemThumbnail({
+  item,
+  size = "md",
+  isActive,
+  isDisabled,
+  focusSelector,
+  ...props
+}) {
   const theme = useTheme();
 
   const borderColor = useColorModeValue(
@@ -93,8 +99,8 @@ function ItemThumbnail({ src, isWorn, isDisabled, focusSelector }) {
 
   return (
     <Box
-      width="50px"
-      height="50px"
+      width={size === "lg" ? "80px" : "50px"}
+      height={size === "lg" ? "80px" : "50px"}
       transition="all 0.15s"
       transformOrigin="center"
       position="relative"
@@ -103,18 +109,19 @@ function ItemThumbnail({ src, isWorn, isDisabled, focusSelector }) {
           transform: "scale(0.8)",
         },
         !isDisabled &&
-          !isWorn && {
+          !isActive && {
             [focusSelector]: {
               opacity: "0.9",
               transform: "scale(0.9)",
             },
           },
         !isDisabled &&
-          isWorn && {
+          isActive && {
             opacity: 1,
             transform: "none",
           },
       ])}
+      {...props}
     >
       <Box
         borderRadius="lg"
@@ -128,14 +135,20 @@ function ItemThumbnail({ src, isWorn, isDisabled, focusSelector }) {
             borderColor: `${borderColor} !important`,
           },
           !isDisabled &&
-            !isWorn && {
+            !isActive && {
               [focusSelector]: {
                 borderColor: `${focusBorderColor} !important`,
               },
             },
         ])}
       >
-        <Image width="100%" height="100%" src={src} alt="" />
+        <Box
+          as="img"
+          width="100%"
+          height="100%"
+          src={safeImageUrl(item.thumbnailUrl)}
+          alt={`Thumbnail art for ${item.name}`}
+        />
       </Box>
     </Box>
   );

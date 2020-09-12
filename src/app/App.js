@@ -12,6 +12,7 @@ import PageLayout from "./PageLayout";
 import WardrobePageLayout from "./WardrobePage/WardrobePageLayout";
 
 const HomePage = loadable(() => import("./HomePage"));
+const ItemPage = loadable(() => import("./ItemPage"));
 const ModelingPage = loadable(() => import("./ModelingPage"));
 const UserItemsPage = loadable(() => import("./UserItemsPage"));
 const WardrobePage = loadable(() => import("./WardrobePage"), {
@@ -63,6 +64,11 @@ function App() {
           <ChakraProvider theme={theme}>
             <CSSReset />
             <Switch>
+              <Route path="/items/:itemId">
+                <PageLayout>
+                  <ItemPage />
+                </PageLayout>
+              </Route>
               <Route path="/outfits/new">
                 <WardrobePage />
               </Route>
