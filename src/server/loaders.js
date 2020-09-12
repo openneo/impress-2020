@@ -488,7 +488,7 @@ const buildUserLoader = (db) =>
     );
   });
 
-const buildUserOwnedClosetHangersLoader = (db) =>
+const buildUserClosetHangersLoader = (db) =>
   new DataLoader(async (userIds) => {
     const qs = userIds.map((_) => "?").join(",");
     const [rows, _] = await db.execute(
@@ -496,7 +496,7 @@ const buildUserOwnedClosetHangersLoader = (db) =>
        INNER JOIN items ON items.id = closet_hangers.item_id
        INNER JOIN item_translations ON
          item_translations.item_id = items.id AND locale = "en"
-       WHERE user_id IN (${qs}) AND owned = 1
+       WHERE user_id IN (${qs})
        ORDER BY item_name`,
       userIds
     );
@@ -604,7 +604,7 @@ function buildLoaders(db) {
   loaders.speciesLoader = buildSpeciesLoader(db);
   loaders.speciesTranslationLoader = buildSpeciesTranslationLoader(db);
   loaders.userLoader = buildUserLoader(db);
-  loaders.userOwnedClosetHangersLoader = buildUserOwnedClosetHangersLoader(db);
+  loaders.userClosetHangersLoader = buildUserClosetHangersLoader(db);
   loaders.userClosetListsLoader = buildUserClosetListsLoader(db);
   loaders.zoneLoader = buildZoneLoader(db);
   loaders.zoneTranslationLoader = buildZoneTranslationLoader(db);

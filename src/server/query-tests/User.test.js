@@ -178,7 +178,7 @@ describe("User", () => {
              INNER JOIN items ON items.id = closet_hangers.item_id
              INNER JOIN item_translations ON
                item_translations.item_id = items.id AND locale = \\"en\\"
-             WHERE user_id IN (?) AND owned = 1
+             WHERE user_id IN (?)
              ORDER BY item_name",
           Array [
             "44743",
@@ -240,7 +240,141 @@ describe("User", () => {
              INNER JOIN items ON items.id = closet_hangers.item_id
              INNER JOIN item_translations ON
                item_translations.item_id = items.id AND locale = \\"en\\"
-             WHERE user_id IN (?) AND owned = 1
+             WHERE user_id IN (?)
+             ORDER BY item_name",
+          Array [
+            "44743",
+          ],
+        ],
+        Array [
+          "SELECT * FROM closet_lists
+             WHERE user_id IN (?)
+             ORDER BY name",
+          Array [
+            "44743",
+          ],
+        ],
+      ]
+    `);
+  });
+
+  it("gets private items they want for current user", async () => {
+    await logInAsTestUser();
+
+    const res = await query({
+      query: gql`
+        query {
+          user(id: "44743") {
+            id
+            username
+            itemsTheyWant {
+              id
+              name
+            }
+          }
+        }
+      `,
+    });
+
+    expect(res).toHaveNoErrors();
+    expect(res.data).toMatchInlineSnapshot(`
+      Object {
+        "user": Object {
+          "id": "44743",
+          "itemsTheyWant": Array [
+            Object {
+              "id": "39945",
+              "name": "Altador Cup Background - Haunted Woods",
+            },
+            Object {
+              "id": "39956",
+              "name": "Altador Cup Background - Kreludor",
+            },
+            Object {
+              "id": "39947",
+              "name": "Altador Cup Background - Shenkuu",
+            },
+          ],
+          "username": "dti-test",
+        },
+      }
+    `);
+    expect(getDbCalls()).toMatchInlineSnapshot(`
+      Array [
+        Array [
+          "SELECT * FROM users WHERE id IN (?)",
+          Array [
+            "44743",
+          ],
+        ],
+        Array [
+          "SELECT closet_hangers.*, item_translations.name as item_name FROM closet_hangers
+             INNER JOIN items ON items.id = closet_hangers.item_id
+             INNER JOIN item_translations ON
+               item_translations.item_id = items.id AND locale = \\"en\\"
+             WHERE user_id IN (?)
+             ORDER BY item_name",
+          Array [
+            "44743",
+          ],
+        ],
+        Array [
+          "SELECT * FROM closet_lists
+             WHERE user_id IN (?)
+             ORDER BY name",
+          Array [
+            "44743",
+          ],
+        ],
+      ]
+    `);
+  });
+
+  it("hides private items they want from other users", async () => {
+    const res = await query({
+      query: gql`
+        query {
+          user(id: "44743") {
+            id
+            username
+            itemsTheyWant {
+              id
+              name
+            }
+          }
+        }
+      `,
+    });
+
+    expect(res).toHaveNoErrors();
+    expect(res.data).toMatchInlineSnapshot(`
+      Object {
+        "user": Object {
+          "id": "44743",
+          "itemsTheyWant": Array [
+            Object {
+              "id": "39947",
+              "name": "Altador Cup Background - Shenkuu",
+            },
+          ],
+          "username": "dti-test",
+        },
+      }
+    `);
+    expect(getDbCalls()).toMatchInlineSnapshot(`
+      Array [
+        Array [
+          "SELECT * FROM users WHERE id IN (?)",
+          Array [
+            "44743",
+          ],
+        ],
+        Array [
+          "SELECT closet_hangers.*, item_translations.name as item_name FROM closet_hangers
+             INNER JOIN items ON items.id = closet_hangers.item_id
+             INNER JOIN item_translations ON
+               item_translations.item_id = items.id AND locale = \\"en\\"
+             WHERE user_id IN (?)
              ORDER BY item_name",
           Array [
             "44743",

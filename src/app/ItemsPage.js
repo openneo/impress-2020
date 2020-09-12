@@ -24,7 +24,15 @@ function ItemsPage() {
         user(id: $userId) {
           id
           username
+
           itemsTheyOwn {
+            id
+            isNc
+            name
+            thumbnailUrl
+          }
+
+          itemsTheyWant {
             id
             isNc
             name
@@ -55,6 +63,23 @@ function ItemsPage() {
       </Heading1>
       <Wrap justify="center">
         {data.user.itemsTheyOwn.map((item) => (
+          <ItemCard
+            key={item.id}
+            item={item}
+            badges={
+              <ItemBadgeList>
+                {item.isNc ? <NcBadge /> : <NpBadge />}
+              </ItemBadgeList>
+            }
+          />
+        ))}
+      </Wrap>
+
+      <Heading1 marginBottom="8" marginTop="8">
+        {isCurrentUser ? "Items you want" : `Items ${data.user.username} wants`}
+      </Heading1>
+      <Wrap justify="center">
+        {data.user.itemsTheyWant.map((item) => (
           <ItemCard
             key={item.id}
             item={item}

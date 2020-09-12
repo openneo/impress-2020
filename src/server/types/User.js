@@ -5,6 +5,7 @@ const typeDefs = gql`
     id: ID!
     username: String!
     itemsTheyOwn: [Item!]!
+    itemsTheyWant: [Item!]!
   }
 
   extend type Query {
@@ -19,6 +20,7 @@ const resolvers = {
       const user = await userLoader.load(id);
       return user.name;
     },
+
     itemsTheyOwn: async (
       { id },
       _,
@@ -26,23 +28,61 @@ const resolvers = {
         currentUserId,
         userClosetListsLoader,
         userLoader,
-        userOwnedClosetHangersLoader,
+        userClosetHangersLoader,
       }
     ) => {
       const [allClosetHangers, closetLists, user] = await Promise.all([
-        userOwnedClosetHangersLoader.load(id),
+        userClosetHangersLoader.load(id),
         userClosetListsLoader.load(id),
         userLoader.load(id),
       ]);
 
       const closetListsById = new Map(closetLists.map((l) => [l.id, l]));
 
-      const visibleClosetHangers = allClosetHangers.filter(
-        (h) =>
-          user.id === currentUserId ||
-          (h.listId == null && user.ownedClosetHangersVisibility >= 1) ||
-          (h.listId != null && closetListsById.get(h.listId).visibility >= 1)
-      );
+      const visibleClosetHangers = allClosetHangers
+        .filter((h) => h.owned)
+        .filter(
+          (h) =>
+            user.id === currentUserId ||
+            (h.listId == null && user.ownedClosetHangersVisibility >= 1) ||
+            (h.listId != null && closetListsById.get(h.listId).visibility >= 1)
+        );
+
+      const items = visibleClosetHangers.map((h) => ({
+        id: h.itemId,
+        // We get this for the ORDER BY clause anyway - may as well include it
+        // here to avoid an extra lookup!
+        name: h.itemName,
+      }));
+      return items;
+    },
+
+    itemsTheyWant: async (
+      { id },
+      _,
+      {
+        currentUserId,
+        userClosetListsLoader,
+        userLoader,
+        userClosetHangersLoader,
+      }
+    ) => {
+      const [allClosetHangers, closetLists, user] = await Promise.all([
+        userClosetHangersLoader.load(id),
+        userClosetListsLoader.load(id),
+        userLoader.load(id),
+      ]);
+
+      const closetListsById = new Map(closetLists.map((l) => [l.id, l]));
+
+      const visibleClosetHangers = allClosetHangers
+        .filter((h) => !h.owned)
+        .filter(
+          (h) =>
+            user.id === currentUserId ||
+            (h.listId == null && user.wantedClosetHangersVisibility >= 1) ||
+            (h.listId != null && closetListsById.get(h.listId).visibility >= 1)
+        );
 
       const items = visibleClosetHangers.map((h) => ({
         id: h.itemId,
