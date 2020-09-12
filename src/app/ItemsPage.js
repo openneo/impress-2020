@@ -75,8 +75,8 @@ function ItemsPage() {
   );
 
   // This helps you compare your owns/wants to other users! If they own
-  // something, and you want it, we say "You own this!". And if they want
-  // something, and you own it, we say "You want this!".
+  // something, and you want it, we say "You want this!". And if they want
+  // something, and you own it, we say "You own this!".
   const showYouOwnThisBadge = (item) =>
     !isCurrentUser && itemIdsYouOwn.has(item.id);
   const showYouWantThisBadge = (item) =>
