@@ -24,7 +24,6 @@ function ItemCard({ item, badges, ...props }) {
       p="2"
       boxShadow="lg"
       borderRadius="lg"
-      width="400px"
       border="1px"
       borderColor={borderColor}
       className="item-card"

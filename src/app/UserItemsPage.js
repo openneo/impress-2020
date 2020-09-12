@@ -1,5 +1,5 @@
 import React from "react";
-import { Box } from "@chakra-ui/core";
+import { Box, Center } from "@chakra-ui/core";
 import gql from "graphql-tag";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@apollo/client";
@@ -59,9 +59,9 @@ function UserItemsPage() {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center">
+      <Center>
         <HangerSpinner />
-      </Box>
+      </Center>
     );
   }
 
