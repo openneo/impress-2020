@@ -29,6 +29,7 @@ function ItemCard({ item, badges, ...props }) {
       borderColor={borderColor}
       className="item-card"
       width="100%"
+      minWidth="0"
       {...props}
     >
       <ItemCardContent
@@ -178,7 +179,7 @@ function ItemName({ children, isDisabled, focusSelector, ...props }) {
 
 export function ItemCardList({ children }) {
   return (
-    <SimpleGrid columns={{ sm: 1, lg: 2 }} spacing="6">
+    <SimpleGrid columns={{ sm: 1, md: 2, lg: 3 }} spacing="6">
       {children}
     </SimpleGrid>
   );

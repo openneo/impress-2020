@@ -100,7 +100,7 @@ function ItemsPage() {
 
   return (
     <Box>
-      <Heading1 marginBottom="8">
+      <Heading1 marginBottom="6">
         {isCurrentUser ? "Items you own" : `Items ${data.user.username} owns`}
       </Heading1>
       <ItemCardList>
@@ -118,7 +118,7 @@ function ItemsPage() {
         ))}
       </ItemCardList>
 
-      <Heading1 marginBottom="8" marginTop="8">
+      <Heading1 marginBottom="6" marginTop="8">
         {isCurrentUser ? "Items you want" : `Items ${data.user.username} wants`}
       </Heading1>
       <ItemCardList>
