@@ -1,11 +1,11 @@
 import React from "react";
-import { Badge, Box, SimpleGrid } from "@chakra-ui/core";
+import { Badge, Box } from "@chakra-ui/core";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
 
 import { Delay } from "./util";
 import HangerSpinner from "./components/HangerSpinner";
-import { Heading1, Heading2 } from "./util";
+import { Heading1, Heading2, usePageTitle } from "./util";
 import ItemCard, {
   ItemBadgeList,
   ItemCardList,
@@ -13,6 +13,8 @@ import ItemCard, {
 } from "./components/ItemCard";
 
 function ModelingPage() {
+  usePageTitle("Modeling Hub");
+
   return (
     <Box>
       <Heading1 marginBottom="2">Modeling Hub</Heading1>

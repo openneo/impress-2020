@@ -29,7 +29,7 @@ function WardrobePage() {
   const toast = useToast();
   const { loading, error, outfitState, dispatchToOutfit } = useOutfitState();
 
-  usePageTitle(`${outfitState.name || "Untitled outfit"} | Dress to Impress`);
+  usePageTitle(outfitState.name || "Untitled outfit");
 
   // TODO: I haven't found a great place for this error UI yet, and this case
   // isn't very common, so this lil toast notification seems good enough!

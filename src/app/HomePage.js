@@ -21,7 +21,7 @@ import HomepageSplashImg2x from "../images/homepage-splash@2x.png";
 import SpeciesColorPicker from "./components/SpeciesColorPicker";
 
 function HomePage() {
-  usePageTitle("Dress to Impress");
+  usePageTitle(null);
   useSupportSetup();
 
   const [previewState, setPreviewState] = React.useState(null);

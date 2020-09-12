@@ -113,7 +113,7 @@ export function useDebounce(
  */
 export function usePageTitle(title) {
   React.useEffect(() => {
-    document.title = title;
+    document.title = title ? `${title} | Dress to Impress` : "Dress to Impress";
   }, [title]);
 }
 
