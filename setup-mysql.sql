@@ -22,6 +22,7 @@ GRANT UPDATE ON swf_assets TO impress2020;
 
 -- User data tables
 GRANT SELECT ON closet_hangers TO impress2020;
+GRANT SELECT ON closet_lists TO impress2020;
 GRANT SELECT ON item_outfit_relationships TO impress2020;
 GRANT SELECT ON outfits TO impress2020;
 GRANT SELECT ON users TO impress2020;

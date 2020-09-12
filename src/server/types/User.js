@@ -22,21 +22,29 @@ const resolvers = {
     itemsTheyOwn: async (
       { id },
       _,
-      { currentUserId, userLoader, userOwnedClosetHangersLoader }
-    ) => {
-      const user = await userLoader.load(id);
-      const hangersAreVisible =
-        user.ownedClosetHangersVisibility >= 2 || user.id === currentUserId;
-      if (!hangersAreVisible) {
-        return [];
+      {
+        currentUserId,
+        userClosetListsLoader,
+        userLoader,
+        userOwnedClosetHangersLoader,
       }
+    ) => {
+      const [allClosetHangers, closetLists, user] = await Promise.all([
+        userOwnedClosetHangersLoader.load(id),
+        userClosetListsLoader.load(id),
+        userLoader.load(id),
+      ]);
 
-      const allClosetHangers = await userOwnedClosetHangersLoader.load(id);
-      const closetHangersWithNoList = allClosetHangers.filter(
-        (h) => h.listId == null
+      const closetListsById = new Map(closetLists.map((l) => [l.id, l]));
+
+      const visibleClosetHangers = allClosetHangers.filter(
+        (h) =>
+          user.id === currentUserId ||
+          (h.listId == null && user.ownedClosetHangersVisibility >= 1) ||
+          (h.listId != null && closetListsById.get(h.listId).visibility >= 1)
       );
 
-      const items = closetHangersWithNoList.map((h) => ({
+      const items = visibleClosetHangers.map((h) => ({
         id: h.itemId,
         // We get this for the ORDER BY clause anyway - may as well include it
         // here to avoid an extra lookup!

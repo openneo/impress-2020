@@ -149,6 +149,14 @@ describe("User", () => {
               "name": "Abominable Snowman Hat",
             },
             Object {
+              "id": "39948",
+              "name": "Altador Cup Background - Lost Desert",
+            },
+            Object {
+              "id": "39955",
+              "name": "Altador Cup Background - Virtupets",
+            },
+            Object {
               "id": "40319",
               "name": "Blue Jelly Tiara",
             },
@@ -172,6 +180,14 @@ describe("User", () => {
                item_translations.item_id = items.id AND locale = \\"en\\"
              WHERE user_id IN (?) AND owned = 1
              ORDER BY item_name",
+          Array [
+            "44743",
+          ],
+        ],
+        Array [
+          "SELECT * FROM closet_lists
+             WHERE user_id IN (?)
+             ORDER BY name",
           Array [
             "44743",
           ],
@@ -201,7 +217,12 @@ describe("User", () => {
       Object {
         "user": Object {
           "id": "44743",
-          "itemsTheyOwn": Array [],
+          "itemsTheyOwn": Array [
+            Object {
+              "id": "39955",
+              "name": "Altador Cup Background - Virtupets",
+            },
+          ],
           "username": "dti-test",
         },
       }
@@ -210,6 +231,25 @@ describe("User", () => {
       Array [
         Array [
           "SELECT * FROM users WHERE id IN (?)",
+          Array [
+            "44743",
+          ],
+        ],
+        Array [
+          "SELECT closet_hangers.*, item_translations.name as item_name FROM closet_hangers
+             INNER JOIN items ON items.id = closet_hangers.item_id
+             INNER JOIN item_translations ON
+               item_translations.item_id = items.id AND locale = \\"en\\"
+             WHERE user_id IN (?) AND owned = 1
+             ORDER BY item_name",
+          Array [
+            "44743",
+          ],
+        ],
+        Array [
+          "SELECT * FROM closet_lists
+             WHERE user_id IN (?)
+             ORDER BY name",
           Array [
             "44743",
           ],

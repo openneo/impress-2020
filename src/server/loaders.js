@@ -507,6 +507,22 @@ const buildUserOwnedClosetHangersLoader = (db) =>
     );
   });
 
+const buildUserClosetListsLoader = (db) =>
+  new DataLoader(async (userIds) => {
+    const qs = userIds.map((_) => "?").join(",");
+    const [rows, _] = await db.execute(
+      `SELECT * FROM closet_lists
+       WHERE user_id IN (${qs})
+       ORDER BY name`,
+      userIds
+    );
+    const entities = rows.map(normalizeRow);
+
+    return userIds.map((userId) =>
+      entities.filter((e) => e.userId === String(userId))
+    );
+  });
+
 const buildZoneLoader = (db) => {
   const zoneLoader = new DataLoader(async (ids) => {
     const qs = ids.map((_) => "?").join(",");
@@ -589,6 +605,7 @@ function buildLoaders(db) {
   loaders.speciesTranslationLoader = buildSpeciesTranslationLoader(db);
   loaders.userLoader = buildUserLoader(db);
   loaders.userOwnedClosetHangersLoader = buildUserOwnedClosetHangersLoader(db);
+  loaders.userClosetListsLoader = buildUserClosetListsLoader(db);
   loaders.zoneLoader = buildZoneLoader(db);
   loaders.zoneTranslationLoader = buildZoneTranslationLoader(db);
 
