@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Wrap } from "@chakra-ui/core";
+import { Box } from "@chakra-ui/core";
 import gql from "graphql-tag";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@apollo/client";
@@ -16,7 +16,7 @@ import ItemCard, {
 } from "./components/ItemCard";
 import useCurrentUser from "./components/useCurrentUser";
 
-function ItemsPage() {
+function UserItemsPage() {
   const { userId } = useParams();
   const currentUser = useCurrentUser();
   const isCurrentUser = currentUser.id === userId;
@@ -139,4 +139,4 @@ function ItemsPage() {
   );
 }
 
-export default ItemsPage;
+export default UserItemsPage;

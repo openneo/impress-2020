@@ -11,9 +11,9 @@ import buildApolloClient from "./apolloClient";
 import PageLayout from "./PageLayout";
 import WardrobePageLayout from "./WardrobePage/WardrobePageLayout";
 
-const ItemsPage = loadable(() => import("./ItemsPage"));
 const HomePage = loadable(() => import("./HomePage"));
 const ModelingPage = loadable(() => import("./ModelingPage"));
+const UserItemsPage = loadable(() => import("./UserItemsPage"));
 const WardrobePage = loadable(() => import("./WardrobePage"), {
   fallback: <WardrobePageLayout />,
 });
@@ -68,7 +68,7 @@ function App() {
               </Route>
               <Route path="/user/:userId/items">
                 <PageLayout>
-                  <ItemsPage />
+                  <UserItemsPage />
                 </PageLayout>
               </Route>
               <Route path="/modeling">
