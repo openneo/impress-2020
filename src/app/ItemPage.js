@@ -12,7 +12,6 @@ import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
 
-import HangerSpinner from "./components/HangerSpinner";
 import {
   ItemBadgeList,
   ItemThumbnail,
@@ -34,7 +33,7 @@ function ItemPage() {
 }
 
 function ItemPageHeader({ itemId }) {
-  const { loading, error, data } = useQuery(
+  const { error, data } = useQuery(
     gql`
       query ItemPage($itemId: ID!) {
         item(id: $itemId) {
@@ -45,59 +44,16 @@ function ItemPageHeader({ itemId }) {
         }
       }
     `,
-    { variables: { itemId } }
+    { variables: { itemId }, returnPartialData: true }
   );
 
   usePageTitle(data?.item?.name);
-
-  if (loading) {
-    return (
-      <Box
-        display="flex"
-        alignItems="center"
-        justifyContent="flex-start"
-        width="100%"
-      >
-        <Skeleton height="80px" width="80px" marginRight="4" flex="0 0 auto" />
-        <Box display="flex" flexDirection="column" alignItems="flex-start">
-          <Skeleton>
-            <Heading1 lineHeight="1.1" maxHeight="1.1em">
-              Item name goes here
-            </Heading1>
-          </Skeleton>
-          <ItemBadgeList>
-            <Skeleton>
-              <NpBadge />
-            </Skeleton>
-            <Skeleton>
-              <LinkBadge href="/">Old DTI</LinkBadge>
-            </Skeleton>
-            <Skeleton>
-              <LinkBadge href="/">Jellyneo</LinkBadge>
-            </Skeleton>
-            <Skeleton>
-              <LinkBadge href="/">Shop Wiz</LinkBadge>
-            </Skeleton>
-            <Skeleton>
-              <LinkBadge href="/">Super Wiz</LinkBadge>
-            </Skeleton>
-            <Skeleton>
-              <LinkBadge href="/">Trades</LinkBadge>
-            </Skeleton>
-            <Skeleton>
-              <LinkBadge href="/">Auctions</LinkBadge>
-            </Skeleton>
-          </ItemBadgeList>
-        </Box>
-      </Box>
-    );
-  }
 
   if (error) {
     return <Box color="red.400">{error.message}</Box>;
   }
 
-  const { item } = data;
+  const item = data?.item;
 
   return (
     <Box
@@ -106,15 +62,13 @@ function ItemPageHeader({ itemId }) {
       justifyContent="flex-start"
       width="100%"
     >
-      <ItemThumbnail
-        item={item}
-        size="lg"
-        isActive
-        marginRight="4"
-        flex="0 0 auto"
-      />
+      <Skeleton isLoaded={item?.thumbnailUrl} marginRight="4">
+        <ItemThumbnail item={item} size="lg" isActive flex="0 0 auto" />
+      </Skeleton>
       <Box>
-        <Heading1 lineHeight="1.1">{item.name}</Heading1>
+        <Skeleton isLoaded={item?.name}>
+          <Heading1 lineHeight="1.1">{item?.name || "Item name here"}</Heading1>
+        </Skeleton>
         <ItemPageBadges item={item} />
       </Box>
     </Box>
@@ -122,61 +76,77 @@ function ItemPageHeader({ itemId }) {
 }
 
 function ItemPageBadges({ item }) {
+  const searchBadgesAreLoaded = item?.name != null && item?.isNc != null;
+
   return (
     <ItemBadgeList>
-      {item.isNc ? <NcBadge /> : <NpBadge />}
-      <LinkBadge href={`https://impress.openneo.net/items/${item.id}`}>
-        Old DTI
-      </LinkBadge>
-      <LinkBadge
-        href={
-          "https://items.jellyneo.net/search/?name=" +
-          encodeURIComponent(item.name) +
-          "&name_type=3"
-        }
-      >
-        Jellyneo
-      </LinkBadge>
-      {!item.isNc && (
+      <Skeleton isLoaded={item?.isNc != null}>
+        {item?.isNc ? <NcBadge /> : <NpBadge />}
+      </Skeleton>
+      <Skeleton isLoaded={searchBadgesAreLoaded}>
+        <LinkBadge href={`https://impress.openneo.net/items/${item.id}`}>
+          Old DTI
+        </LinkBadge>
+      </Skeleton>
+      <Skeleton isLoaded={searchBadgesAreLoaded}>
         <LinkBadge
           href={
-            "http://www.neopets.com/market.phtml?type=wizard&string=" +
-            encodeURIComponent(item.name)
+            "https://items.jellyneo.net/search/?name=" +
+            encodeURIComponent(item.name) +
+            "&name_type=3"
           }
         >
-          Shop Wiz
+          Jellyneo
         </LinkBadge>
-      )}
-      {!item.isNc && (
-        <LinkBadge
-          href={
-            "http://www.neopets.com/portal/supershopwiz.phtml?string=" +
-            encodeURIComponent(item.name)
-          }
-        >
-          Super Wiz
-        </LinkBadge>
-      )}
-      {!item.isNc && (
-        <LinkBadge
-          href={
-            "http://www.neopets.com/island/tradingpost.phtml?type=browse&criteria=item_exact&search_string=" +
-            encodeURIComponent(item.name)
-          }
-        >
-          Trades
-        </LinkBadge>
-      )}
-      {!item.isNc && (
-        <LinkBadge
-          href={
-            "http://www.neopets.com/genie.phtml?type=process_genie&criteria=exact&auctiongenie=" +
-            encodeURIComponent(item.name)
-          }
-        >
-          Auctions
-        </LinkBadge>
-      )}
+      </Skeleton>
+      <Skeleton isLoaded={searchBadgesAreLoaded}>
+        {!item?.isNc && (
+          <LinkBadge
+            href={
+              "http://www.neopets.com/market.phtml?type=wizard&string=" +
+              encodeURIComponent(item.name)
+            }
+          >
+            Shop Wiz
+          </LinkBadge>
+        )}
+      </Skeleton>
+      <Skeleton isLoaded={searchBadgesAreLoaded}>
+        {!item?.isNc && (
+          <LinkBadge
+            href={
+              "http://www.neopets.com/portal/supershopwiz.phtml?string=" +
+              encodeURIComponent(item.name)
+            }
+          >
+            Super Wiz
+          </LinkBadge>
+        )}
+      </Skeleton>
+      <Skeleton isLoaded={searchBadgesAreLoaded}>
+        {!item?.isNc && (
+          <LinkBadge
+            href={
+              "http://www.neopets.com/island/tradingpost.phtml?type=browse&criteria=item_exact&search_string=" +
+              encodeURIComponent(item.name)
+            }
+          >
+            Trades
+          </LinkBadge>
+        )}
+      </Skeleton>
+      <Skeleton isLoaded={searchBadgesAreLoaded}>
+        {!item?.isNc && (
+          <LinkBadge
+            href={
+              "http://www.neopets.com/genie.phtml?type=process_genie&criteria=exact&auctiongenie=" +
+              encodeURIComponent(item.name)
+            }
+          >
+            Auctions
+          </LinkBadge>
+        )}
+      </Skeleton>
     </ItemBadgeList>
   );
 }
