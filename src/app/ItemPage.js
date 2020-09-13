@@ -383,6 +383,8 @@ function ItemPageOutfitPreview({ itemId }) {
           colorId="8"
           pose="HAPPY_FEM"
           wornItemIds={[itemId]}
+          spinnerVariant="corner"
+          loadingDelayMs={2000}
         />
       </Box>
     </AspectRatio>

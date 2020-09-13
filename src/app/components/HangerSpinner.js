@@ -86,12 +86,7 @@ function HangerSpinner({ size = "md", ...props }) {
         `}
         {...props}
       >
-        <HangerIcon
-          boxSize={boxSize}
-          color={color}
-          transition="color 0.2s"
-          {...props}
-        />
+        <HangerIcon boxSize={boxSize} color={color} transition="color 0.2s" />
       </Box>
     </>
   );
