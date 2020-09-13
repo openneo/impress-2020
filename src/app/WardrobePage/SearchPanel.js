@@ -274,6 +274,8 @@ function useSearchResults(query, outfitState) {
             name
             thumbnailUrl
             isNc
+            currentUserOwnsThis
+            currentUserWantsThis
 
             appearanceOn(speciesId: $speciesId, colorId: $colorId) {
               # This enables us to quickly show the item when the user clicks it!

@@ -25,6 +25,8 @@ import {
   ItemBadgeTooltip,
   NcBadge,
   NpBadge,
+  YouOwnThisBadge,
+  YouWantThisBadge,
 } from "../components/ItemCard";
 import SupportOnly from "./support/SupportOnly";
 
@@ -222,6 +224,8 @@ function ItemBadges({ item }) {
         // than try to line things up like a table.
         <NpBadge />
       )}
+      {item.currentUserOwnsThis && <YouOwnThisBadge variant="short" />}
+      {item.currentUserWantsThis && <YouWantThisBadge variant="short" />}
       {occupiedZoneLabels.map((zoneLabel) => (
         <ZoneBadge key={zoneLabel} variant="occupies" zoneLabel={zoneLabel} />
       ))}

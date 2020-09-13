@@ -1,5 +1,5 @@
 const gql = require("graphql-tag");
-const { query, getDbCalls } = require("./setup.js");
+const { query, getDbCalls, logInAsTestUser } = require("./setup.js");
 
 describe("Item", () => {
   it("loads metadata", async () => {
@@ -286,6 +286,98 @@ describe("Item", () => {
         ],
       ]
     `);
+  });
+
+  it("loads whether we own/want items", async () => {
+    await logInAsTestUser();
+
+    const res = await query({
+      query: gql`
+        query {
+          items(ids: ["38913", "39945", "39948"]) {
+            id
+            currentUserOwnsThis
+            currentUserWantsThis
+          }
+        }
+      `,
+    });
+
+    expect(res).toHaveNoErrors();
+    expect(res.data).toMatchInlineSnapshot(`
+      Object {
+        "items": Array [
+          Object {
+            "currentUserOwnsThis": false,
+            "currentUserWantsThis": false,
+            "id": "38913",
+          },
+          Object {
+            "currentUserOwnsThis": false,
+            "currentUserWantsThis": true,
+            "id": "39945",
+          },
+          Object {
+            "currentUserOwnsThis": true,
+            "currentUserWantsThis": false,
+            "id": "39948",
+          },
+        ],
+      }
+    `);
+    expect(getDbCalls()).toMatchInlineSnapshot(`
+      Array [
+        Array [
+          "SELECT closet_hangers.*, item_translations.name as item_name FROM closet_hangers
+             INNER JOIN items ON items.id = closet_hangers.item_id
+             INNER JOIN item_translations ON
+               item_translations.item_id = items.id AND locale = \\"en\\"
+             WHERE user_id IN (?)
+             ORDER BY item_name",
+          Array [
+            "44743",
+          ],
+        ],
+      ]
+    `);
+  });
+
+  it("does not own/want items if not logged in", async () => {
+    const res = await query({
+      query: gql`
+        query {
+          items(ids: ["38913", "39945", "39948"]) {
+            id
+            currentUserOwnsThis
+            currentUserWantsThis
+          }
+        }
+      `,
+    });
+
+    expect(res).toHaveNoErrors();
+    expect(res.data).toMatchInlineSnapshot(`
+      Object {
+        "items": Array [
+          Object {
+            "currentUserOwnsThis": false,
+            "currentUserWantsThis": false,
+            "id": "38913",
+          },
+          Object {
+            "currentUserOwnsThis": false,
+            "currentUserWantsThis": false,
+            "id": "39945",
+          },
+          Object {
+            "currentUserOwnsThis": false,
+            "currentUserWantsThis": false,
+            "id": "39948",
+          },
+        ],
+      }
+    `);
+    expect(getDbCalls()).toMatchInlineSnapshot(`Array []`);
   });
 
   it("loads items that need models", async () => {

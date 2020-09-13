@@ -9,7 +9,7 @@ import {
   useColorModeValue,
   useTheme,
 } from "@chakra-ui/core";
-import { StarIcon } from "@chakra-ui/icons";
+import { CheckIcon, StarIcon } from "@chakra-ui/icons";
 import { Link } from "react-router-dom";
 
 import { safeImageUrl } from "../util";
@@ -238,20 +238,22 @@ export function NpBadge() {
   );
 }
 
-export function YouOwnThisBadge() {
+export function YouOwnThisBadge({ variant = "long" }) {
   return (
-    <Badge colorScheme="yellow" display="flex" alignItems="center">
-      <StarIcon aria-label="Star" marginRight="1" />
-      You own this!
+    <Badge colorScheme="green" display="flex" alignItems="center">
+      <CheckIcon aria-label="Star" marginRight="1" />
+      {variant === "long" && <>You own this!</>}
+      {variant === "short" && <>Own</>}
     </Badge>
   );
 }
 
-export function YouWantThisBadge() {
+export function YouWantThisBadge({ variant = "long" }) {
   return (
     <Badge colorScheme="blue" display="flex" alignItems="center">
       <StarIcon aria-label="Star" marginRight="1" />
-      You want this!
+      {variant === "long" && <>You want this!</>}
+      {variant === "short" && <>Want</>}
     </Badge>
   );
 }

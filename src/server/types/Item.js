@@ -10,6 +10,9 @@ const typeDefs = gql`
     rarityIndex: Int!
     isNc: Boolean!
 
+    currentUserOwnsThis: Boolean!
+    currentUserWantsThis: Boolean!
+
     # How this item appears on the given species/color combo. If it does not
     # fit the pet, we'll return an empty ItemAppearance with no layers.
     appearanceOn(speciesId: ID!, colorId: ID!): ItemAppearance!
@@ -91,6 +94,26 @@ const resolvers = {
       const item = await itemLoader.load(id);
       return item.rarityIndex === 500 || item.rarityIndex === 0;
     },
+
+    currentUserOwnsThis: async (
+      { id },
+      _,
+      { currentUserId, userClosetHangersLoader }
+    ) => {
+      if (currentUserId == null) return false;
+      const closetHangers = await userClosetHangersLoader.load(currentUserId);
+      return closetHangers.some((h) => h.itemId === id && h.owned);
+    },
+    currentUserWantsThis: async (
+      { id },
+      _,
+      { currentUserId, userClosetHangersLoader }
+    ) => {
+      if (currentUserId == null) return false;
+      const closetHangers = await userClosetHangersLoader.load(currentUserId);
+      return closetHangers.some((h) => h.itemId === id && !h.owned);
+    },
+
     appearanceOn: async (
       { id },
       { speciesId, colorId },
