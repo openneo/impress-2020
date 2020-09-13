@@ -48,6 +48,14 @@ function ItemPage() {
   const { item } = data;
 
   return (
+    <Box>
+      <ItemPageHeader item={item} />
+    </Box>
+  );
+}
+
+function ItemPageHeader({ item }) {
+  return (
     <Box display="flex" alignItems="center">
       <ItemThumbnail
         item={item}
@@ -58,60 +66,66 @@ function ItemPage() {
       />
       <Box>
         <Heading1 lineHeight="1.1">{item.name}</Heading1>
-        <ItemBadgeList>
-          {item.isNc ? <NcBadge /> : <NpBadge />}
-          <LinkBadge
-            href={
-              "https://items.jellyneo.net/search/?name=" +
-              encodeURIComponent(item.name) +
-              "&name_type=3"
-            }
-          >
-            Jellyneo
-          </LinkBadge>
-          {!item.isNc && (
-            <LinkBadge
-              href={
-                "http://www.neopets.com/market.phtml?type=wizard&string=" +
-                encodeURIComponent(item.name)
-              }
-            >
-              Shop Wiz
-            </LinkBadge>
-          )}
-          {!item.isNc && (
-            <LinkBadge
-              href={
-                "http://www.neopets.com/portal/supershopwiz.phtml?string=" +
-                encodeURIComponent(item.name)
-              }
-            >
-              Super Wiz
-            </LinkBadge>
-          )}
-          {!item.isNc && (
-            <LinkBadge
-              href={
-                "http://www.neopets.com/island/tradingpost.phtml?type=browse&criteria=item_exact&search_string=" +
-                encodeURIComponent(item.name)
-              }
-            >
-              Trades
-            </LinkBadge>
-          )}
-          {!item.isNc && (
-            <LinkBadge
-              href={
-                "http://www.neopets.com/genie.phtml?type=process_genie&criteria=exact&auctiongenie=" +
-                encodeURIComponent(item.name)
-              }
-            >
-              Auctions
-            </LinkBadge>
-          )}
-        </ItemBadgeList>
+        <ItemPageBadges item={item} />
       </Box>
     </Box>
+  );
+}
+
+function ItemPageBadges({ item }) {
+  return (
+    <ItemBadgeList>
+      {item.isNc ? <NcBadge /> : <NpBadge />}
+      <LinkBadge
+        href={
+          "https://items.jellyneo.net/search/?name=" +
+          encodeURIComponent(item.name) +
+          "&name_type=3"
+        }
+      >
+        Jellyneo
+      </LinkBadge>
+      {!item.isNc && (
+        <LinkBadge
+          href={
+            "http://www.neopets.com/market.phtml?type=wizard&string=" +
+            encodeURIComponent(item.name)
+          }
+        >
+          Shop Wiz
+        </LinkBadge>
+      )}
+      {!item.isNc && (
+        <LinkBadge
+          href={
+            "http://www.neopets.com/portal/supershopwiz.phtml?string=" +
+            encodeURIComponent(item.name)
+          }
+        >
+          Super Wiz
+        </LinkBadge>
+      )}
+      {!item.isNc && (
+        <LinkBadge
+          href={
+            "http://www.neopets.com/island/tradingpost.phtml?type=browse&criteria=item_exact&search_string=" +
+            encodeURIComponent(item.name)
+          }
+        >
+          Trades
+        </LinkBadge>
+      )}
+      {!item.isNc && (
+        <LinkBadge
+          href={
+            "http://www.neopets.com/genie.phtml?type=process_genie&criteria=exact&auctiongenie=" +
+            encodeURIComponent(item.name)
+          }
+        >
+          Auctions
+        </LinkBadge>
+      )}
+    </ItemBadgeList>
   );
 }
 
