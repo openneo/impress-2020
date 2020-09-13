@@ -111,10 +111,11 @@ export function useDebounce(
 /**
  * usePageTitle sets the page title!
  */
-export function usePageTitle(title) {
+export function usePageTitle(title, { skip = false } = {}) {
   React.useEffect(() => {
+    if (skip) return;
     document.title = title ? `${title} | Dress to Impress` : "Dress to Impress";
-  }, [title]);
+  }, [title, skip]);
 }
 
 /**

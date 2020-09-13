@@ -41,22 +41,12 @@ import useSupport from "./useSupport";
  * from another lazy-loaded component!
  */
 function ItemSupportDrawer({ item, isOpen, onClose }) {
-  const placement = useBreakpointValue({
-    base: "bottom",
-    lg: "right",
-
-    // TODO: There's a bug in the Chakra RC that doesn't read the breakpoint
-    // specification correctly - we need these extra keys until it's fixed!
-    // https://github.com/chakra-ui/chakra-ui/issues/1444
-    0: "bottom",
-    1: "bottom",
-    2: "right",
-    3: "right",
-  });
+  const placement = useBreakpointValue({ base: "bottom", lg: "right" });
 
   return (
     <Drawer
       placement={placement}
+      size="md"
       isOpen={isOpen}
       onClose={onClose}
       // blockScrollOnMount doesn't matter on our fullscreen UI, but the

@@ -16,6 +16,7 @@ import {
   InfoIcon,
   NotAllowedIcon,
 } from "@chakra-ui/icons";
+import { Link } from "react-router-dom";
 import loadable from "@loadable/component";
 
 import {
@@ -27,6 +28,7 @@ import {
 } from "../components/ItemCard";
 import SupportOnly from "./support/SupportOnly";
 
+const LoadableItemPageDrawer = loadable(() => import("../ItemPageDrawer"));
 const LoadableItemSupportDrawer = loadable(() =>
   import("./support/ItemSupportDrawer")
 );
@@ -58,6 +60,7 @@ function Item({
   onRemove,
   isDisabled = false,
 }) {
+  const [infoDrawerIsOpen, setInfoDrawerIsOpen] = React.useState(false);
   const [supportDrawerIsOpen, setSupportDrawerIsOpen] = React.useState(false);
 
   return (
@@ -97,13 +100,25 @@ function Item({
           <ItemActionButton
             icon={<InfoIcon />}
             label="More info"
-            href={`https://impress.openneo.net/items/${
-              item.id
-            }-${item.name.replace(/ /g, "-")}`}
-            onClick={(e) => e.stopPropagation()}
+            to={`/items/${item.id}`}
+            onClick={(e) => {
+              const willProbablyOpenInNewTab =
+                e.metaKey || e.shiftKey || e.altKey || e.ctrlKey;
+              if (willProbablyOpenInNewTab) {
+                return;
+              }
+
+              setInfoDrawerIsOpen(true);
+              e.preventDefault();
+            }}
           />
         </Box>
       </ItemContainer>
+      <LoadableItemPageDrawer
+        item={item}
+        isOpen={infoDrawerIsOpen}
+        onClose={() => setInfoDrawerIsOpen(false)}
+      />
       <SupportOnly>
         <LoadableItemSupportDrawer
           item={item}
@@ -220,7 +235,7 @@ function ItemBadges({ item }) {
 /**
  * ItemActionButton is one of a list of actions a user can take for this item.
  */
-function ItemActionButton({ icon, label, href, onClick }) {
+function ItemActionButton({ icon, label, to, onClick }) {
   const theme = useTheme();
 
   const focusBackgroundColor = useColorModeValue(
@@ -235,13 +250,12 @@ function ItemActionButton({ icon, label, href, onClick }) {
   return (
     <Tooltip label={label} placement="top">
       <IconButton
-        as={href ? "a" : "button"}
+        as={to ? Link : "button"}
         icon={icon}
         aria-label={label}
         variant="ghost"
         color="gray.400"
-        href={href}
-        target={href ? "_blank" : null}
+        to={to}
         onClick={onClick}
         className={css`
           opacity: 0;

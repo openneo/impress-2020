@@ -23,16 +23,24 @@ import OutfitPreview from "./components/OutfitPreview";
 
 function ItemPage() {
   const { itemId } = useParams();
+  return <ItemPageContent itemId={itemId} />;
+}
 
+/**
+ * ItemPageContent is the content of ItemPage, but we also use it as the
+ * entry point for ItemPageDrawer! When embedded in ItemPageDrawer, the
+ * `isEmbedded` prop is true, so we know not to e.g. set the page title.
+ */
+export function ItemPageContent({ itemId, isEmbedded }) {
   return (
     <VStack spacing="6">
-      <ItemPageHeader itemId={itemId} />
+      <ItemPageHeader itemId={itemId} isEmbedded={isEmbedded} />
       <ItemPageOutfitPreview itemId={itemId} />
     </VStack>
   );
 }
 
-function ItemPageHeader({ itemId }) {
+function ItemPageHeader({ itemId, isEmbedded }) {
   const { error, data } = useQuery(
     gql`
       query ItemPage($itemId: ID!) {
@@ -47,7 +55,7 @@ function ItemPageHeader({ itemId }) {
     { variables: { itemId }, returnPartialData: true }
   );
 
-  usePageTitle(data?.item?.name);
+  usePageTitle(data?.item?.name, { skip: isEmbedded });
 
   if (error) {
     return <Box color="red.400">{error.message}</Box>;
@@ -67,7 +75,14 @@ function ItemPageHeader({ itemId }) {
       </Skeleton>
       <Box>
         <Skeleton isLoaded={item?.name}>
-          <Heading1 lineHeight="1.1">{item?.name || "Item name here"}</Heading1>
+          <Heading1
+            lineHeight="1.1"
+            // Nudge down the size a bit in the embed case, to better fit the
+            // tighter layout!
+            size={isEmbedded ? "xl" : "2xl"}
+          >
+            {item?.name || "Item name here"}
+          </Heading1>
         </Skeleton>
         <ItemPageBadges item={item} />
       </Box>
@@ -131,7 +146,7 @@ function ItemPageBadges({ item }) {
               encodeURIComponent(item.name)
             }
           >
-            Trades
+            Trade Post
           </LinkBadge>
         )}
       </Skeleton>
