@@ -70,6 +70,9 @@ function ItemPageHeader({ itemId }) {
               <NpBadge />
             </Skeleton>
             <Skeleton>
+              <LinkBadge href="/">Old DTI</LinkBadge>
+            </Skeleton>
+            <Skeleton>
               <LinkBadge href="/">Jellyneo</LinkBadge>
             </Skeleton>
             <Skeleton>
@@ -122,6 +125,9 @@ function ItemPageBadges({ item }) {
   return (
     <ItemBadgeList>
       {item.isNc ? <NcBadge /> : <NpBadge />}
+      <LinkBadge href={`https://impress.openneo.net/items/${item.id}`}>
+        Old DTI
+      </LinkBadge>
       <LinkBadge
         href={
           "https://items.jellyneo.net/search/?name=" +

@@ -10,6 +10,7 @@ import {
   useTheme,
 } from "@chakra-ui/core";
 import { StarIcon } from "@chakra-ui/icons";
+import { Link } from "react-router-dom";
 
 import { safeImageUrl } from "../util";
 
@@ -18,8 +19,8 @@ function ItemCard({ item, badges, ...props }) {
 
   return (
     <Box
-      as="a"
-      href={`https://impress.openneo.net/items/${item.id}`}
+      as={Link}
+      to={`/items/${item.id}`}
       p="2"
       boxShadow="lg"
       borderRadius="lg"
