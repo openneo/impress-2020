@@ -1,4 +1,5 @@
 import React from "react";
+import { css } from "emotion";
 import {
   AspectRatio,
   Badge,
@@ -8,6 +9,7 @@ import {
   VisuallyHidden,
   VStack,
   useColorModeValue,
+  useTheme,
   useToast,
 } from "@chakra-ui/core";
 import { CheckIcon, ExternalLinkIcon, StarIcon } from "@chakra-ui/icons";
@@ -180,10 +182,11 @@ function LinkBadge({ children, href }) {
 }
 
 function ItemPageOwnWantButtons({ itemId }) {
+  const theme = useTheme();
+  const toast = useToast();
+
   const [currentUserOwnsThis, setCurrentUserOwnsThis] = React.useState(false);
   const [currentUserWantsThis, setCurrentUserWantsThis] = React.useState(false);
-
-  const toast = useToast();
 
   const { loading, error } = useQuery(
     gql`
@@ -208,7 +211,6 @@ function ItemPageOwnWantButtons({ itemId }) {
     return <Box color="red.400">{error.message}</Box>;
   }
 
-  // TODO: Focus state!
   return (
     <Box display="flex">
       <Skeleton isLoaded={!loading} marginRight="4">
@@ -232,6 +234,11 @@ function ItemPageOwnWantButtons({ itemId }) {
             size="lg"
             cursor="pointer"
             transitionDuration="0.4s"
+            className={css`
+              input:focus + & {
+                box-shadow: ${theme.shadows.outline};
+              }
+            `}
           >
             <IconCheckbox
               icon={<CheckIcon />}
@@ -264,6 +271,11 @@ function ItemPageOwnWantButtons({ itemId }) {
             size="lg"
             cursor="pointer"
             transitionDuration="0.4s"
+            className={css`
+              input:focus + & {
+                box-shadow: ${theme.shadows.outline};
+              }
+            `}
           >
             <IconCheckbox
               icon={<StarIcon />}
