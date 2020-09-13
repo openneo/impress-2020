@@ -57,8 +57,11 @@ const typePolicies = {
           toReference({ __typename: "Color", id: colorId })
         );
         if (speciesStandardBodyId == null || colorIsStandard == null) {
-          // This is an expected case while the page is loading.
-          return null;
+          // We haven't loaded all the species/colors into cache yet. We might
+          // be loading them, depending on the page? Either way, return
+          // `undefined`, meaning we don't know how to serve this from cache.
+          // This will cause us to start loading it from the server.
+          return undefined;
         }
 
         if (colorIsStandard) {
@@ -68,6 +71,10 @@ const typePolicies = {
             id: `item-${itemId}-body-${speciesStandardBodyId}`,
           });
         } else {
+          // This isn't a standard color, so we don't support special
+          // cross-color caching for it. Return `undefined`, meaning we don't
+          // know how to serve this from cache. This will cause us to start
+          // loading it from the server.
           return undefined;
         }
       },

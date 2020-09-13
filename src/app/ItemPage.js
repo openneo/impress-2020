@@ -1,5 +1,12 @@
 import React from "react";
-import { Badge, Box, Center } from "@chakra-ui/core";
+import {
+  AspectRatio,
+  Badge,
+  Box,
+  Center,
+  VStack,
+  useColorModeValue,
+} from "@chakra-ui/core";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
@@ -13,6 +20,7 @@ import {
   NpBadge,
 } from "./components/ItemCard";
 import { Heading1, usePageTitle } from "./util";
+import OutfitPreview from "./components/OutfitPreview";
 
 function ItemPage() {
   const { itemId } = useParams();
@@ -48,9 +56,10 @@ function ItemPage() {
   const { item } = data;
 
   return (
-    <Box>
+    <VStack spacing="6">
       <ItemPageHeader item={item} />
-    </Box>
+      <ItemPageOutfitPreview itemId={itemId} />
+    </VStack>
   );
 }
 
@@ -135,6 +144,32 @@ function LinkBadge({ children, href }) {
       {children}
       <ExternalLinkIcon marginLeft="1" />
     </Badge>
+  );
+}
+
+function ItemPageOutfitPreview({ itemId }) {
+  const borderColor = useColorModeValue("green.700", "green.400");
+
+  return (
+    <AspectRatio
+      width="100%"
+      maxWidth="300px"
+      ratio="1"
+      border="1px"
+      borderColor={borderColor}
+      borderRadius="lg"
+      boxShadow="lg"
+      overflow="hidden"
+    >
+      <Box>
+        <OutfitPreview
+          speciesId="1"
+          colorId="8"
+          pose="HAPPY_FEM"
+          wornItemIds={[itemId]}
+        />
+      </Box>
+    </AspectRatio>
   );
 }
 
