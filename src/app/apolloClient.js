@@ -78,6 +78,53 @@ const typePolicies = {
           return undefined;
         }
       },
+
+      currentUserOwnsThis: (cachedValue, { readField }) => {
+        if (cachedValue != null) {
+          return cachedValue;
+        }
+
+        // Do we know what items this user owns? If so, scan for this item.
+        const currentUserRef = readField("currentUser", {
+          __ref: "ROOT_QUERY",
+        });
+        if (!currentUserRef) {
+          return undefined;
+        }
+        const thisItemId = readField("id");
+        const itemsTheyOwn = readField("itemsTheyOwn", currentUserRef);
+        if (!itemsTheyOwn) {
+          return undefined;
+        }
+
+        const theyOwnThisItem = itemsTheyOwn.some(
+          (itemRef) => readField("id", itemRef) === thisItemId
+        );
+        return theyOwnThisItem;
+      },
+      currentUserWantsThis: (cachedValue, { readField }) => {
+        if (cachedValue != null) {
+          return cachedValue;
+        }
+
+        // Do we know what items this user owns? If so, scan for this item.
+        const currentUserRef = readField("currentUser", {
+          __ref: "ROOT_QUERY",
+        });
+        if (!currentUserRef) {
+          return undefined;
+        }
+        const thisItemId = readField("id");
+        const itemsTheyWant = readField("itemsTheyWant", currentUserRef);
+        if (!itemsTheyWant) {
+          return undefined;
+        }
+
+        const theyWantThisItem = itemsTheyWant.some(
+          (itemRef) => readField("id", itemRef) === thisItemId
+        );
+        return theyWantThisItem;
+      },
     },
   },
 };

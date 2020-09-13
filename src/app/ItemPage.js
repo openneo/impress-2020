@@ -198,8 +198,8 @@ function ItemPageOwnWantButtons({ itemId }) {
     {
       variables: { itemId },
       onCompleted: (data) => {
-        setCurrentUserOwnsThis(data.item.currentUserOwnsThis);
-        setCurrentUserWantsThis(data.item.currentUserWantsThis);
+        setCurrentUserOwnsThis(data?.item?.currentUserOwnsThis || false);
+        setCurrentUserWantsThis(data?.item?.currentUserWantsThis || false);
       },
     }
   );
@@ -208,6 +208,7 @@ function ItemPageOwnWantButtons({ itemId }) {
     return <Box color="red.400">{error.message}</Box>;
   }
 
+  // TODO: Focus state!
   return (
     <Box display="flex">
       <Skeleton isLoaded={!loading} marginRight="4">
@@ -215,7 +216,7 @@ function ItemPageOwnWantButtons({ itemId }) {
           <VisuallyHidden
             as="input"
             type="checkbox"
-            isChecked={currentUserOwnsThis}
+            checked={currentUserOwnsThis}
             onChange={(e) => {
               setCurrentUserOwnsThis(e.target.checked);
               toast({
