@@ -3,7 +3,7 @@ import {
   AspectRatio,
   Badge,
   Box,
-  Center,
+  Skeleton,
   VStack,
   useColorModeValue,
 } from "@chakra-ui/core";
@@ -25,6 +25,15 @@ import OutfitPreview from "./components/OutfitPreview";
 function ItemPage() {
   const { itemId } = useParams();
 
+  return (
+    <VStack spacing="6">
+      <ItemPageHeader itemId={itemId} />
+      <ItemPageOutfitPreview itemId={itemId} />
+    </VStack>
+  );
+}
+
+function ItemPageHeader({ itemId }) {
   const { loading, error, data } = useQuery(
     gql`
       query ItemPage($itemId: ID!) {
@@ -43,9 +52,41 @@ function ItemPage() {
 
   if (loading) {
     return (
-      <Center>
-        <HangerSpinner />
-      </Center>
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="flex-start"
+        width="100%"
+      >
+        <Skeleton height="80px" width="80px" marginRight="4" flex="0 0 auto" />
+        <Box display="flex" flexDirection="column" alignItems="flex-start">
+          <Skeleton>
+            <Heading1 lineHeight="1.1" maxHeight="1.1em">
+              Item name goes here
+            </Heading1>
+          </Skeleton>
+          <ItemBadgeList>
+            <Skeleton>
+              <NpBadge />
+            </Skeleton>
+            <Skeleton>
+              <LinkBadge href="/">Jellyneo</LinkBadge>
+            </Skeleton>
+            <Skeleton>
+              <LinkBadge href="/">Shop Wiz</LinkBadge>
+            </Skeleton>
+            <Skeleton>
+              <LinkBadge href="/">Super Wiz</LinkBadge>
+            </Skeleton>
+            <Skeleton>
+              <LinkBadge href="/">Trades</LinkBadge>
+            </Skeleton>
+            <Skeleton>
+              <LinkBadge href="/">Auctions</LinkBadge>
+            </Skeleton>
+          </ItemBadgeList>
+        </Box>
+      </Box>
     );
   }
 
@@ -56,16 +97,12 @@ function ItemPage() {
   const { item } = data;
 
   return (
-    <VStack spacing="6">
-      <ItemPageHeader item={item} />
-      <ItemPageOutfitPreview itemId={itemId} />
-    </VStack>
-  );
-}
-
-function ItemPageHeader({ item }) {
-  return (
-    <Box display="flex" alignItems="center">
+    <Box
+      display="flex"
+      alignItems="center"
+      justifyContent="flex-start"
+      width="100%"
+    >
       <ItemThumbnail
         item={item}
         size="lg"

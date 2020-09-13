@@ -220,15 +220,19 @@ export function ItemBadgeTooltip({ label, children }) {
 export function NcBadge() {
   return (
     <ItemBadgeTooltip label="Neocash">
-      <Badge colorScheme="purple">NC</Badge>
+      <Badge colorScheme="purple" display="block">
+        NC
+      </Badge>
     </ItemBadgeTooltip>
   );
 }
 
 export function NpBadge() {
+  // NOTE: display:block helps with some layout consistency, overriding the
+  //       default of inline-block.
   return (
     <ItemBadgeTooltip label="Neopoints">
-      <Badge>NP</Badge>
+      <Badge display="block">NP</Badge>
     </ItemBadgeTooltip>
   );
 }
