@@ -17,7 +17,7 @@
   // }
   "Component file": {
     "scope": "javascript",
-    "prefix": "component",
+    "prefix": "componentfile",
     "body": [
       "import React from \"react\";",
       "import { Box } from \"@chakra-ui/core\";",
@@ -27,6 +27,15 @@
       "}",
       "",
       "export default $TM_FILENAME_BASE;"
+    ]
+  },
+  "Function component": {
+    "scope": "javascript",
+    "prefix": "fncomponent",
+    "body": [
+      "function ${1:Component}({${2:children}}) {",
+      "  return ${3:<Box>$4</Box>};",
+      "}"
     ]
   }
 }
