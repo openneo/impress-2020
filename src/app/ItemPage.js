@@ -2,12 +2,15 @@ import React from "react";
 import {
   AspectRatio,
   Badge,
+  Button,
   Box,
   Skeleton,
+  VisuallyHidden,
   VStack,
   useColorModeValue,
+  useToast,
 } from "@chakra-ui/core";
-import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { CheckIcon, ExternalLinkIcon, StarIcon } from "@chakra-ui/icons";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
@@ -33,8 +36,9 @@ function ItemPage() {
  */
 export function ItemPageContent({ itemId, isEmbedded }) {
   return (
-    <VStack spacing="6">
+    <VStack spacing="8">
       <ItemPageHeader itemId={itemId} isEmbedded={isEmbedded} />
+      <ItemPageOwnWantButtons itemId={itemId} />
       <ItemPageOutfitPreview itemId={itemId} />
     </VStack>
   );
@@ -172,6 +176,130 @@ function LinkBadge({ children, href }) {
       {children}
       <ExternalLinkIcon marginLeft="1" />
     </Badge>
+  );
+}
+
+function ItemPageOwnWantButtons({ itemId }) {
+  const [currentUserOwnsThis, setCurrentUserOwnsThis] = React.useState(false);
+  const [currentUserWantsThis, setCurrentUserWantsThis] = React.useState(false);
+
+  const toast = useToast();
+
+  const { loading, error } = useQuery(
+    gql`
+      query ItemPageOwnWantButtons($itemId: ID!) {
+        item(id: $itemId) {
+          id
+          currentUserOwnsThis
+          currentUserWantsThis
+        }
+      }
+    `,
+    {
+      variables: { itemId },
+      onCompleted: (data) => {
+        setCurrentUserOwnsThis(data.item.currentUserOwnsThis);
+        setCurrentUserWantsThis(data.item.currentUserWantsThis);
+      },
+    }
+  );
+
+  if (error) {
+    return <Box color="red.400">{error.message}</Box>;
+  }
+
+  return (
+    <Box display="flex">
+      <Skeleton isLoaded={!loading} marginRight="4">
+        <Box as="label">
+          <VisuallyHidden
+            as="input"
+            type="checkbox"
+            isChecked={currentUserOwnsThis}
+            onChange={(e) => {
+              setCurrentUserOwnsThis(e.target.checked);
+              toast({
+                title: "Todo: This doesn't actually work yet!",
+                status: "info",
+                duration: 1500,
+              });
+            }}
+          />
+          <Button
+            as="div"
+            colorScheme={currentUserOwnsThis ? "green" : "gray"}
+            size="lg"
+            cursor="pointer"
+            transitionDuration="0.4s"
+          >
+            <IconCheckbox
+              icon={<CheckIcon />}
+              isChecked={currentUserOwnsThis}
+              marginRight="0.5em"
+            />
+            I own this
+          </Button>
+        </Box>
+      </Skeleton>
+
+      <Skeleton isLoaded={!loading}>
+        <Box as="label">
+          <VisuallyHidden
+            as="input"
+            type="checkbox"
+            isChecked={currentUserWantsThis}
+            onChange={(e) => {
+              setCurrentUserWantsThis(e.target.checked);
+              toast({
+                title: "Todo: This doesn't actually work yet!",
+                status: "info",
+                duration: 1500,
+              });
+            }}
+          />
+          <Button
+            as="div"
+            colorScheme={currentUserWantsThis ? "blue" : "gray"}
+            size="lg"
+            cursor="pointer"
+            transitionDuration="0.4s"
+          >
+            <IconCheckbox
+              icon={<StarIcon />}
+              isChecked={currentUserWantsThis}
+              marginRight="0.5em"
+            />
+            I want this
+          </Button>
+        </Box>
+      </Skeleton>
+    </Box>
+  );
+}
+
+function IconCheckbox({ icon, isChecked, ...props }) {
+  return (
+    <Box display="grid" gridTemplateAreas="the-same-area" {...props}>
+      <Box
+        gridArea="the-same-area"
+        width="1em"
+        height="1em"
+        border="2px solid currentColor"
+        borderRadius="md"
+        opacity={isChecked ? "0" : "0.75"}
+        transform={isChecked ? "scale(0.75)" : "none"}
+        transition="all 0.4s"
+      />
+      <Box
+        gridArea="the-same-area"
+        display="flex"
+        opacity={isChecked ? "1" : "0"}
+        transform={isChecked ? "none" : "scale(0.1)"}
+        transition="all 0.4s"
+      >
+        {icon}
+      </Box>
+    </Box>
   );
 }
 
