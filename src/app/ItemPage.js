@@ -6,8 +6,10 @@ import {
   Button,
   Box,
   Skeleton,
+  SkeletonText,
   VisuallyHidden,
   VStack,
+  useBreakpointValue,
   useColorModeValue,
   useTheme,
   useToast,
@@ -60,6 +62,7 @@ function ItemPageHeader({ itemId, isEmbedded }) {
           name
           isNc
           thumbnailUrl
+          description
         }
       }
     `,
@@ -68,6 +71,8 @@ function ItemPageHeader({ itemId, isEmbedded }) {
 
   usePageTitle(data?.item?.name, { skip: isEmbedded });
 
+  const numDescriptionLines = useBreakpointValue({ base: 2, md: 1 });
+
   if (error) {
     return <Box color="red.400">{error.message}</Box>;
   }
@@ -75,29 +80,45 @@ function ItemPageHeader({ itemId, isEmbedded }) {
   const item = data?.item;
 
   return (
-    <Box
-      display="flex"
-      alignItems="center"
-      justifyContent="flex-start"
-      width="100%"
-    >
-      <Skeleton isLoaded={item?.thumbnailUrl} marginRight="4">
-        <ItemThumbnail item={item} size="lg" isActive flex="0 0 auto" />
-      </Skeleton>
-      <Box>
-        <Skeleton isLoaded={item?.name}>
-          <Heading1
-            lineHeight="1.1"
-            // Nudge down the size a bit in the embed case, to better fit the
-            // tighter layout!
-            size={isEmbedded ? "xl" : "2xl"}
-          >
-            {item?.name || "Item name here"}
-          </Heading1>
+    <>
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="flex-start"
+        width="100%"
+      >
+        <Skeleton isLoaded={item?.thumbnailUrl} marginRight="4">
+          <ItemThumbnail item={item} size="lg" isActive flex="0 0 auto" />
         </Skeleton>
-        <ItemPageBadges item={item} isEmbedded={isEmbedded} />
+        <Box>
+          <Skeleton isLoaded={item?.name}>
+            <Heading1
+              lineHeight="1.1"
+              // Nudge down the size a bit in the embed case, to better fit the
+              // tighter layout!
+              size={isEmbedded ? "xl" : "2xl"}
+            >
+              {item?.name || "Item name here"}
+            </Heading1>
+          </Skeleton>
+          <ItemPageBadges item={item} isEmbedded={isEmbedded} />
+        </Box>
       </Box>
-    </Box>
+      <Box width="100%" alignSelf="flex-start">
+        {item?.description || (
+          <Box
+            maxWidth="40em"
+            minHeight={numDescriptionLines * 1.5 + "em"}
+            display="flex"
+            flexDirection="column"
+            alignItems="stretch"
+            justifyContent="center"
+          >
+            <SkeletonText noOfLines={numDescriptionLines} spacing="4" />
+          </Box>
+        )}
+      </Box>
+    </>
   );
 }
 
