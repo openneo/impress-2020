@@ -12,7 +12,12 @@ import {
   useTheme,
   useToast,
 } from "@chakra-ui/core";
-import { CheckIcon, ExternalLinkIcon, StarIcon } from "@chakra-ui/icons";
+import {
+  CheckIcon,
+  ExternalLinkIcon,
+  ChevronRightIcon,
+  StarIcon,
+} from "@chakra-ui/icons";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
@@ -90,13 +95,13 @@ function ItemPageHeader({ itemId, isEmbedded }) {
             {item?.name || "Item name here"}
           </Heading1>
         </Skeleton>
-        <ItemPageBadges item={item} />
+        <ItemPageBadges item={item} isEmbedded={isEmbedded} />
       </Box>
     </Box>
   );
 }
 
-function ItemPageBadges({ item }) {
+function ItemPageBadges({ item, isEmbedded }) {
   const searchBadgesAreLoaded = item?.name != null && item?.isNc != null;
 
   return (
@@ -105,7 +110,10 @@ function ItemPageBadges({ item }) {
         {item?.isNc ? <NcBadge /> : <NpBadge />}
       </Skeleton>
       <Skeleton isLoaded={searchBadgesAreLoaded}>
-        <LinkBadge href={`https://impress.openneo.net/items/${item.id}`}>
+        <LinkBadge
+          href={`https://impress.openneo.net/items/${item.id}`}
+          isEmbedded={isEmbedded}
+        >
           Old DTI
         </LinkBadge>
       </Skeleton>
@@ -116,6 +124,7 @@ function ItemPageBadges({ item }) {
             encodeURIComponent(item.name) +
             "&name_type=3"
           }
+          isEmbedded={isEmbedded}
         >
           Jellyneo
         </LinkBadge>
@@ -127,6 +136,7 @@ function ItemPageBadges({ item }) {
               "http://www.neopets.com/market.phtml?type=wizard&string=" +
               encodeURIComponent(item.name)
             }
+            isEmbedded={isEmbedded}
           >
             Shop Wiz
           </LinkBadge>
@@ -139,6 +149,7 @@ function ItemPageBadges({ item }) {
               "http://www.neopets.com/portal/supershopwiz.phtml?string=" +
               encodeURIComponent(item.name)
             }
+            isEmbedded={isEmbedded}
           >
             Super Wiz
           </LinkBadge>
@@ -151,6 +162,7 @@ function ItemPageBadges({ item }) {
               "http://www.neopets.com/island/tradingpost.phtml?type=browse&criteria=item_exact&search_string=" +
               encodeURIComponent(item.name)
             }
+            isEmbedded={isEmbedded}
           >
             Trade Post
           </LinkBadge>
@@ -163,6 +175,7 @@ function ItemPageBadges({ item }) {
               "http://www.neopets.com/genie.phtml?type=process_genie&criteria=exact&auctiongenie=" +
               encodeURIComponent(item.name)
             }
+            isEmbedded={isEmbedded}
           >
             Auctions
           </LinkBadge>
@@ -172,11 +185,24 @@ function ItemPageBadges({ item }) {
   );
 }
 
-function LinkBadge({ children, href }) {
+function LinkBadge({ children, href, isEmbedded }) {
   return (
-    <Badge as="a" href={href} display="flex" alignItems="center">
+    <Badge
+      as="a"
+      href={href}
+      display="flex"
+      alignItems="center"
+      // Normally we want to act like a normal webpage, and treat links as
+      // normal. But when we're on the wardrobe page, we want to avoid
+      // disrupting the outfit, and open in a new window instead.
+      target={isEmbedded ? "_blank" : undefined}
+    >
       {children}
-      <ExternalLinkIcon marginLeft="1" />
+      {
+        // We also change the icon to signal whether this will launch in a new
+        // window or not!
+        isEmbedded ? <ExternalLinkIcon marginLeft="1" /> : <ChevronRightIcon />
+      }
     </Badge>
   );
 }
