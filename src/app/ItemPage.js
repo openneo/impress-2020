@@ -140,8 +140,13 @@ function ItemPageBadges({ item, isEmbedded }) {
             // empty).
             isLoaded={item.createdAt !== undefined}
           >
-            <Badge display="block">
-              <ShortTimestamp when={item.createdAt || "1970-01-01"} />
+            <Badge
+              display="block"
+              minWidth="5.25em"
+              boxSizing="content-box"
+              textAlign="center"
+            >
+              {item.createdAt && <ShortTimestamp when={item.createdAt} />}
             </Badge>
           </Skeleton>
         )
