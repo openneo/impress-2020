@@ -31,10 +31,12 @@ const typeDefs = gql`
     # layer data from this API should be interpreted!
     explicitlyBodySpecific: Boolean!
 
-    # NOTE: I think we'll probably deprecate this and add more complexity to
-    #       this API, because right now we're only looking at standard colors
-    #       but it would be good to report gaps in Mutant etc items too.
-    speciesThatNeedModels: [Species!]!
+    # Get the species that we need modeled for this item for the given color.
+    #
+    # NOTE: Most color IDs won't be accepted here. Either pass the ID of a
+    #       major special color like Baby (#6), or leave it blank for standard
+    #       bodies like Blue, Green, Red, etc.
+    speciesThatNeedModels(colorId: ID): [Species!]!
   }
 
   type ItemAppearance {
@@ -63,7 +65,13 @@ const typeDefs = gql`
       offset: Int
       limit: Int
     ): ItemSearchResult!
-    itemsThatNeedModels: [Item!]!
+
+    # Get items that need models for the given color.
+    #
+    # NOTE: Most color IDs won't be accepted here. Either pass the ID of a
+    #       major special color like Baby (#6), or leave it blank for standard
+    #       bodies like Blue, Green, Red, etc.
+    itemsThatNeedModels(colorId: ID): [Item!]!
   }
 `;
 
@@ -135,15 +143,23 @@ const resolvers = {
       const item = await itemLoader.load(id);
       return item.explicitlyBodySpecific;
     },
-    speciesThatNeedModels: async ({ id }, _, { itemsThatNeedModelsLoader }) => {
-      const allItems = await itemsThatNeedModelsLoader.load("all");
-      const item = allItems.find(
-        (row) => row.itemId === id && row.colorId === "8"
+    speciesThatNeedModels: async (
+      { id },
+      { colorId = "8" }, // Blue
+      { itemsThatNeedModelsLoader }
+    ) => {
+      const speciesIdsByColorIdAndItemId = await itemsThatNeedModelsLoader.load(
+        "all"
       );
-      const modeledSpeciesIds = item.modeledSpeciesIds.split(",");
+      const row = speciesIdsByColorIdAndItemId.get(colorId)?.get(id);
+      if (!row) {
+        return [];
+      }
+
+      const modeledSpeciesIds = row.modeledSpeciesIds.split(",");
       // HACK: Needs to be updated if more species are added!
       const allSpeciesIds = Array.from(
-        { length: item.supportsVandagyre ? 55 : 54 },
+        { length: row.supportsVandagyre ? 55 : 54 },
         (_, i) => String(i + 1)
       );
       const unmodeledSpeciesIds = allSpeciesIds.filter(
@@ -208,14 +224,16 @@ const resolvers = {
       const zones = zoneIds.map((id) => ({ id }));
       return { query, zones, items };
     },
-    itemsThatNeedModels: async (_, __, { itemsThatNeedModelsLoader }) => {
-      const rows = await itemsThatNeedModelsLoader.load("all");
-      let itemIds = rows
-        .filter((row) => row.colorId === "8")
-        .map((row) => row.itemId);
-      itemIds = new Set(itemIds);
-      itemIds = [...itemIds].sort();
-      return itemIds.map((id) => ({ id }));
+    itemsThatNeedModels: async (
+      _,
+      { colorId = "8" }, // Defaults to Blue
+      { itemsThatNeedModelsLoader }
+    ) => {
+      const speciesIdsByColorIdAndItemId = await itemsThatNeedModelsLoader.load(
+        "all"
+      );
+      const itemIds = speciesIdsByColorIdAndItemId.get(colorId)?.keys() || [];
+      return Array.from(itemIds, (id) => ({ id }));
     },
   },
 };

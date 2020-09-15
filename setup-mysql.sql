@@ -53,8 +53,7 @@ BEGIN
        8, -- Blue (Standard)
        6, -- Baby
       44, -- Maraquan
-      46, -- Mutant
-      92 -- 8-bit
+      46  -- Mutant
     )
     AND items.modeling_status_hint IS NULL
   GROUP BY color_id, item_id

@@ -83,7 +83,5197 @@ Object {
 
 exports[`Item loads items that need models 1`] = `
 Object {
-  "itemsThatNeedModels": Array [
+  "babyItems": Array [
+    Object {
+      "id": "49142",
+      "name": "Valentine Baby Dummy",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+      ],
+    },
+    Object {
+      "id": "51568",
+      "name": "Baby Pajamas",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+      ],
+    },
+    Object {
+      "id": "62089",
+      "name": "Baby Oversized Toy",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "1",
+          "name": "Acara",
+        },
+        Object {
+          "id": "2",
+          "name": "Aisha",
+        },
+        Object {
+          "id": "3",
+          "name": "Blumaroo",
+        },
+        Object {
+          "id": "4",
+          "name": "Bori",
+        },
+        Object {
+          "id": "5",
+          "name": "Bruce",
+        },
+        Object {
+          "id": "6",
+          "name": "Buzz",
+        },
+        Object {
+          "id": "8",
+          "name": "Chomby",
+        },
+        Object {
+          "id": "9",
+          "name": "Cybunny",
+        },
+        Object {
+          "id": "10",
+          "name": "Draik",
+        },
+        Object {
+          "id": "11",
+          "name": "Elephante",
+        },
+        Object {
+          "id": "12",
+          "name": "Eyrie",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "14",
+          "name": "Gelert",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "17",
+          "name": "Grundo",
+        },
+        Object {
+          "id": "18",
+          "name": "Hissi",
+        },
+        Object {
+          "id": "19",
+          "name": "Ixi",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "21",
+          "name": "Jubjub",
+        },
+        Object {
+          "id": "22",
+          "name": "Kacheek",
+        },
+        Object {
+          "id": "23",
+          "name": "Kau",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "26",
+          "name": "Korbat",
+        },
+        Object {
+          "id": "27",
+          "name": "Kougra",
+        },
+        Object {
+          "id": "28",
+          "name": "Krawk",
+        },
+        Object {
+          "id": "29",
+          "name": "Kyrii",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "31",
+          "name": "Lupe",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "33",
+          "name": "Meerca",
+        },
+        Object {
+          "id": "34",
+          "name": "Moehog",
+        },
+        Object {
+          "id": "35",
+          "name": "Mynci",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "37",
+          "name": "Ogrin",
+        },
+        Object {
+          "id": "40",
+          "name": "Pteri",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "42",
+          "name": "Ruki",
+        },
+        Object {
+          "id": "43",
+          "name": "Scorchio",
+        },
+        Object {
+          "id": "44",
+          "name": "Shoyru",
+        },
+        Object {
+          "id": "45",
+          "name": "Skeith",
+        },
+        Object {
+          "id": "47",
+          "name": "Tonu",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "49",
+          "name": "Uni",
+        },
+        Object {
+          "id": "50",
+          "name": "Usul",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+        Object {
+          "id": "52",
+          "name": "Xweetok",
+        },
+        Object {
+          "id": "53",
+          "name": "Yurble",
+        },
+        Object {
+          "id": "54",
+          "name": "Zafara",
+        },
+      ],
+    },
+    Object {
+      "id": "71667",
+      "name": "Oversized Baby Santa Hat",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "71668",
+      "name": "Baby Christmas Dress",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "71870",
+      "name": "Dyeworks Red: Baby Winter Sweater",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "71871",
+      "name": "Dyeworks Blue: Baby Winter Sweater",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "71872",
+      "name": "Dyeworks Purple: Baby Winter Sweater",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "71873",
+      "name": "Dyeworks Green: Baby Holiday Ruffle Dress",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "71874",
+      "name": "Dyeworks Orange: Baby Holiday Ruffle Dress",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "71875",
+      "name": "Dyeworks Pink: Baby Holiday Ruffle Dress",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "71893",
+      "name": "Baby Raindorf Hoodie Robe",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "72148",
+      "name": "Long Baby Girl Wig",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "72202",
+      "name": "Baby Pink Ona Rattle",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "72216",
+      "name": "Dyeworks Purple: Baby Valentine Wings",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "72217",
+      "name": "Dyeworks Blue: Baby Valentine Wings",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "72218",
+      "name": "Dyeworks Grey: Baby Valentine Wings",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "72256",
+      "name": "Baby Valentine Bow and Arrow",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "72257",
+      "name": "Kiss of Hearts",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "72258",
+      "name": "Diamond Satin Baby Valentine Shoes",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "72259",
+      "name": "Baby Valentine Jumper and Shirt",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "72260",
+      "name": "Baby Bun with Heart Headband",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "72323",
+      "name": "Shenkuu Lunar Festival Baby Dress",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "72603",
+      "name": "Baby Sequined Peach Dress",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "72604",
+      "name": "Baby Wig with Snowbunny Ears",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "72607",
+      "name": "Baby Snowbunny Plushie",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "73062",
+      "name": "Autumn Baby Dress",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "78105",
+      "name": "Baby Blue Striped Dress",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "78106",
+      "name": "Baby Bunny Ear Shoes",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "80515",
+      "name": "Baby Candy Corn Wings",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "28",
+          "name": "Krawk",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "80881",
+      "name": "Baby Blue Elf Outfit",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "11",
+          "name": "Elephante",
+        },
+      ],
+    },
+    Object {
+      "id": "81136",
+      "name": "Baby Blue Fabric Dress",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "28",
+          "name": "Krawk",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "37",
+          "name": "Ogrin",
+        },
+        Object {
+          "id": "46",
+          "name": "Techo",
+        },
+      ],
+    },
+    Object {
+      "id": "81221",
+      "name": "Adorable Curly Baby Wig",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+      ],
+    },
+    Object {
+      "id": "81515",
+      "name": "Dyeworks Orange: Baby Polka Dot Dress",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "11",
+          "name": "Elephante",
+        },
+        Object {
+          "id": "16",
+          "name": "Grarrl",
+        },
+        Object {
+          "id": "17",
+          "name": "Grundo",
+        },
+        Object {
+          "id": "28",
+          "name": "Krawk",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "37",
+          "name": "Ogrin",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "43",
+          "name": "Scorchio",
+        },
+        Object {
+          "id": "46",
+          "name": "Techo",
+        },
+      ],
+    },
+    Object {
+      "id": "81516",
+      "name": "Dyeworks Green: Baby Polka Dot Dress",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "11",
+          "name": "Elephante",
+        },
+        Object {
+          "id": "16",
+          "name": "Grarrl",
+        },
+        Object {
+          "id": "17",
+          "name": "Grundo",
+        },
+        Object {
+          "id": "28",
+          "name": "Krawk",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "37",
+          "name": "Ogrin",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "46",
+          "name": "Techo",
+        },
+      ],
+    },
+    Object {
+      "id": "81517",
+      "name": "Dyeworks Blue: Baby Polka Dot Dress",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "11",
+          "name": "Elephante",
+        },
+        Object {
+          "id": "16",
+          "name": "Grarrl",
+        },
+        Object {
+          "id": "17",
+          "name": "Grundo",
+        },
+        Object {
+          "id": "28",
+          "name": "Krawk",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "37",
+          "name": "Ogrin",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+      ],
+    },
+  ],
+  "maraquanItems": Array [
+    Object {
+      "id": "51171",
+      "name": "Maraquan Fancy Dress",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "7",
+          "name": "Chia",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "37",
+          "name": "Ogrin",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+        Object {
+          "id": "52",
+          "name": "Xweetok",
+        },
+        Object {
+          "id": "53",
+          "name": "Yurble",
+        },
+      ],
+    },
+    Object {
+      "id": "57529",
+      "name": "Maraquan Summer Shirt",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "7",
+          "name": "Chia",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "37",
+          "name": "Ogrin",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+        Object {
+          "id": "52",
+          "name": "Xweetok",
+        },
+        Object {
+          "id": "53",
+          "name": "Yurble",
+        },
+      ],
+    },
+    Object {
+      "id": "58737",
+      "name": "Fairest of Feathers Mask",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "7",
+          "name": "Chia",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "22",
+          "name": "Kacheek",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "37",
+          "name": "Ogrin",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "47",
+          "name": "Tonu",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+        Object {
+          "id": "52",
+          "name": "Xweetok",
+        },
+        Object {
+          "id": "53",
+          "name": "Yurble",
+        },
+      ],
+    },
+    Object {
+      "id": "58738",
+      "name": "Solar Flare Mask",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "7",
+          "name": "Chia",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "22",
+          "name": "Kacheek",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "37",
+          "name": "Ogrin",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "47",
+          "name": "Tonu",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+        Object {
+          "id": "52",
+          "name": "Xweetok",
+        },
+        Object {
+          "id": "53",
+          "name": "Yurble",
+        },
+      ],
+    },
+    Object {
+      "id": "58739",
+      "name": "Mystical Geraptiku Mask",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "7",
+          "name": "Chia",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "22",
+          "name": "Kacheek",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "37",
+          "name": "Ogrin",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "47",
+          "name": "Tonu",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+        Object {
+          "id": "52",
+          "name": "Xweetok",
+        },
+        Object {
+          "id": "53",
+          "name": "Yurble",
+        },
+      ],
+    },
+    Object {
+      "id": "58740",
+      "name": "Steam Respiration Mask",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "7",
+          "name": "Chia",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "22",
+          "name": "Kacheek",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "37",
+          "name": "Ogrin",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "47",
+          "name": "Tonu",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+        Object {
+          "id": "52",
+          "name": "Xweetok",
+        },
+        Object {
+          "id": "53",
+          "name": "Yurble",
+        },
+      ],
+    },
+    Object {
+      "id": "58741",
+      "name": "Evil Coconut Half Mask",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "7",
+          "name": "Chia",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "22",
+          "name": "Kacheek",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "37",
+          "name": "Ogrin",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "47",
+          "name": "Tonu",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+        Object {
+          "id": "52",
+          "name": "Xweetok",
+        },
+        Object {
+          "id": "53",
+          "name": "Yurble",
+        },
+      ],
+    },
+    Object {
+      "id": "58742",
+      "name": "Monstrous Flaming Mask",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "7",
+          "name": "Chia",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "22",
+          "name": "Kacheek",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "37",
+          "name": "Ogrin",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "47",
+          "name": "Tonu",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+        Object {
+          "id": "52",
+          "name": "Xweetok",
+        },
+        Object {
+          "id": "53",
+          "name": "Yurble",
+        },
+      ],
+    },
+    Object {
+      "id": "62592",
+      "name": "Maraquan Summer Cloak",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "7",
+          "name": "Chia",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "37",
+          "name": "Ogrin",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+        Object {
+          "id": "52",
+          "name": "Xweetok",
+        },
+        Object {
+          "id": "53",
+          "name": "Yurble",
+        },
+      ],
+    },
+    Object {
+      "id": "63953",
+      "name": "Floral Bouquet Mask",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "7",
+          "name": "Chia",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "37",
+          "name": "Ogrin",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+        Object {
+          "id": "52",
+          "name": "Xweetok",
+        },
+        Object {
+          "id": "53",
+          "name": "Yurble",
+        },
+      ],
+    },
+    Object {
+      "id": "63954",
+      "name": "Stone Warrior Mask",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "7",
+          "name": "Chia",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "37",
+          "name": "Ogrin",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+        Object {
+          "id": "52",
+          "name": "Xweetok",
+        },
+        Object {
+          "id": "53",
+          "name": "Yurble",
+        },
+      ],
+    },
+    Object {
+      "id": "63955",
+      "name": "Spiky Glowing Mask",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "7",
+          "name": "Chia",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "37",
+          "name": "Ogrin",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+        Object {
+          "id": "52",
+          "name": "Xweetok",
+        },
+        Object {
+          "id": "53",
+          "name": "Yurble",
+        },
+      ],
+    },
+    Object {
+      "id": "63956",
+      "name": "Theatrical Split Mask",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "7",
+          "name": "Chia",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "37",
+          "name": "Ogrin",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+        Object {
+          "id": "52",
+          "name": "Xweetok",
+        },
+        Object {
+          "id": "53",
+          "name": "Yurble",
+        },
+      ],
+    },
+    Object {
+      "id": "63957",
+      "name": "Toothy Grin Mask",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "7",
+          "name": "Chia",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "37",
+          "name": "Ogrin",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+        Object {
+          "id": "52",
+          "name": "Xweetok",
+        },
+        Object {
+          "id": "53",
+          "name": "Yurble",
+        },
+      ],
+    },
+    Object {
+      "id": "63958",
+      "name": "Menacing Tribal Mask",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "7",
+          "name": "Chia",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "37",
+          "name": "Ogrin",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+        Object {
+          "id": "52",
+          "name": "Xweetok",
+        },
+        Object {
+          "id": "53",
+          "name": "Yurble",
+        },
+      ],
+    },
+    Object {
+      "id": "66409",
+      "name": "Golden Maraquan Trident",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "7",
+          "name": "Chia",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+        Object {
+          "id": "52",
+          "name": "Xweetok",
+        },
+        Object {
+          "id": "53",
+          "name": "Yurble",
+        },
+      ],
+    },
+    Object {
+      "id": "66410",
+      "name": "Maraquan Fin Wings",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "7",
+          "name": "Chia",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+        Object {
+          "id": "52",
+          "name": "Xweetok",
+        },
+        Object {
+          "id": "53",
+          "name": "Yurble",
+        },
+      ],
+    },
+    Object {
+      "id": "67083",
+      "name": "Maraquan Ombre Ocean Wig",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "7",
+          "name": "Chia",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "35",
+          "name": "Mynci",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+        Object {
+          "id": "52",
+          "name": "Xweetok",
+        },
+        Object {
+          "id": "53",
+          "name": "Yurble",
+        },
+      ],
+    },
+    Object {
+      "id": "70221",
+      "name": "Maraquan Flowing Fuchsia Wig",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "7",
+          "name": "Chia",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "52",
+          "name": "Xweetok",
+        },
+        Object {
+          "id": "53",
+          "name": "Yurble",
+        },
+      ],
+    },
+    Object {
+      "id": "72615",
+      "name": "Maraquan Light Blue Dress",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "7",
+          "name": "Chia",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "72616",
+      "name": "Maraquan Wig with Negg Accessory",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "7",
+          "name": "Chia",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "72617",
+      "name": "Handheld Net of Easter Items",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "7",
+          "name": "Chia",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "72750",
+      "name": "Maraquan Jewelled Trident Handheld",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "7",
+          "name": "Chia",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "72751",
+      "name": "Maraquan Silver Markings",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "7",
+          "name": "Chia",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "72903",
+      "name": "Dyeworks Blue: Maraquan Summer Cloak",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "7",
+          "name": "Chia",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "72904",
+      "name": "Dyeworks Red: Maraquan Summer Cloak",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "7",
+          "name": "Chia",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "72905",
+      "name": "Dyeworks Purple: Maraquan Summer Cloak",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "7",
+          "name": "Chia",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "75372",
+      "name": "Maraquan Scaled Dress",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "77039",
+      "name": "Maraquan Velvet Dress",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "77530",
+      "name": "Maraquan Sea Blue Gown",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "35",
+          "name": "Mynci",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "77531",
+      "name": "Maraquan Breezy Tank Top",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "35",
+          "name": "Mynci",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "77532",
+      "name": "Maraquan Wig with Ocean Jewels",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "35",
+          "name": "Mynci",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "77533",
+      "name": "Maraquan Majestic Arm Cuff",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "35",
+          "name": "Mynci",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "77535",
+      "name": "Maraquan Roamers Cape",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "35",
+          "name": "Mynci",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "78516",
+      "name": "Dyeworks Pink: Maraquan Fancy Dress",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "78517",
+      "name": "Dyeworks Black: Maraquan Fancy Dress",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "78518",
+      "name": "Dyeworks Gold: Maraquan Fancy Dress",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "80183",
+      "name": "Dyeworks Yellow: Maraquan Silver Markings",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "80184",
+      "name": "Dyeworks Green: Maraquan Silver Markings",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "80185",
+      "name": "Dyeworks Purple: Maraquan Silver Markings",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "80255",
+      "name": "Maraquan Scale Markings",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "80444",
+      "name": "Dyeworks Black: Maraquan Flowing Fuchsia Wig",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "80445",
+      "name": "Dyeworks Blonde:Maraquan Flowing Fuchsia Wig",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "80446",
+      "name": "Dyeworks Blue: Maraquan Flowing Fuchsia Wig",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "80516",
+      "name": "Spooky Maraquan Cloak",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "80882",
+      "name": "Maraquan White Beaded Gown",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "81137",
+      "name": "Maraquan Ocean Blue Contacts",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "8",
+          "name": "Chomby",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "23",
+          "name": "Kau",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "34",
+          "name": "Moehog",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "81287",
+      "name": "Maraquan White Lace Gown",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "8",
+          "name": "Chomby",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "81288",
+      "name": "Maraquan Mermaid Tail",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "81289",
+      "name": "Maraquan Bun with Wispy Bangs",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "23",
+          "name": "Kau",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "81291",
+      "name": "Maraquan Basket of Seashells",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "23",
+          "name": "Kau",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "81292",
+      "name": "Sea Sparkles Maraquan Makeup",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "81512",
+      "name": "Dyeworks Pink: Maraquan Sea Blue Gown",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "7",
+          "name": "Chia",
+        },
+        Object {
+          "id": "8",
+          "name": "Chomby",
+        },
+        Object {
+          "id": "9",
+          "name": "Cybunny",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "23",
+          "name": "Kau",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "28",
+          "name": "Krawk",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "37",
+          "name": "Ogrin",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "45",
+          "name": "Skeith",
+        },
+        Object {
+          "id": "46",
+          "name": "Techo",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+        Object {
+          "id": "52",
+          "name": "Xweetok",
+        },
+        Object {
+          "id": "54",
+          "name": "Zafara",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "81513",
+      "name": "Dyeworks Lavender: Maraquan Sea Blue Gown",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "7",
+          "name": "Chia",
+        },
+        Object {
+          "id": "8",
+          "name": "Chomby",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "23",
+          "name": "Kau",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "37",
+          "name": "Ogrin",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "45",
+          "name": "Skeith",
+        },
+        Object {
+          "id": "46",
+          "name": "Techo",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "52",
+          "name": "Xweetok",
+        },
+        Object {
+          "id": "54",
+          "name": "Zafara",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "81514",
+      "name": "Dyeworks Silver: Maraquan Sea Blue Gown",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "7",
+          "name": "Chia",
+        },
+        Object {
+          "id": "8",
+          "name": "Chomby",
+        },
+        Object {
+          "id": "9",
+          "name": "Cybunny",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "23",
+          "name": "Kau",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "28",
+          "name": "Krawk",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "37",
+          "name": "Ogrin",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "45",
+          "name": "Skeith",
+        },
+        Object {
+          "id": "46",
+          "name": "Techo",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+        Object {
+          "id": "52",
+          "name": "Xweetok",
+        },
+        Object {
+          "id": "54",
+          "name": "Zafara",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "81546",
+      "name": "Underwater Maraquan Markings",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "7",
+          "name": "Chia",
+        },
+        Object {
+          "id": "13",
+          "name": "Flotsam",
+        },
+        Object {
+          "id": "15",
+          "name": "Gnorbu",
+        },
+        Object {
+          "id": "20",
+          "name": "Jetsam",
+        },
+        Object {
+          "id": "23",
+          "name": "Kau",
+        },
+        Object {
+          "id": "24",
+          "name": "Kiko",
+        },
+        Object {
+          "id": "25",
+          "name": "Koi",
+        },
+        Object {
+          "id": "30",
+          "name": "Lenny",
+        },
+        Object {
+          "id": "34",
+          "name": "Moehog",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "37",
+          "name": "Ogrin",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
+        },
+        Object {
+          "id": "41",
+          "name": "Quiggle",
+        },
+        Object {
+          "id": "45",
+          "name": "Skeith",
+        },
+        Object {
+          "id": "46",
+          "name": "Techo",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "54",
+          "name": "Zafara",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+  ],
+  "mutantItems": Array [
+    Object {
+      "id": "52790",
+      "name": "Elegant Mutant Cape",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "8",
+          "name": "Chomby",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "39",
+          "name": "Poogle",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "56721",
+      "name": "Mutant Spring Headband",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "8",
+          "name": "Chomby",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "39",
+          "name": "Poogle",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "58030",
+      "name": "Mutant Tattered Dress",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "39",
+          "name": "Poogle",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "58737",
+      "name": "Fairest of Feathers Mask",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "39",
+          "name": "Poogle",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "58738",
+      "name": "Solar Flare Mask",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "39",
+          "name": "Poogle",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "58739",
+      "name": "Mystical Geraptiku Mask",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "39",
+          "name": "Poogle",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "58740",
+      "name": "Steam Respiration Mask",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "39",
+          "name": "Poogle",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "58741",
+      "name": "Evil Coconut Half Mask",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "39",
+          "name": "Poogle",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "58742",
+      "name": "Monstrous Flaming Mask",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "32",
+          "name": "Lutari",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "39",
+          "name": "Poogle",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "59036",
+      "name": "Mutant Spiked Collar",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "39",
+          "name": "Poogle",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "63290",
+      "name": "Mutant Tentacle Staff",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "39",
+          "name": "Poogle",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "63953",
+      "name": "Floral Bouquet Mask",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "39",
+          "name": "Poogle",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+        Object {
+          "id": "54",
+          "name": "Zafara",
+        },
+      ],
+    },
+    Object {
+      "id": "63954",
+      "name": "Stone Warrior Mask",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "39",
+          "name": "Poogle",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+        Object {
+          "id": "54",
+          "name": "Zafara",
+        },
+      ],
+    },
+    Object {
+      "id": "63955",
+      "name": "Spiky Glowing Mask",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "39",
+          "name": "Poogle",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+        Object {
+          "id": "54",
+          "name": "Zafara",
+        },
+      ],
+    },
+    Object {
+      "id": "63956",
+      "name": "Theatrical Split Mask",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "39",
+          "name": "Poogle",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "63957",
+      "name": "Toothy Grin Mask",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "39",
+          "name": "Poogle",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "63958",
+      "name": "Menacing Tribal Mask",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "39",
+          "name": "Poogle",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+        Object {
+          "id": "54",
+          "name": "Zafara",
+        },
+      ],
+    },
+    Object {
+      "id": "65994",
+      "name": "Mutant Apron",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "39",
+          "name": "Poogle",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "67025",
+      "name": "Mutant Staff of Foulness",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "39",
+          "name": "Poogle",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "67026",
+      "name": "Mutant Staff of Darkness",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "39",
+          "name": "Poogle",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "67063",
+      "name": "Mutant Stylish Wig",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "67709",
+      "name": "Mutant Tentacle Wig",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "39",
+          "name": "Poogle",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "70433",
+      "name": "Mutant Poisonous Polka Dot Wig",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "70561",
+      "name": "Mutant Top Hat",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "70563",
+      "name": "Mutant Blue Glowing Contacts",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "70564",
+      "name": "Mutant Pink Ruffle Dress",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "70566",
+      "name": "Mutant Faellie Handheld Plushie",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "70567",
+      "name": "Mutant Gothic Embroidered Shirt",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "70568",
+      "name": "Mutant Elegant Burgundy Wig",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "70569",
+      "name": "Mutant Stylish Jet Black Wig",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "70688",
+      "name": "Dyeworks Green: Elegant Mutant Cape",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "8",
+          "name": "Chomby",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "39",
+          "name": "Poogle",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "70689",
+      "name": "Dyeworks Purple: Elegant Mutant Cape",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "8",
+          "name": "Chomby",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "39",
+          "name": "Poogle",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "70690",
+      "name": "Dyeworks Blue: Elegant Mutant Cape",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "8",
+          "name": "Chomby",
+        },
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "39",
+          "name": "Poogle",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "70779",
+      "name": "Dark Mutant Lantern",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "70906",
+      "name": "Dyeworks Green: Mutant Stylish Jet Black Wig",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "70907",
+      "name": "Dyeworks Blue: Mutant Stylish Jet Black Wig",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "70908",
+      "name": "Dyeworks Red: Mutant Stylish Jet Black Wig",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "70909",
+      "name": "Dyeworks Red: Mutant Blue Glowing Contacts",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "70910",
+      "name": "Dyeworks Green: Mutant Blue Glowing Contacts",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "70911",
+      "name": "Dyeworks Pink: Mutant Blue Glowing Contacts",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "70912",
+      "name": "Dyeworks Orange: Mutant Gothic Embroidered Shirt",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "70913",
+      "name": "Dyeworks Purple: Mutant Gothic Embroidered Shirt",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "70914",
+      "name": "Dyeworks Red: Mutant Gothic Embroidered Shirt",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "71109",
+      "name": "Dyeworks Pink: Elegant Mutant Cape",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+      ],
+    },
+    Object {
+      "id": "72211",
+      "name": "Valentine Mutant Dress",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "72609",
+      "name": "Mutant Rose Print Dress",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "72610",
+      "name": "Mutant Negg Flower Wig",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "72613",
+      "name": "Mutant Yellow Tulips Bouquet",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
+          "id": "51",
+          "name": "Wocky",
+        },
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "76107",
+      "name": "Unruly Mutant Wig",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "76198",
+      "name": "Mutant Carnival-Goer Jacket and Top",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "79688",
+      "name": "Gangrene Mutant Wings",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "79690",
+      "name": "Mutant Tuxedo",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "79691",
+      "name": "Chains are a Mutants BFF",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "79692",
+      "name": "Fortified Mutant Weaponry",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "79693",
+      "name": "Mutant Talisman Necklace",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "79694",
+      "name": "Restless Shadow Wraith",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "79695",
+      "name": "Mutant Hide Shendyt",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "79696",
+      "name": "Dreaded Mutant Mohawk Wig",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "79697",
+      "name": "Radioactive Mutant Markings",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "80253",
+      "name": "Casual Mutant Trousers",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "80441",
+      "name": "Dyeworks Red Radioactive Mutant Markings",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "80442",
+      "name": "Dyeworks Yellow: Radioactive Mutant Markings",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "80443",
+      "name": "Dyeworks Blue: Radioactive Mutant Markings",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "80519",
+      "name": "Spooky Spiderweb Mutant Markings",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "80629",
+      "name": "Fall Mutant Flannel",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "80829",
+      "name": "Mutant Winter Boots",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "81643",
+      "name": "Mutant Containment Suit",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+    Object {
+      "id": "81644",
+      "name": "Mutant Containment Helmet",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "55",
+          "name": "Vandagyre",
+        },
+      ],
+    },
+  ],
+  "standardItems": Array [
     Object {
       "id": "36907",
       "name": "Slushie Slinger Drinking Cap",
@@ -6444,6 +11634,292 @@ Object {
     },
   ],
 }
+`;
+
+exports[`Item loads items that need models 2`] = `
+Array [
+  Array [
+    "SELECT * FROM item_translations WHERE item_id IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) AND locale = \\"en\\"",
+    Array [
+      "36907",
+      "42448",
+      "42544",
+      "42546",
+      "50669",
+      "50670",
+      "50671",
+      "50672",
+      "51646",
+      "51651",
+      "51653",
+      "51654",
+      "51655",
+      "53324",
+      "53325",
+      "58285",
+      "59848",
+      "62939",
+      "64195",
+      "64387",
+      "67317",
+      "68228",
+      "69311",
+      "70843",
+      "71110",
+      "71937",
+      "71938",
+      "73707",
+      "73708",
+      "73724",
+      "74259",
+      "74260",
+      "74261",
+      "76108",
+      "76109",
+      "77441",
+      "77442",
+      "81144",
+      "81145",
+      "81229",
+      "81230",
+      "81232",
+      "81233",
+      "81234",
+      "81237",
+      "81238",
+      "81240",
+      "81241",
+      "81242",
+      "81243",
+      "81245",
+      "81246",
+      "81547",
+      "81619",
+      "81630",
+      "81657",
+      "81658",
+      "81659",
+      "81660",
+      "81664",
+      "81667",
+      "81670",
+      "81671",
+      "81672",
+      "81674",
+      "81675",
+      "81693",
+      "49142",
+      "51568",
+      "62089",
+      "71667",
+      "71668",
+      "71870",
+      "71871",
+      "71872",
+      "71873",
+      "71874",
+      "71875",
+      "71893",
+      "72148",
+      "72202",
+      "72216",
+      "72217",
+      "72218",
+      "72256",
+      "72257",
+      "72258",
+      "72259",
+      "72260",
+      "72323",
+      "72603",
+      "72604",
+      "72607",
+      "73062",
+      "78105",
+      "78106",
+      "80515",
+      "80881",
+      "81136",
+      "81221",
+      "81515",
+      "81516",
+      "81517",
+      "51171",
+      "57529",
+      "58737",
+      "58738",
+      "58739",
+      "58740",
+      "58741",
+      "58742",
+      "62592",
+      "63953",
+      "63954",
+      "63955",
+      "63956",
+      "63957",
+      "63958",
+      "66409",
+      "66410",
+      "67083",
+      "70221",
+      "72615",
+      "72616",
+      "72617",
+      "72750",
+      "72751",
+      "72903",
+      "72904",
+      "72905",
+      "75372",
+      "77039",
+      "77530",
+      "77531",
+      "77532",
+      "77533",
+      "77535",
+      "78516",
+      "78517",
+      "78518",
+      "80183",
+      "80184",
+      "80185",
+      "80255",
+      "80444",
+      "80445",
+      "80446",
+      "80516",
+      "80882",
+      "81137",
+      "81287",
+      "81288",
+      "81289",
+      "81291",
+      "81292",
+      "81512",
+      "81513",
+      "81514",
+      "81546",
+      "52790",
+      "56721",
+      "58030",
+      "59036",
+      "63290",
+      "65994",
+      "67025",
+      "67026",
+      "67063",
+      "67709",
+      "70433",
+      "70561",
+      "70563",
+      "70564",
+      "70566",
+      "70567",
+      "70568",
+      "70569",
+      "70688",
+      "70689",
+      "70690",
+      "70779",
+      "70906",
+      "70907",
+      "70908",
+      "70909",
+      "70910",
+      "70911",
+      "70912",
+      "70913",
+      "70914",
+      "71109",
+      "72211",
+      "72609",
+      "72610",
+      "72613",
+      "76107",
+      "76198",
+      "79688",
+      "79690",
+      "79691",
+      "79692",
+      "79693",
+      "79694",
+      "79695",
+      "79696",
+      "79697",
+      "80253",
+      "80441",
+      "80442",
+      "80443",
+      "80519",
+      "80629",
+      "80829",
+      "81643",
+      "81644",
+    ],
+  ],
+  Array [
+    "SELECT * FROM species_translations
+       WHERE species_id IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) AND locale = \\"en\\"",
+    Array [
+      "1",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "11",
+      "12",
+      "15",
+      "16",
+      "17",
+      "19",
+      "20",
+      "21",
+      "22",
+      "23",
+      "24",
+      "26",
+      "27",
+      "30",
+      "32",
+      "34",
+      "36",
+      "39",
+      "40",
+      "42",
+      "44",
+      "47",
+      "48",
+      "49",
+      "50",
+      "54",
+      "2",
+      "13",
+      "14",
+      "25",
+      "29",
+      "37",
+      "38",
+      "43",
+      "45",
+      "46",
+      "51",
+      "52",
+      "53",
+      "3",
+      "9",
+      "31",
+      "41",
+      "10",
+      "18",
+      "28",
+      "35",
+      "33",
+      "55",
+    ],
+  ],
+]
 `;
 
 exports[`Item loads metadata 1`] = `

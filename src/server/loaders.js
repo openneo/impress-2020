@@ -240,7 +240,7 @@ const buildItemSearchToFitLoader = (db, loaders) =>
   });
 
 let lastKnownUpdate = "1970-01-01"; // start it out very old!
-let lastResult = [];
+let lastResult = new Map();
 const buildItemsThatNeedModelsLoader = (db) =>
   new DataLoader(async (keys) => {
     // Essentially, I want to take easy advantage of DataLoader's caching, for
@@ -279,7 +279,16 @@ const buildItemsThatNeedModelsLoader = (db) =>
       const rows = rawRows.map(normalizeRow);
 
       lastKnownUpdate = varRows[0]["@LastActualUpdate"];
-      lastResult = rows;
+
+      // We build lastResult into a Map up-front, to speed up the many lookups
+      // that the GQL resolvers will do as we group this data into GQL nodes!
+      lastResult = new Map();
+      for (const { colorId, itemId, ...row } of rows) {
+        if (!lastResult.has(colorId)) {
+          lastResult.set(colorId, new Map());
+        }
+        lastResult.get(colorId).set(itemId, row);
+      }
     }
 
     return [lastResult];
