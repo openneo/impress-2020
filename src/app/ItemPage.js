@@ -93,11 +93,11 @@ function ItemPageHeader({ itemId, isEmbedded }) {
         justifyContent="flex-start"
         width="100%"
       >
-        <Skeleton isLoaded={item?.thumbnailUrl} marginRight="4">
+        <SubtleSkeleton isLoaded={item?.thumbnailUrl} marginRight="4">
           <ItemThumbnail item={item} size="lg" isActive flex="0 0 auto" />
-        </Skeleton>
+        </SubtleSkeleton>
         <Box>
-          <Skeleton isLoaded={item?.name}>
+          <SubtleSkeleton isLoaded={item?.name}>
             <Heading1
               lineHeight="1.1"
               // Nudge down the size a bit in the embed case, to better fit the
@@ -106,7 +106,7 @@ function ItemPageHeader({ itemId, isEmbedded }) {
             >
               {item?.name || "Item name here"}
             </Heading1>
-          </Skeleton>
+          </SubtleSkeleton>
           <ItemPageBadges item={item} isEmbedded={isEmbedded} />
         </Box>
       </Box>
@@ -135,13 +135,13 @@ function ItemPageBadges({ item, isEmbedded }) {
 
   return (
     <ItemBadgeList>
-      <Skeleton isLoaded={item?.isNc != null}>
+      <SubtleSkeleton isLoaded={item?.isNc != null}>
         {item?.isNc ? <NcBadge /> : <NpBadge />}
-      </Skeleton>
+      </SubtleSkeleton>
       {
         // If the createdAt date is null (loaded and empty), hide the badge.
         item.createdAt !== null && (
-          <Skeleton
+          <SubtleSkeleton
             // Distinguish between undefined (still loading) and null (loaded and
             // empty).
             isLoaded={item.createdAt !== undefined}
@@ -154,18 +154,18 @@ function ItemPageBadges({ item, isEmbedded }) {
             >
               {item.createdAt && <ShortTimestamp when={item.createdAt} />}
             </Badge>
-          </Skeleton>
+          </SubtleSkeleton>
         )
       }
-      <Skeleton isLoaded={searchBadgesAreLoaded}>
+      <SubtleSkeleton isLoaded={searchBadgesAreLoaded}>
         <LinkBadge
           href={`https://impress.openneo.net/items/${item.id}`}
           isEmbedded={isEmbedded}
         >
           Old DTI
         </LinkBadge>
-      </Skeleton>
-      <Skeleton isLoaded={searchBadgesAreLoaded}>
+      </SubtleSkeleton>
+      <SubtleSkeleton isLoaded={searchBadgesAreLoaded}>
         <LinkBadge
           href={
             "https://items.jellyneo.net/search/?name=" +
@@ -176,8 +176,8 @@ function ItemPageBadges({ item, isEmbedded }) {
         >
           Jellyneo
         </LinkBadge>
-      </Skeleton>
-      <Skeleton isLoaded={searchBadgesAreLoaded}>
+      </SubtleSkeleton>
+      <SubtleSkeleton isLoaded={searchBadgesAreLoaded}>
         {!item?.isNc && (
           <LinkBadge
             href={
@@ -189,8 +189,8 @@ function ItemPageBadges({ item, isEmbedded }) {
             Shop Wiz
           </LinkBadge>
         )}
-      </Skeleton>
-      <Skeleton isLoaded={searchBadgesAreLoaded}>
+      </SubtleSkeleton>
+      <SubtleSkeleton isLoaded={searchBadgesAreLoaded}>
         {!item?.isNc && (
           <LinkBadge
             href={
@@ -202,8 +202,8 @@ function ItemPageBadges({ item, isEmbedded }) {
             Super Wiz
           </LinkBadge>
         )}
-      </Skeleton>
-      <Skeleton isLoaded={searchBadgesAreLoaded}>
+      </SubtleSkeleton>
+      <SubtleSkeleton isLoaded={searchBadgesAreLoaded}>
         {!item?.isNc && (
           <LinkBadge
             href={
@@ -215,8 +215,8 @@ function ItemPageBadges({ item, isEmbedded }) {
             Trade Post
           </LinkBadge>
         )}
-      </Skeleton>
-      <Skeleton isLoaded={searchBadgesAreLoaded}>
+      </SubtleSkeleton>
+      <SubtleSkeleton isLoaded={searchBadgesAreLoaded}>
         {!item?.isNc && (
           <LinkBadge
             href={
@@ -228,7 +228,7 @@ function ItemPageBadges({ item, isEmbedded }) {
             Auctions
           </LinkBadge>
         )}
-      </Skeleton>
+      </SubtleSkeleton>
     </ItemBadgeList>
   );
 }
@@ -328,7 +328,7 @@ function ItemPageOwnWantButtons({ itemId }) {
 
   return (
     <Box display="flex">
-      <Skeleton isLoaded={!loading} marginRight="4">
+      <SubtleSkeleton isLoaded={!loading} marginRight="4">
         <Box as="label">
           <VisuallyHidden
             as="input"
@@ -363,9 +363,9 @@ function ItemPageOwnWantButtons({ itemId }) {
             I own this
           </Button>
         </Box>
-      </Skeleton>
+      </SubtleSkeleton>
 
-      <Skeleton isLoaded={!loading}>
+      <SubtleSkeleton isLoaded={!loading}>
         <Box as="label">
           <VisuallyHidden
             as="input"
@@ -400,7 +400,7 @@ function ItemPageOwnWantButtons({ itemId }) {
             I want this
           </Button>
         </Box>
-      </Skeleton>
+      </SubtleSkeleton>
     </Box>
   );
 }
@@ -456,6 +456,34 @@ function ItemPageOutfitPreview({ itemId }) {
         />
       </Box>
     </AspectRatio>
+  );
+}
+
+/**
+ * SubtleSkeleton hides the skeleton animation until a second has passed, and
+ * doesn't fade in the content if it loads before then. This helps avoid
+ * flash-of-content stuff!
+ *
+ * For plain Skeletons, we often use <Delay><Skeleton /></Delay> instead. But
+ * that pattern doesn't work as well for wrapper skeletons where we're using
+ * placeholder content for layout: we don't want the delay if the content
+ * really _is_ present!
+ */
+function SubtleSkeleton({ ...props }) {
+  const [shouldShowSkeleton, setShouldShowSkeleton] = React.useState(false);
+
+  React.useEffect(() => {
+    const t = setTimeout(() => setShouldShowSkeleton(true), 1000);
+    return () => clearTimeout(t);
+  });
+
+  return (
+    <Skeleton
+      startColor={shouldShowSkeleton ? undefined : "transparent"}
+      endColor={shouldShowSkeleton ? undefined : "transparent"}
+      fadeDuration={shouldShowSkeleton ? undefined : 0}
+      {...props}
+    />
   );
 }
 
