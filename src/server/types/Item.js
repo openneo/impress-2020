@@ -151,7 +151,8 @@ const resolvers = {
       const speciesIdsByColorIdAndItemId = await itemsThatNeedModelsLoader.load(
         "all"
       );
-      const row = speciesIdsByColorIdAndItemId.get(colorId)?.get(id);
+      const speciesIdsByItemId = speciesIdsByColorIdAndItemId.get(colorId);
+      const row = speciesIdsByItemId && speciesIdsByItemId.get(id);
       if (!row) {
         return [];
       }
@@ -232,7 +233,8 @@ const resolvers = {
       const speciesIdsByColorIdAndItemId = await itemsThatNeedModelsLoader.load(
         "all"
       );
-      const itemIds = speciesIdsByColorIdAndItemId.get(colorId)?.keys() || [];
+      const speciesIdsByItemIds = speciesIdsByColorIdAndItemId.get(colorId);
+      const itemIds = (speciesIdsByItemIds && speciesIdsByItemIds.keys()) || [];
       return Array.from(itemIds, (id) => ({ id }));
     },
   },
