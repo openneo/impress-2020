@@ -31,7 +31,7 @@ import {
   NcBadge,
   NpBadge,
 } from "./components/ItemCard";
-import { Heading1, usePageTitle } from "./util";
+import { Delay, Heading1, usePageTitle } from "./util";
 import OutfitPreview from "./components/OutfitPreview";
 
 function ItemPage() {
@@ -73,7 +73,11 @@ function ItemPageHeader({ itemId, isEmbedded }) {
 
   usePageTitle(data?.item?.name, { skip: isEmbedded });
 
-  const numDescriptionLines = useBreakpointValue({ base: 2, md: 1 });
+  // Show 2 lines of description text placeholder on small screens, or when
+  // embedded in the wardrobe page's narrow drawer. In larger contexts, show
+  // just 1 line.
+  const viewportNumDescriptionLines = useBreakpointValue({ base: 2, md: 1 });
+  const numDescriptionLines = isEmbedded ? 2 : viewportNumDescriptionLines;
 
   if (error) {
     return <Box color="red.400">{error.message}</Box>;
@@ -116,7 +120,9 @@ function ItemPageHeader({ itemId, isEmbedded }) {
             alignItems="stretch"
             justifyContent="center"
           >
-            <SkeletonText noOfLines={numDescriptionLines} spacing="4" />
+            <Delay ms={2000}>
+              <SkeletonText noOfLines={numDescriptionLines} spacing="4" />
+            </Delay>
           </Box>
         )}
       </Box>
