@@ -3,7 +3,12 @@ import { ApolloProvider } from "@apollo/client";
 import { Auth0Provider } from "@auth0/auth0-react";
 import { CSSReset, ChakraProvider } from "@chakra-ui/core";
 import defaultTheme from "@chakra-ui/theme";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  useLocation,
+} from "react-router-dom";
 import loadable from "@loadable/component";
 import { useAuth0 } from "@auth0/auth0-react";
 
@@ -53,6 +58,7 @@ const theme = {
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <Auth0Provider
         domain="openneo.us.auth0.com"
         clientId="8LjFauVox7shDxVufQqnviUIywMuuC4r"
@@ -93,6 +99,16 @@ function App() {
       </Auth0Provider>
     </Router>
   );
+}
+
+/**
+ * ScrollToTop scrolls to the top of the page when you navigate.
+ * Copied from https://reactrouter.com/web/guides/scroll-restoration/scroll-to-top.
+ */
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  React.useEffect(() => window.scrollTo(0, 0), [pathname]);
+  return null;
 }
 
 function ApolloProviderWithAuth0({ children }) {
