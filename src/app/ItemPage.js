@@ -120,7 +120,7 @@ function ItemPageHeader({ itemId, isEmbedded }) {
             alignItems="stretch"
             justifyContent="center"
           >
-            <Delay ms={2000}>
+            <Delay ms={500}>
               <SkeletonText noOfLines={numDescriptionLines} spacing="4" />
             </Delay>
           </Box>
@@ -461,7 +461,7 @@ function ItemPageOutfitPreview({ itemId }) {
 
 /**
  * SubtleSkeleton hides the skeleton animation until a second has passed, and
- * doesn't fade in the content if it loads before then. This helps avoid
+ * doesn't fade in the content if it loads near-instantly. This helps avoid
  * flash-of-content stuff!
  *
  * For plain Skeletons, we often use <Delay><Skeleton /></Delay> instead. But
@@ -469,19 +469,30 @@ function ItemPageOutfitPreview({ itemId }) {
  * placeholder content for layout: we don't want the delay if the content
  * really _is_ present!
  */
-function SubtleSkeleton({ ...props }) {
+function SubtleSkeleton({ isLoaded, ...props }) {
+  const [shouldFadeIn, setShouldFadeIn] = React.useState(false);
   const [shouldShowSkeleton, setShouldShowSkeleton] = React.useState(false);
 
   React.useEffect(() => {
-    const t = setTimeout(() => setShouldShowSkeleton(true), 1000);
+    const t = setTimeout(() => {
+      if (!isLoaded) {
+        setShouldFadeIn(true);
+      }
+    }, 150);
+    return () => clearTimeout(t);
+  });
+
+  React.useEffect(() => {
+    const t = setTimeout(() => setShouldShowSkeleton(true), 500);
     return () => clearTimeout(t);
   });
 
   return (
     <Skeleton
+      fadeDuration={shouldFadeIn ? undefined : 0}
       startColor={shouldShowSkeleton ? undefined : "transparent"}
       endColor={shouldShowSkeleton ? undefined : "transparent"}
-      fadeDuration={shouldShowSkeleton ? undefined : 0}
+      isLoaded={isLoaded}
       {...props}
     />
   );
