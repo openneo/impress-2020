@@ -18,20 +18,41 @@ function ModelingPage() {
   return (
     <Box>
       <Heading1 marginBottom="2">Modeling Hub</Heading1>
-      <Heading2 marginBottom="2">Item models we need</Heading2>
-      <ItemModelsList />
+      <ItemModelsSection />
     </Box>
   );
 }
 
-function ItemModelsList() {
+function ItemModelsSection() {
   const { loading, error, data } = useQuery(gql`
     query ModelingPage {
-      itemsThatNeedModels {
-        id
-        name
-        thumbnailUrl
+      standardItems: itemsThatNeedModels {
+        ...ItemFields
         speciesThatNeedModels {
+          id
+          name
+        }
+      }
+
+      babyItems: itemsThatNeedModels(colorId: "6") {
+        ...ItemFields
+        speciesThatNeedModels(colorId: "6") {
+          id
+          name
+        }
+      }
+
+      maraquanItems: itemsThatNeedModels(colorId: "44") {
+        ...ItemFields
+        speciesThatNeedModels(colorId: "44") {
+          id
+          name
+        }
+      }
+
+      mutantItems: itemsThatNeedModels(colorId: "46") {
+        ...ItemFields
+        speciesThatNeedModels(colorId: "46") {
           id
           name
         }
@@ -43,21 +64,30 @@ function ItemModelsList() {
         }
       }
     }
+
+    fragment ItemFields on Item {
+      id
+      name
+      thumbnailUrl
+    }
   `);
 
   if (loading) {
     return (
-      <Box
-        display="flex"
-        flexDirection="column"
-        alignItems="center"
-        marginTop="16"
-      >
-        <HangerSpinner />
-        <Box fontSize="xs" marginTop="1">
-          <Delay ms={2500}>Checking all the items…</Delay>
+      <>
+        <Heading2 marginBottom="2">Items we need modeled</Heading2>
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          marginTop="8"
+        >
+          <HangerSpinner />
+          <Box fontSize="xs" marginTop="1">
+            <Delay ms={2500}>Checking all the items…</Delay>
+          </Box>
         </Box>
-      </Box>
+      </>
     );
   }
 
@@ -65,14 +95,46 @@ function ItemModelsList() {
     return <Box color="red.400">{error.message}</Box>;
   }
 
-  const items = data.itemsThatNeedModels
-    // enough MMEs are broken that I just don't want to deal right now!
-    .filter((item) => !item.name.includes("MME"))
-    .sort((a, b) => a.name.localeCompare(b.name));
-
   const ownedItemIds = new Set(
     data.currentUser?.itemsTheyOwn?.map((item) => item.id)
   );
+
+  return (
+    <>
+      <Heading2 marginBottom="2">Items we need modeled</Heading2>
+      <ItemModelsColorSection
+        items={data.standardItems}
+        ownedItemIds={ownedItemIds}
+      />
+      <Heading2 marginTop="6" marginBottom="2">
+        Items we need modeled on Baby pets
+      </Heading2>
+      <ItemModelsColorSection
+        items={data.babyItems}
+        ownedItemIds={ownedItemIds}
+      />
+      <Heading2 marginTop="6" marginBottom="2">
+        Items we need modeled on Maraquan pets
+      </Heading2>
+      <ItemModelsColorSection
+        items={data.maraquanItems}
+        ownedItemIds={ownedItemIds}
+      />
+      <Heading2 marginTop="6">Items we need modeled on Mutant pets</Heading2>
+      <ItemModelsColorSection
+        items={data.mutantItems}
+        ownedItemIds={ownedItemIds}
+      />
+    </>
+  );
+}
+
+function ItemModelsColorSection({ items, ownedItemIds }) {
+  items = items
+    // enough MMEs are broken that I just don't want to deal right now!
+    // TODO: solve this with our new database omission feature instead?
+    .filter((item) => !item.name.includes("MME"))
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   return (
     <ItemCardList>
