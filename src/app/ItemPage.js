@@ -7,6 +7,7 @@ import {
   Box,
   Skeleton,
   SkeletonText,
+  Tooltip,
   VisuallyHidden,
   VStack,
   useBreakpointValue,
@@ -63,6 +64,7 @@ function ItemPageHeader({ itemId, isEmbedded }) {
           isNc
           thumbnailUrl
           description
+          createdAt
         }
       }
     `,
@@ -130,6 +132,20 @@ function ItemPageBadges({ item, isEmbedded }) {
       <Skeleton isLoaded={item?.isNc != null}>
         {item?.isNc ? <NcBadge /> : <NpBadge />}
       </Skeleton>
+      {
+        // If the createdAt date is null (loaded and empty), hide the badge.
+        item.createdAt !== null && (
+          <Skeleton
+            // Distinguish between undefined (still loading) and null (loaded and
+            // empty).
+            isLoaded={item.createdAt !== undefined}
+          >
+            <Badge display="block">
+              <ShortTimestamp when={item.createdAt || "1970-01-01"} />
+            </Badge>
+          </Skeleton>
+        )
+      }
       <Skeleton isLoaded={searchBadgesAreLoaded}>
         <LinkBadge
           href={`https://impress.openneo.net/items/${item.id}`}
@@ -225,6 +241,47 @@ function LinkBadge({ children, href, isEmbedded }) {
         isEmbedded ? <ExternalLinkIcon marginLeft="1" /> : <ChevronRightIcon />
       }
     </Badge>
+  );
+}
+
+const fullDateFormatter = new Intl.DateTimeFormat("en-US", {
+  dateStyle: "long",
+});
+const monthYearFormatter = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  year: "numeric",
+});
+const monthDayYearFormatter = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+});
+function ShortTimestamp({ when }) {
+  const date = new Date(when);
+
+  // To find the start of last month, take today, then set its date to the 1st
+  // and its time to midnight (the start of this month), and subtract one
+  // month. (JS handles negative months and rolls them over correctly.)
+  const startOfLastMonth = new Date();
+  startOfLastMonth.setDate(1);
+  startOfLastMonth.setHours(0);
+  startOfLastMonth.setMinutes(0);
+  startOfLastMonth.setSeconds(0);
+  startOfLastMonth.setMilliseconds(0);
+  startOfLastMonth.setMonth(startOfLastMonth.getMonth() - 1);
+
+  const dateIsOlderThanLastMonth = date < startOfLastMonth;
+
+  return (
+    <Tooltip
+      label={`First seen on ${fullDateFormatter.format(date)}`}
+      placement="top"
+      openDelay={400}
+    >
+      {dateIsOlderThanLastMonth
+        ? monthYearFormatter.format(date)
+        : monthDayYearFormatter.format(date)}
+    </Tooltip>
   );
 }
 

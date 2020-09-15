@@ -10,6 +10,10 @@ const typeDefs = gql`
     rarityIndex: Int!
     isNc: Boolean!
 
+    # When this item was first added to DTI. ISO 8601 string, or null if the
+    # item was added so long ago that we don't have this field!
+    createdAt: String
+
     currentUserOwnsThis: Boolean!
     currentUserWantsThis: Boolean!
 
@@ -101,6 +105,10 @@ const resolvers = {
       if (rarityIndex != null) return rarityIndex === 500 || rarityIndex === 0;
       const item = await itemLoader.load(id);
       return item.rarityIndex === 500 || item.rarityIndex === 0;
+    },
+    createdAt: async ({ id }, _, { itemLoader }) => {
+      const item = await itemLoader.load(id);
+      return item.createdAt && item.createdAt.toISOString();
     },
 
     currentUserOwnsThis: async (

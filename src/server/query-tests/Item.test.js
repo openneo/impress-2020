@@ -13,6 +13,7 @@ describe("Item", () => {
             thumbnailUrl
             rarityIndex
             isNc
+            createdAt
             manualSpecialColor {
               id
               name
