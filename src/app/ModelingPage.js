@@ -1,5 +1,5 @@
 import React from "react";
-import { Badge, Box } from "@chakra-ui/core";
+import { Badge, Box, Tooltip } from "@chakra-ui/core";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
 
@@ -69,6 +69,7 @@ function ItemModelsSection() {
       id
       name
       thumbnailUrl
+      createdAt
     }
   `);
 
@@ -134,7 +135,13 @@ function ItemModelsColorSection({ items, ownedItemIds }) {
     // enough MMEs are broken that I just don't want to deal right now!
     // TODO: solve this with our new database omission feature instead?
     .filter((item) => !item.name.includes("MME"))
-    .sort((a, b) => a.name.localeCompare(b.name));
+    .sort((a, b) => {
+      // This is a cute sort hack. We sort first by, bringing "New!" to the
+      // top, and then sorting by name _within_ those two groups.
+      const aName = `${itemIsNew(a) ? "000" : "999"} ${a.name}`;
+      const bName = `${itemIsNew(b) ? "000" : "999"} ${b.name}`;
+      return aName.localeCompare(bName);
+    });
 
   return (
     <ItemCardList>
@@ -161,11 +168,38 @@ function ItemModelBadges({ item, currentUserOwnsItem }) {
   return (
     <ItemBadgeList>
       {currentUserOwnsItem && <YouOwnThisBadge />}
+      {itemIsNew(item) && <NewItemBadge createdAt={item.createdAt} />}
       {item.speciesThatNeedModels.map((species) => (
         <Badge>{species.name}</Badge>
       ))}
     </ItemBadgeList>
   );
+}
+
+const fullDateFormatter = new Intl.DateTimeFormat("en-US", {
+  dateStyle: "long",
+});
+function NewItemBadge({ createdAt }) {
+  const date = new Date(createdAt);
+
+  return (
+    <Tooltip
+      label={`Added on ${fullDateFormatter.format(date)}`}
+      placement="top"
+      openDelay={400}
+    >
+      <Badge colorScheme="yellow">New!</Badge>
+    </Tooltip>
+  );
+}
+
+function itemIsNew(item) {
+  const date = new Date(item.createdAt);
+
+  const oneMonthAgo = new Date();
+  oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+  return date > oneMonthAgo;
 }
 
 export default ModelingPage;
