@@ -254,9 +254,12 @@ const buildItemsThatNeedModelsLoader = (db) =>
     // only run the query if modeling data has been changed since the timestamp
     // we provide; otherwise, it skips the query and returns no rows, which is
     // much faster! (The query takes a few seconds to run.)
+    //
+    // NOTE: This query has the colors hardcoded, we always fetch all of them!
+    //       And then we look up the specific colors
     const [results, _] = await db.query(
       `
-        CALL GetItemsThatNeedModelsIfNotCached(?, @LastActualUpdate);
+        CALL GetItemsThatNeedModelsIfNotCachedV2(?, @LastActualUpdate);
         SELECT @LastActualUpdate;
       `,
       [lastKnownUpdate]
@@ -268,20 +271,18 @@ const buildItemsThatNeedModelsLoader = (db) =>
     // Result 2 (required): The MySQL summary of the effects of the CALL.
     // Result 3 (required): The 1-row table contianing @LastActualUpdate.
     //
-    // So, check the number of results. If it's 2, then there was no change,
-    // and we should return our cached value. Or, if it's 3, then we should
-    // update our cache.
-    if (results.length === 2) {
-      return [lastResult];
+    // So, check the number of results. If it's 3, then we should update our
+    // cache. Or, if it's 2, then there was no change and we can continue with
+    // the existing cached value.
+    if (results.length === 3) {
+      const [rawRows, __, varRows] = results;
+      const rows = rawRows.map(normalizeRow);
+
+      lastKnownUpdate = varRows[0]["@LastActualUpdate"];
+      lastResult = rows;
     }
 
-    const [rows, __, varRows] = results;
-    const entities = rows.map(normalizeRow);
-
-    lastKnownUpdate = varRows[0]["@LastActualUpdate"];
-    lastResult = entities;
-
-    return [entities];
+    return [lastResult];
   });
 
 const buildPetTypeLoader = (db) =>

@@ -31,10 +31,10 @@ GRANT SELECT ON users TO impress2020;
 
 DELIMITER $$
 
-DROP PROCEDURE IF EXISTS GetItemsThatNeedModels$$
-CREATE PROCEDURE GetItemsThatNeedModels()
+DROP PROCEDURE IF EXISTS GetItemsThatNeedModelsV2$$
+CREATE PROCEDURE GetItemsThatNeedModelsV2()
 BEGIN
-  SELECT items.id, 
+  SELECT pet_types.color_id AS color_id, items.id AS item_id,
     GROUP_CONCAT(DISTINCT pet_types.species_id ORDER BY pet_types.species_id)
       AS modeled_species_ids,
     -- Vandagyre was added on 2014-11-14, so we add some buffer here.
@@ -49,23 +49,29 @@ BEGIN
   INNER JOIN pet_types
     ON pet_types.body_id = swf_assets.body_id
   WHERE
-    pet_types.color_id = "8"
+    pet_types.color_id IN (
+       8, -- Blue (Standard)
+       6, -- Baby
+      44, -- Maraquan
+      46, -- Mutant
+      92 -- 8-bit
+    )
     AND items.modeling_status_hint IS NULL
-  GROUP BY items.id
+  GROUP BY color_id, item_id
   HAVING
     NOT (
+      -- No species (either an All Bodies item, or a Capsule type thing)
+      count(DISTINCT pet_types.species_id) = 0
       -- Single species (probably just their item)
-      count(DISTINCT pet_types.species_id) = 1
+      OR count(DISTINCT pet_types.species_id) = 1
       -- All species modeled
-      OR modeled_species_ids = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55"
+      OR count(DISTINCT pet_types.species_id) = 55
       -- All species modeled except Vandagyre, for items that don't support it
       OR (NOT supports_vandagyre AND modeled_species_ids = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54")
-      -- No species (either an All Bodies item, or a Capsule type thing)
-      OR modeled_species_ids = ""
     )
-  ORDER BY items.id;
+  ORDER BY color_id, item_id;
 END$$
-GRANT EXECUTE ON PROCEDURE GetItemsThatNeedModels TO impress2020$$
+GRANT EXECUTE ON PROCEDURE GetItemsThatNeedModelsV2 TO impress2020$$
 
 -- This procedure is a performance optimization! We want the page to always be
 -- up-to-date, but we want to avoid re-running this query if modeling data
@@ -74,8 +80,8 @@ GRANT EXECUTE ON PROCEDURE GetItemsThatNeedModels TO impress2020$$
 -- queries are a bottleneck, so I bundled up that logic into this single
 -- procedure that can run on the database! That way, it's just one network
 -- round-trip instead of two, which makes a noticeable difference in our stack.
-DROP PROCEDURE IF EXISTS GetItemsThatNeedModelsIfNotCached$$
-CREATE PROCEDURE GetItemsThatNeedModelsIfNotCached(
+DROP PROCEDURE IF EXISTS GetItemsThatNeedModelsIfNotCachedV2$$
+CREATE PROCEDURE GetItemsThatNeedModelsIfNotCachedV2(
   IN last_known_update TIMESTAMP,
   OUT last_actual_update TIMESTAMP
 )
@@ -84,9 +90,9 @@ BEGIN
     (SELECT created_at FROM contributions ORDER BY id DESC LIMIT 1);
 
   IF last_known_update < last_actual_update THEN
-    CALL GetItemsThatNeedModels();
+    CALL GetItemsThatNeedModelsV2();
   END IF;
 END$$
-GRANT EXECUTE ON PROCEDURE GetItemsThatNeedModelsIfNotCached TO impress2020$$
+GRANT EXECUTE ON PROCEDURE GetItemsThatNeedModelsIfNotCachedV2 TO impress2020$$
 
 DELIMITER ;

@@ -137,7 +137,9 @@ const resolvers = {
     },
     speciesThatNeedModels: async ({ id }, _, { itemsThatNeedModelsLoader }) => {
       const allItems = await itemsThatNeedModelsLoader.load("all");
-      const item = allItems.find((i) => i.id === id);
+      const item = allItems.find(
+        (row) => row.itemId === id && row.colorId === "8"
+      );
       const modeledSpeciesIds = item.modeledSpeciesIds.split(",");
       // HACK: Needs to be updated if more species are added!
       const allSpeciesIds = Array.from(
@@ -207,8 +209,13 @@ const resolvers = {
       return { query, zones, items };
     },
     itemsThatNeedModels: async (_, __, { itemsThatNeedModelsLoader }) => {
-      const items = await itemsThatNeedModelsLoader.load("all");
-      return items.map(({ id }) => ({ id }));
+      const rows = await itemsThatNeedModelsLoader.load("all");
+      let itemIds = rows
+        .filter((row) => row.colorId === "8")
+        .map((row) => row.itemId);
+      itemIds = new Set(itemIds);
+      itemIds = [...itemIds].sort();
+      return itemIds.map((id) => ({ id }));
     },
   },
 };
