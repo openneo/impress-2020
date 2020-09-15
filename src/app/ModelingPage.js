@@ -9,6 +9,7 @@ import { Heading1, Heading2, usePageTitle } from "./util";
 import ItemCard, {
   ItemBadgeList,
   ItemCardList,
+  NcBadge,
   YouOwnThisBadge,
 } from "./components/ItemCard";
 
@@ -69,6 +70,7 @@ function ItemModelsSection() {
       id
       name
       thumbnailUrl
+      isNc
       createdAt
     }
   `);
@@ -167,8 +169,9 @@ function ItemModelCard({ item, currentUserOwnsItem, ...props }) {
 function ItemModelBadges({ item, currentUserOwnsItem }) {
   return (
     <ItemBadgeList>
-      {currentUserOwnsItem && <YouOwnThisBadge />}
       {itemIsNew(item) && <NewItemBadge createdAt={item.createdAt} />}
+      {item.isNc && <NcBadge />}
+      {currentUserOwnsItem && <YouOwnThisBadge />}
       {item.speciesThatNeedModels.map((species) => (
         <Badge>{species.name}</Badge>
       ))}
