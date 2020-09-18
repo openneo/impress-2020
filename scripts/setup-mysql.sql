@@ -27,6 +27,9 @@ GRANT SELECT ON item_outfit_relationships TO impress2020;
 GRANT SELECT ON outfits TO impress2020;
 GRANT SELECT ON users TO impress2020;
 
+-- mysqldump
+GRANT LOCK TABLES ON * TO impress2020;
+
 -- Procedures used in the application
 
 DELIMITER $$
