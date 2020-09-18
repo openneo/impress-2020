@@ -155,22 +155,12 @@ async function saveModelingData(
   customPetData,
   { db, itemLoader, itemTranslationLoader }
 ) {
-  const itemIds = Object.keys(customPetData.object_info_registry);
-  const [items, itemTranslations] = await Promise.all([
-    itemLoader.loadMany(itemIds),
-    itemTranslationLoader.loadMany(itemIds),
-  ]);
+  const objectInfos = Object.values(customPetData.object_info_registry);
 
-  const rowsToInsert = [];
-  const rowsToUpdate = [];
-  for (const index in itemIds) {
-    const itemId = itemIds[index];
-    const item = items[index];
-    const itemTranslation = itemTranslations[index];
-
-    const objectInfo = customPetData.object_info_registry[itemId];
-    const objectInfoFields = {
-      id: itemId,
+  const incomingItems = objectInfos.map((objectInfo) => [
+    String(objectInfo.obj_info_id),
+    {
+      id: String(objectInfo.obj_info_id),
       zonesRestrict: objectInfo.zones_restrict,
       thumbnailUrl: objectInfo.thumbnail_url,
       category: objectInfo.category,
@@ -178,110 +168,79 @@ async function saveModelingData(
       rarityIndex: objectInfo.rarity_index,
       price: objectInfo.price,
       weightLbs: objectInfo.weight_lbs,
+    },
+  ]);
+
+  const incomingItemTranslations = objectInfos.map((objectInfo) => [
+    String(objectInfo.obj_info_id),
+    {
+      itemId: String(objectInfo.obj_info_id),
+      locale: "en",
       name: objectInfo.name,
       description: objectInfo.description,
       rarity: objectInfo.rarity,
-    };
+    },
+  ]);
 
-    if (item instanceof Error) {
-      // New item, we'll just insert it!
+  await Promise.all([
+    syncToDb("items", itemLoader, db, incomingItems),
+    syncToDb(
+      "item_translations",
+      itemTranslationLoader,
+      db,
+      incomingItemTranslations
+    ),
+  ]);
+}
+
+/**
+ * Syncs the given data to the database: for each incoming row, if there's no
+ * matching row in the loader, we insert a new row; or, if there's a matching
+ * row in the loader but its data is different, we update it; or, if there's
+ * no change, we do nothing.
+ *
+ * Automatically sets the `createdAt` and `updatedAt` timestamps for inserted
+ * or updated rows.
+ *
+ * Will perform one call to the loader, and at most one INSERT, and at most one
+ * UPDATE, regardless of how many rows we're syncing.
+ */
+async function syncToDb(tableName, loader, db, incomingRows) {
+  const loaderKeys = incomingRows.map(([key, _]) => key);
+  const currentRows = await loader.loadMany(loaderKeys);
+
+  const rowsToInsert = [];
+  for (const index in incomingRows) {
+    const [_, incomingRow] = incomingRows[index];
+    const currentRow = currentRows[index];
+
+    if (currentRow instanceof Error) {
       rowsToInsert.push({
-        ...objectInfoFields,
+        ...incomingRow,
         createdAt: new Date(),
         updatedAt: new Date(),
       });
-      continue;
     }
-
-    const itemFields = {
-      id: item.id,
-      zonesRestrict: item.zonesRestrict,
-      thumbnailUrl: item.thumbnailUrl,
-      category: item.category,
-      type: item.type,
-      rarityIndex: item.rarityIndex,
-      price: item.price,
-      weightLbs: item.weightLbs,
-      name: itemTranslation.name,
-      description: itemTranslation.description,
-      rarity: itemTranslation.rarity,
-    };
-
-    if (objectsShallowEqual(objectInfoFields, itemFields)) {
-      // Existing item, no change!
-      continue;
-    }
-
-    // Updated item, so we'll update it!
-    rowsToUpdate.push({
-      ...objectInfoFields,
-      updatedAt: new Date(),
-    });
   }
 
   if (rowsToInsert.length > 0) {
-    const itemQs = rowsToInsert
-      .map((_) => "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
-      .join(", ");
-    const itemTranslationQs = rowsToInsert
-      .map((_) => "(?, ?, ?, ?, ?, ?, ?)")
-      .join(", ");
-    const itemValues = rowsToInsert.map((row) => [
-      row.id,
-      row.zonesRestrict,
-      row.thumbnailUrl,
-      row.category,
-      row.type,
-      row.rarityIndex,
-      row.price,
-      row.weightLbs,
-      row.createdAt,
-      row.updatedAt,
-    ]);
-    const itemTranslationValues = rowsToInsert.map((row) => [
-      row.id,
-      "en",
-      row.name,
-      row.description,
-      row.rarity,
-      row.createdAt,
-      row.updatedAt,
-    ]);
-
-    // NOTE: Hmm, I tried to use multiple statements to combine these, but I
-    //       guess it doesn't work for prepared statements?
-    await Promise.all([
-      db.execute(
-        `INSERT INTO items
-           (
-             id, zones_restrict, thumbnail_url, category, type, rarity_index,
-             price, weight_lbs, created_at, updated_at
-           )
-           VALUES ${itemQs};
-      `,
-        itemValues.flat()
-      ),
-      db.execute(
-        `INSERT INTO item_translations
-          (item_id, locale, name, description, rarity, created_at, updated_at)
-          VALUES ${itemTranslationQs};`,
-        itemTranslationValues.flat()
-      ),
-    ]);
+    // Get the column names from the first row, and convert them to
+    // underscore-case instead of camel-case.
+    const rowKeys = Object.keys(rowsToInsert[0]).sort();
+    const columnNames = rowKeys.map((key) =>
+      key.replace(/[A-Z]/g, (m) => "_" + m[0].toLowerCase())
+    );
+    const columnsStr = columnNames.join(", ");
+    const qs = columnNames.map((_) => "?").join(", ");
+    const rowQs = rowsToInsert.map((_) => "(" + qs + ")").join(", ");
+    const rowFields = rowsToInsert.map((row) => rowKeys.map((key) => row[key]));
+    await db.execute(
+      `INSERT INTO ${tableName} (${columnsStr}) VALUES ${rowQs};`,
+      rowFields.flat()
+    );
   }
 
-  // TODO: Update the items that need updating!
-}
-
-/** Given two objects with the same keys, return whether their values match. */
-function objectsShallowEqual(a, b) {
-  for (const key in a) {
-    if (a[key] !== b[key]) {
-      return false;
-    }
-  }
-
-  return true;
+  // TODO: Update rows that need updating
 }
 
 module.exports = { typeDefs, resolvers };
