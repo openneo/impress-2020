@@ -1,3 +1,6 @@
+const fs = require("fs");
+const path = require("path");
+
 const { ApolloServer } = require("apollo-server");
 const { createTestClient } = require("apollo-server-testing");
 const { AuthenticationClient } = require("auth0");
@@ -29,9 +32,40 @@ const { query } = createTestClient(
 jest.mock("../db");
 let dbExecuteFn;
 let db;
+let dbEnvironment = "production";
+const dbSetupScripts = [
+  fs
+    .readFileSync(
+      path.join(__dirname, "../../../scripts/setup-mysql-dev-constants.sql")
+    )
+    .toString(),
+  fs
+    .readFileSync(
+      path.join(__dirname, "../../../scripts/setup-mysql-dev-schema.sql")
+    )
+    .toString(),
+];
 beforeAll(() => {
-  connectToDb.mockImplementation(async (...args) => {
-    db = await actualConnectToDb(...args);
+  connectToDb.mockImplementation(async () => {
+    let options;
+
+    if (dbEnvironment === "test") {
+      options = {
+        host: "localhost",
+        user: "impress_2020_test",
+        password: "impress_2020_test",
+        database: "impress_2020_test",
+      };
+    }
+
+    db = await actualConnectToDb(options);
+
+    if (dbEnvironment === "test") {
+      for (const script of dbSetupScripts) {
+        await db.query(script);
+      }
+    }
+
     dbExecuteFn = jest.spyOn(db, "execute");
     return db;
   });
@@ -41,6 +75,7 @@ beforeEach(() => {
   if (dbExecuteFn) {
     dbExecuteFn.mockClear();
   }
+  dbEnvironment = "production";
 });
 afterAll(() => {
   if (db) {
@@ -48,6 +83,14 @@ afterAll(() => {
   }
 });
 const getDbCalls = () => (dbExecuteFn ? dbExecuteFn.mock.calls : []);
+const clearDbCalls = () => dbExecuteFn?.mockClear();
+
+function useTestDb() {
+  if (db) {
+    throw new Error(`can't call useTestDb() if db mock already exists`);
+  }
+  dbEnvironment = "test";
+}
 
 async function logInAsTestUser() {
   const auth0 = new AuthenticationClient({
@@ -83,4 +126,10 @@ expect.extend({
   },
 });
 
-module.exports = { query, getDbCalls, logInAsTestUser };
+module.exports = {
+  query,
+  getDbCalls,
+  clearDbCalls,
+  useTestDb,
+  logInAsTestUser,
+};

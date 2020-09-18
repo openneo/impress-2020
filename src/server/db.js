@@ -3,8 +3,10 @@ const mysql = require("mysql2");
 let globalDb;
 
 async function connectToDb({
+  host = "impress.openneo.net",
   user = process.env["IMPRESS_MYSQL_USER"],
   password = process.env["IMPRESS_MYSQL_PASSWORD"],
+  database = "openneo_impress",
 } = {}) {
   if (globalDb) {
     return globalDb;
@@ -12,10 +14,10 @@ async function connectToDb({
 
   globalDb = mysql
     .createConnection({
-      host: "impress.openneo.net",
+      host,
       user,
       password,
-      database: "openneo_impress",
+      database,
       multipleStatements: true,
     })
     // We upgrade to promises here, instead of using the mysql2/promise import,

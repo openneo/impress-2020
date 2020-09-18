@@ -43,6 +43,30 @@ CREATE TABLE `items` (
   KEY `objects_last_spidered` (`last_spidered`)
 ) ENGINE=InnoDB AUTO_INCREMENT=81718 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `item_translations`
+--
+
+DROP TABLE IF EXISTS `item_translations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `item_translations` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `item_id` int(11) DEFAULT NULL,
+  `locale` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `description` text,
+  `rarity` varchar(255) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_item_translations_on_item_id` (`item_id`),
+  KEY `index_item_translations_on_locale` (`locale`),
+  KEY `index_item_translations_name` (`name`),
+  KEY `index_item_translations_on_item_id_and_locale` (`item_id`,`locale`)
+) ENGINE=InnoDB AUTO_INCREMENT=215758 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -53,4 +77,4 @@ CREATE TABLE `items` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-09-18  5:22:43
+-- Dump completed on 2020-09-18  5:47:52

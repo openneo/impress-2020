@@ -1,5 +1,5 @@
 const gql = require("graphql-tag");
-const { query, getDbCalls } = require("./setup.js");
+const { query, getDbCalls, clearDbCalls, useTestDb } = require("./setup.js");
 
 describe("Pet", () => {
   it("looks up a pet", async () => {
@@ -49,5 +49,62 @@ describe("Pet", () => {
         ],
       ]
     `);
+  });
+
+  it.skip("models new item data", async () => {
+    useTestDb();
+
+    const res = await query({
+      query: gql`
+        query {
+          petOnNeopetsDotCom(petName: "roopal27") {
+            items {
+              id
+              name
+              description
+              thumbnailUrl
+              rarityIndex
+              isNc
+            }
+          }
+        }
+      `,
+    });
+
+    expect(res).toHaveNoErrors();
+    expect(res.data).toMatchSnapshot();
+    expect(getDbCalls()).toMatchInlineSnapshot(`Array []`);
+
+    clearDbCalls();
+
+    const res2 = await query({
+      query: gql`
+        query {
+          items(
+            ids: [
+              "37229"
+              "37375"
+              "38911"
+              "38912"
+              "38913"
+              "43014"
+              "43397"
+              "48313"
+            ]
+          ) {
+            id
+            name
+            description
+            thumbnailUrl
+            rarityIndex
+            isNc
+          }
+        }
+      `,
+    });
+
+    expect(res2).toHaveNoErrors();
+    expect(res2.data).toMatchSnapshot();
+    expect(getDbCalls()).toMatchInlineSnapshot();
   });
 });
