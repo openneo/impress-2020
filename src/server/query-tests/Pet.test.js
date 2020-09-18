@@ -51,7 +51,7 @@ describe("Pet", () => {
     `);
   });
 
-  it.skip("models new item data", async () => {
+  it("models new item data", async () => {
     useTestDb();
 
     const res = await query({
@@ -73,7 +73,7 @@ describe("Pet", () => {
 
     expect(res).toHaveNoErrors();
     expect(res.data).toMatchSnapshot();
-    expect(getDbCalls()).toMatchInlineSnapshot(`Array []`);
+    expect(getDbCalls()).toMatchSnapshot();
 
     clearDbCalls();
 
@@ -98,6 +98,7 @@ describe("Pet", () => {
             thumbnailUrl
             rarityIndex
             isNc
+            createdAt
           }
         }
       `,
@@ -105,6 +106,35 @@ describe("Pet", () => {
 
     expect(res2).toHaveNoErrors();
     expect(res2.data).toMatchSnapshot();
-    expect(getDbCalls()).toMatchInlineSnapshot();
+    expect(getDbCalls()).toMatchInlineSnapshot(`
+      Array [
+        Array [
+          "SELECT * FROM item_translations WHERE item_id IN (?,?,?,?,?,?,?,?) AND locale = \\"en\\"",
+          Array [
+            "37229",
+            "37375",
+            "38911",
+            "38912",
+            "38913",
+            "43014",
+            "43397",
+            "48313",
+          ],
+        ],
+        Array [
+          "SELECT * FROM items WHERE id IN (?,?,?,?,?,?,?,?)",
+          Array [
+            "37229",
+            "37375",
+            "38911",
+            "38912",
+            "38913",
+            "43014",
+            "43397",
+            "48313",
+          ],
+        ],
+      ]
+    `);
   });
 });

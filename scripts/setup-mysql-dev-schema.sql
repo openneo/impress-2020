@@ -32,7 +32,7 @@ CREATE TABLE `items` (
   `price` mediumint(9) NOT NULL,
   `weight_lbs` smallint(6) DEFAULT NULL,
   `species_support_ids` mediumtext COLLATE utf8_unicode_ci,
-  `sold_in_mall` tinyint(1) NOT NULL,
+  `sold_in_mall` tinyint(1) NOT NULL DEFAULT '0',
   `last_spidered` datetime DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
@@ -77,4 +77,4 @@ CREATE TABLE `item_translations` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-09-18  5:47:52
+-- Dump completed on 2020-09-18  6:27:15

@@ -33,6 +33,7 @@ jest.mock("../db");
 let dbExecuteFn;
 let db;
 let dbEnvironment = "production";
+let dbSetupDone = false;
 const dbSetupScripts = [
   fs
     .readFileSync(
@@ -60,15 +61,20 @@ beforeAll(() => {
 
     db = await actualConnectToDb(options);
 
-    if (dbEnvironment === "test") {
+    if (dbEnvironment === "test" && !dbSetupDone) {
       for (const script of dbSetupScripts) {
         await db.query(script);
       }
     }
+    dbSetupDone = true;
 
     dbExecuteFn = jest.spyOn(db, "execute");
     return db;
   });
+
+  // Mock out a current "now" date, for consistent snapshots
+  const NOW = new Date("2020-01-01T00:00:00.000Z");
+  jest.spyOn(global, "Date").mockImplementation(() => NOW);
 });
 beforeEach(() => {
   accessTokenForQueries = null;
@@ -76,11 +82,13 @@ beforeEach(() => {
     dbExecuteFn.mockClear();
   }
   dbEnvironment = "production";
+  dbSetupDone = false;
 });
 afterAll(() => {
   if (db) {
     db.end();
   }
+  Date.mockRestore();
 });
 const getDbCalls = () => (dbExecuteFn ? dbExecuteFn.mock.calls : []);
 const clearDbCalls = () => dbExecuteFn?.mockClear();
@@ -130,6 +138,7 @@ module.exports = {
   query,
   getDbCalls,
   clearDbCalls,
+  getDb: () => db,
   useTestDb,
   logInAsTestUser,
 };
