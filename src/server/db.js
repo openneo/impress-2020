@@ -1,6 +1,6 @@
 const mysql = require("mysql2");
 
-let globalDb;
+let globalDbs = new Map();
 
 async function connectToDb({
   host = "impress.openneo.net",
@@ -8,11 +8,11 @@ async function connectToDb({
   password = process.env["IMPRESS_MYSQL_PASSWORD"],
   database = "openneo_impress",
 } = {}) {
-  if (globalDb) {
-    return globalDb;
+  if (globalDbs.has(host)) {
+    return globalDbs.get(host);
   }
 
-  globalDb = mysql
+  const db = mysql
     .createConnection({
       host,
       user,
@@ -24,7 +24,9 @@ async function connectToDb({
     // for compatibility with Honeycomb's automatic tracing.
     .promise();
 
-  return globalDb;
+  globalDbs.set(host, db);
+
+  return db;
 }
 
 module.exports = connectToDb;

@@ -40,6 +40,79 @@ describe("Pet", () => {
     expect(getDbCalls()).toMatchInlineSnapshot(`
       Array [
         Array [
+          "SELECT * FROM pet_types WHERE (species_id = ? AND color_id = ?)",
+          Array [
+            "54",
+            "75",
+          ],
+        ],
+        Array [
+          "SELECT * FROM items WHERE id IN (?,?,?,?,?,?,?,?)",
+          Array [
+            "37229",
+            "37375",
+            "38911",
+            "38912",
+            "38913",
+            "43014",
+            "43397",
+            "48313",
+          ],
+        ],
+        Array [
+          "SELECT * FROM item_translations WHERE item_id IN (?,?,?,?,?,?,?,?) AND locale = \\"en\\"",
+          Array [
+            "37229",
+            "37375",
+            "38911",
+            "38912",
+            "38913",
+            "43014",
+            "43397",
+            "48313",
+          ],
+        ],
+        Array [
+          "SELECT * FROM swf_assets WHERE (type = ? AND remote_id = ?) OR (type = ? AND remote_id = ?) OR (type = ? AND remote_id = ?) OR (type = ? AND remote_id = ?) OR (type = ? AND remote_id = ?) OR (type = ? AND remote_id = ?) OR (type = ? AND remote_id = ?) OR (type = ? AND remote_id = ?) OR (type = ? AND remote_id = ?) OR (type = ? AND remote_id = ?) OR (type = ? AND remote_id = ?) OR (type = ? AND remote_id = ?) OR (type = ? AND remote_id = ?) OR (type = ? AND remote_id = ?)",
+          Array [
+            "object",
+            "6829",
+            "object",
+            "14855",
+            "object",
+            "14856",
+            "object",
+            "14857",
+            "object",
+            "36414",
+            "object",
+            "39646",
+            "object",
+            "51959",
+            "object",
+            "56478",
+            "biology",
+            "7942",
+            "biology",
+            "7941",
+            "biology",
+            "24008",
+            "biology",
+            "21060",
+            "biology",
+            "21057",
+            "biology",
+            "7946",
+          ],
+        ],
+        Array [
+          "SELECT * FROM pet_states WHERE (pet_type_id = ? AND swf_asset_ids = ?)",
+          Array [
+            "2",
+            "7941,7942,7946,21057,21060,24008",
+          ],
+        ],
+        Array [
           "SELECT * FROM species_translations
              WHERE species_id IN (?) AND locale = \\"en\\"",
           Array [
@@ -127,6 +200,29 @@ describe("Pet", () => {
     expect(res2).toHaveNoErrors();
     expect(res2.data).toMatchSnapshot();
     expect(getDbCalls()).toMatchSnapshot();
+
+    clearDbCalls();
+
+    // If we load the pet again, it should only make SELECT queries, not
+    // INSERT or UPDATE.
+    await query({
+      query: gql`
+        query {
+          petOnNeopetsDotCom(petName: "roopal27") {
+            items {
+              id
+            }
+          }
+        }
+      `,
+    });
+
+    const dbCalls = getDbCalls();
+    for (const [query, _] of dbCalls) {
+      expect(query).toMatch(/SELECT/);
+      expect(query).not.toMatch(/INSERT/);
+      expect(query).not.toMatch(/UPDATE/);
+    }
   });
 
   it("models updated item data", async () => {

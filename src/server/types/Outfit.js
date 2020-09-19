@@ -191,12 +191,12 @@ async function saveModelingData(
     type: "object",
     remoteId: String(objectAsset.asset_id),
     url: objectAsset.asset_url,
-    zoneId: objectAsset.zone_id,
+    zoneId: String(objectAsset.zone_id),
     zonesRestrict: "",
     // TODO: This doesn't actually work... sometimes it needs to be 0, yeah?
     //       So we actually have to do asset writing after we load the current
     //       row and compare... maybe a cutesy fn syntax here?
-    bodyId: customPet.body_id,
+    bodyId: String(customPet.body_id),
   }));
 
   const biologyAssets = Object.values(customPet.biology_by_zone);
@@ -204,9 +204,9 @@ async function saveModelingData(
     type: "biology",
     remoteId: String(biologyAsset.part_id),
     url: biologyAsset.asset_url,
-    zoneId: biologyAsset.zone_id,
+    zoneId: String(biologyAsset.zone_id),
     zonesRestrict: biologyAsset.zones_restrict,
-    bodyId: 0,
+    bodyId: "0",
   }));
 
   const incomingSwfAssets = [...incomingItemSwfAssets, ...incomingPetSwfAssets];
@@ -277,13 +277,13 @@ async function saveModelingData(
   const incomingPetState = {
     petTypeId: petType.id,
     swfAssetIds: incomingPetSwfAssets
-      .map((a) => a.remoteId)
-      .sort()
+      .map((row) => row.remoteId)
+      .sort((a, b) => Number(a) - Number(b))
       .join(","),
-    female: petMetaData.gender === 2, // sorry for this column name :/
-    moodId: petMetaData.mood,
-    unconverted: incomingPetSwfAssets.length === 1,
-    labeled: true,
+    female: petMetaData.gender === 2 ? 1 : 0, // sorry for this column name :/
+    moodId: String(petMetaData.mood),
+    unconverted: incomingPetSwfAssets.length === 1 ? 1 : 0,
+    labeled: 1,
   };
 
   await syncToDb(db, [incomingPetState], {
