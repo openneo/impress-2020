@@ -49,27 +49,26 @@ const resolvers = {
     petOnNeopetsDotCom: async (
       _,
       { petName },
-      { db, itemLoader, itemTranslationLoader, swfAssetByRemoteIdLoader }
+      {
+        db,
+        petTypeBySpeciesAndColorLoader,
+        itemLoader,
+        itemTranslationLoader,
+        swfAssetByRemoteIdLoader,
+      }
     ) => {
-      // Start all these requests as soon as possible...
-      const petMetaDataPromise = loadPetMetaData(petName);
-      const customPetDataPromise = loadCustomPetData(petName);
-      const modelingPromise = customPetDataPromise.then((customPetData) =>
-        saveModelingData(customPetData, {
-          db,
-          itemLoader,
-          itemTranslationLoader,
-          swfAssetByRemoteIdLoader,
-        })
-      );
-
-      // ...then wait on all of them before finishing. It's important to wait
-      // on modeling, so that it doesn't get cut off when the request ends!
-      const [petMetaData, customPetData, __] = await Promise.all([
-        petMetaDataPromise,
-        customPetDataPromise,
-        modelingPromise,
+      const [customPetData, petMetaData, __] = await Promise.all([
+        loadCustomPetData(petName),
+        loadPetMetaData(petName),
       ]);
+
+      await saveModelingData(customPetData, petMetaData, {
+        db,
+        petTypeBySpeciesAndColorLoader,
+        itemLoader,
+        itemTranslationLoader,
+        swfAssetByRemoteIdLoader,
+      });
 
       const outfit = {
         // TODO: This isn't a fully-working Outfit object. It works for the
@@ -154,8 +153,16 @@ function getPoseFromPetData(petMetaData, petCustomData) {
 
 async function saveModelingData(
   customPetData,
-  { db, itemLoader, itemTranslationLoader, swfAssetByRemoteIdLoader }
+  petMetaData,
+  {
+    db,
+    petTypeBySpeciesAndColorLoader,
+    itemLoader,
+    itemTranslationLoader,
+    swfAssetByRemoteIdLoader,
+  }
 ) {
+  const customPet = customPetData.custom_pet;
   const objectInfos = Object.values(customPetData.object_info_registry);
   const objectAssets = Object.values(customPetData.object_asset_registry);
 
@@ -187,10 +194,37 @@ async function saveModelingData(
     // TODO: This doesn't actually work... sometimes it needs to be 0, yeah?
     //       So we actually have to do asset writing after we load the current
     //       row and compare... maybe a cutesy fn syntax here?
-    bodyId: customPetData.custom_pet.body_id,
+    bodyId: customPet.body_id,
   }));
 
+  const incomingPetTypes = [
+    {
+      colorId: String(customPet.color_id),
+      speciesId: String(customPet.species_id),
+      bodyId: String(customPet.body_id),
+      // NOTE: I skip the image_hash stuff here... on Rails, we set a hash on
+      //       creation, and may or may not bother to update it, I forget? But
+      //       here I don't want to bother with an update. We could maybe do
+      //       a merge function to make it on create only, but eh, I don't
+      //       care enough ^_^`
+    },
+  ];
+
   await Promise.all([
+    syncToDb(db, incomingPetTypes, {
+      loader: petTypeBySpeciesAndColorLoader,
+      tableName: "pet_types",
+      buildLoaderKey: (row) => ({
+        speciesId: row.speciesId,
+        colorId: row.colorId,
+      }),
+      buildUpdateCondition: (row) => [
+        `species_id = ? AND color_id = ?`,
+        row.speciesId,
+        row.colorId,
+      ],
+      includeUpdatedAt: false,
+    }),
     syncToDb(db, incomingItems, {
       loader: itemLoader,
       tableName: "items",
@@ -254,7 +288,8 @@ async function syncToDb(
     const currentRow = currentRows[index];
 
     // If there is no corresponding row in the database, prepare an insert.
-    if (currentRow instanceof Error) {
+    // TODO: Should probably converge on whether not-found is null or an error
+    if (currentRow == null || currentRow instanceof Error) {
       const insert = { ...incomingRow };
       if (includeCreatedAt) {
         insert.createdAt = new Date();

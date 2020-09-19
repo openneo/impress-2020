@@ -82,7 +82,7 @@ Object {
 }
 `;
 
-exports[`Pet models new item data 1`] = `
+exports[`Pet models new pet and item data 1`] = `
 Object {
   "petOnNeopetsDotCom": Object {
     "items": Array [
@@ -155,8 +155,15 @@ Object {
 }
 `;
 
-exports[`Pet models new item data 2`] = `
+exports[`Pet models new pet and item data 2`] = `
 Array [
+  Array [
+    "SELECT * FROM pet_types WHERE (species_id = ? AND color_id = ?)",
+    Array [
+      "54",
+      "75",
+    ],
+  ],
   Array [
     "SELECT * FROM items WHERE id IN (?,?,?,?,?,?,?,?)",
     Array [
@@ -202,6 +209,15 @@ Array [
       "51959",
       "object",
       "56478",
+    ],
+  ],
+  Array [
+    "INSERT INTO pet_types (body_id, color_id, created_at, species_id) VALUES (?, ?, ?, ?);",
+    Array [
+      "180",
+      "75",
+      2020-01-01T00:00:00.000Z,
+      "54",
     ],
   ],
   Array [
@@ -414,7 +430,7 @@ Array [
 ]
 `;
 
-exports[`Pet models new item data 3`] = `
+exports[`Pet models new pet and item data 3`] = `
 Object {
   "items": Array [
     Object {
@@ -490,11 +506,19 @@ Object {
       "thumbnailUrl": "http://images.neopets.com/items/clo_altcuplogo_brooch.gif",
     },
   ],
+  "petAppearance": null,
 }
 `;
 
-exports[`Pet models new item data 4`] = `
+exports[`Pet models new pet and item data 4`] = `
 Array [
+  Array [
+    "SELECT * FROM pet_types WHERE (species_id = ? AND color_id = ?)",
+    Array [
+      "54",
+      "75",
+    ],
+  ],
   Array [
     "SELECT * FROM item_translations WHERE item_id IN (?,?,?,?,?,?,?,?) AND locale = \\"en\\"",
     Array [
@@ -526,6 +550,13 @@ Array [
 
 exports[`Pet models updated item data 1`] = `
 Array [
+  Array [
+    "SELECT * FROM pet_types WHERE (species_id = ? AND color_id = ?)",
+    Array [
+      "54",
+      "75",
+    ],
+  ],
   Array [
     "SELECT * FROM items WHERE id IN (?,?,?,?,?,?,?,?)",
     Array [
@@ -571,6 +602,15 @@ Array [
       "51959",
       "object",
       "56478",
+    ],
+  ],
+  Array [
+    "INSERT INTO pet_types (body_id, color_id, created_at, species_id) VALUES (?, ?, ?, ?);",
+    Array [
+      "180",
+      "75",
+      2020-01-01T00:00:00.000Z,
+      "54",
     ],
   ],
   Array [

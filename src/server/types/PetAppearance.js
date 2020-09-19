@@ -208,6 +208,9 @@ const resolvers = {
         speciesId,
         colorId,
       });
+      if (!petType) {
+        return null;
+      }
 
       // TODO: We could query for this more directly, instead of loading all
       //       appearances 🤔

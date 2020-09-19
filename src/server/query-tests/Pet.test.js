@@ -57,7 +57,7 @@ describe("Pet", () => {
     `);
   });
 
-  it("models new item data", async () => {
+  it("models new pet and item data", async () => {
     useTestDb();
 
     const res = await query({
@@ -86,6 +86,18 @@ describe("Pet", () => {
     const res2 = await query({
       query: gql`
         query {
+          petAppearance(colorId: "75", speciesId: "54", pose: SAD_MASC) {
+            id
+            pose
+            layers {
+              id
+              swfUrl
+            }
+            restrictedZones {
+              id
+            }
+          }
+
           items(
             ids: [
               "37229"
