@@ -83,6 +83,7 @@ beforeEach(() => {
   }
   dbEnvironment = "production";
   dbSetupDone = false;
+  db = null;
 });
 afterAll(() => {
   if (db) {
@@ -138,7 +139,7 @@ module.exports = {
   query,
   getDbCalls,
   clearDbCalls,
-  getDb: () => db,
+  connectToDb,
   useTestDb,
   logInAsTestUser,
 };

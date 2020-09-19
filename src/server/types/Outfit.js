@@ -157,39 +157,41 @@ async function saveModelingData(
 ) {
   const objectInfos = Object.values(customPetData.object_info_registry);
 
-  const incomingItems = objectInfos.map((objectInfo) => [
-    String(objectInfo.obj_info_id),
-    {
-      id: String(objectInfo.obj_info_id),
-      zonesRestrict: objectInfo.zones_restrict,
-      thumbnailUrl: objectInfo.thumbnail_url,
-      category: objectInfo.category,
-      type: objectInfo.type,
-      rarityIndex: objectInfo.rarity_index,
-      price: objectInfo.price,
-      weightLbs: objectInfo.weight_lbs,
-    },
-  ]);
+  const incomingItems = objectInfos.map((objectInfo) => ({
+    id: String(objectInfo.obj_info_id),
+    zonesRestrict: objectInfo.zones_restrict,
+    thumbnailUrl: objectInfo.thumbnail_url,
+    category: objectInfo.category,
+    type: objectInfo.type,
+    rarityIndex: objectInfo.rarity_index,
+    price: objectInfo.price,
+    weightLbs: objectInfo.weight_lbs,
+  }));
 
-  const incomingItemTranslations = objectInfos.map((objectInfo) => [
-    String(objectInfo.obj_info_id),
-    {
-      itemId: String(objectInfo.obj_info_id),
-      locale: "en",
-      name: objectInfo.name,
-      description: objectInfo.description,
-      rarity: objectInfo.rarity,
-    },
-  ]);
+  const incomingItemTranslations = objectInfos.map((objectInfo) => ({
+    itemId: String(objectInfo.obj_info_id),
+    locale: "en",
+    name: objectInfo.name,
+    description: objectInfo.description,
+    rarity: objectInfo.rarity,
+  }));
 
   await Promise.all([
-    syncToDb("items", itemLoader, db, incomingItems),
-    syncToDb(
-      "item_translations",
-      itemTranslationLoader,
-      db,
-      incomingItemTranslations
-    ),
+    syncToDb(db, incomingItems, {
+      loader: itemLoader,
+      tableName: "items",
+      buildLoaderKey: (row) => row.id,
+      buildUpdateCondition: (row) => [`id = ?`, row.id],
+    }),
+    syncToDb(db, incomingItemTranslations, {
+      loader: itemTranslationLoader,
+      tableName: "item_translations",
+      buildLoaderKey: (row) => row.itemId,
+      buildUpdateCondition: (row) => [
+        `item_id = ? AND locale = "en"`,
+        row.itemId,
+      ],
+    }),
   ]);
 }
 
@@ -205,42 +207,84 @@ async function saveModelingData(
  * Will perform one call to the loader, and at most one INSERT, and at most one
  * UPDATE, regardless of how many rows we're syncing.
  */
-async function syncToDb(tableName, loader, db, incomingRows) {
-  const loaderKeys = incomingRows.map(([key, _]) => key);
+async function syncToDb(
+  db,
+  incomingRows,
+  { loader, tableName, buildLoaderKey, buildUpdateCondition }
+) {
+  const loaderKeys = incomingRows.map(buildLoaderKey);
   const currentRows = await loader.loadMany(loaderKeys);
 
-  const rowsToInsert = [];
+  const inserts = [];
+  const updates = [];
   for (const index in incomingRows) {
-    const [_, incomingRow] = incomingRows[index];
+    const incomingRow = incomingRows[index];
     const currentRow = currentRows[index];
 
+    // If there is no corresponding row in the database, prepare an insert.
     if (currentRow instanceof Error) {
-      rowsToInsert.push({
+      inserts.push({
         ...incomingRow,
         createdAt: new Date(),
         updatedAt: new Date(),
       });
+      continue;
+    }
+
+    // If there's a row in the database, and some of the values don't match,
+    // prepare an update with the updated fields only.
+    const updatedKeys = Object.keys(incomingRow).filter(
+      (k) => incomingRow[k] !== currentRow[k]
+    );
+    if (updatedKeys.length > 0) {
+      const update = {};
+      for (const key of updatedKeys) {
+        update[key] = incomingRow[key];
+      }
+      update.updatedAt = new Date();
+      updates.push({ incomingRow, update });
     }
   }
 
-  if (rowsToInsert.length > 0) {
+  // Do a bulk insert of anything that needs added.
+  if (inserts.length > 0) {
     // Get the column names from the first row, and convert them to
     // underscore-case instead of camel-case.
-    const rowKeys = Object.keys(rowsToInsert[0]).sort();
+    const rowKeys = Object.keys(inserts[0]).sort();
     const columnNames = rowKeys.map((key) =>
       key.replace(/[A-Z]/g, (m) => "_" + m[0].toLowerCase())
     );
     const columnsStr = columnNames.join(", ");
     const qs = columnNames.map((_) => "?").join(", ");
-    const rowQs = rowsToInsert.map((_) => "(" + qs + ")").join(", ");
-    const rowFields = rowsToInsert.map((row) => rowKeys.map((key) => row[key]));
+    const rowQs = inserts.map((_) => "(" + qs + ")").join(", ");
+    const rowFields = inserts.map((row) => rowKeys.map((key) => row[key]));
     await db.execute(
       `INSERT INTO ${tableName} (${columnsStr}) VALUES ${rowQs};`,
       rowFields.flat()
     );
   }
 
-  // TODO: Update rows that need updating
+  // Do parallel updates of anything that needs updated.
+  // NOTE: I feel like it's not possible to do bulk updates, even in a
+  //       multi-statement mysql2 request? I might be wrong, but whatever; it's
+  //       very uncommon, and any perf hit would be nbd.
+  const updatePromises = [];
+  for (const { incomingRow, update } of updates) {
+    const rowKeys = Object.keys(update).sort();
+    const rowValues = rowKeys.map((k) => update[k]);
+    const columnNames = rowKeys.map((key) =>
+      key.replace(/[A-Z]/g, (m) => "_" + m[0].toLowerCase())
+    );
+    const qs = columnNames.map((c) => `${c} = ?`).join(", ");
+    const [conditionQs, ...conditionValues] = buildUpdateCondition(incomingRow);
+    updatePromises.push(
+      db.execute(`UPDATE ${tableName} SET ${qs} WHERE ${conditionQs};`, [
+        ...rowValues,
+        ...conditionValues,
+      ])
+    );
+  }
+  await Promise.all(updatePromises);
 }
 
 module.exports = { typeDefs, resolvers };
