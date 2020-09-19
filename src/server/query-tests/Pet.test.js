@@ -89,13 +89,7 @@ describe("Pet", () => {
           petAppearance(colorId: "75", speciesId: "54", pose: SAD_MASC) {
             id
             pose
-            layers {
-              id
-              swfUrl
-            }
-            restrictedZones {
-              id
-            }
+            bodyId
           }
 
           items(

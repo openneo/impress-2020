@@ -52,6 +52,7 @@ const resolvers = {
       {
         db,
         petTypeBySpeciesAndColorLoader,
+        petStateByPetTypeAndAssetsLoader,
         itemLoader,
         itemTranslationLoader,
         swfAssetByRemoteIdLoader,
@@ -65,6 +66,7 @@ const resolvers = {
       await saveModelingData(customPetData, petMetaData, {
         db,
         petTypeBySpeciesAndColorLoader,
+        petStateByPetTypeAndAssetsLoader,
         itemLoader,
         itemTranslationLoader,
         swfAssetByRemoteIdLoader,
@@ -157,6 +159,7 @@ async function saveModelingData(
   {
     db,
     petTypeBySpeciesAndColorLoader,
+    petStateByPetTypeAndAssetsLoader,
     itemLoader,
     itemTranslationLoader,
     swfAssetByRemoteIdLoader,
@@ -266,20 +269,42 @@ async function saveModelingData(
 
   // TODO: If we look up the potentially existing pet state earlier, then I
   //       think we can prime the cache and avoid creating a waterfall of
-  //       queries here, even though it looks waterfall-y!
+  //       queries here in the happy case, even though it'll look waterfall-y!
   // NOTE: This pet type should have been looked up when syncing pet type, so
   //       this should be cached.
-  // const petType = await petTypeBySpeciesAndColorLoader.load({
-  //   colorId: String(customPet.color_id),
-  //   speciesId: String(customPet.species_id),
-  // });
-  // const incomingPetStates = [
-  //   {
-  //     petTypeId: petType.id,
-  //     swfAssetIds: incomingPetSwfAssets.map(a => a.remoteId).sort().join(","),
-  //     female:
-  //   },
-  // ];
+  const petType = await petTypeBySpeciesAndColorLoader.load({
+    colorId: String(customPet.color_id),
+    speciesId: String(customPet.species_id),
+  });
+  const incomingPetStates = [
+    {
+      petTypeId: petType.id,
+      swfAssetIds: incomingPetSwfAssets
+        .map((a) => a.remoteId)
+        .sort()
+        .join(","),
+      female: petMetaData.gender === 2, // sorry for this column name :/
+      moodId: petMetaData.mood,
+      unconverted: incomingPetSwfAssets.length === 1,
+      labeled: true,
+    },
+  ];
+
+  await syncToDb(db, incomingPetStates, {
+    loader: petStateByPetTypeAndAssetsLoader,
+    tableName: "pet_states",
+    buildLoaderKey: (row) => ({
+      petTypeId: row.petTypeId,
+      swfAssetIds: row.swfAssetIds,
+    }),
+    buildUpdateCondition: (row) => [
+      `pet_type_id = ? AND swf_asset_ids = ?`,
+      row.petTypeId,
+      row.swfAssetIds,
+    ],
+    includeCreatedAt: false,
+    includeUpdatedAt: false,
+  });
 }
 
 /**

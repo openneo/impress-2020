@@ -577,6 +577,33 @@ const buildCanonicalPetStateForBodyLoader = (db, loaders) =>
     );
   });
 
+const buildPetStateByPetTypeAndAssetsLoader = (db) =>
+  new DataLoader(
+    async (petTypeIdAndAssetIdsPairs) => {
+      const qs = petTypeIdAndAssetIdsPairs
+        .map((_) => "(pet_type_id = ? AND swf_asset_ids = ?)")
+        .join(" OR ");
+      const values = petTypeIdAndAssetIdsPairs.map(
+        ({ petTypeId, swfAssetIds }) => [petTypeId, swfAssetIds]
+      );
+      const [rows, _] = await db.execute(
+        `SELECT * FROM pet_states WHERE ${qs}`,
+        values
+      );
+
+      const entities = rows.map(normalizeRow);
+
+      return petTypeIdAndAssetIdsPairs.map(({ petTypeId, swfAssetIds }) =>
+        entities.find(
+          (e) => e.petTypeId === petTypeId && e.swfAssetIds === swfAssetIds
+        )
+      );
+    },
+    {
+      cacheKeyFn: ({ petTypeId, swfAssetIds }) => `${petTypeId}-${swfAssetIds}`,
+    }
+  );
+
 const buildUserLoader = (db) =>
   new DataLoader(async (ids) => {
     const qs = ids.map((_) => "?").join(",");
@@ -715,6 +742,9 @@ function buildLoaders(db) {
   loaders.canonicalPetStateForBodyLoader = buildCanonicalPetStateForBodyLoader(
     db,
     loaders
+  );
+  loaders.petStateByPetTypeAndAssetsLoader = buildPetStateByPetTypeAndAssetsLoader(
+    db
   );
   loaders.speciesLoader = buildSpeciesLoader(db);
   loaders.speciesTranslationLoader = buildSpeciesTranslationLoader(db);

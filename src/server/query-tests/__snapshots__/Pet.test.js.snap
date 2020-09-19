@@ -481,6 +481,33 @@ Array [
       "0000000000000000000000000000000000000000000000000000",
     ],
   ],
+  Array [
+    "SELECT * FROM pet_types WHERE (species_id = ? AND color_id = ?)",
+    Array [
+      "54",
+      "75",
+    ],
+  ],
+  Array [
+    "SELECT * FROM pet_states WHERE (pet_type_id = ? AND swf_asset_ids = ?)",
+    Array [
+      Array [
+        "4795",
+        "21057,21060,24008,7941,7942,7946",
+      ],
+    ],
+  ],
+  Array [
+    "INSERT INTO pet_states (female, labeled, mood_id, pet_type_id, swf_asset_ids, unconverted) VALUES (?, ?, ?, ?, ?, ?);",
+    Array [
+      false,
+      true,
+      2,
+      "4795",
+      "21057,21060,24008,7941,7942,7946",
+      false,
+    ],
+  ],
 ]
 `;
 
@@ -560,7 +587,11 @@ Object {
       "thumbnailUrl": "http://images.neopets.com/items/clo_altcuplogo_brooch.gif",
     },
   ],
-  "petAppearance": null,
+  "petAppearance": Object {
+    "bodyId": "180",
+    "id": "28561",
+    "pose": "SAD_MASC",
+  },
 }
 `;
 
@@ -937,6 +968,33 @@ Array [
       "Jewelled Staff",
       2020-01-01T00:00:00.000Z,
       "43397",
+    ],
+  ],
+  Array [
+    "SELECT * FROM pet_types WHERE (species_id = ? AND color_id = ?)",
+    Array [
+      "54",
+      "75",
+    ],
+  ],
+  Array [
+    "SELECT * FROM pet_states WHERE (pet_type_id = ? AND swf_asset_ids = ?)",
+    Array [
+      Array [
+        "4795",
+        "21057,21060,24008,7941,7942,7946",
+      ],
+    ],
+  ],
+  Array [
+    "INSERT INTO pet_states (female, labeled, mood_id, pet_type_id, swf_asset_ids, unconverted) VALUES (?, ?, ?, ?, ?, ?);",
+    Array [
+      false,
+      true,
+      2,
+      "4795",
+      "21057,21060,24008,7941,7942,7946",
+      false,
     ],
   ],
 ]
