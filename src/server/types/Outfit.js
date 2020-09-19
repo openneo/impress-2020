@@ -49,7 +49,7 @@ const resolvers = {
     petOnNeopetsDotCom: async (
       _,
       { petName },
-      { db, itemLoader, itemTranslationLoader }
+      { db, itemLoader, itemTranslationLoader, swfAssetByRemoteIdLoader }
     ) => {
       // Start all these requests as soon as possible...
       const petMetaDataPromise = loadPetMetaData(petName);
@@ -59,6 +59,7 @@ const resolvers = {
           db,
           itemLoader,
           itemTranslationLoader,
+          swfAssetByRemoteIdLoader,
         })
       );
 
@@ -153,9 +154,10 @@ function getPoseFromPetData(petMetaData, petCustomData) {
 
 async function saveModelingData(
   customPetData,
-  { db, itemLoader, itemTranslationLoader }
+  { db, itemLoader, itemTranslationLoader, swfAssetByRemoteIdLoader }
 ) {
   const objectInfos = Object.values(customPetData.object_info_registry);
+  const objectAssets = Object.values(customPetData.object_asset_registry);
 
   const incomingItems = objectInfos.map((objectInfo) => ({
     id: String(objectInfo.obj_info_id),
@@ -176,6 +178,18 @@ async function saveModelingData(
     rarity: objectInfo.rarity,
   }));
 
+  const incomingItemSwfAssets = objectAssets.map((objectAsset) => ({
+    type: "object",
+    remoteId: String(objectAsset.asset_id),
+    url: objectAsset.asset_url,
+    zoneId: objectAsset.zone_id,
+    zonesRestrict: "",
+    // TODO: This doesn't actually work... sometimes it needs to be 0, yeah?
+    //       So we actually have to do asset writing after we load the current
+    //       row and compare... maybe a cutesy fn syntax here?
+    bodyId: customPetData.custom_pet.body_id,
+  }));
+
   await Promise.all([
     syncToDb(db, incomingItems, {
       loader: itemLoader,
@@ -191,6 +205,17 @@ async function saveModelingData(
         `item_id = ? AND locale = "en"`,
         row.itemId,
       ],
+    }),
+    syncToDb(db, incomingItemSwfAssets, {
+      loader: swfAssetByRemoteIdLoader,
+      tableName: "swf_assets",
+      buildLoaderKey: (row) => ({ type: row.type, remoteId: row.remoteId }),
+      buildUpdateCondition: (row) => [
+        `type = ? AND remote_id = ?`,
+        row.type,
+        row.remoteId,
+      ],
+      includeUpdatedAt: false,
     }),
   ]);
 }
@@ -210,7 +235,14 @@ async function saveModelingData(
 async function syncToDb(
   db,
   incomingRows,
-  { loader, tableName, buildLoaderKey, buildUpdateCondition }
+  {
+    loader,
+    tableName,
+    buildLoaderKey,
+    buildUpdateCondition,
+    includeCreatedAt = true,
+    includeUpdatedAt = true,
+  }
 ) {
   const loaderKeys = incomingRows.map(buildLoaderKey);
   const currentRows = await loader.loadMany(loaderKeys);
@@ -223,11 +255,14 @@ async function syncToDb(
 
     // If there is no corresponding row in the database, prepare an insert.
     if (currentRow instanceof Error) {
-      inserts.push({
-        ...incomingRow,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
+      const insert = { ...incomingRow };
+      if (includeCreatedAt) {
+        insert.createdAt = new Date();
+      }
+      if (includeUpdatedAt) {
+        insert.updatedAt = new Date();
+      }
+      inserts.push(insert);
       continue;
     }
 
@@ -241,7 +276,9 @@ async function syncToDb(
       for (const key of updatedKeys) {
         update[key] = incomingRow[key];
       }
-      update.updatedAt = new Date();
+      if (includeUpdatedAt) {
+        update.updatedAt = new Date();
+      }
       updates.push({ incomingRow, update });
     }
   }

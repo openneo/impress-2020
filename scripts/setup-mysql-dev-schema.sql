@@ -65,7 +65,36 @@ CREATE TABLE `item_translations` (
   KEY `index_item_translations_on_locale` (`locale`),
   KEY `index_item_translations_name` (`name`),
   KEY `index_item_translations_on_item_id_and_locale` (`item_id`,`locale`)
-) ENGINE=InnoDB AUTO_INCREMENT=215758 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=215780 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `swf_assets`
+--
+
+DROP TABLE IF EXISTS `swf_assets`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `swf_assets` (
+  `type` varchar(7) COLLATE utf8_unicode_ci NOT NULL,
+  `remote_id` mediumint(9) NOT NULL,
+  `url` mediumtext COLLATE utf8_unicode_ci NOT NULL,
+  `zone_id` tinyint(4) NOT NULL,
+  `zones_restrict` text COLLATE utf8_unicode_ci NOT NULL,
+  `created_at` datetime NOT NULL,
+  `body_id` smallint(6) NOT NULL,
+  `has_image` tinyint(1) NOT NULL DEFAULT '0',
+  `image_requested` tinyint(1) NOT NULL DEFAULT '0',
+  `reported_broken_at` datetime DEFAULT NULL,
+  `converted_at` datetime DEFAULT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `image_manual` tinyint(1) NOT NULL DEFAULT '0',
+  `manifest` text COLLATE utf8_unicode_ci,
+  PRIMARY KEY (`id`),
+  KEY `swf_assets_body_id_and_object_id` (`body_id`),
+  KEY `idx_swf_assets_zone_id` (`zone_id`),
+  KEY `swf_assets_type_and_id` (`type`,`remote_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=521790 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -77,4 +106,4 @@ CREATE TABLE `item_translations` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-09-18  6:27:15
+-- Dump completed on 2020-09-19  2:56:34

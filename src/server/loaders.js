@@ -385,6 +385,29 @@ const buildSwfAssetLoader = (db) =>
     );
   });
 
+const buildSwfAssetByRemoteIdLoader = (db) =>
+  new DataLoader(
+    async (typeAndRemoteIdPairs) => {
+      const qs = typeAndRemoteIdPairs
+        .map((_) => "(type = ? AND remote_id = ?)")
+        .join(" OR ");
+      const values = typeAndRemoteIdPairs
+        .map(({ type, remoteId }) => [type, remoteId])
+        .flat();
+      const [rows, _] = await db.execute(
+        `SELECT * FROM swf_assets WHERE ${qs}`,
+        values
+      );
+
+      const entities = rows.map(normalizeRow);
+
+      return swfAssetIds.map((remoteId) =>
+        entities.find((e) => e.remoteId === remoteId)
+      );
+    },
+    { cacheKeyFn: ({ type, remoteId }) => `${type},${remoteId}` }
+  );
+
 const buildItemSwfAssetLoader = (db, loaders) =>
   new DataLoader(
     async (itemAndBodyPairs) => {
@@ -677,6 +700,7 @@ function buildLoaders(db) {
     loaders
   );
   loaders.swfAssetLoader = buildSwfAssetLoader(db);
+  loaders.swfAssetByRemoteIdLoader = buildSwfAssetByRemoteIdLoader(db);
   loaders.itemSwfAssetLoader = buildItemSwfAssetLoader(db, loaders);
   loaders.petSwfAssetLoader = buildPetSwfAssetLoader(db, loaders);
   loaders.outfitLoader = buildOutfitLoader(db);
