@@ -89,6 +89,28 @@ CREATE TABLE `pet_types` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `pet_states`
+--
+
+DROP TABLE IF EXISTS `pet_states`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `pet_states` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `pet_type_id` mediumint(9) NOT NULL,
+  `swf_asset_ids` text COLLATE utf8_unicode_ci NOT NULL,
+  `female` tinyint(1) DEFAULT NULL,
+  `mood_id` int(11) DEFAULT NULL,
+  `unconverted` tinyint(1) DEFAULT NULL,
+  `labeled` tinyint(1) NOT NULL DEFAULT '0',
+  `glitched` tinyint(1) NOT NULL DEFAULT '0',
+  `artist_neopets_username` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `pet_states_pet_type_id` (`pet_type_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=28561 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `swf_assets`
 --
 
@@ -126,4 +148,4 @@ CREATE TABLE `swf_assets` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-09-19  3:12:53
+-- Dump completed on 2020-09-19  3:34:36

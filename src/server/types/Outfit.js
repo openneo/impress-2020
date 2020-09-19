@@ -163,9 +163,8 @@ async function saveModelingData(
   }
 ) {
   const customPet = customPetData.custom_pet;
-  const objectInfos = Object.values(customPetData.object_info_registry);
-  const objectAssets = Object.values(customPetData.object_asset_registry);
 
+  const objectInfos = Object.values(customPetData.object_info_registry);
   const incomingItems = objectInfos.map((objectInfo) => ({
     id: String(objectInfo.obj_info_id),
     zonesRestrict: objectInfo.zones_restrict,
@@ -176,7 +175,6 @@ async function saveModelingData(
     price: objectInfo.price,
     weightLbs: objectInfo.weight_lbs,
   }));
-
   const incomingItemTranslations = objectInfos.map((objectInfo) => ({
     itemId: String(objectInfo.obj_info_id),
     locale: "en",
@@ -185,6 +183,7 @@ async function saveModelingData(
     rarity: objectInfo.rarity,
   }));
 
+  const objectAssets = Object.values(customPetData.object_asset_registry);
   const incomingItemSwfAssets = objectAssets.map((objectAsset) => ({
     type: "object",
     remoteId: String(objectAsset.asset_id),
@@ -196,6 +195,18 @@ async function saveModelingData(
     //       row and compare... maybe a cutesy fn syntax here?
     bodyId: customPet.body_id,
   }));
+
+  const biologyAssets = Object.values(customPet.biology_by_zone);
+  const incomingPetSwfAssets = biologyAssets.map((biologyAsset) => ({
+    type: "biology",
+    remoteId: String(biologyAsset.part_id),
+    url: biologyAsset.asset_url,
+    zoneId: biologyAsset.zone_id,
+    zonesRestrict: biologyAsset.zones_restrict,
+    bodyId: 0,
+  }));
+
+  const incomingSwfAssets = [...incomingItemSwfAssets, ...incomingPetSwfAssets];
 
   const incomingPetTypes = [
     {
@@ -240,7 +251,7 @@ async function saveModelingData(
         row.itemId,
       ],
     }),
-    syncToDb(db, incomingItemSwfAssets, {
+    syncToDb(db, incomingSwfAssets, {
       loader: swfAssetByRemoteIdLoader,
       tableName: "swf_assets",
       buildLoaderKey: (row) => ({ type: row.type, remoteId: row.remoteId }),
@@ -252,6 +263,23 @@ async function saveModelingData(
       includeUpdatedAt: false,
     }),
   ]);
+
+  // TODO: If we look up the potentially existing pet state earlier, then I
+  //       think we can prime the cache and avoid creating a waterfall of
+  //       queries here, even though it looks waterfall-y!
+  // NOTE: This pet type should have been looked up when syncing pet type, so
+  //       this should be cached.
+  // const petType = await petTypeBySpeciesAndColorLoader.load({
+  //   colorId: String(customPet.color_id),
+  //   speciesId: String(customPet.species_id),
+  // });
+  // const incomingPetStates = [
+  //   {
+  //     petTypeId: petType.id,
+  //     swfAssetIds: incomingPetSwfAssets.map(a => a.remoteId).sort().join(","),
+  //     female:
+  //   },
+  // ];
 }
 
 /**
@@ -298,6 +326,11 @@ async function syncToDb(
         insert.updatedAt = new Date();
       }
       inserts.push(insert);
+
+      // Remove this from the loader cache, so that loading again will fetch
+      // the inserted row.
+      loader.clear(buildLoaderKey(incomingRow));
+
       continue;
     }
 
@@ -315,6 +348,10 @@ async function syncToDb(
         update.updatedAt = new Date();
       }
       updates.push({ incomingRow, update });
+
+      // Remove this from the loader cache, so that loading again will fetch
+      // the updated row.
+      loader.clear(buildLoaderKey(incomingRow));
     }
   }
 
