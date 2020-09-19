@@ -401,8 +401,8 @@ const buildSwfAssetByRemoteIdLoader = (db) =>
 
       const entities = rows.map(normalizeRow);
 
-      return swfAssetIds.map((remoteId) =>
-        entities.find((e) => e.remoteId === remoteId)
+      return typeAndRemoteIdPairs.map(({ type, remoteId }) =>
+        entities.find((e) => e.type === type && e.remoteId === remoteId)
       );
     },
     { cacheKeyFn: ({ type, remoteId }) => `${type},${remoteId}` }
@@ -583,9 +583,9 @@ const buildPetStateByPetTypeAndAssetsLoader = (db) =>
       const qs = petTypeIdAndAssetIdsPairs
         .map((_) => "(pet_type_id = ? AND swf_asset_ids = ?)")
         .join(" OR ");
-      const values = petTypeIdAndAssetIdsPairs.map(
-        ({ petTypeId, swfAssetIds }) => [petTypeId, swfAssetIds]
-      );
+      const values = petTypeIdAndAssetIdsPairs
+        .map(({ petTypeId, swfAssetIds }) => [petTypeId, swfAssetIds])
+        .flat();
       const [rows, _] = await db.execute(
         `SELECT * FROM pet_states WHERE ${qs}`,
         values

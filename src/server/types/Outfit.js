@@ -211,21 +211,19 @@ async function saveModelingData(
 
   const incomingSwfAssets = [...incomingItemSwfAssets, ...incomingPetSwfAssets];
 
-  const incomingPetTypes = [
-    {
-      colorId: String(customPet.color_id),
-      speciesId: String(customPet.species_id),
-      bodyId: String(customPet.body_id),
-      // NOTE: I skip the image_hash stuff here... on Rails, we set a hash on
-      //       creation, and may or may not bother to update it, I forget? But
-      //       here I don't want to bother with an update. We could maybe do
-      //       a merge function to make it on create only, but eh, I don't
-      //       care enough ^_^`
-    },
-  ];
+  const incomingPetType = {
+    colorId: String(customPet.color_id),
+    speciesId: String(customPet.species_id),
+    bodyId: String(customPet.body_id),
+    // NOTE: I skip the image_hash stuff here... on Rails, we set a hash on
+    //       creation, and may or may not bother to update it, I forget? But
+    //       here I don't want to bother with an update. We could maybe do
+    //       a merge function to make it on create only, but eh, I don't
+    //       care enough ^_^`
+  };
 
   await Promise.all([
-    syncToDb(db, incomingPetTypes, {
+    syncToDb(db, [incomingPetType], {
       loader: petTypeBySpeciesAndColorLoader,
       tableName: "pet_types",
       buildLoaderKey: (row) => ({
@@ -276,21 +274,19 @@ async function saveModelingData(
     colorId: String(customPet.color_id),
     speciesId: String(customPet.species_id),
   });
-  const incomingPetStates = [
-    {
-      petTypeId: petType.id,
-      swfAssetIds: incomingPetSwfAssets
-        .map((a) => a.remoteId)
-        .sort()
-        .join(","),
-      female: petMetaData.gender === 2, // sorry for this column name :/
-      moodId: petMetaData.mood,
-      unconverted: incomingPetSwfAssets.length === 1,
-      labeled: true,
-    },
-  ];
+  const incomingPetState = {
+    petTypeId: petType.id,
+    swfAssetIds: incomingPetSwfAssets
+      .map((a) => a.remoteId)
+      .sort()
+      .join(","),
+    female: petMetaData.gender === 2, // sorry for this column name :/
+    moodId: petMetaData.mood,
+    unconverted: incomingPetSwfAssets.length === 1,
+    labeled: true,
+  };
 
-  await syncToDb(db, incomingPetStates, {
+  await syncToDb(db, [incomingPetState], {
     loader: petStateByPetTypeAndAssetsLoader,
     tableName: "pet_states",
     buildLoaderKey: (row) => ({
@@ -304,6 +300,35 @@ async function saveModelingData(
     ],
     includeCreatedAt: false,
     includeUpdatedAt: false,
+    // For pet states, syncing assets is easy: a new set of assets counts as a
+    // new state, so, whatever! Just insert the relationships when inserting
+    // the pet state, and ignore them any other time.
+    afterInsert: async () => {
+      // We need to load from the db to get the actual inserted IDs. Not lovely
+      // for perf, but this is a real new-data model, so that's fine!
+      let [petState, swfAssets] = await Promise.all([
+        petStateByPetTypeAndAssetsLoader.load({
+          petTypeId: incomingPetState.petTypeId,
+          swfAssetIds: incomingPetState.swfAssetIds,
+        }),
+        swfAssetByRemoteIdLoader.loadMany(
+          incomingPetSwfAssets.map((row) => ({
+            type: row.type,
+            remoteId: row.remoteId,
+          }))
+        ),
+      ]);
+      swfAssets = swfAssets.filter((sa) => sa != null);
+      const qs = swfAssets.map((_) => `(?, ?, ?)`).join(", ");
+      const values = swfAssets
+        .map((sa) => ["PetState", petState.id, sa.id])
+        .flat();
+      await db.execute(
+        `INSERT INTO parents_swf_assets (parent_type, parent_id, swf_asset_id)
+         VALUES ${qs};`,
+        values
+      );
+    },
   });
 }
 
@@ -329,6 +354,7 @@ async function syncToDb(
     buildUpdateCondition,
     includeCreatedAt = true,
     includeUpdatedAt = true,
+    afterInsert = null,
   }
 ) {
   const loaderKeys = incomingRows.map(buildLoaderKey);
@@ -396,6 +422,9 @@ async function syncToDb(
       `INSERT INTO ${tableName} (${columnsStr}) VALUES ${rowQs};`,
       rowFields.flat()
     );
+    if (afterInsert) {
+      await afterInsert();
+    }
   }
 
   // Do parallel updates of anything that needs updated.

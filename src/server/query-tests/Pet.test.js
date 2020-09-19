@@ -90,6 +90,14 @@ describe("Pet", () => {
             id
             pose
             bodyId
+
+            restrictedZones {
+              id
+            }
+            layers {
+              id
+              swfUrl
+            }
           }
 
           items(

@@ -69,6 +69,25 @@ CREATE TABLE `item_translations` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `parents_swf_assets`
+--
+
+DROP TABLE IF EXISTS `parents_swf_assets`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `parents_swf_assets` (
+  `parent_id` mediumint(9) NOT NULL,
+  `swf_asset_id` mediumint(9) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `parent_type` varchar(8) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_parents_swf_assets` (`parent_id`,`swf_asset_id`),
+  KEY `parents_swf_assets_swf_asset_id` (`swf_asset_id`),
+  KEY `index_parents_swf_assets_on_parent_id_and_parent_type` (`parent_id`,`parent_type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `pet_types`
 --
 
@@ -148,4 +167,4 @@ CREATE TABLE `swf_assets` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-09-19  3:59:55
+-- Dump completed on 2020-09-19  4:19:01

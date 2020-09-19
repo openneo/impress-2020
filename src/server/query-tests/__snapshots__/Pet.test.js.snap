@@ -491,10 +491,8 @@ Array [
   Array [
     "SELECT * FROM pet_states WHERE (pet_type_id = ? AND swf_asset_ids = ?)",
     Array [
-      Array [
-        "1",
-        "21057,21060,24008,7941,7942,7946",
-      ],
+      "1",
+      "21057,21060,24008,7941,7942,7946",
     ],
   ],
   Array [
@@ -506,6 +504,54 @@ Array [
       "1",
       "21057,21060,24008,7941,7942,7946",
       false,
+    ],
+  ],
+  Array [
+    "SELECT * FROM pet_states WHERE (pet_type_id = ? AND swf_asset_ids = ?)",
+    Array [
+      "1",
+      "21057,21060,24008,7941,7942,7946",
+    ],
+  ],
+  Array [
+    "SELECT * FROM swf_assets WHERE (type = ? AND remote_id = ?) OR (type = ? AND remote_id = ?) OR (type = ? AND remote_id = ?) OR (type = ? AND remote_id = ?) OR (type = ? AND remote_id = ?) OR (type = ? AND remote_id = ?)",
+    Array [
+      "biology",
+      "7942",
+      "biology",
+      "7941",
+      "biology",
+      "24008",
+      "biology",
+      "21060",
+      "biology",
+      "21057",
+      "biology",
+      "7946",
+    ],
+  ],
+  Array [
+    "INSERT INTO parents_swf_assets (parent_type, parent_id, swf_asset_id)
+         VALUES (?, ?, ?), (?, ?, ?), (?, ?, ?), (?, ?, ?), (?, ?, ?), (?, ?, ?);",
+    Array [
+      "PetState",
+      "1",
+      "9",
+      "PetState",
+      "1",
+      "10",
+      "PetState",
+      "1",
+      "11",
+      "PetState",
+      "1",
+      "12",
+      "PetState",
+      "1",
+      "13",
+      "PetState",
+      "1",
+      "14",
     ],
   ],
 ]
@@ -590,7 +636,34 @@ Object {
   "petAppearance": Object {
     "bodyId": "180",
     "id": "1",
+    "layers": Array [
+      Object {
+        "id": "9",
+        "swfUrl": "http://images.neopets.com/cp/bio/swf/000/000/007/7942_2eab06fd7b.swf",
+      },
+      Object {
+        "id": "10",
+        "swfUrl": "http://images.neopets.com/cp/bio/swf/000/000/007/7941_2c4cc4b846.swf",
+      },
+      Object {
+        "id": "11",
+        "swfUrl": "http://images.neopets.com/cp/bio/swf/000/000/024/24008_a05fe9876a.swf",
+      },
+      Object {
+        "id": "12",
+        "swfUrl": "http://images.neopets.com/cp/bio/swf/000/000/021/21060_d77ba93b7b.swf",
+      },
+      Object {
+        "id": "13",
+        "swfUrl": "http://images.neopets.com/cp/bio/swf/000/000/021/21057_4550efbb2f.swf",
+      },
+      Object {
+        "id": "14",
+        "swfUrl": "http://images.neopets.com/cp/bio/swf/000/000/007/7946_0348dad587.swf",
+      },
+    ],
     "pose": "SAD_MASC",
+    "restrictedZones": Array [],
   },
 }
 `;
@@ -635,6 +708,16 @@ Array [
        WHERE pet_type_id IN (?)
        ORDER BY (mood_id IS NULL) ASC, mood_id ASC, female DESC,
                 unconverted DESC, glitched ASC, id DESC",
+    Array [
+      "1",
+    ],
+  ],
+  Array [
+    "SELECT sa.*, rel.parent_id FROM swf_assets sa
+       INNER JOIN parents_swf_assets rel ON
+         rel.parent_type = \\"PetState\\" AND
+         rel.swf_asset_id = sa.id
+       WHERE rel.parent_id IN (?)",
     Array [
       "1",
     ],
@@ -980,10 +1063,8 @@ Array [
   Array [
     "SELECT * FROM pet_states WHERE (pet_type_id = ? AND swf_asset_ids = ?)",
     Array [
-      Array [
-        "1",
-        "21057,21060,24008,7941,7942,7946",
-      ],
+      "1",
+      "21057,21060,24008,7941,7942,7946",
     ],
   ],
   Array [
@@ -995,6 +1076,54 @@ Array [
       "1",
       "21057,21060,24008,7941,7942,7946",
       false,
+    ],
+  ],
+  Array [
+    "SELECT * FROM pet_states WHERE (pet_type_id = ? AND swf_asset_ids = ?)",
+    Array [
+      "1",
+      "21057,21060,24008,7941,7942,7946",
+    ],
+  ],
+  Array [
+    "SELECT * FROM swf_assets WHERE (type = ? AND remote_id = ?) OR (type = ? AND remote_id = ?) OR (type = ? AND remote_id = ?) OR (type = ? AND remote_id = ?) OR (type = ? AND remote_id = ?) OR (type = ? AND remote_id = ?)",
+    Array [
+      "biology",
+      "7942",
+      "biology",
+      "7941",
+      "biology",
+      "24008",
+      "biology",
+      "21060",
+      "biology",
+      "21057",
+      "biology",
+      "7946",
+    ],
+  ],
+  Array [
+    "INSERT INTO parents_swf_assets (parent_type, parent_id, swf_asset_id)
+         VALUES (?, ?, ?), (?, ?, ?), (?, ?, ?), (?, ?, ?), (?, ?, ?), (?, ?, ?);",
+    Array [
+      "PetState",
+      "1",
+      "9",
+      "PetState",
+      "1",
+      "10",
+      "PetState",
+      "1",
+      "11",
+      "PetState",
+      "1",
+      "12",
+      "PetState",
+      "1",
+      "13",
+      "PetState",
+      "1",
+      "14",
     ],
   ],
 ]
