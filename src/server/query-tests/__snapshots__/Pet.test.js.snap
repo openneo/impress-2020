@@ -492,7 +492,7 @@ Array [
     "SELECT * FROM pet_states WHERE (pet_type_id = ? AND swf_asset_ids = ?)",
     Array [
       Array [
-        "4795",
+        "1",
         "21057,21060,24008,7941,7942,7946",
       ],
     ],
@@ -503,7 +503,7 @@ Array [
       false,
       true,
       2,
-      "4795",
+      "1",
       "21057,21060,24008,7941,7942,7946",
       false,
     ],
@@ -589,7 +589,7 @@ Object {
   ],
   "petAppearance": Object {
     "bodyId": "180",
-    "id": "28561",
+    "id": "1",
     "pose": "SAD_MASC",
   },
 }
@@ -636,7 +636,7 @@ Array [
        ORDER BY (mood_id IS NULL) ASC, mood_id ASC, female DESC,
                 unconverted DESC, glitched ASC, id DESC",
     Array [
-      "4795",
+      "1",
     ],
   ],
 ]
@@ -981,7 +981,7 @@ Array [
     "SELECT * FROM pet_states WHERE (pet_type_id = ? AND swf_asset_ids = ?)",
     Array [
       Array [
-        "4795",
+        "1",
         "21057,21060,24008,7941,7942,7946",
       ],
     ],
@@ -992,7 +992,7 @@ Array [
       false,
       true,
       2,
-      "4795",
+      "1",
       "21057,21060,24008,7941,7942,7946",
       false,
     ],

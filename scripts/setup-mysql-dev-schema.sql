@@ -41,7 +41,7 @@ CREATE TABLE `items` (
   `modeling_status_hint` enum('done','glitchy') COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `objects_last_spidered` (`last_spidered`)
-) ENGINE=InnoDB AUTO_INCREMENT=81718 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -65,7 +65,7 @@ CREATE TABLE `item_translations` (
   KEY `index_item_translations_on_locale` (`locale`),
   KEY `index_item_translations_name` (`name`),
   KEY `index_item_translations_on_item_id_and_locale` (`item_id`,`locale`)
-) ENGINE=InnoDB AUTO_INCREMENT=215780 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -85,7 +85,7 @@ CREATE TABLE `pet_types` (
   `basic_image_hash` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `pet_types_species_color` (`species_id`,`color_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4795 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -107,7 +107,7 @@ CREATE TABLE `pet_states` (
   `artist_neopets_username` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `pet_states_pet_type_id` (`pet_type_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=28561 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -136,7 +136,7 @@ CREATE TABLE `swf_assets` (
   KEY `swf_assets_body_id_and_object_id` (`body_id`),
   KEY `idx_swf_assets_zone_id` (`zone_id`),
   KEY `swf_assets_type_and_id` (`type`,`remote_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=521790 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -148,4 +148,4 @@ CREATE TABLE `swf_assets` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-09-19  3:34:36
+-- Dump completed on 2020-09-19  3:59:55
