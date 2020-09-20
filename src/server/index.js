@@ -1,6 +1,6 @@
 const util = require("util");
 
-const { addBeelineToSchema, beelinePlugin } = require("./lib/beeline-graphql");
+const { beelinePlugin } = require("./lib/beeline-graphql");
 const { gql, makeExecutableSchema } = require("apollo-server");
 const jwtVerify = util.promisify(require("jsonwebtoken").verify);
 const jwksClient = require("jwks-rsa");
@@ -49,7 +49,6 @@ const schema = makeExecutableSchema(
 const plugins = [svgLoggingPlugin];
 
 if (process.env["NODE_ENV"] !== "test") {
-  addBeelineToSchema(schema);
   plugins.push(beelinePlugin);
 }
 
