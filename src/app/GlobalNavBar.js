@@ -9,16 +9,10 @@ import {
   MenuItem,
   MenuList,
   useBreakpointValue,
-  useColorMode,
 } from "@chakra-ui/core";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
-import {
-  ChevronLeftIcon,
-  HamburgerIcon,
-  MoonIcon,
-  SunIcon,
-} from "@chakra-ui/icons";
+import { ChevronLeftIcon, HamburgerIcon } from "@chakra-ui/icons";
 
 import useCurrentUser from "./components/useCurrentUser";
 
@@ -130,27 +124,15 @@ function UserNavBarSection() {
 }
 
 function NavMenu() {
-  const { colorMode, toggleColorMode } = useColorMode();
-
   return (
     <Menu>
       <MenuButton as={NavButton} icon={<HamburgerIcon />} />
       <MenuList fontSize="sm">
+        <MenuItem as={Link} to="/">
+          Home
+        </MenuItem>
         <MenuItem as={Link} to="/modeling">
           Modeling
-        </MenuItem>
-        <MenuItem onClick={toggleColorMode}>
-          {colorMode === "light" ? (
-            <Box display="flex" alignItems="center">
-              <Box>Dark mode</Box>
-              <MoonIcon marginLeft="2" />
-            </Box>
-          ) : (
-            <Box display="flex" alignItems="center">
-              <Box>Light mode</Box>
-              <SunIcon marginLeft="2" />
-            </Box>
-          )}
         </MenuItem>
       </MenuList>
     </Menu>
@@ -158,23 +140,10 @@ function NavMenu() {
 }
 
 function NavButtons() {
-  const { colorMode, toggleColorMode } = useColorMode();
-
   return (
-    <>
-      <NavButton as={Link} to="/modeling">
-        Modeling
-      </NavButton>
-      <NavButton
-        size="sm"
-        variant="outline"
-        aria-label={
-          colorMode === "light" ? "Switch to dark mode" : "Switch to light mode"
-        }
-        icon={colorMode === "light" ? <MoonIcon /> : <SunIcon />}
-        onClick={toggleColorMode}
-      />
-    </>
+    <NavButton as={Link} to="/modeling">
+      Modeling
+    </NavButton>
   );
 }
 
@@ -184,7 +153,11 @@ const NavButton = React.forwardRef(({ icon, ...props }, ref) => {
   // Opacity is in a separate Box, to avoid overriding the built-in Button
   // hover/focus states.
   return (
-    <Box opacity="0.8" _hover={{ opacity: "1" }} _focus={{ opacity: "1" }}>
+    <Box
+      opacity="0.8"
+      _hover={{ opacity: "1" }}
+      _focusWithin={{ opacity: "1" }}
+    >
       <Component size="sm" variant="outline" icon={icon} ref={ref} {...props} />
     </Box>
   );
