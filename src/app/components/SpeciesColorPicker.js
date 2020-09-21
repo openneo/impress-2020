@@ -24,7 +24,6 @@ function SpeciesColorPicker({
   stateMustAlwaysBeValid = false,
   isDisabled = false,
   size = "md",
-  dark = false,
   onChange,
 }) {
   const { loading: loadingMeta, error: errorMeta, data: meta } = useQuery(gql`

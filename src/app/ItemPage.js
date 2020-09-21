@@ -20,6 +20,7 @@ import {
   ExternalLinkIcon,
   ChevronRightIcon,
   StarIcon,
+  WarningIcon,
 } from "@chakra-ui/icons";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
@@ -33,6 +34,7 @@ import {
 } from "./components/ItemCard";
 import { Delay, Heading1, usePageTitle } from "./util";
 import OutfitPreview from "./components/OutfitPreview";
+import SpeciesColorPicker from "./components/SpeciesColorPicker";
 
 function ItemPage() {
   const { itemId } = useParams();
@@ -432,30 +434,118 @@ function IconCheckbox({ icon, isChecked, ...props }) {
 }
 
 function ItemPageOutfitPreview({ itemId }) {
+  const idealPose = React.useMemo(
+    () => (Math.random() > 0.5 ? "HAPPY_FEM" : "HAPPY_MASC"),
+    []
+  );
+  const [petState, setPetState] = React.useState({
+    speciesId: "1",
+    colorId: "8",
+    pose: idealPose,
+  });
+
+  // To check whether the item is compatible with this pet, query for the
+  // appearance, but only against the cache. That way, we don't send a
+  // redundant network request just for this (the OutfitPreview component will
+  // handle it!), but we'll get an update once it arrives in the cache.
+  const { data } = useQuery(
+    gql`
+      query ItemPageOutfitPreview_CacheOnly(
+        $itemId: ID!
+        $speciesId: ID!
+        $colorId: ID!
+      ) {
+        item(id: $itemId) {
+          appearanceOn(speciesId: $speciesId, colorId: $colorId) {
+            layers {
+              id
+            }
+          }
+        }
+      }
+    `,
+    {
+      variables: {
+        itemId,
+        speciesId: petState.speciesId,
+        colorId: petState.colorId,
+      },
+      fetchPolicy: "cache-only",
+    }
+  );
+
+  // If the layers are null-y, then we're still loading. Otherwise, if the
+  // layers are an empty array, then we're incomaptible. Or, if they're a
+  // non-empty array, then we're compatible!
+  const layers = data?.item?.appearanceOn?.layers;
+  const isIncompatible = Array.isArray(layers) && layers.length === 0;
+
   const borderColor = useColorModeValue("green.700", "green.400");
+  const errorColor = useColorModeValue("red.600", "red.400");
 
   return (
-    <AspectRatio
-      width="100%"
-      maxWidth="300px"
-      ratio="1"
-      border="1px"
-      borderColor={borderColor}
-      borderRadius="lg"
-      boxShadow="lg"
-      overflow="hidden"
-    >
-      <Box>
-        <OutfitPreview
-          speciesId="1"
-          colorId="8"
-          pose="HAPPY_FEM"
-          wornItemIds={[itemId]}
-          spinnerVariant="corner"
-          loadingDelayMs={2000}
+    <VStack spacing="3" width="100%">
+      <AspectRatio
+        width="300px"
+        maxWidth="100%"
+        ratio="1"
+        border="1px"
+        borderColor={borderColor}
+        transition="border-color 0.2s"
+        borderRadius="lg"
+        boxShadow="lg"
+        overflow="hidden"
+      >
+        <Box>
+          <OutfitPreview
+            speciesId={petState.speciesId}
+            colorId={petState.colorId}
+            pose={petState.pose}
+            wornItemIds={[itemId]}
+            spinnerVariant="corner"
+            loadingDelayMs={2000}
+          />
+        </Box>
+      </AspectRatio>
+      <Box display="flex" width="100%" alignItems="center">
+        <Box
+          // This empty box grows at the same rate as the box on the right, so
+          // the middle box will be centered, if there's space!
+          flex="1 0 0"
         />
+        <SpeciesColorPicker
+          speciesId={petState.speciesId}
+          colorId={petState.colorId}
+          pose={petState.pose}
+          idealPose={idealPose}
+          onChange={(species, color, _, closestPose) => {
+            setPetState({
+              speciesId: species.id,
+              colorId: color.id,
+              pose: closestPose,
+            });
+          }}
+          size="sm"
+          showPlaceholders
+          // This is just a UX affordance: while we could handle invalid states
+          // from a UI perspective, we figure that, if a pet preview is already
+          // visible and responsive to changes, it feels better to treat the
+          // changes as atomic and always-valid.
+          stateMustAlwaysBeValid
+        />
+        <Box flex="1 0 0" lineHeight="1">
+          {isIncompatible && (
+            <Tooltip label="Incompatible" placement="top">
+              <WarningIcon
+                color={errorColor}
+                transition="color 0.2"
+                marginLeft="2"
+              />
+            </Tooltip>
+          )}
+        </Box>
       </Box>
-    </AspectRatio>
+    </VStack>
   );
 }
 
