@@ -430,4 +430,67 @@ describe("Item", () => {
     expect(res.data).toMatchSnapshot();
     expect(getDbCalls()).toMatchSnapshot();
   });
+
+  it("loads species with appearance data for single-species item", async () => {
+    const res = await query({
+      query: gql`
+        query {
+          item(
+            id: "38911" # Zafara Agent Hood
+          ) {
+            speciesWithAppearanceDataForThisItem {
+              name
+            }
+          }
+        }
+      `,
+    });
+
+    expect(res).toHaveNoErrors();
+    expect(res.data.item.speciesWithAppearanceDataForThisItem).toHaveLength(1);
+    expect(res.data.item.speciesWithAppearanceDataForThisItem[0].name).toEqual(
+      "Zafara"
+    );
+    expect(getDbCalls()).toMatchSnapshot();
+  });
+
+  it("loads species with appearance data for all-species item", async () => {
+    const res = await query({
+      query: gql`
+        query {
+          item(
+            id: "74967" # 17th Birthday Party Hat
+          ) {
+            speciesWithAppearanceDataForThisItem {
+              name
+            }
+          }
+        }
+      `,
+    });
+
+    expect(res).toHaveNoErrors();
+    expect(res.data.item.speciesWithAppearanceDataForThisItem).toHaveLength(55);
+    expect(getDbCalls()).toMatchSnapshot();
+  });
+
+  it("loads species with appearance data for bodyId=0 item", async () => {
+    const res = await query({
+      query: gql`
+        query {
+          item(
+            id: "37375" # Moon and Stars Background
+          ) {
+            speciesWithAppearanceDataForThisItem {
+              name
+            }
+          }
+        }
+      `,
+    });
+
+    expect(res).toHaveNoErrors();
+    expect(res.data.item.speciesWithAppearanceDataForThisItem).toHaveLength(55);
+    expect(getDbCalls()).toMatchSnapshot();
+  });
 });

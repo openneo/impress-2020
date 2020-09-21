@@ -294,6 +294,29 @@ const buildItemsThatNeedModelsLoader = (db) =>
     return [lastResult];
   });
 
+const buildItemSpeciesWithAppearanceDataLoader = (db) =>
+  new DataLoader(async (itemIds) => {
+    const qs = itemIds.map((_) => "?").join(",");
+    const [rows, _] = await db.execute(
+      `SELECT DISTINCT pet_types.species_id AS id, items.id AS item_id
+         FROM items
+         INNER JOIN parents_swf_assets ON
+           items.id = parents_swf_assets.parent_id AND
+             parents_swf_assets.parent_type = "Item"
+         INNER JOIN swf_assets ON
+           parents_swf_assets.swf_asset_id = swf_assets.id
+         INNER JOIN pet_types ON
+           pet_types.body_id = swf_assets.body_id OR swf_assets.body_id = 0
+         WHERE items.id = ${qs}
+         ORDER BY id`,
+      itemIds
+    );
+
+    const entities = rows.map(normalizeRow);
+
+    return itemIds.map((itemId) => entities.filter((e) => e.itemId === itemId));
+  });
+
 const buildPetTypeLoader = (db) =>
   new DataLoader(async (petTypeIds) => {
     const qs = petTypeIds.map((_) => "?").join(",");
@@ -594,6 +617,9 @@ function buildLoaders(db) {
   loaders.itemSearchLoader = buildItemSearchLoader(db, loaders);
   loaders.itemSearchToFitLoader = buildItemSearchToFitLoader(db, loaders);
   loaders.itemsThatNeedModelsLoader = buildItemsThatNeedModelsLoader(db);
+  loaders.itemSpeciesWithAppearanceDataLoader = buildItemSpeciesWithAppearanceDataLoader(
+    db
+  );
   loaders.petTypeLoader = buildPetTypeLoader(db);
   loaders.petTypeBySpeciesAndColorLoader = buildPetTypeBySpeciesAndColorLoader(
     db,

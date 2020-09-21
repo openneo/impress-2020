@@ -41,6 +41,12 @@ const typeDefs = gql`
     #       major special color like Baby (#6), or leave it blank for standard
     #       bodies like Blue, Green, Red, etc.
     speciesThatNeedModels(colorId: ID): [Species!]!
+
+    # Species that we know how they look wearing this item. Used to initialize
+    # the preview on the item page with a compatible species.
+    # TODO: This would probably make more sense as like, compatible bodies, so
+    #       we could also encode special-color stuff in here too.
+    speciesWithAppearanceDataForThisItem: [Species!]!
   }
 
   type ItemAppearance {
@@ -175,6 +181,14 @@ const resolvers = {
         (id) => !modeledSpeciesIds.includes(id)
       );
       return unmodeledSpeciesIds.map((id) => ({ id }));
+    },
+    speciesWithAppearanceDataForThisItem: async (
+      { id },
+      _,
+      { itemSpeciesWithAppearanceDataLoader }
+    ) => {
+      const rows = await itemSpeciesWithAppearanceDataLoader.load(id);
+      return rows.map((row) => ({ id: row.id }));
     },
   },
 
