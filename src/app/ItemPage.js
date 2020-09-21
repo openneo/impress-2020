@@ -33,6 +33,10 @@ import {
   NpBadge,
 } from "./components/ItemCard";
 import { Delay, Heading1, usePageTitle } from "./util";
+import {
+  itemAppearanceFragment,
+  petAppearanceFragment,
+} from "./components/useOutfitAppearance";
 import OutfitPreview from "./components/OutfitPreview";
 import SpeciesColorPicker from "./components/SpeciesColorPicker";
 
@@ -439,16 +443,41 @@ function ItemPageOutfitPreview({ itemId }) {
     []
   );
   const [petState, setPetState] = React.useState({
+    // Start by looking up Acara appearance data.
     speciesId: "1",
     colorId: "8",
     pose: idealPose,
   });
 
+  // Start by loading the "canonical" pet and item appearance for the outfit
+  // preview. We'll use this to initialize both the preview and the picker.
+  const { loading, error, data } = useQuery(gql`
+    query ItemPageOutfitPreview($itemId: ID!) {
+      item(id: $itemId) {
+        id
+        canonicalAppearance {
+          id
+          ...ItemAppearanceFragment
+          body {
+            id
+            canonicalAppearance {
+              id
+              ...PetAppearanceFragment
+            }
+          }
+        }
+      }
+    }
+
+    ${itemAppearanceFragment}
+    ${petAppearanceFragment}
+  `);
+
   // To check whether the item is compatible with this pet, query for the
   // appearance, but only against the cache. That way, we don't send a
   // redundant network request just for this (the OutfitPreview component will
   // handle it!), but we'll get an update once it arrives in the cache.
-  const { data } = useQuery(
+  const { cachedData } = useQuery(
     gql`
       query ItemPageOutfitPreview_CacheOnly(
         $itemId: ID!
@@ -477,7 +506,7 @@ function ItemPageOutfitPreview({ itemId }) {
   // If the layers are null-y, then we're still loading. Otherwise, if the
   // layers are an empty array, then we're incomaptible. Or, if they're a
   // non-empty array, then we're compatible!
-  const layers = data?.item?.appearanceOn?.layers;
+  const layers = cachedData?.item?.appearanceOn?.layers;
   const isIncompatible = Array.isArray(layers) && layers.length === 0;
 
   const borderColor = useColorModeValue("green.700", "green.400");

@@ -42,17 +42,19 @@ const typeDefs = gql`
     #       bodies like Blue, Green, Red, etc.
     speciesThatNeedModels(colorId: ID): [Species!]!
 
-    # Species that we know how they look wearing this item. Used to initialize
-    # the preview on the item page with a compatible species.
-    # TODO: This would probably make more sense as like, compatible bodies, so
-    #       we could also encode special-color stuff in here too.
-    speciesWithAppearanceDataForThisItem: [Species!]!
+    # Return a single ItemAppearance for this item. It'll be for the species
+    # with the smallest ID for which we have item appearance data. We use this
+    # on the item page, to initialize the preview section. (You can find out
+    # which species this is for by going through the body field on
+    # ItemAppearance!)
+    canonicalAppearance: ItemAppearance
   }
 
   type ItemAppearance {
     id: ID!
     item: Item!
-    bodyId: ID!
+    bodyId: ID! # Deprecated, use body->id.
+    body: Body!
     layers: [AppearanceLayer!]
     restrictedZones: [Zone!]!
   }
@@ -182,18 +184,29 @@ const resolvers = {
       );
       return unmodeledSpeciesIds.map((id) => ({ id }));
     },
-    speciesWithAppearanceDataForThisItem: async (
+    canonicalAppearance: async (
       { id },
       _,
-      { itemSpeciesWithAppearanceDataLoader }
+      { itemBodiesWithAppearanceDataLoader }
     ) => {
-      const rows = await itemSpeciesWithAppearanceDataLoader.load(id);
-      return rows.map((row) => ({ id: row.id }));
+      const rows = await itemBodiesWithAppearanceDataLoader.load(id);
+      const canonicalBodyId = rows[0].bodyId;
+      return {
+        item: { id },
+        bodyId: canonicalBodyId,
+        // An optimization: we know the species already, so fill it in here
+        // without requiring an extra query if we want it.
+        // TODO: Maybe this would be cleaner if we make the body -> species
+        //       loader, and prime it in the item bodies loader, rather than
+        //       setting it here?
+        body: { id: canonicalBodyId, species: { id: rows[0].speciesId } },
+      };
     },
   },
 
   ItemAppearance: {
     id: ({ item, bodyId }) => `item-${item.id}-body-${bodyId}`,
+    body: ({ body, bodyId }) => body || { id: bodyId },
     layers: async ({ item, bodyId }, _, { itemSwfAssetLoader }) => {
       const allSwfAssets = await itemSwfAssetLoader.load({
         itemId: item.id,

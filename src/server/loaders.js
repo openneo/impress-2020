@@ -294,11 +294,13 @@ const buildItemsThatNeedModelsLoader = (db) =>
     return [lastResult];
   });
 
-const buildItemSpeciesWithAppearanceDataLoader = (db) =>
+const buildItemBodiesWithAppearanceDataLoader = (db) =>
   new DataLoader(async (itemIds) => {
     const qs = itemIds.map((_) => "?").join(",");
     const [rows, _] = await db.execute(
-      `SELECT DISTINCT pet_types.species_id AS id, items.id AS item_id
+      // TODO: I'm not sure this ORDER BY clause will reliably get standard
+      //       bodies to the top, it seems like it depends how DISTINCT works?
+      `SELECT pet_types.body_id, pet_types.species_id, items.id AS item_id
          FROM items
          INNER JOIN parents_swf_assets ON
            items.id = parents_swf_assets.parent_id AND
@@ -307,8 +309,13 @@ const buildItemSpeciesWithAppearanceDataLoader = (db) =>
            parents_swf_assets.swf_asset_id = swf_assets.id
          INNER JOIN pet_types ON
            pet_types.body_id = swf_assets.body_id OR swf_assets.body_id = 0
-         WHERE items.id = ${qs}
-         ORDER BY id`,
+         INNER JOIN colors ON
+           pet_types.color_id = colors.id
+         WHERE items.id IN (${qs})
+         GROUP BY pet_types.body_id
+         ORDER BY
+           pet_types.species_id,
+           colors.standard DESC`,
       itemIds
     );
 
@@ -503,6 +510,50 @@ const buildPetStatesForPetTypeLoader = (db, loaders) =>
     );
   });
 
+/** Given a bodyId, loads the canonical PetState to show as an example. */
+const buildCanonicalPetStateForBodyLoader = (db, loaders) =>
+  new DataLoader(async (bodyIds) => {
+    // I don't know how to do this query in bulk, so we'll just do it in
+    // parallel!
+    return await Promise.all(
+      bodyIds.map(async (bodyId) => {
+        // Randomly-ish choose which gender presentation to prefer, based on
+        // body ID. This makes the outcome stable, which is nice for caching
+        // and testing and just generally not being surprised, but sitll
+        // creates an even distribution.
+        const gender = bodyId % 2 === 0 ? "masc" : "fem";
+
+        const [rows, _] = await db.execute(
+          {
+            sql: `
+              SELECT pet_states.*, pet_types.* FROM pet_states
+              INNER JOIN pet_types ON pet_types.id = pet_states.pet_type_id
+              WHERE pet_types.body_id = ?
+              ORDER BY
+                pet_types.color_id = 8 DESC, -- Prefer Blue
+                pet_states.mood_id = 1 DESC, -- Prefer Happy
+                pet_states.female = ? DESC, -- Prefer given gender
+                pet_states.id DESC, -- Prefer recent models (like in the app)
+                pet_states.glitched ASC -- Prefer not glitched (like in the app)
+              LIMIT 1`,
+            nestTables: true,
+          },
+          [bodyId, gender === "fem"]
+        );
+        const petState = normalizeRow(rows[0].pet_states);
+        const petType = normalizeRow(rows[0].pet_types);
+        if (!petState || !petType) {
+          return null;
+        }
+
+        loaders.petStateLoader.prime(petState.id, petState);
+        loaders.petTypeLoader.prime(petType.id, petType);
+
+        return petState;
+      })
+    );
+  });
+
 const buildUserLoader = (db) =>
   new DataLoader(async (ids) => {
     const qs = ids.map((_) => "?").join(",");
@@ -617,7 +668,7 @@ function buildLoaders(db) {
   loaders.itemSearchLoader = buildItemSearchLoader(db, loaders);
   loaders.itemSearchToFitLoader = buildItemSearchToFitLoader(db, loaders);
   loaders.itemsThatNeedModelsLoader = buildItemsThatNeedModelsLoader(db);
-  loaders.itemSpeciesWithAppearanceDataLoader = buildItemSpeciesWithAppearanceDataLoader(
+  loaders.itemBodiesWithAppearanceDataLoader = buildItemBodiesWithAppearanceDataLoader(
     db
   );
   loaders.petTypeLoader = buildPetTypeLoader(db);
@@ -634,6 +685,10 @@ function buildLoaders(db) {
   );
   loaders.petStateLoader = buildPetStateLoader(db);
   loaders.petStatesForPetTypeLoader = buildPetStatesForPetTypeLoader(
+    db,
+    loaders
+  );
+  loaders.canonicalPetStateForBodyLoader = buildCanonicalPetStateForBodyLoader(
     db,
     loaders
   );

@@ -38,6 +38,14 @@ const typeDefs = gql`
     UNKNOWN # for when we have the data, but we don't know what it is
   }
 
+  type Body {
+    id: ID!
+    species: Species!
+
+    # A PetAppearance that has this body. Prefers Blue and happy poses.
+    canonicalAppearance: PetAppearance
+  }
+
   # Cache for 1 week (unlikely to change)
   type PetAppearance @cacheControl(maxAge: 604800) {
     id: ID!
@@ -99,6 +107,29 @@ const resolvers = {
         colorId: "8", // Blue
       });
       return petType.bodyId;
+    },
+  },
+
+  Body: {
+    species: ({ species }) => {
+      if (species) {
+        return species;
+      }
+      throw new Error(
+        "HACK: We populate this when you look up a canonicalAppearance, but " +
+          "don't have a direct query for it yet, oops!"
+      );
+    },
+    canonicalAppearance: async (
+      { id },
+      _,
+      { canonicalPetStateForBodyLoader }
+    ) => {
+      const petState = await canonicalPetStateForBodyLoader.load(id);
+      if (!petState) {
+        return null;
+      }
+      return { id: petState.id };
     },
   },
 

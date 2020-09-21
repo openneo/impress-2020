@@ -431,15 +431,26 @@ describe("Item", () => {
     expect(getDbCalls()).toMatchSnapshot();
   });
 
-  it("loads species with appearance data for single-species item", async () => {
+  it("loads canonical appearance for single-species item", async () => {
     const res = await query({
       query: gql`
         query {
           item(
             id: "38911" # Zafara Agent Hood
           ) {
-            speciesWithAppearanceDataForThisItem {
-              name
+            canonicalAppearance {
+              id
+              layers {
+                id
+              }
+              body {
+                species {
+                  name
+                }
+                canonicalAppearance {
+                  id
+                }
+              }
             }
           }
         }
@@ -447,22 +458,36 @@ describe("Item", () => {
     });
 
     expect(res).toHaveNoErrors();
-    expect(res.data.item.speciesWithAppearanceDataForThisItem).toHaveLength(1);
-    expect(res.data.item.speciesWithAppearanceDataForThisItem[0].name).toEqual(
-      "Zafara"
+    const body = res.data.item.canonicalAppearance.body;
+    expect(body.species.name).toEqual("Zafara");
+    expect(res.data.item.canonicalAppearance.layers).toMatchSnapshot(
+      "item layers"
     );
-    expect(getDbCalls()).toMatchSnapshot();
+    expect(body.canonicalAppearance).toBeTruthy();
+    expect(body.canonicalAppearance).toMatchSnapshot("pet layers");
+    expect(getDbCalls()).toMatchSnapshot("db");
   });
 
-  it("loads species with appearance data for all-species item", async () => {
+  it("loads canonical appearance for all-species item", async () => {
     const res = await query({
       query: gql`
         query {
           item(
             id: "74967" # 17th Birthday Party Hat
           ) {
-            speciesWithAppearanceDataForThisItem {
-              name
+            canonicalAppearance {
+              id
+              layers {
+                id
+              }
+              body {
+                species {
+                  name
+                }
+                canonicalAppearance {
+                  id
+                }
+              }
             }
           }
         }
@@ -470,19 +495,80 @@ describe("Item", () => {
     });
 
     expect(res).toHaveNoErrors();
-    expect(res.data.item.speciesWithAppearanceDataForThisItem).toHaveLength(55);
-    expect(getDbCalls()).toMatchSnapshot();
+    const body = res.data.item.canonicalAppearance.body;
+    expect(body.species.name).toEqual("Acara");
+    expect(res.data.item.canonicalAppearance.layers).toMatchSnapshot(
+      "item layers"
+    );
+    expect(body.canonicalAppearance).toBeTruthy();
+    expect(body.canonicalAppearance).toMatchSnapshot("pet layers");
+    expect(getDbCalls()).toMatchSnapshot("db");
   });
 
-  it("loads species with appearance data for bodyId=0 item", async () => {
+  it("loads canonical appearance for all-species Maraquan item", async () => {
+    const res = await query({
+      query: gql`
+        query {
+          item(
+            id: "77530" # Maraquan Sea Blue Gown
+          ) {
+            canonicalAppearance {
+              id
+              layers {
+                id
+              }
+              body {
+                canonicalAppearance {
+                  color {
+                    name
+                  }
+                  species {
+                    name
+                  }
+                  layers {
+                    id
+                  }
+                }
+              }
+            }
+          }
+        }
+      `,
+    });
+
+    expect(res).toHaveNoErrors();
+    const body = res.data.item.canonicalAppearance.body;
+    expect(res.data.item.canonicalAppearance).toBeTruthy();
+    expect(res.data.item.canonicalAppearance.layers).toMatchSnapshot(
+      "item layers"
+    );
+    expect(body.canonicalAppearance).toBeTruthy();
+    expect(body.canonicalAppearance.species.name).toEqual("Acara");
+    expect(body.canonicalAppearance.color.name).toEqual("Maraquan");
+    expect(body.canonicalAppearance.layers).toMatchSnapshot("pet layers");
+    expect(getDbCalls()).toMatchSnapshot("db");
+  });
+
+  it("loads canonical appearance for bodyId=0 item", async () => {
     const res = await query({
       query: gql`
         query {
           item(
             id: "37375" # Moon and Stars Background
           ) {
-            speciesWithAppearanceDataForThisItem {
-              name
+            canonicalAppearance {
+              id
+              layers {
+                id
+              }
+              body {
+                species {
+                  name
+                }
+                canonicalAppearance {
+                  id
+                }
+              }
             }
           }
         }
@@ -490,7 +576,13 @@ describe("Item", () => {
     });
 
     expect(res).toHaveNoErrors();
-    expect(res.data.item.speciesWithAppearanceDataForThisItem).toHaveLength(55);
-    expect(getDbCalls()).toMatchSnapshot();
+    const body = res.data.item.canonicalAppearance.body;
+    expect(body.species.name).toEqual("Acara");
+    expect(res.data.item.canonicalAppearance.layers).toMatchSnapshot(
+      "item layers"
+    );
+    expect(body.canonicalAppearance).toBeTruthy();
+    expect(body.canonicalAppearance).toMatchSnapshot("pet layers");
+    expect(getDbCalls()).toMatchSnapshot("db");
   });
 });
