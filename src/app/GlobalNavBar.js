@@ -1,18 +1,8 @@
 import React from "react";
-import {
-  Box,
-  Button,
-  HStack,
-  IconButton,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-  useBreakpointValue,
-} from "@chakra-ui/core";
+import { Box, Button, HStack, IconButton } from "@chakra-ui/core";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
-import { ChevronLeftIcon, HamburgerIcon } from "@chakra-ui/icons";
+import { ChevronLeftIcon } from "@chakra-ui/icons";
 
 import useCurrentUser from "./components/useCurrentUser";
 
@@ -20,15 +10,20 @@ import HomeLinkIcon from "../images/home-link-icon.png";
 import HomeLinkIcon2x from "../images/home-link-icon@2x.png";
 
 function GlobalNavBar() {
-  const navStyle = useBreakpointValue({ base: "menu", md: "buttons" });
+  const { pathname } = useLocation();
+  const isHomePage = pathname === "/";
 
   return (
     <Box display="flex" alignItems="center" flexWrap="wrap">
-      <HStack alignItems="center" spacing="2" marginRight="4">
-        <HomeLink />
-        {navStyle === "menu" && <NavMenu />}
-        {navStyle === "buttons" && <NavButtons />}
-      </HStack>
+      <HomeLink showArrow={!isHomePage} />
+      <Box
+        display="flex"
+        alignItems="center"
+        opacity={isHomePage ? "0" : "1"}
+        transition="0.2s opacity"
+      >
+        <DressToImpressTitle marginLeft="2" />
+      </Box>
       <Box marginLeft="auto">
         <UserNavBarSection />
       </Box>
@@ -36,10 +31,7 @@ function GlobalNavBar() {
   );
 }
 
-function HomeLink() {
-  const { pathname } = useLocation();
-  const isHomePage = pathname === "/";
-
+function HomeLink({ showArrow }) {
   return (
     <Box
       as={Link}
@@ -56,8 +48,8 @@ function HomeLink() {
       <Box
         position="absolute"
         right="100%"
-        opacity={isHomePage ? "0" : "1"}
-        transform={isHomePage ? "translateX(3px)" : "none"}
+        opacity={showArrow ? "1" : "0"}
+        transform={showArrow ? "none" : "translateX(3px)"}
         transition="all 0.2s"
       >
         <ChevronLeftIcon />
@@ -104,46 +96,41 @@ function UserNavBarSection() {
           </Box>
         )}
         {id && (
-          <NavButton
-            as={Link}
-            to={`/user/${id}/items`}
-            size="sm"
-            variant="outline"
-          >
+          <NavButton as={Link} to={`/user/${id}/items`}>
             Items
           </NavButton>
         )}
+        <NavButton as={Link} to="/modeling">
+          Modeling
+        </NavButton>
         <NavButton onClick={() => logout({ returnTo: window.location.origin })}>
           Log out
         </NavButton>
       </HStack>
     );
   } else {
-    return <NavButton onClick={() => loginWithRedirect()}>Log in</NavButton>;
+    return (
+      <HStack align="center" spacing="2">
+        <NavButton as={Link} to="/modeling">
+          Modeling
+        </NavButton>
+        <NavButton onClick={() => loginWithRedirect()}>Log in</NavButton>
+      </HStack>
+    );
   }
 }
 
-function NavMenu() {
+function DressToImpressTitle(props) {
   return (
-    <Menu>
-      <MenuButton as={NavButton} icon={<HamburgerIcon />} />
-      <MenuList fontSize="sm">
-        <MenuItem as={Link} to="/">
-          Home
-        </MenuItem>
-        <MenuItem as={Link} to="/modeling">
-          Modeling
-        </MenuItem>
-      </MenuList>
-    </Menu>
-  );
-}
-
-function NavButtons() {
-  return (
-    <NavButton as={Link} to="/modeling">
-      Modeling
-    </NavButton>
+    <Box
+      fontFamily="Delicious"
+      fontWeight="bold"
+      fontSize="2xl"
+      display={{ base: "none", sm: "block" }}
+      {...props}
+    >
+      Dress to Impress
+    </Box>
   );
 }
 
