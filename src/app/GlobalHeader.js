@@ -1,5 +1,16 @@
 import React from "react";
-import { Box, Button, HStack, IconButton } from "@chakra-ui/core";
+import {
+  Box,
+  Button,
+  HStack,
+  IconButton,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  useBreakpointValue,
+} from "@chakra-ui/core";
+import { HamburgerIcon } from "@chakra-ui/icons";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import { ChevronLeftIcon } from "@chakra-ui/icons";
@@ -107,14 +118,16 @@ function UserNavBarSection() {
             Hi, {username}!
           </Box>
         )}
-        {id && (
-          <NavButton as={Link} to={`/user/${id}/items`}>
-            Items
-          </NavButton>
-        )}
-        <NavButton as={Link} to="/modeling">
-          Modeling
-        </NavButton>
+        <NavLinksList>
+          {id && (
+            <NavLinkItem as={Link} to={`/user/${id}/items`}>
+              Items
+            </NavLinkItem>
+          )}
+          <NavLinkItem as={Link} to="/modeling">
+            Modeling
+          </NavLinkItem>
+        </NavLinksList>
         <NavButton onClick={() => logout({ returnTo: window.location.origin })}>
           Log out
         </NavButton>
@@ -129,6 +142,33 @@ function UserNavBarSection() {
         <NavButton onClick={() => loginWithRedirect()}>Log in</NavButton>
       </HStack>
     );
+  }
+}
+
+function NavLinksList({ children }) {
+  const navStyle = useBreakpointValue({ base: "menu", md: "buttons" });
+
+  if (navStyle === "menu") {
+    return (
+      <Menu>
+        <MenuButton>
+          <NavButton icon={<HamburgerIcon />} />
+        </MenuButton>
+        <MenuList>{children}</MenuList>
+      </Menu>
+    );
+  } else {
+    return children;
+  }
+}
+
+function NavLinkItem(props) {
+  const navStyle = useBreakpointValue({ base: "menu", md: "buttons" });
+
+  if (navStyle === "menu") {
+    return <MenuItem {...props} />;
+  } else {
+    return <NavButton {...props} />;
   }
 }
 
