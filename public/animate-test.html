@@ -46,11 +46,11 @@
             ),
         }));
 
-        const queue = new createjs.LoadQueue(false);
+        const queue = new createjs.LoadQueue();
         const queueCompleted = new Promise((resolve) =>
           queue.on("complete", () => resolve())
         );
-        queue.loadManifest(manifest, true);
+        queue.loadManifest(manifest);
         await queueCompleted;
 
         const spriteSheets = composition.getSpriteSheet();
@@ -60,7 +60,6 @@
             frames,
           });
         }
-        console.log(spriteSheets);
 
         const movieClip = new library.allitem_foreground_lower();
 
