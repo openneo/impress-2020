@@ -535,7 +535,7 @@ function ItemPageOutfitPreview({ itemId }) {
         />
         <Box flex="1 0 0" lineHeight="1">
           {isIncompatible && (
-            <Tooltip label="Incompatible" placement="top">
+            <Tooltip label="No data yet" placement="top">
               <WarningIcon
                 color={errorColor}
                 transition="color 0.2"
