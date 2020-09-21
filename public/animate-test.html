@@ -31,6 +31,10 @@
         ></canvas>
       </div>
     </div>
+    <div style="margin-top: 1em; text-align: center;">
+      <button id="show-hide">Show/hide</button>
+      <button id="pause-play">Pause/play</button>
+    </div>
     <script>
       async function main() {
         const composition = Object.values(AdobeAn.compositions)[0];
@@ -68,13 +72,69 @@
         const stage = new library.Stage(canvas);
         canvas.width = canvas.offsetWidth * window.devicePixelRatio;
         canvas.height = canvas.offsetHeight * window.devicePixelRatio;
-        stage.scaleX = (canvas.offsetWidth * window.devicePixelRatio) / 600;
-        stage.scaleY = (canvas.offsetHeight * window.devicePixelRatio) / 600;
+        stage.scaleX =
+          (canvas.offsetWidth * window.devicePixelRatio) /
+          library.properties.width;
+        stage.scaleY =
+          (canvas.offsetHeight * window.devicePixelRatio) /
+          library.properties.height;
+        movieClip.cache(
+          0,
+          0,
+          library.properties.width,
+          library.properties.height
+        );
 
+        movieClip.alpha = 0;
+        const tween = createjs.Tween.get(movieClip, { paused: true }).to(
+          { alpha: 1 },
+          200
+        );
+        stage.on(
+          "drawend",
+          () => {
+            tween.paused = false;
+          },
+          null,
+          true
+        );
         stage.addChild(movieClip);
 
-        createjs.Ticker.framerate = library.properties.fps;
-        createjs.Ticker.addEventListener("tick", stage);
+        // FPS-ish updates with RAF! https://stackoverflow.com/a/19772220/107415
+        // Quite a bit going on here, the basic idea is that we want to update
+        // the stage _more often_ than we update the MovieClip, because we want
+        // fade-ins to happen with as high of a frame-rate as possible, but we
+        // want the movie itself to run at its canonical FPS. So, we set the
+        // Ticker into `requestAnimationFrame` mode to send a global tick every
+        // time we get to draw, and update the stage on every such tick - but
+        // we only let it tick its _children_ if enough time has passed since
+        // the last one.
+        const movieTickInterval = 1000 / library.properties.fps;
+        let lastMovieTick = performance.now();
+        let pauseMovies = false;
+        createjs.Ticker.timingMode = createjs.Ticker.RAF;
+        createjs.Ticker.on("tick", () => {
+          const now = performance.now();
+          const elapsed = now - lastMovieTick;
+          if (elapsed > movieTickInterval && !pauseMovies) {
+            stage.tickOnUpdate = true;
+            lastMovieTick = now - (elapsed % movieTickInterval);
+            movieClip.updateCache();
+          } else {
+            stage.tickOnUpdate = false;
+          }
+          stage.update();
+        });
+
+        document.getElementById("show-hide").addEventListener("click", () => {
+          tween.reversed = !tween.reversed;
+          tween.setPosition(0);
+          tween.paused = false;
+        });
+
+        document.getElementById("pause-play").addEventListener("click", () => {
+          pauseMovies = !pauseMovies;
+        });
       }
 
       main();
