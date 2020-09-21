@@ -15,14 +15,14 @@ function GlobalNavBar() {
 
   return (
     <Box display="flex" alignItems="center" flexWrap="wrap">
-      <HomeLink showArrow={!isHomePage} />
+      <HomeLink showArrow={!isHomePage} marginRight="2" />
       <Box
         display="flex"
         alignItems="center"
         opacity={isHomePage ? "0" : "1"}
         transition="0.2s opacity"
       >
-        <DressToImpressTitle marginLeft="2" />
+        <DressToImpressTitle />
       </Box>
       <Box marginLeft="auto">
         <UserNavBarSection />
@@ -31,7 +31,7 @@ function GlobalNavBar() {
   );
 }
 
-function HomeLink({ showArrow }) {
+function HomeLink({ showArrow, ...props }) {
   return (
     <Box
       as={Link}
@@ -44,6 +44,7 @@ function HomeLink({ showArrow }) {
       opacity="0.8"
       _hover={{ transform: "scale(1.1)", opacity: "1" }}
       _focus={{ transform: "scale(1.1)", opacity: "1" }}
+      {...props}
     >
       <Box
         position="absolute"
