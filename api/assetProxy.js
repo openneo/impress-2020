@@ -36,6 +36,7 @@ export default async (req, res) => {
 
   res.status(proxyRes.status);
 
+  res.setHeader("Content-Type", proxyRes.headers.get("Content-Type"));
   res.setHeader("Cache-Control", proxyRes.headers.get("Cache-Control"));
   res.setHeader("ETag", proxyRes.headers.get("ETag"));
   res.setHeader("Last-Modified", proxyRes.headers.get("Last-Modified"));
@@ -44,7 +45,6 @@ export default async (req, res) => {
     // If the content is not encoded (I think their images generally aren't?),
     // stream the body directly, to speed things up a bit.
     res.setHeader("Content-Length", proxyRes.headers.get("Content-Length"));
-    res.setHeader("Content-Type", proxyRes.headers.get("Content-Type"));
     await streamPipeline(proxyRes.body, res);
   } else {
     // Otherwise, I don't immediately know how to stream encoded content, so,
