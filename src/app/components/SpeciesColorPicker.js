@@ -21,6 +21,8 @@ function SpeciesColorPicker({
   colorId,
   idealPose,
   showPlaceholders = false,
+  colorPlaceholderText = "",
+  speciesPlaceholderText = "",
   stateMustAlwaysBeValid = false,
   isDisabled = false,
   size = "md",
@@ -84,7 +86,12 @@ function SpeciesColorPicker({
         _hover={{
           borderColor: "green.400",
         }}
-        isInvalid={valids && !pairIsValid(valids, speciesId, colorId)}
+        isInvalid={
+          valids &&
+          speciesId &&
+          colorId &&
+          !pairIsValid(valids, speciesId, colorId)
+        }
         isDisabled={isDisabled || isLoading}
         errorBorderColor="red.300"
         {...props}
@@ -165,7 +172,7 @@ function SpeciesColorPicker({
   // supported colors for a species makes sense, but the other way around feels
   // confusing and restrictive.)
   let visibleColors = allColors;
-  if (stateMustAlwaysBeValid && valids) {
+  if (stateMustAlwaysBeValid && valids && speciesId) {
     visibleColors = visibleColors.filter(
       (c) => getValidPoses(valids, speciesId, c.id).size > 0
     );
@@ -180,13 +187,19 @@ function SpeciesColorPicker({
         isDisabled={isDisabled}
         onChange={onChangeColor}
       >
-        {allColors.length === 0 && (
-          <>
-            {/* The default case, and a long name for sizing! */}
-            <option>Blue</option>
-            <option>Dimensional</option>
-          </>
-        )}
+        {
+          // If the selected color isn't in the set we have here, show the
+          // placeholder. (Can happen during loading, or if an invalid color ID
+          // like null is intentionally provided while the real value loads.)
+          !visibleColors.some((c) => c.id === colorId) && (
+            <option>{colorPlaceholderText}</option>
+          )
+        }
+        {
+          // A long name for sizing! Should appear below the placeholder, out
+          // of view.
+          visibleColors.length === 0 && <option>Dimensional</option>
+        }
         {visibleColors.map((color) => (
           <option key={color.id} value={color.id}>
             {color.name}
@@ -201,13 +214,20 @@ function SpeciesColorPicker({
         isDisabled={isDisabled}
         onChange={onChangeSpecies}
       >
-        {allSpecies.length === 0 && (
-          <>
-            {/* The default case, and a long name for sizing! */}
-            <option>Acara</option>
-            <option>Tuskaninny</option>
-          </>
-        )}
+        {
+          // If the selected species isn't in the set we have here, show the
+          // placeholder. (Can happen during loading, or if an invalid species
+          // ID like null is intentionally provided while the real value
+          // loads.)
+          !allSpecies.some((s) => s.id === speciesId) && (
+            <option>{speciesPlaceholderText}</option>
+          )
+        }
+        {
+          // A long name for sizing! Should appear below the placeholder, out
+          // of view.
+          allSpecies.length === 0 && <option>Tuskaninny</option>
+        }
         {allSpecies.map((species) => (
           <option key={species.id} value={species.id}>
             {species.name}

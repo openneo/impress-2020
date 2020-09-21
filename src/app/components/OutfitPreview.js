@@ -27,6 +27,7 @@ function OutfitPreview({
   pose,
   wornItemIds,
   appearanceId = null,
+  isLoading = false,
   placeholder,
   loadingDelayMs,
   spinnerVariant,
@@ -57,7 +58,7 @@ function OutfitPreview({
 
   return (
     <OutfitLayers
-      loading={loading || loading2}
+      loading={isLoading || loading || loading2}
       visibleLayers={loadedLayers}
       placeholder={placeholder}
       loadingDelayMs={loadingDelayMs}

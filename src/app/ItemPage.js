@@ -443,41 +443,64 @@ function ItemPageOutfitPreview({ itemId }) {
     []
   );
   const [petState, setPetState] = React.useState({
-    // Start by looking up Acara appearance data.
-    speciesId: "1",
-    colorId: "8",
-    pose: idealPose,
+    // We'll fill this in once the canonical appearance data arrives.
+    speciesId: null,
+    colorId: null,
+    pose: null,
   });
 
   // Start by loading the "canonical" pet and item appearance for the outfit
   // preview. We'll use this to initialize both the preview and the picker.
-  const { loading, error, data } = useQuery(gql`
-    query ItemPageOutfitPreview($itemId: ID!) {
-      item(id: $itemId) {
-        id
-        canonicalAppearance {
+  const { loading, error } = useQuery(
+    gql`
+      query ItemPageOutfitPreview($itemId: ID!) {
+        item(id: $itemId) {
           id
-          ...ItemAppearanceFragment
-          body {
+          canonicalAppearance {
             id
-            canonicalAppearance {
+            ...ItemAppearanceForOutfitPreview
+            body {
               id
-              ...PetAppearanceFragment
+              canonicalAppearance {
+                id
+                species {
+                  id
+                }
+                color {
+                  id
+                }
+                pose
+
+                ...PetAppearanceForOutfitPreview
+              }
             }
           }
         }
       }
-    }
 
-    ${itemAppearanceFragment}
-    ${petAppearanceFragment}
-  `);
+      ${itemAppearanceFragment}
+      ${petAppearanceFragment}
+    `,
+    {
+      variables: { itemId },
+      onCompleted: (data) => {
+        const canonicalBody = data?.item?.canonicalAppearance?.body;
+        const canonicalPetAppearance = canonicalBody?.canonicalAppearance;
+
+        setPetState({
+          speciesId: canonicalPetAppearance?.species?.id,
+          colorId: canonicalPetAppearance?.color?.id,
+          pose: canonicalPetAppearance?.pose,
+        });
+      },
+    }
+  );
 
   // To check whether the item is compatible with this pet, query for the
   // appearance, but only against the cache. That way, we don't send a
   // redundant network request just for this (the OutfitPreview component will
   // handle it!), but we'll get an update once it arrives in the cache.
-  const { cachedData } = useQuery(
+  const { data: cachedData } = useQuery(
     gql`
       query ItemPageOutfitPreview_CacheOnly(
         $itemId: ID!
@@ -500,17 +523,29 @@ function ItemPageOutfitPreview({ itemId }) {
         colorId: petState.colorId,
       },
       fetchPolicy: "cache-only",
+      onCompleted: (data) => console.log("data", data),
     }
   );
+
+  const borderColor = useColorModeValue("green.700", "green.400");
+  const errorColor = useColorModeValue("red.600", "red.400");
+
+  if (error) {
+    return <Box color="red.400">{error.message}</Box>;
+  }
 
   // If the layers are null-y, then we're still loading. Otherwise, if the
   // layers are an empty array, then we're incomaptible. Or, if they're a
   // non-empty array, then we're compatible!
   const layers = cachedData?.item?.appearanceOn?.layers;
   const isIncompatible = Array.isArray(layers) && layers.length === 0;
-
-  const borderColor = useColorModeValue("green.700", "green.400");
-  const errorColor = useColorModeValue("red.600", "red.400");
+  console.log(
+    petState.speciesId,
+    petState.colorId,
+    itemId,
+    layers,
+    isIncompatible
+  );
 
   return (
     <VStack spacing="3" width="100%">
@@ -531,6 +566,7 @@ function ItemPageOutfitPreview({ itemId }) {
             colorId={petState.colorId}
             pose={petState.pose}
             wornItemIds={[itemId]}
+            isLoading={loading}
             spinnerVariant="corner"
             loadingDelayMs={2000}
           />

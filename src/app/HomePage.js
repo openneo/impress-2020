@@ -105,6 +105,8 @@ function StartOutfitForm({ onChange }) {
           colorId={colorId}
           idealPose={idealPose}
           showPlaceholders
+          colorPlaceholderText="Blue"
+          speciesPlaceholderText="Acara"
           onChange={(species, color, isValid, closestPose) => {
             setSpeciesId(species.id);
             setColorId(color.id);
