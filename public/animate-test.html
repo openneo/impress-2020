@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- NOTE: These are the non-minified, for debugging. -->
+    <script src="http://images.neopets.com/js/createjs.js"></script>
+    <script src="http://images.neopets.com/cp/items/data/000/000/564/564507_fc3216b9b8/all-item_foreground_lower.js"></script>
+  </head>
+  <body>
+    <div style="display: flex; justify-content: center;">
+      <div
+        style="
+          width: 100%;
+          max-width: 600px;
+          border: 1px solid #aaa;
+          position: relative;
+        "
+      >
+        <div style="padding-bottom: 100%;"></div>
+        <canvas
+          id="stage-canvas"
+          style="
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+          "
+        ></canvas>
+      </div>
+    </div>
+    <script>
+      async function main() {
+        const composition = Object.values(AdobeAn.compositions)[0];
+        const library = composition.getLibrary();
+
+        const manifest = library.properties.manifest.map((item) => ({
+          ...item,
+          type: createjs.Types.IMAGE, // can't infer from assetProxy URL!
+          src:
+            "/api/assetProxy?url=" +
+            encodeURIComponent(
+              "http://images.neopets.com/cp/items/data/000/000/564/564507_fc3216b9b8/" +
+                item.src
+            ),
+        }));
+
+        const queue = new createjs.LoadQueue(false);
+        const queueCompleted = new Promise((resolve) =>
+          queue.on("complete", () => resolve())
+        );
+        queue.loadManifest(manifest, true);
+        await queueCompleted;
+
+        const spriteSheets = composition.getSpriteSheet();
+        for (const { name, frames } of library.ssMetadata) {
+          spriteSheets[name] = new createjs.SpriteSheet({
+            images: [queue.getResult(name)],
+            frames,
+          });
+        }
+        console.log(spriteSheets);
+
+        const movieClip = new library.allitem_foreground_lower();
+
+        const canvas = document.getElementById("stage-canvas");
+        const stage = new library.Stage(canvas);
+        canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+        canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+        stage.scaleX = (canvas.offsetWidth * window.devicePixelRatio) / 600;
+        stage.scaleY = (canvas.offsetHeight * window.devicePixelRatio) / 600;
+
+        stage.addChild(movieClip);
+
+        createjs.Ticker.framerate = library.properties.fps;
+        createjs.Ticker.addEventListener("tick", stage);
+      }
+
+      main();
+    </script>
+  </body>
+</html>
