@@ -34,6 +34,9 @@
       <button id="show-hide">Show/hide</button>
       <button id="pause-play">Pause/play</button>
     </div>
+    <div style="margin-top: 1em; text-align: center;">
+      FPS: <span id="fps-count">…</span>
+    </div>
     <script>
       function loadImage(src) {
         return new Promise((resolve, reject) => {
@@ -92,12 +95,6 @@
         stage.scaleY =
           (canvas.offsetHeight * window.devicePixelRatio) /
           library.properties.height;
-        movieClip.cache(
-          0,
-          0,
-          library.properties.width,
-          library.properties.height
-        );
 
         movieClip.alpha = 0;
         const tween = createjs.Tween.get(movieClip, { paused: true }).to(
@@ -112,33 +109,29 @@
           null,
           true
         );
+
+        // TODO: I'm not 100% clear on why, but manually caching the movie and
+        //       manually updating the cache at a 60FPS rate (that's how often
+        //       the tick fires, regardless of movie framerate) seems to
+        //       substantially improve performance of things like fade-in. I
+        //       think it might just be perceived performance, because the
+        //       alpha applies to a cached raster instead of the individual
+        //       layers, so it looks better? Although hell, maybe applying
+        //       alpha to a cached raster just _is_ faster than applying it to
+        //       like 200 overlapping layers, that would just make sense...
+        movieClip.cache(
+          0,
+          0,
+          library.properties.width,
+          library.properties.height
+        );
+        movieClip.on("tick", () => movieClip.updateCache());
+
         stage.addChild(movieClip);
 
-        // FPS-ish updates with RAF! https://stackoverflow.com/a/19772220/107415
-        // Quite a bit going on here, the basic idea is that we want to update
-        // the stage _more often_ than we update the MovieClip, because we want
-        // fade-ins to happen with as high of a frame-rate as possible, but we
-        // want the movie itself to run at its canonical FPS. So, we set the
-        // Ticker into `requestAnimationFrame` mode to send a global tick every
-        // time we get to draw, and update the stage on every such tick - but
-        // we only let it tick its _children_ if enough time has passed since
-        // the last one.
-        const movieTickInterval = 1000 / library.properties.fps;
-        let lastMovieTick = performance.now();
-        let pauseMovies = false;
+        movieClip.framerate = library.properties.fps;
         createjs.Ticker.timingMode = createjs.Ticker.RAF;
-        createjs.Ticker.on("tick", () => {
-          const now = performance.now();
-          const elapsed = now - lastMovieTick;
-          if (elapsed > movieTickInterval && !pauseMovies) {
-            stage.tickOnUpdate = true;
-            lastMovieTick = now - (elapsed % movieTickInterval);
-            movieClip.updateCache();
-          } else {
-            stage.tickOnUpdate = false;
-          }
-          stage.update();
-        });
+        createjs.Ticker.on("tick", (e) => stage.update(e));
 
         document.getElementById("show-hide").addEventListener("click", () => {
           tween.reversed = !tween.reversed;
@@ -147,7 +140,7 @@
         });
 
         document.getElementById("pause-play").addEventListener("click", () => {
-          pauseMovies = !pauseMovies;
+          movieClip.tickEnabled = !movieClip.tickEnabled;
         });
       }
 
