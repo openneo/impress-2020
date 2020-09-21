@@ -2,7 +2,7 @@ import React from "react";
 import { Box } from "@chakra-ui/core";
 import loadable from "@loadable/component";
 
-const GlobalNavBar = loadable(() => import("./GlobalNavBar"));
+const GlobalHeader = loadable(() => import("./GlobalHeader"));
 const GlobalFooter = loadable(() => import("./GlobalFooter"));
 
 function PageLayout({ children }) {
@@ -22,7 +22,7 @@ function PageLayout({ children }) {
         // Leave space while content is still loading
         minHeight="2rem"
       >
-        <GlobalNavBar />
+        <GlobalHeader />
       </Box>
       <Box flex="1 0 0">{children}</Box>
       <Box width="100%" marginTop="12">

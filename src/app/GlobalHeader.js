@@ -9,7 +9,7 @@ import useCurrentUser from "./components/useCurrentUser";
 import HomeLinkIcon from "../images/home-link-icon.png";
 import HomeLinkIcon2x from "../images/home-link-icon@2x.png";
 
-function GlobalNavBar() {
+function GlobalHeader() {
   const { pathname } = useLocation();
   const isHomePage = pathname === "/";
 
@@ -151,4 +151,4 @@ const NavButton = React.forwardRef(({ icon, ...props }, ref) => {
   );
 });
 
-export default GlobalNavBar;
+export default GlobalHeader;
