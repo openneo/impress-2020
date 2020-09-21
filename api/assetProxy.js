@@ -6,7 +6,7 @@ const streamPipeline = util.promisify(stream.pipeline);
 
 const VALID_URL_PATTERNS = [
   /^http:\/\/images\.neopets\.com\/items\/[a-zA-Z0-9_ -]+\.gif$/,
-  /^http:\/\/images\.neopets\.com\/cp\/(bio|items)\/data\/[0-9]{3}\/[0-9]{3}\/[0-9]{3}\/[a-f0-9_]+\/[a-zA-Z0-9_\/]+\.(svg|png)$/,
+  /^http:\/\/images\.neopets\.com\/cp\/(bio|items)\/data\/[0-9]{3}\/[0-9]{3}\/[0-9]{3}\/[a-f0-9_]+\/[a-zA-Z0-9_\-\/]+\.(svg|png|js)$/,
   /^http:\/\/images\.neopets\.com\/cp\/(bio|items)\/swf\/[0-9]{3}\/[0-9]{3}\/[0-9]{3}\/[a-f0-9_]+\.swf$/,
 ];
 
@@ -36,12 +36,20 @@ export default async (req, res) => {
 
   res.status(proxyRes.status);
 
-  res.setHeader("Content-Length", proxyRes.headers.get("Content-Length"));
-  res.setHeader("Content-Type", proxyRes.headers.get("Content-Type"));
-
   res.setHeader("Cache-Control", proxyRes.headers.get("Cache-Control"));
   res.setHeader("ETag", proxyRes.headers.get("ETag"));
   res.setHeader("Last-Modified", proxyRes.headers.get("Last-Modified"));
 
-  streamPipeline(proxyRes.body, res);
+  if (!proxyRes.headers.get("Content-Encoding")) {
+    // If the content is not encoded (I think their images generally aren't?),
+    // stream the body directly, to speed things up a bit.
+    res.setHeader("Content-Length", proxyRes.headers.get("Content-Length"));
+    res.setHeader("Content-Type", proxyRes.headers.get("Content-Type"));
+    await streamPipeline(proxyRes.body, res);
+  } else {
+    // Otherwise, I don't immediately know how to stream encoded content, so,
+    // let's just await the full body and send it the normal way.
+    const buffer = await proxyRes.buffer();
+    res.send(buffer);
+  }
 };
