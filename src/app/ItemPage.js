@@ -443,14 +443,26 @@ function ItemPageOutfitPreview({ itemId }) {
     []
   );
   const [petState, setPetState] = React.useState({
-    // We'll fill this in once the canonical appearance data arrives.
+    // We'll fill these in once the canonical appearance data arrives.
     speciesId: null,
     colorId: null,
     pose: null,
+
+    // We use appearance ID, in addition to the above, to give the Apollo cache
+    // a really clear hint that the canonical pet appearance we preloaded is
+    // the exact right one to show! But switching species/color will null this
+    // out again, and that's okay. (We'll do an unnecessary reload if you
+    // switch back to it though... we could maybe do something clever there!)
+    appearanceId: null,
   });
 
   // Start by loading the "canonical" pet and item appearance for the outfit
   // preview. We'll use this to initialize both the preview and the picker.
+  //
+  // TODO: If this is a non-standard pet color, like Mutant, we'll do an extra
+  //       query after this loads, because our Apollo cache can't detect the
+  //       shared item appearance. (For standard colors though, our logic to
+  //       cover standard-color switches works for this preloading too.)
   const { loading, error } = useQuery(
     gql`
       query ItemPageOutfitPreview($itemId: ID!) {
@@ -491,6 +503,7 @@ function ItemPageOutfitPreview({ itemId }) {
           speciesId: canonicalPetAppearance?.species?.id,
           colorId: canonicalPetAppearance?.color?.id,
           pose: canonicalPetAppearance?.pose,
+          appearanceId: canonicalPetAppearance?.id,
         });
       },
     }
@@ -523,7 +536,6 @@ function ItemPageOutfitPreview({ itemId }) {
         colorId: petState.colorId,
       },
       fetchPolicy: "cache-only",
-      onCompleted: (data) => console.log("data", data),
     }
   );
 
@@ -539,13 +551,6 @@ function ItemPageOutfitPreview({ itemId }) {
   // non-empty array, then we're compatible!
   const layers = cachedData?.item?.appearanceOn?.layers;
   const isIncompatible = Array.isArray(layers) && layers.length === 0;
-  console.log(
-    petState.speciesId,
-    petState.colorId,
-    itemId,
-    layers,
-    isIncompatible
-  );
 
   return (
     <VStack spacing="3" width="100%">
@@ -565,6 +570,7 @@ function ItemPageOutfitPreview({ itemId }) {
             speciesId={petState.speciesId}
             colorId={petState.colorId}
             pose={petState.pose}
+            appearanceId={petState.appearanceId}
             wornItemIds={[itemId]}
             isLoading={loading}
             spinnerVariant="corner"
@@ -588,6 +594,7 @@ function ItemPageOutfitPreview({ itemId }) {
               speciesId: species.id,
               colorId: color.id,
               pose: closestPose,
+              appearanceId: null,
             });
           }}
           size="sm"
