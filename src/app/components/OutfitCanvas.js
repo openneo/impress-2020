@@ -213,7 +213,7 @@ export function OutfitCanvasMovie({ librarySrc, zIndex }) {
         const fileName = librarySrc.split("/").pop();
         const fileNameWithoutExtension = fileName.split(".")[0];
         constructorName = fileNameWithoutExtension.replace(/[ -]/g, "");
-        if (constructorName.match(/^[0-9]+$/)) {
+        if (constructorName.match(/^[0-9]/)) {
           constructorName = "_" + constructorName;
         }
       } catch (e) {
