@@ -241,7 +241,6 @@ export function OutfitCanvasMovie({ librarySrc, zIndex }) {
         library.properties.height
       );
       movieClip.on("tick", () => {
-        console.log("clip tick", movieClip.framerate, movieClip.currentFrame);
         movieClip.updateCache();
       });
 
@@ -253,7 +252,6 @@ export function OutfitCanvasMovie({ librarySrc, zIndex }) {
         200
       );
       const startFadeIn = () => {
-        console.log("first draw");
         tween.paused = false;
       };
 
