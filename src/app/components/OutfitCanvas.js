@@ -207,7 +207,12 @@ export function OutfitCanvasMovie({ librarySrc, zIndex }) {
     }
 
     async function addMovieClip() {
-      library = await loadMovieLibrary(librarySrc);
+      try {
+        library = await loadMovieLibrary(librarySrc);
+      } catch (e) {
+        console.error("Error loading movie library", librarySrc, e);
+      }
+
       let constructorName;
       try {
         const fileName = librarySrc.split("/").pop();
@@ -369,7 +374,7 @@ async function loadMovieLibrary(librarySrc) {
   //       scripts will trigger their onloads in order of arrival, and my
   //       _hope_ is that the onload will execute before the next script to
   //       arrive executes. Let's, ah, find out!
-  await loadScriptTag(librarySrc);
+  await loadScriptTag(safeImageUrl(librarySrc));
   const composition = Object.values(window.AdobeAn.compositions).pop();
   const library = composition.getLibrary();
 
@@ -384,9 +389,7 @@ async function loadMovieLibrary(librarySrc) {
   const manifestImages = new Map(
     library.properties.manifest.map(({ id, src }) => [
       id,
-      loadImage(safeImageUrl(librarySrcDir + "/" + src)).catch((e) => {
-        console.error("Error loading image for movie manifest", e);
-      }),
+      loadImage(safeImageUrl(librarySrcDir + "/" + src)),
     ])
   );
   await Promise.all(manifestImages.values());
