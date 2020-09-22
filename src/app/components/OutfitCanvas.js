@@ -384,7 +384,9 @@ async function loadMovieLibrary(librarySrc) {
   const manifestImages = new Map(
     library.properties.manifest.map(({ id, src }) => [
       id,
-      loadImage(safeImageUrl(librarySrcDir + "/" + src)),
+      loadImage(safeImageUrl(librarySrcDir + "/" + src)).catch((e) => {
+        console.error("Error loading image for movie manifest", e);
+      }),
     ])
   );
   await Promise.all(manifestImages.values());
