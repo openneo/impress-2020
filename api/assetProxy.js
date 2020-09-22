@@ -6,7 +6,7 @@ const streamPipeline = util.promisify(stream.pipeline);
 
 const VALID_URL_PATTERNS = [
   /^http:\/\/images\.neopets\.com\/items\/[a-zA-Z0-9_ -]+\.gif$/,
-  /^http:\/\/images\.neopets\.com\/cp\/(bio|items)\/data\/[0-9]{3}\/[0-9]{3}\/[0-9]{3}\/[a-f0-9_]+\/[a-zA-Z0-9_\-\/]+\.(svg|png|js)$/,
+  /^http:\/\/images\.neopets\.com\/cp\/(bio|items)\/data\/[0-9]{3}\/[0-9]{3}\/[0-9]{3}\/[a-f0-9_]+\/[a-zA-Z0-9_\-\/]+\.(svg|png|js)(\?[0-9]*)?$/,
   /^http:\/\/images\.neopets\.com\/cp\/(bio|items)\/swf\/[0-9]{3}\/[0-9]{3}\/[0-9]{3}\/[a-f0-9_]+\.swf$/,
 ];
 
