@@ -23,12 +23,14 @@ import {
   ItemCardContent,
   ItemBadgeList,
   ItemBadgeTooltip,
+  MaybeAnimatedBadge,
   NcBadge,
   NpBadge,
   YouOwnThisBadge,
   YouWantThisBadge,
 } from "../components/ItemCard";
 import SupportOnly from "./support/SupportOnly";
+import useSupport from "./support/useSupport";
 
 const LoadableItemPageDrawer = loadable(() => import("../ItemPageDrawer"));
 const LoadableItemSupportDrawer = loadable(() =>
@@ -204,11 +206,15 @@ function ItemContainer({ children, isDisabled = false }) {
 }
 
 function ItemBadges({ item }) {
+  const { isSupportUser } = useSupport();
   const occupiedZoneLabels = getZoneLabels(
     item.appearanceOn.layers.map((l) => l.zone)
   );
   const restrictedZoneLabels = getZoneLabels(
     item.appearanceOn.restrictedZones.filter((z) => z.isCommonlyUsedByItems)
+  );
+  const isMaybeAnimated = item.appearanceOn.layers.some(
+    (l) => l.canvasMovieLibraryUrl
   );
 
   return (
@@ -224,6 +230,13 @@ function ItemBadges({ item }) {
         // than try to line things up like a table.
         <NpBadge />
       )}
+      {
+        // This badge is unreliable, but it's helpful for looking for animated
+        // items to test, so we show it only to support. We use this form
+        // instead of <SupportOnly />, to avoid adding extra badge list spacing
+        // on the additional empty child.
+        isMaybeAnimated && isSupportUser && <MaybeAnimatedBadge />
+      }
       {item.currentUserOwnsThis && <YouOwnThisBadge variant="short" />}
       {item.currentUserWantsThis && <YouWantThisBadge variant="short" />}
       {occupiedZoneLabels.map((zoneLabel) => (

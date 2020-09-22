@@ -10,6 +10,7 @@ import {
   useTheme,
 } from "@chakra-ui/core";
 import { CheckIcon, StarIcon } from "@chakra-ui/icons";
+import { HiSparkles } from "react-icons/hi";
 import { Link } from "react-router-dom";
 
 import { safeImageUrl } from "../util";
@@ -239,22 +240,57 @@ export function NpBadge() {
 }
 
 export function YouOwnThisBadge({ variant = "long" }) {
-  return (
-    <Badge colorScheme="green" display="flex" alignItems="center">
-      <CheckIcon aria-label="Star" marginRight="1" />
-      {variant === "long" && <>You own this!</>}
-      {variant === "short" && <>Own</>}
+  let badge = (
+    <Badge
+      colorScheme="green"
+      display="flex"
+      alignItems="center"
+      minHeight="1.5em"
+    >
+      <CheckIcon aria-label="Star" />
+      {variant === "long" && <Box marginLeft="1">You own this!</Box>}
     </Badge>
   );
+
+  if (variant === "short") {
+    badge = <ItemBadgeTooltip label="You own this">{badge}</ItemBadgeTooltip>;
+  }
+
+  return badge;
 }
 
 export function YouWantThisBadge({ variant = "long" }) {
-  return (
-    <Badge colorScheme="blue" display="flex" alignItems="center">
-      <StarIcon aria-label="Star" marginRight="1" />
-      {variant === "long" && <>You want this!</>}
-      {variant === "short" && <>Want</>}
+  let badge = (
+    <Badge
+      colorScheme="blue"
+      display="flex"
+      alignItems="center"
+      minHeight="1.5em"
+    >
+      <StarIcon aria-label="Star" />
+      {variant === "long" && <Box marginLeft="1">You want this!</Box>}
     </Badge>
+  );
+
+  if (variant === "short") {
+    badge = <ItemBadgeTooltip label="You want this">{badge}</ItemBadgeTooltip>;
+  }
+
+  return badge;
+}
+
+export function MaybeAnimatedBadge() {
+  return (
+    <ItemBadgeTooltip label="Maybe animated? (Support only)">
+      <Badge
+        colorScheme="orange"
+        display="flex"
+        alignItems="center"
+        minHeight="1.5em"
+      >
+        <Box as={HiSparkles} aria-label="Sparkles" />
+      </Badge>
+    </ItemBadgeTooltip>
   );
 }
 
