@@ -375,12 +375,26 @@ async function loadMovieLibrary(librarySrc) {
   // like, get by a name or ID that we know by this point. So, here we go, just
   // try to grab it once it arrives!
   //
-  // TODO: How reliable is the timing on this? My assumption is that, the
-  //       scripts will trigger their onloads in order of arrival, and my
-  //       _hope_ is that the onload will execute before the next script to
-  //       arrive executes. Let's, ah, find out!
+  // I'm not _sure_ this method is reliable, but it seems to be stable so far
+  // in Firefox for me. The things I think I'm observing are:
+  //   - Script execution order should match insert order,
+  //   - Onload execution order should match insert order,
+  //   - BUT, script executions might be batched before onloads.
+  //   - So, each script grabs the _first_ composition from the list, and
+  //     deletes it after grabbing. That way, it serves as a FIFO queue!
+  // I'm not suuure this is happening as I'm expecting, vs I'm just not seeing
+  // the race anymore? But fingers crossed!
   await loadScriptTag(safeImageUrl(librarySrc));
-  const composition = Object.values(window.AdobeAn.compositions).pop();
+  const [compositionId, composition] = Object.entries(
+    window.AdobeAn.compositions
+  )[0];
+  if (Object.keys(window.AdobeAn.compositions).length > 1) {
+    console.warn(
+      `Grabbing composition ${compositionId}, but there are >1 here: `,
+      Object.keys(window.AdobeAn.compositions).length
+    );
+  }
+  delete window.AdobeAn.compositions[compositionId];
   const library = composition.getLibrary();
 
   // One more loading step as part of loading this library is loading the
