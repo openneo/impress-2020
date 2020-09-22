@@ -239,10 +239,19 @@ function EaselCanvas({ children, width, height }) {
   React.useLayoutEffect(() => {
     const stage = new window.createjs.Stage(canvasRef.current);
     setStage(stage);
+
+    function onTick(event) {
+      stage.update(event);
+    }
+
+    window.createjs.Ticker.timingMode = window.createjs.Ticker.RAF;
+    window.createjs.Ticker.on("tick", onTick);
+
+    return () => window.createjs.Ticker.off("tick", onTick);
   }, []);
 
   const addChild = React.useCallback(
-    (child, zIndex) => {
+    (child, zIndex, { afterFirstDraw = null } = {}) => {
       // Save this child's z-index for future sorting.
       child.DTI_zIndex = zIndex;
       // Add the child, then slot it into the right place in the order.
@@ -250,6 +259,9 @@ function EaselCanvas({ children, width, height }) {
       stage.sortChildren((a, b) => a.DTI_zIndex - b.DTI_zIndex);
       // Then update in bulk!
       stage.update();
+      if (afterFirstDraw) {
+        stage.on("drawend", afterFirstDraw, null, true);
+      }
     },
     [stage]
   );
@@ -323,8 +335,9 @@ function EaselBitmap({ src, zIndex }) {
   } = React.useContext(EaselContext);
 
   React.useEffect(() => {
-    let bitmap;
     let image;
+    let bitmap;
+    let tween;
 
     function setBitmapSize() {
       bitmap.scaleX = width / image.width;
@@ -334,17 +347,40 @@ function EaselBitmap({ src, zIndex }) {
     async function addBitmap() {
       image = await loadImage(src);
       bitmap = new window.createjs.Bitmap(image);
+
+      // We're gonna fade in! Wait for the first frame to draw, to make the
+      // timing smooth, but yeah here we go!
+      bitmap.alpha = 0;
+      tween = window.createjs.Tween.get(bitmap, { paused: true }).to(
+        { alpha: 1 },
+        200
+      );
+      const startFadeIn = () => {
+        // NOTE: You must cache bitmaps to apply filters to them, and caching
+        //       doesn't work until the first draw.
+        bitmap.cache(0, 0, image.width, image.height);
+        tween.paused = false;
+      };
+
       setBitmapSize();
-      addChild(bitmap, zIndex);
+      addChild(bitmap, zIndex, { afterFirstDraw: startFadeIn });
       addResizeListener(setBitmapSize);
+    }
+
+    function removeBitmap() {
+      removeResizeListener(setBitmapSize);
+      removeChild(bitmap);
     }
 
     addBitmap();
 
     return () => {
       if (bitmap) {
-        removeResizeListener(setBitmapSize);
-        removeChild(bitmap);
+        // Reverse the fade-in into a fade-out, then remove the bitmap.
+        tween.reversed = true;
+        tween.setPosition(0);
+        tween.paused = false;
+        tween.on("complete", removeBitmap, null, true);
       }
     };
   }, [
