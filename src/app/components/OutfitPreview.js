@@ -4,11 +4,11 @@ import { WarningIcon } from "@chakra-ui/icons";
 import { css, cx } from "emotion";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 
-import EaselCanvas, {
-  EaselBitmap,
+import OutfitCanvas, {
+  OutfitCanvasImage,
   loadImage,
   useEaselDependenciesLoader,
-} from "./EaselCanvas";
+} from "./OutfitCanvas";
 import HangerSpinner from "./HangerSpinner";
 import useOutfitAppearance from "./useOutfitAppearance";
 
@@ -151,15 +151,15 @@ export function OutfitLayers({
         engine === "canvas" ? (
           !loadingEasel && (
             <FullScreenCenter>
-              <EaselCanvas width={canvasSize} height={canvasSize}>
+              <OutfitCanvas width={canvasSize} height={canvasSize}>
                 {visibleLayers.map((layer) => (
-                  <EaselBitmap
+                  <OutfitCanvasImage
                     key={layer.id}
                     src={getBestImageUrlForLayer(layer)}
                     zIndex={layer.zone.depth}
                   />
                 ))}
-              </EaselCanvas>
+              </OutfitCanvas>
             </FullScreenCenter>
           )
         ) : (

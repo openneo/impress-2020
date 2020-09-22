@@ -6,7 +6,7 @@ const EaselContext = React.createContext({
   removeResizeListener: () => {},
 });
 
-function EaselCanvas({ children, width, height }) {
+function OutfitCanvas({ children, width, height }) {
   const [stage, setStage] = React.useState(null);
   const resizeListenersRef = React.useRef([]);
   const canvasRef = React.useRef(null);
@@ -109,7 +109,7 @@ function EaselCanvas({ children, width, height }) {
   );
 }
 
-export function EaselBitmap({ src, zIndex }) {
+export function OutfitCanvasImage({ src, zIndex }) {
   const {
     width,
     height,
@@ -183,8 +183,8 @@ export function EaselBitmap({ src, zIndex }) {
 }
 
 /**
- * useEaselDependenciesLoader loads the CreateJS scripts we use in EaselCanvas.
- * We load it as part of EaselCanvas, but callers can also use this to preload
+ * useEaselDependenciesLoader loads the CreateJS scripts we use in OutfitCanvas.
+ * We load it as part of OutfitCanvas, but callers can also use this to preload
  * the scripts and track loading progress.
  */
 export function useEaselDependenciesLoader() {
@@ -246,4 +246,4 @@ export function loadImage(url) {
   return promise;
 }
 
-export default EaselCanvas;
+export default OutfitCanvas;
