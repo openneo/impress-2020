@@ -65,7 +65,15 @@ export function Heading2({ children, ...props }) {
  * safeImageUrl returns an HTTPS-safe image URL for Neopets assets!
  */
 export function safeImageUrl(url) {
-  return `/api/assetProxy?url=${encodeURIComponent(url)}`;
+  let safeUrl = `/api/assetProxy?url=${encodeURIComponent(url)}`;
+
+  // On our Storybook server, we need to request from the main dev server.
+  const { host } = document.location;
+  if (host === "localhost:6006") {
+    safeUrl = "http://localhost:3000" + safeUrl;
+  }
+
+  return safeUrl;
 }
 
 /**

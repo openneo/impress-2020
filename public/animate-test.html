@@ -96,19 +96,19 @@
           (canvas.offsetHeight * window.devicePixelRatio) /
           library.properties.height;
 
-        movieClip.alpha = 0;
-        const tween = createjs.Tween.get(movieClip, { paused: true }).to(
-          { alpha: 1 },
-          200
-        );
-        stage.on(
-          "drawend",
-          () => {
-            tween.paused = false;
-          },
-          null,
-          true
-        );
+        // movieClip.alpha = 0;
+        // const tween = createjs.Tween.get(movieClip, { paused: true }).to(
+        //   { alpha: 1 },
+        //   200
+        // );
+        // stage.on(
+        //   "drawend",
+        //   () => {
+        //     tween.paused = false;
+        //   },
+        //   null,
+        //   true
+        // );
 
         // TODO: I'm not 100% clear on why, but manually caching the movie and
         //       manually updating the cache at a 60FPS rate (that's how often
@@ -119,13 +119,13 @@
         //       layers, so it looks better? Although hell, maybe applying
         //       alpha to a cached raster just _is_ faster than applying it to
         //       like 200 overlapping layers, that would just make sense...
-        movieClip.cache(
-          0,
-          0,
-          library.properties.width,
-          library.properties.height
-        );
-        movieClip.on("tick", () => movieClip.updateCache());
+        // movieClip.cache(
+        //   0,
+        //   0,
+        //   library.properties.width,
+        //   library.properties.height
+        // );
+        // movieClip.on("tick", () => movieClip.updateCache());
 
         stage.addChild(movieClip);
 
