@@ -1,6 +1,4 @@
 import React from "react";
-import { css, cx } from "emotion";
-import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { Box, DarkMode, Flex, Text } from "@chakra-ui/core";
 import { WarningIcon } from "@chakra-ui/icons";
 
@@ -80,6 +78,21 @@ export function OutfitLayers({
   spinnerVariant = "overlay",
   doAnimations = false,
 }) {
+  // NOTE: I couldn't find an official NPM source for this that worked with
+  //       Webpack, and I didn't want to rely on random people's ports, and I
+  //       couldn't get a bundled version to work quite right. So we load
+  //       createjs async!
+  const easelLoading = useScriptTag(
+    "https://code.createjs.com/1.0.0/easeljs.min.js"
+  );
+  const tweenLoading = useScriptTag(
+    "https://code.createjs.com/1.0.0/tweenjs.min.js"
+  );
+  const scriptsLoading = easelLoading || tweenLoading;
+
+  const containerRef = React.useRef(null);
+  const [canvasSize, setCanvasSize] = React.useState(0);
+
   const [loadingDelayHasPassed, setLoadingDelayHasPassed] = React.useState(
     false
   );
@@ -89,6 +102,20 @@ export function OutfitLayers({
     return () => clearTimeout(t);
   }, [loadingDelayMs]);
 
+  React.useLayoutEffect(() => {
+    function computeAndSizeCanvasSize() {
+      setCanvasSize(
+        Math.min(
+          containerRef.current.offsetWidth,
+          containerRef.current.offsetHeight
+        )
+      );
+    }
+
+    window.addEventListener("resize", computeAndSizeCanvasSize);
+    return () => window.removeEventListener("resize", computeAndSizeCanvasSize);
+  }, [setCanvasSize]);
+
   return (
     <Box
       pos="relative"
@@ -96,6 +123,7 @@ export function OutfitLayers({
       width="100%"
       // Create a stacking context, so the z-indexed layers don't escape!
       zIndex="0"
+      ref={containerRef}
     >
       {placeholder && (
         <FullScreenCenter>
@@ -109,63 +137,19 @@ export function OutfitLayers({
           </Box>
         </FullScreenCenter>
       )}
-      <TransitionGroup enter={false} exit={doAnimations}>
-        {visibleLayers.map((layer) => (
-          <CSSTransition
-            // We manage the fade-in and fade-out separately! The fade-out
-            // happens here, when the layer exits the DOM.
-            key={layer.id}
-            classNames={css`
-              &-exit {
-                opacity: 1;
-              }
-
-              &-exit-active {
-                opacity: 0;
-                transition: opacity 0.2s;
-              }
-            `}
-            timeout={200}
-          >
-            <FullScreenCenter zIndex={layer.zone.depth}>
-              <img
+      {!scriptsLoading && (
+        <FullScreenCenter>
+          <EaselCanvas width={canvasSize} height={canvasSize}>
+            {visibleLayers.map((layer) => (
+              <EaselBitmap
+                key={layer.id}
                 src={getBestImageUrlForLayer(layer)}
-                alt=""
-                // We manage the fade-in and fade-out separately! The fade-in
-                // happens here, when the <Image> finishes preloading and
-                // applies the src to the underlying <img>.
-                className={cx(
-                  css`
-                    object-fit: contain;
-                    max-width: 100%;
-                    max-height: 100%;
-
-                    &.do-animations {
-                      animation: fade-in 0.2s;
-                    }
-
-                    @keyframes fade-in {
-                      from {
-                        opacity: 0;
-                      }
-                      to {
-                        opacity: 1;
-                      }
-                    }
-                  `,
-                  doAnimations && "do-animations"
-                )}
-                // This sets up the cache to not need to reload images during
-                // download!
-                // TODO: Re-enable this once we get our change into Chakra
-                // main. For now, this will make Downloads a bit slower, which
-                // is fine!
-                // crossOrigin="Anonymous"
+                zIndex={layer.zone.depth}
               />
-            </FullScreenCenter>
-          </CSSTransition>
-        ))}
-      </TransitionGroup>
+            ))}
+          </EaselCanvas>
+        </FullScreenCenter>
+      )}
       <FullScreenCenter
         zIndex="9000"
         // This is similar to our Delay util component, but Delay disappears
@@ -173,7 +157,7 @@ export function OutfitLayers({
         // also use a timeout to delay the fade-in by 0.5s, but don't delay the
         // fade-out at all. (The timeout was an awkward choice, it was hard to
         // find a good CSS way to specify this delay well!)
-        opacity={loading && loadingDelayHasPassed ? 1 : 0}
+        opacity={(loading || scriptsLoading) && loadingDelayHasPassed ? 1 : 0}
         transition="opacity 0.2s"
       >
         {spinnerVariant === "overlay" && (
@@ -218,6 +202,165 @@ export function FullScreenCenter({ children, ...otherProps }) {
   );
 }
 
+function useScriptTag(src) {
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    let canceled = false;
+    const script = document.createElement("script");
+    script.onload = () => {
+      if (!canceled) {
+        setLoading(false);
+      }
+    };
+    script.src = src;
+    document.body.appendChild(script);
+
+    return () => {
+      canceled = true;
+      setLoading(true);
+    };
+  }, [src, setLoading]);
+
+  return loading;
+}
+
+const EaselContext = React.createContext({
+  stage: null,
+  addResizeListener: () => {},
+  removeResizeListener: () => {},
+});
+
+function EaselCanvas({ children, width, height }) {
+  const [stage, setStage] = React.useState(null);
+  const resizeListenersRef = React.useRef([]);
+  const canvasRef = React.useRef(null);
+
+  React.useLayoutEffect(() => {
+    const stage = new window.createjs.Stage(canvasRef.current);
+    setStage(stage);
+  }, []);
+
+  const addChild = React.useCallback(
+    (child, zIndex) => {
+      // Save this child's z-index for future sorting.
+      child.DTI_zIndex = zIndex;
+      // Add the child, then slot it into the right place in the order.
+      stage.addChild(child);
+      stage.sortChildren((a, b) => a.DTI_zIndex - b.DTI_zIndex);
+      // Then update in bulk!
+      stage.update();
+    },
+    [stage]
+  );
+
+  const removeChild = React.useCallback(
+    (child) => {
+      stage.removeChild(child);
+      stage.update();
+    },
+    [stage]
+  );
+
+  const addResizeListener = React.useCallback((handler) => {
+    resizeListenersRef.current.push(handler);
+  }, []);
+  const removeResizeListener = React.useCallback((handler) => {
+    resizeListenersRef.current = resizeListenersRef.current.filter(
+      (h) => h !== handler
+    );
+  }, []);
+
+  // When the canvas resizes, resize all the layers, then a single bulk update.
+  React.useEffect(() => {
+    for (const handler of resizeListenersRef.current) {
+      handler();
+    }
+    if (stage) {
+      stage.update();
+    }
+  }, [stage, width, height]);
+
+  // Set the canvas's internal dimensions to be higher, if the device has high
+  // DPI like retina. But we'll keep the layout width/height as expected!
+  const internalWidth = width * window.devicePixelRatio;
+  const internalHeight = height * window.devicePixelRatio;
+
+  return (
+    <EaselContext.Provider
+      value={{
+        width: internalWidth,
+        height: internalHeight,
+        addChild,
+        removeChild,
+        addResizeListener,
+        removeResizeListener,
+        stage, // Not used, but available for debugging.
+      }}
+    >
+      <canvas
+        ref={canvasRef}
+        width={internalWidth}
+        height={internalHeight}
+        style={{
+          width: width + "px",
+          height: height + "px",
+        }}
+      />
+      {stage && children}
+    </EaselContext.Provider>
+  );
+}
+
+function EaselBitmap({ src, zIndex }) {
+  const {
+    width,
+    height,
+    addChild,
+    removeChild,
+    addResizeListener,
+    removeResizeListener,
+  } = React.useContext(EaselContext);
+
+  React.useEffect(() => {
+    let bitmap;
+    let image;
+
+    function setBitmapSize() {
+      bitmap.scaleX = width / image.width;
+      bitmap.scaleY = height / image.height;
+    }
+
+    async function addBitmap() {
+      image = await loadImage(src);
+      bitmap = new window.createjs.Bitmap(image);
+      setBitmapSize();
+      addChild(bitmap, zIndex);
+      addResizeListener(setBitmapSize);
+    }
+
+    addBitmap();
+
+    return () => {
+      if (bitmap) {
+        removeResizeListener(setBitmapSize);
+        removeChild(bitmap);
+      }
+    };
+  }, [
+    src,
+    zIndex,
+    width,
+    height,
+    addChild,
+    removeChild,
+    addResizeListener,
+    removeResizeListener,
+  ]);
+
+  return null;
+}
+
 function getBestImageUrlForLayer(layer) {
   if (layer.svgUrl) {
     return `/api/assetProxy?url=${encodeURIComponent(layer.svgUrl)}`;
@@ -229,7 +372,7 @@ function getBestImageUrlForLayer(layer) {
 function loadImage(url) {
   const image = new Image();
   const promise = new Promise((resolve, reject) => {
-    image.onload = () => resolve();
+    image.onload = () => resolve(image);
     image.onerror = (e) => reject(e);
     image.src = url;
   });
