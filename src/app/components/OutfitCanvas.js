@@ -40,11 +40,11 @@ function OutfitCanvas({ children, width, height }) {
       // Add the child, then slot it into the right place in the order.
       stage.addChild(child);
       stage.sortChildren((a, b) => a.DTI_zIndex - b.DTI_zIndex);
-      // Then update in bulk!
-      stage.update();
       if (afterFirstDraw) {
         stage.on("drawend", afterFirstDraw, null, true);
       }
+      // NOTE: We don't bother firing an update, because we trust the ticker
+      //       to do it on the next frame.
     },
     [stage]
   );
@@ -52,7 +52,9 @@ function OutfitCanvas({ children, width, height }) {
   const removeChild = React.useCallback(
     (child) => {
       stage.removeChild(child);
-      stage.update();
+      // NOTE: We don't bother firing an update, because we trust the ticker
+      //       to do it on the next frame. (And, I don't understand why, but
+      //       updating here actually paused remaining movies! So, don't!)
     },
     [stage]
   );
@@ -239,7 +241,7 @@ export function OutfitCanvasMovie({ librarySrc, zIndex }) {
         library.properties.height
       );
       movieClip.on("tick", () => {
-        console.log("clip tick", movieClip.framerate);
+        console.log("clip tick", movieClip.framerate, movieClip.currentFrame);
         movieClip.updateCache();
       });
 
