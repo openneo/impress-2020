@@ -65,7 +65,14 @@ describe("Item", () => {
     const res = await query({
       query: gql`
         query {
-          items(ids: ["38912", "38911", "37375"]) {
+          items(
+            ids: [
+              "38912" # Zafara Agent Robe
+              "38911" # Zafara Agent Hood
+              "37375" # Moon and Stars Background
+              "78244" # Bubbles on Water Foreground
+            ]
+          ) {
             id
             name
 
@@ -75,6 +82,7 @@ describe("Item", () => {
                 remoteId
                 imageUrl(size: SIZE_600)
                 svgUrl
+                canvasMovieLibraryUrl
                 zone {
                   id
                   depth
@@ -96,11 +104,12 @@ describe("Item", () => {
     expect(getDbCalls()).toMatchInlineSnapshot(`
       Array [
         Array [
-          "SELECT * FROM item_translations WHERE item_id IN (?,?,?) AND locale = \\"en\\"",
+          "SELECT * FROM item_translations WHERE item_id IN (?,?,?,?) AND locale = \\"en\\"",
           Array [
             "38912",
             "38911",
             "37375",
+            "78244",
           ],
         ],
         Array [
@@ -115,7 +124,7 @@ describe("Item", () => {
              INNER JOIN parents_swf_assets rel ON
                rel.parent_type = \\"Item\\" AND
                rel.swf_asset_id = sa.id
-             WHERE (rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0)) OR (rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0)) OR (rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0))",
+             WHERE (rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0)) OR (rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0)) OR (rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0)) OR (rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0))",
           Array [
             "38912",
             "180",
@@ -123,30 +132,35 @@ describe("Item", () => {
             "180",
             "37375",
             "180",
+            "78244",
+            "180",
           ],
         ],
         Array [
-          "SELECT * FROM items WHERE id IN (?,?,?)",
+          "SELECT * FROM items WHERE id IN (?,?,?,?)",
           Array [
             "38912",
             "38911",
             "37375",
+            "78244",
           ],
         ],
         Array [
-          "SELECT * FROM zones WHERE id IN (?,?,?)",
+          "SELECT * FROM zones WHERE id IN (?,?,?,?)",
           Array [
             "26",
             "40",
             "3",
+            "45",
           ],
         ],
         Array [
-          "SELECT * FROM zone_translations WHERE zone_id IN (?,?,?) AND locale = \\"en\\"",
+          "SELECT * FROM zone_translations WHERE zone_id IN (?,?,?,?) AND locale = \\"en\\"",
           Array [
             "26",
             "40",
             "3",
+            "45",
           ],
         ],
       ]

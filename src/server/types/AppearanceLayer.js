@@ -39,6 +39,14 @@ const typeDefs = gql`
     swfUrl: String
 
     """
+    This layer as an HTML canvas library JS file, if available.
+
+    This will be empty for layers that don't animate, and might also be empty
+    for animated layers not yet converted by Neopets.
+    """
+    canvasMovieLibraryUrl: String
+
+    """
     This layer can fit on PetAppearances with the same bodyId. "0" is a
     special body ID that indicates it fits all PetAppearances.
     """
@@ -111,30 +119,7 @@ const resolvers = {
       // When the manifest is specifically null, that means we don't know if
       // it exists yet. Load it to find out!
       if (manifest === null) {
-        manifest = await loadAssetManifest(layer.url);
-
-        // Then, write the new manifest. We make sure to write an empty string
-        // if there was no manifest, to signify that it doesn't exist, so we
-        // don't need to bother looking it up again.
-        //
-        // TODO: Someday the manifests will all exist, right? So we'll want to
-        //       reload all the missing ones at that time.
-        manifest = manifest || "";
-        const [
-          result,
-        ] = await db.execute(
-          `UPDATE swf_assets SET manifest = ? WHERE id = ? LIMIT 1;`,
-          [manifest, layer.id]
-        );
-        if (result.affectedRows !== 1) {
-          throw new Error(
-            `Expected to affect 1 asset, but affected ${result.affectedRows}`
-          );
-        }
-        console.log(
-          `Loaded and saved manifest for ${layer.type} ${layer.remoteId}. ` +
-            `DTI ID: ${layer.id}. Exists?: ${Boolean(manifest)}`
-        );
+        manifest = await loadAndCacheAssetManifest(db, layer);
       }
 
       if (!manifest) {
@@ -161,6 +146,39 @@ const resolvers = {
       svgLogger.log("success");
       const assetDatum = asset.assetData[0];
       const url = new URL(assetDatum.path, "http://images.neopets.com");
+      return url.toString();
+    },
+    canvasMovieLibraryUrl: async ({ id }, _, { db, swfAssetLoader }) => {
+      const layer = await swfAssetLoader.load(id);
+      let manifest = layer.manifest && JSON.parse(layer.manifest);
+
+      // When the manifest is specifically null, that means we don't know if
+      // it exists yet. Load it to find out!
+      if (manifest === null) {
+        manifest = await loadAndCacheAssetManifest(db, layer);
+      }
+
+      if (!manifest) {
+        return null;
+      }
+
+      if (manifest.assets.length !== 1) {
+        return null;
+      }
+
+      const asset = manifest.assets[0];
+      if (asset.format !== "lod") {
+        return null;
+      }
+
+      const jsAssetDatum = asset.assetData.find((ad) =>
+        ad.path.endsWith(".js")
+      );
+      if (!jsAssetDatum) {
+        return null;
+      }
+
+      const url = new URL(jsAssetDatum.path, "http://images.neopets.com");
       return url.toString();
     },
     item: async ({ id }, _, { db }) => {
@@ -205,6 +223,35 @@ async function loadAssetManifest(swfUrl) {
       })),
     })),
   };
+}
+
+async function loadAndCacheAssetManifest(db, layer) {
+  let manifest = await loadAssetManifest(layer.url);
+
+  // Then, write the new manifest. We make sure to write an empty string
+  // if there was no manifest, to signify that it doesn't exist, so we
+  // don't need to bother looking it up again.
+  //
+  // TODO: Someday the manifests will all exist, right? So we'll want to
+  //       reload all the missing ones at that time.
+  manifest = manifest || "";
+  const [
+    result,
+  ] = await db.execute(
+    `UPDATE swf_assets SET manifest = ? WHERE id = ? LIMIT 1;`,
+    [manifest, layer.id]
+  );
+  if (result.affectedRows !== 1) {
+    throw new Error(
+      `Expected to affect 1 asset, but affected ${result.affectedRows}`
+    );
+  }
+  console.log(
+    `Loaded and saved manifest for ${layer.type} ${layer.remoteId}. ` +
+      `DTI ID: ${layer.id}. Exists?: ${Boolean(manifest)}`
+  );
+
+  return manifest;
 }
 
 const SWF_URL_PATTERN = /^http:\/\/images\.neopets\.com\/cp\/(.+?)\/swf\/(.+?)\.swf$/;

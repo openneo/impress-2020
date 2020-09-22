@@ -6,6 +6,7 @@ import { CSSTransition, TransitionGroup } from "react-transition-group";
 
 import OutfitCanvas, {
   OutfitCanvasImage,
+  OutfitCanvasMovie,
   loadImage,
   useEaselDependenciesLoader,
 } from "./OutfitCanvas";
@@ -152,13 +153,21 @@ export function OutfitLayers({
           !loadingEasel && (
             <FullScreenCenter>
               <OutfitCanvas width={canvasSize} height={canvasSize}>
-                {visibleLayers.map((layer) => (
-                  <OutfitCanvasImage
-                    key={layer.id}
-                    src={getBestImageUrlForLayer(layer)}
-                    zIndex={layer.zone.depth}
-                  />
-                ))}
+                {visibleLayers.map((layer) =>
+                  layer.canvasMovieLibraryUrl ? (
+                    <OutfitCanvasMovie
+                      key={layer.id}
+                      librarySrc={layer.canvasMovieLibraryUrl}
+                      zIndex={layer.zone.depth}
+                    />
+                  ) : (
+                    <OutfitCanvasImage
+                      key={layer.id}
+                      src={getBestImageUrlForLayer(layer)}
+                      zIndex={layer.zone.depth}
+                    />
+                  )
+                )}
               </OutfitCanvas>
             </FullScreenCenter>
           )

@@ -7,8 +7,9 @@ Object {
       "appearanceOn": Object {
         "layers": Array [
           Object {
+            "canvasMovieLibraryUrl": null,
             "id": "37128",
-            "imageUrl": "https://impress-asset-images.s3.amazonaws.com/object/000/000/014/14856/600x600.png?v2-1587653266000",
+            "imageUrl": "https://impress-asset-images.s3.amazonaws.com/object/000/000/014/14856/600x600.png?v2-1577836800000",
             "remoteId": "14856",
             "svgUrl": null,
             "zone": Object {
@@ -34,8 +35,9 @@ Object {
       "appearanceOn": Object {
         "layers": Array [
           Object {
+            "canvasMovieLibraryUrl": null,
             "id": "37129",
-            "imageUrl": "https://impress-asset-images.s3.amazonaws.com/object/000/000/014/14857/600x600.png?v2-0",
+            "imageUrl": "https://impress-asset-images.s3.amazonaws.com/object/000/000/014/14857/600x600.png?v2-1577836800000",
             "remoteId": "14857",
             "svgUrl": null,
             "zone": Object {
@@ -61,8 +63,9 @@ Object {
       "appearanceOn": Object {
         "layers": Array [
           Object {
+            "canvasMovieLibraryUrl": null,
             "id": "30203",
-            "imageUrl": "https://impress-asset-images.s3.amazonaws.com/object/000/000/006/6829/600x600.png?v2-1598519675000",
+            "imageUrl": "https://impress-asset-images.s3.amazonaws.com/object/000/000/006/6829/600x600.png?v2-1577836800000",
             "remoteId": "6829",
             "svgUrl": null,
             "zone": Object {
@@ -77,366 +80,28 @@ Object {
       "id": "37375",
       "name": "Moon and Stars Background",
     },
-  ],
-}
-`;
-
-exports[`Item loads canonical appearance for all-species Maraquan item: db 1`] = `
-Array [
-  Array [
-    "SELECT pet_types.body_id, pet_types.species_id, items.id AS item_id
-         FROM items
-         INNER JOIN parents_swf_assets ON
-           items.id = parents_swf_assets.parent_id AND
-             parents_swf_assets.parent_type = \\"Item\\"
-         INNER JOIN swf_assets ON
-           parents_swf_assets.swf_asset_id = swf_assets.id
-         INNER JOIN pet_types ON
-           pet_types.body_id = swf_assets.body_id OR swf_assets.body_id = 0
-         INNER JOIN colors ON
-           pet_types.color_id = colors.id
-         WHERE items.id IN (?)
-         GROUP BY pet_types.body_id
-         ORDER BY
-           pet_types.species_id,
-           colors.standard DESC",
-    Array [
-      "77530",
-    ],
-  ],
-  Array [
-    "SELECT sa.*, rel.parent_id FROM swf_assets sa
-       INNER JOIN parents_swf_assets rel ON
-         rel.parent_type = \\"Item\\" AND
-         rel.swf_asset_id = sa.id
-       WHERE (rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0))",
-    Array [
-      "77530",
-      "112",
-    ],
-  ],
-  Array [
     Object {
-      "nestTables": true,
-      "sql": "
-              SELECT pet_states.*, pet_types.* FROM pet_states
-              INNER JOIN pet_types ON pet_types.id = pet_states.pet_type_id
-              WHERE pet_types.body_id = ?
-              ORDER BY
-                pet_types.color_id = 8 DESC, -- Prefer Blue
-                pet_states.mood_id = 1 DESC, -- Prefer Happy
-                pet_states.female = ? DESC, -- Prefer given gender
-                pet_states.id DESC, -- Prefer recent models (like in the app)
-                pet_states.glitched ASC -- Prefer not glitched (like in the app)
-              LIMIT 1",
-      "values": Array [
-        "112",
-        false,
-      ],
+      "appearanceOn": Object {
+        "layers": Array [
+          Object {
+            "canvasMovieLibraryUrl": "http://images.neopets.com/cp/items/data/000/000/564/564507_fc3216b9b8/all-item_foreground_lower.js",
+            "id": "468155",
+            "imageUrl": "https://impress-asset-images.s3.amazonaws.com/object/000/000/564/564507/600x600.png?v2-1577836800000",
+            "remoteId": "564507",
+            "svgUrl": null,
+            "zone": Object {
+              "depth": 50,
+              "id": "45",
+              "label": "Lower Foreground Item",
+            },
+          },
+        ],
+        "restrictedZones": Array [],
+      },
+      "id": "78244",
+      "name": "Bubbles on Water Foreground",
     },
-    Array [
-      "112",
-      false,
-    ],
   ],
-  Array [
-    "SELECT sa.*, rel.parent_id FROM swf_assets sa
-       INNER JOIN parents_swf_assets rel ON
-         rel.parent_type = \\"PetState\\" AND
-         rel.swf_asset_id = sa.id
-       WHERE rel.parent_id IN (?)",
-    Array [
-      "5233",
-    ],
-  ],
-  Array [
-    "SELECT * FROM color_translations
-       WHERE color_id IN (?) AND locale = \\"en\\"",
-    Array [
-      "44",
-    ],
-  ],
-  Array [
-    "SELECT * FROM species_translations
-       WHERE species_id IN (?) AND locale = \\"en\\"",
-    Array [
-      "1",
-    ],
-  ],
-]
-`;
-
-exports[`Item loads canonical appearance for all-species Maraquan item: item layers 1`] = `
-Array [
-  Object {
-    "id": "442864",
-  },
-]
-`;
-
-exports[`Item loads canonical appearance for all-species Maraquan item: pet layers 1`] = `
-Array [
-  Object {
-    "id": "2652",
-  },
-  Object {
-    "id": "2653",
-  },
-  Object {
-    "id": "2654",
-  },
-  Object {
-    "id": "2656",
-  },
-  Object {
-    "id": "2663",
-  },
-]
-`;
-
-exports[`Item loads canonical appearance for all-species item: db 1`] = `
-Array [
-  Array [
-    "SELECT pet_types.body_id, pet_types.species_id, items.id AS item_id
-         FROM items
-         INNER JOIN parents_swf_assets ON
-           items.id = parents_swf_assets.parent_id AND
-             parents_swf_assets.parent_type = \\"Item\\"
-         INNER JOIN swf_assets ON
-           parents_swf_assets.swf_asset_id = swf_assets.id
-         INNER JOIN pet_types ON
-           pet_types.body_id = swf_assets.body_id OR swf_assets.body_id = 0
-         INNER JOIN colors ON
-           pet_types.color_id = colors.id
-         WHERE items.id IN (?)
-         GROUP BY pet_types.body_id
-         ORDER BY
-           pet_types.species_id,
-           colors.standard DESC",
-    Array [
-      "74967",
-    ],
-  ],
-  Array [
-    "SELECT sa.*, rel.parent_id FROM swf_assets sa
-       INNER JOIN parents_swf_assets rel ON
-         rel.parent_type = \\"Item\\" AND
-         rel.swf_asset_id = sa.id
-       WHERE (rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0))",
-    Array [
-      "74967",
-      "93",
-    ],
-  ],
-  Array [
-    "SELECT * FROM species_translations
-       WHERE species_id IN (?) AND locale = \\"en\\"",
-    Array [
-      "1",
-    ],
-  ],
-  Array [
-    Object {
-      "nestTables": true,
-      "sql": "
-              SELECT pet_states.*, pet_types.* FROM pet_states
-              INNER JOIN pet_types ON pet_types.id = pet_states.pet_type_id
-              WHERE pet_types.body_id = ?
-              ORDER BY
-                pet_types.color_id = 8 DESC, -- Prefer Blue
-                pet_states.mood_id = 1 DESC, -- Prefer Happy
-                pet_states.female = ? DESC, -- Prefer given gender
-                pet_states.id DESC, -- Prefer recent models (like in the app)
-                pet_states.glitched ASC -- Prefer not glitched (like in the app)
-              LIMIT 1",
-      "values": Array [
-        "93",
-        true,
-      ],
-    },
-    Array [
-      "93",
-      true,
-    ],
-  ],
-]
-`;
-
-exports[`Item loads canonical appearance for all-species item: item layers 1`] = `
-Array [
-  Object {
-    "id": "395679",
-  },
-]
-`;
-
-exports[`Item loads canonical appearance for all-species item: pet layers 1`] = `
-Object {
-  "id": "5161",
-}
-`;
-
-exports[`Item loads canonical appearance for bodyId=0 item: db 1`] = `
-Array [
-  Array [
-    "SELECT pet_types.body_id, pet_types.species_id, items.id AS item_id
-         FROM items
-         INNER JOIN parents_swf_assets ON
-           items.id = parents_swf_assets.parent_id AND
-             parents_swf_assets.parent_type = \\"Item\\"
-         INNER JOIN swf_assets ON
-           parents_swf_assets.swf_asset_id = swf_assets.id
-         INNER JOIN pet_types ON
-           pet_types.body_id = swf_assets.body_id OR swf_assets.body_id = 0
-         INNER JOIN colors ON
-           pet_types.color_id = colors.id
-         WHERE items.id IN (?)
-         GROUP BY pet_types.body_id
-         ORDER BY
-           pet_types.species_id,
-           colors.standard DESC",
-    Array [
-      "37375",
-    ],
-  ],
-  Array [
-    "SELECT sa.*, rel.parent_id FROM swf_assets sa
-       INNER JOIN parents_swf_assets rel ON
-         rel.parent_type = \\"Item\\" AND
-         rel.swf_asset_id = sa.id
-       WHERE (rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0))",
-    Array [
-      "37375",
-      "93",
-    ],
-  ],
-  Array [
-    "SELECT * FROM species_translations
-       WHERE species_id IN (?) AND locale = \\"en\\"",
-    Array [
-      "1",
-    ],
-  ],
-  Array [
-    Object {
-      "nestTables": true,
-      "sql": "
-              SELECT pet_states.*, pet_types.* FROM pet_states
-              INNER JOIN pet_types ON pet_types.id = pet_states.pet_type_id
-              WHERE pet_types.body_id = ?
-              ORDER BY
-                pet_types.color_id = 8 DESC, -- Prefer Blue
-                pet_states.mood_id = 1 DESC, -- Prefer Happy
-                pet_states.female = ? DESC, -- Prefer given gender
-                pet_states.id DESC, -- Prefer recent models (like in the app)
-                pet_states.glitched ASC -- Prefer not glitched (like in the app)
-              LIMIT 1",
-      "values": Array [
-        "93",
-        true,
-      ],
-    },
-    Array [
-      "93",
-      true,
-    ],
-  ],
-]
-`;
-
-exports[`Item loads canonical appearance for bodyId=0 item: item layers 1`] = `
-Array [
-  Object {
-    "id": "30203",
-  },
-]
-`;
-
-exports[`Item loads canonical appearance for bodyId=0 item: pet layers 1`] = `
-Object {
-  "id": "5161",
-}
-`;
-
-exports[`Item loads canonical appearance for single-species item: db 1`] = `
-Array [
-  Array [
-    "SELECT pet_types.body_id, pet_types.species_id, items.id AS item_id
-         FROM items
-         INNER JOIN parents_swf_assets ON
-           items.id = parents_swf_assets.parent_id AND
-             parents_swf_assets.parent_type = \\"Item\\"
-         INNER JOIN swf_assets ON
-           parents_swf_assets.swf_asset_id = swf_assets.id
-         INNER JOIN pet_types ON
-           pet_types.body_id = swf_assets.body_id OR swf_assets.body_id = 0
-         INNER JOIN colors ON
-           pet_types.color_id = colors.id
-         WHERE items.id IN (?)
-         GROUP BY pet_types.body_id
-         ORDER BY
-           pet_types.species_id,
-           colors.standard DESC",
-    Array [
-      "38911",
-    ],
-  ],
-  Array [
-    "SELECT sa.*, rel.parent_id FROM swf_assets sa
-       INNER JOIN parents_swf_assets rel ON
-         rel.parent_type = \\"Item\\" AND
-         rel.swf_asset_id = sa.id
-       WHERE (rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0))",
-    Array [
-      "38911",
-      "180",
-    ],
-  ],
-  Array [
-    "SELECT * FROM species_translations
-       WHERE species_id IN (?) AND locale = \\"en\\"",
-    Array [
-      "54",
-    ],
-  ],
-  Array [
-    Object {
-      "nestTables": true,
-      "sql": "
-              SELECT pet_states.*, pet_types.* FROM pet_states
-              INNER JOIN pet_types ON pet_types.id = pet_states.pet_type_id
-              WHERE pet_types.body_id = ?
-              ORDER BY
-                pet_types.color_id = 8 DESC, -- Prefer Blue
-                pet_states.mood_id = 1 DESC, -- Prefer Happy
-                pet_states.female = ? DESC, -- Prefer given gender
-                pet_states.id DESC, -- Prefer recent models (like in the app)
-                pet_states.glitched ASC -- Prefer not glitched (like in the app)
-              LIMIT 1",
-      "values": Array [
-        "180",
-        false,
-      ],
-    },
-    Array [
-      "180",
-      false,
-    ],
-  ],
-]
-`;
-
-exports[`Item loads canonical appearance for single-species item: item layers 1`] = `
-Array [
-  Object {
-    "id": "37129",
-  },
-]
-`;
-
-exports[`Item loads canonical appearance for single-species item: pet layers 1`] = `
-Object {
-  "id": "17861",
 }
 `;
 

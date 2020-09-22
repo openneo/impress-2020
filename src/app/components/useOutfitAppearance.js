@@ -144,6 +144,7 @@ export const itemAppearanceFragment = gql`
       id
       remoteId # HACK: This is for Support tools, but other views don't need it
       svgUrl
+      canvasMovieLibraryUrl
       imageUrl(size: SIZE_600)
       swfUrl # HACK: This is for Support tools, but other views don't need it
       bodyId
@@ -166,6 +167,7 @@ export const petAppearanceFragment = gql`
     layers {
       id
       svgUrl
+      canvasMovieLibraryUrl
       imageUrl(size: SIZE_600)
       zone {
         id
