@@ -127,6 +127,7 @@ export function OutfitCanvasImage({ src, zIndex }) {
     let image;
     let bitmap;
     let tween;
+    let canceled = false;
 
     function setBitmapSize() {
       bitmap.scaleX = width / image.width;
@@ -135,6 +136,10 @@ export function OutfitCanvasImage({ src, zIndex }) {
 
     async function addBitmap() {
       image = await loadImage(src);
+      if (canceled) {
+        return;
+      }
+
       bitmap = new window.createjs.Bitmap(image);
 
       // We're gonna fade in! Wait for the first frame to draw, to make the
@@ -164,6 +169,7 @@ export function OutfitCanvasImage({ src, zIndex }) {
     addBitmap();
 
     return () => {
+      canceled = true;
       if (bitmap) {
         // Reverse the fade-in into a fade-out, then remove the bitmap.
         tween.reversed = true;
@@ -200,6 +206,7 @@ export function OutfitCanvasMovie({ librarySrc, zIndex }) {
     let library;
     let movieClip;
     let tween;
+    let canceled = false;
 
     function updateSize() {
       movieClip.scaleX = width / library.properties.width;
@@ -211,6 +218,10 @@ export function OutfitCanvasMovie({ librarySrc, zIndex }) {
         library = await loadMovieLibrary(librarySrc);
       } catch (e) {
         console.error("Error loading movie library", librarySrc, e);
+        return;
+      }
+      if (canceled) {
+        return;
       }
 
       let constructorName;
@@ -280,6 +291,7 @@ export function OutfitCanvasMovie({ librarySrc, zIndex }) {
     addMovieClip();
 
     return () => {
+      canceled = true;
       if (movieClip) {
         // Reverse the fade-in into a fade-out, then remove the bitmap.
         tween.reversed = true;
