@@ -102,10 +102,18 @@ export function OutfitLayers({
     false
   );
 
+  // When we start in a loading state, or re-enter a loading state, start the
+  // loading delay timer.
   React.useEffect(() => {
-    const t = setTimeout(() => setLoadingDelayHasPassed(true), loadingDelayMs);
-    return () => clearTimeout(t);
-  }, [loadingDelayMs]);
+    if (loading) {
+      setLoadingDelayHasPassed(false);
+      const t = setTimeout(
+        () => setLoadingDelayHasPassed(true),
+        loadingDelayMs
+      );
+      return () => clearTimeout(t);
+    }
+  }, [loadingDelayMs, loading]);
 
   React.useLayoutEffect(() => {
     function computeAndSizeCanvasSize() {
@@ -120,6 +128,8 @@ export function OutfitLayers({
     window.addEventListener("resize", computeAndSizeCanvasSize);
     return () => window.removeEventListener("resize", computeAndSizeCanvasSize);
   }, [setCanvasSize]);
+
+  console.log(loading, scriptsLoading);
 
   return (
     <Box
@@ -274,6 +284,14 @@ function useScriptTag(src) {
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
+    const existingScript = document.querySelector(
+      `script[src=${CSS.escape(src)}]`
+    );
+    if (existingScript) {
+      setLoading(false);
+      return;
+    }
+
     let canceled = false;
     const script = document.createElement("script");
     script.onload = () => {
