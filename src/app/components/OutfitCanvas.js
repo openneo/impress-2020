@@ -78,11 +78,6 @@ function OutfitCanvas({ children, width, height }) {
     }
   }, [stage, width, height]);
 
-  // Set the canvas's internal dimensions to be higher, if the device has high
-  // DPI like retina. But we'll keep the layout width/height as expected!
-  const internalWidth = width * window.devicePixelRatio;
-  const internalHeight = height * window.devicePixelRatio;
-
   if (loading) {
     return null;
   }
@@ -90,8 +85,7 @@ function OutfitCanvas({ children, width, height }) {
   return (
     <EaselContext.Provider
       value={{
-        width: internalWidth,
-        height: internalHeight,
+        canvasRef,
         addChild,
         removeChild,
         addResizeListener,
@@ -101,8 +95,11 @@ function OutfitCanvas({ children, width, height }) {
     >
       <canvas
         ref={canvasRef}
-        width={internalWidth}
-        height={internalHeight}
+        // Set the canvas's internal dimensions to be higher, if the device has
+        // high DPI like retina. But we'll keep the layout width/height as
+        // expected!
+        width={width * window.devicePixelRatio}
+        height={height * window.devicePixelRatio}
         style={{
           width: width + "px",
           height: height + "px",
@@ -115,8 +112,7 @@ function OutfitCanvas({ children, width, height }) {
 
 export function OutfitCanvasImage({ src, zIndex }) {
   const {
-    width,
-    height,
+    canvasRef,
     addChild,
     removeChild,
     addResizeListener,
@@ -130,8 +126,8 @@ export function OutfitCanvasImage({ src, zIndex }) {
     let canceled = false;
 
     function setBitmapSize() {
-      bitmap.scaleX = width / image.width;
-      bitmap.scaleY = height / image.height;
+      bitmap.scaleX = canvasRef.current.width / image.width;
+      bitmap.scaleY = canvasRef.current.height / image.height;
     }
 
     async function addBitmap() {
@@ -181,8 +177,7 @@ export function OutfitCanvasImage({ src, zIndex }) {
   }, [
     src,
     zIndex,
-    width,
-    height,
+    canvasRef,
     addChild,
     removeChild,
     addResizeListener,
@@ -194,8 +189,7 @@ export function OutfitCanvasImage({ src, zIndex }) {
 
 export function OutfitCanvasMovie({ librarySrc, zIndex }) {
   const {
-    width,
-    height,
+    canvasRef,
     addChild,
     removeChild,
     addResizeListener,
@@ -209,8 +203,8 @@ export function OutfitCanvasMovie({ librarySrc, zIndex }) {
     let canceled = false;
 
     function updateSize() {
-      movieClip.scaleX = width / library.properties.width;
-      movieClip.scaleY = height / library.properties.height;
+      movieClip.scaleX = canvasRef.current.width / library.properties.width;
+      movieClip.scaleY = canvasRef.current.height / library.properties.height;
     }
 
     async function addMovieClip() {
@@ -303,8 +297,7 @@ export function OutfitCanvasMovie({ librarySrc, zIndex }) {
   }, [
     librarySrc,
     zIndex,
-    width,
-    height,
+    canvasRef,
     addChild,
     removeChild,
     addResizeListener,
