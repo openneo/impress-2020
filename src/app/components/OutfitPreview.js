@@ -1,6 +1,8 @@
 import React from "react";
 import { Box, DarkMode, Flex, Text } from "@chakra-ui/core";
 import { WarningIcon } from "@chakra-ui/icons";
+import { css, cx } from "emotion";
+import { CSSTransition, TransitionGroup } from "react-transition-group";
 
 import HangerSpinner from "./HangerSpinner";
 import useOutfitAppearance from "./useOutfitAppearance";
@@ -29,6 +31,7 @@ function OutfitPreview({
   placeholder,
   loadingDelayMs,
   spinnerVariant,
+  engine = "images",
 }) {
   const { loading, error, visibleLayers } = useOutfitAppearance({
     speciesId,
@@ -61,7 +64,8 @@ function OutfitPreview({
       placeholder={placeholder}
       loadingDelayMs={loadingDelayMs}
       spinnerVariant={spinnerVariant}
-      doAnimations
+      engine={engine}
+      doTransitions
     />
   );
 }
@@ -76,7 +80,8 @@ export function OutfitLayers({
   placeholder,
   loadingDelayMs = 500,
   spinnerVariant = "overlay",
-  doAnimations = false,
+  doTransitions = false,
+  engine = "images",
 }) {
   // NOTE: I couldn't find an official NPM source for this that worked with
   //       Webpack, and I didn't want to rely on random people's ports, and I
@@ -137,19 +142,82 @@ export function OutfitLayers({
           </Box>
         </FullScreenCenter>
       )}
-      {!scriptsLoading && (
-        <FullScreenCenter>
-          <EaselCanvas width={canvasSize} height={canvasSize}>
+      {
+        // TODO: A bit of a mess in here! Extract these out?
+        engine === "canvas" ? (
+          !scriptsLoading && (
+            <FullScreenCenter>
+              <EaselCanvas width={canvasSize} height={canvasSize}>
+                {visibleLayers.map((layer) => (
+                  <EaselBitmap
+                    key={layer.id}
+                    src={getBestImageUrlForLayer(layer)}
+                    zIndex={layer.zone.depth}
+                  />
+                ))}
+              </EaselCanvas>
+            </FullScreenCenter>
+          )
+        ) : (
+          <TransitionGroup enter={false} exit={doTransitions}>
             {visibleLayers.map((layer) => (
-              <EaselBitmap
+              <CSSTransition
+                // We manage the fade-in and fade-out separately! The fade-out
+                // happens here, when the layer exits the DOM.
                 key={layer.id}
-                src={getBestImageUrlForLayer(layer)}
-                zIndex={layer.zone.depth}
-              />
+                classNames={css`
+                  &-exit {
+                    opacity: 1;
+                  }
+
+                  &-exit-active {
+                    opacity: 0;
+                    transition: opacity 0.2s;
+                  }
+                `}
+                timeout={200}
+              >
+                <FullScreenCenter zIndex={layer.zone.depth}>
+                  <img
+                    src={getBestImageUrlForLayer(layer)}
+                    alt=""
+                    // We manage the fade-in and fade-out separately! The fade-in
+                    // happens here, when the <Image> finishes preloading and
+                    // applies the src to the underlying <img>.
+                    className={cx(
+                      css`
+                        object-fit: contain;
+                        max-width: 100%;
+                        max-height: 100%;
+
+                        &.do-animations {
+                          animation: fade-in 0.2s;
+                        }
+
+                        @keyframes fade-in {
+                          from {
+                            opacity: 0;
+                          }
+                          to {
+                            opacity: 1;
+                          }
+                        }
+                      `,
+                      doTransitions && "do-animations"
+                    )}
+                    // This sets up the cache to not need to reload images during
+                    // download!
+                    // TODO: Re-enable this once we get our change into Chakra
+                    // main. For now, this will make Downloads a bit slower, which
+                    // is fine!
+                    // crossOrigin="Anonymous"
+                  />
+                </FullScreenCenter>
+              </CSSTransition>
             ))}
-          </EaselCanvas>
-        </FullScreenCenter>
-      )}
+          </TransitionGroup>
+        )
+      }
       <FullScreenCenter
         zIndex="9000"
         // This is similar to our Delay util component, but Delay disappears
