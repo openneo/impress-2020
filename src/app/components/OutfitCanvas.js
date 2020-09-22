@@ -68,14 +68,14 @@ function OutfitCanvas({ children, width, height }) {
     );
   }, []);
 
-  // When the canvas resizes, resize all the layers, then a single bulk update.
+  // When the canvas resizes, resize all the layers.
   React.useEffect(() => {
     for (const handler of resizeListenersRef.current) {
       handler();
     }
-    if (stage) {
-      stage.update();
-    }
+    // NOTE: We don't bother firing an update, because we trust the ticker
+    //       to do it on the next frame. (And, I don't understand why, but
+    //       updating here actually paused all movies! So, don't!)
   }, [stage, width, height]);
 
   if (loading) {
