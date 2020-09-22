@@ -9,6 +9,9 @@ export default {
   title: "Dress to Impress/OutfitCanvas",
   component: OutfitCanvas,
   argTypes: {
+    paused: {
+      name: "Paused",
+    },
     pet: {
       name: "Pet",
       control: {
@@ -31,7 +34,7 @@ export default {
 //       So this is noticeably faster!
 
 const Template = (args) => (
-  <OutfitCanvas width={300} height={300}>
+  <OutfitCanvas width={300} height={300} pauseMovieLayers={args.paused}>
     {args.pet === "Blue Acara" && (
       <>
         <OutfitCanvasImage
@@ -73,16 +76,19 @@ export const BlueAcara = Template.bind({});
 BlueAcara.args = {
   pet: "Blue Acara",
   items: [],
+  paused: false,
 };
 
 export const BubblesOnWaterForeground = Template.bind({});
 BubblesOnWaterForeground.args = {
   pet: "None",
   items: ["Bubbles In Water Foreground"],
+  paused: false,
 };
 
 export const BlueAcaraWithForeground = Template.bind({});
 BlueAcaraWithForeground.args = {
   pet: "Blue Acara",
   items: ["Bubbles In Water Foreground"],
+  paused: false,
 };

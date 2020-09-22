@@ -180,8 +180,9 @@ export function useFetch(url, { responseType }) {
  *
  * Adapted from https://usehooks.com/useLocalStorage/.
  */
+let storageListeners = [];
 export function useLocalStorage(key, initialValue) {
-  const [storedValue, setStoredValue] = React.useState(() => {
+  const loadValue = React.useCallback(() => {
     try {
       const item = window.localStorage.getItem(key);
       return item ? JSON.parse(item) : initialValue;
@@ -189,16 +190,38 @@ export function useLocalStorage(key, initialValue) {
       console.log(error);
       return initialValue;
     }
-  });
+  }, [key, initialValue]);
+
+  const [storedValue, setStoredValue] = React.useState(loadValue);
 
   const setValue = (value) => {
     try {
       setStoredValue(value);
       window.localStorage.setItem(key, JSON.stringify(value));
+      storageListeners.forEach((l) => l());
     } catch (error) {
       console.log(error);
     }
   };
+
+  const reloadValue = React.useCallback(() => {
+    setStoredValue(loadValue());
+  }, [loadValue, setStoredValue]);
+
+  // Listen for changes elsewhere on the page, and update here too!
+  React.useEffect(() => {
+    storageListeners.push(reloadValue);
+    return () => {
+      storageListeners = storageListeners.filter((l) => l !== reloadValue);
+    };
+  }, [reloadValue]);
+
+  // Listen for changes in other tabs, and update here too! (This does not
+  // catch same-page updates!)
+  React.useEffect(() => {
+    window.addEventListener("storage", reloadValue);
+    return () => window.removeEventListener("storage", reloadValue);
+  }, [reloadValue]);
 
   return [storedValue, setValue];
 }

@@ -16,11 +16,13 @@ import {
   DownloadIcon,
   LinkIcon,
 } from "@chakra-ui/icons";
+import { MdPause, MdPlayArrow } from "react-icons/md";
+import { Link } from "react-router-dom";
 
 import PosePicker from "./PosePicker";
 import SpeciesColorPicker from "../components/SpeciesColorPicker";
+import { useLocalStorage } from "../util";
 import useOutfitAppearance from "../components/useOutfitAppearance";
-import { Link } from "react-router-dom";
 
 /**
  * OutfitControls is the set of controls layered over the outfit preview, to
@@ -150,6 +152,9 @@ function OutfitControls({ outfitState, dispatchToOutfit }) {
         <Box>
           <CopyLinkButton outfitState={outfitState} />
         </Box>
+        <Box>
+          <PlayPauseButton />
+        </Box>
       </Stack>
       <Box gridArea="space" onClick={maybeUnlockFocus} />
       <Flex gridArea="picker" justify="center" onClick={maybeUnlockFocus}>
@@ -232,6 +237,23 @@ function CopyLinkButton({ outfitState }) {
           icon={hasCopied ? <CheckIcon /> : <LinkIcon />}
           aria-label="Copy link"
           onClick={onCopy}
+        />
+      </Box>
+    </Tooltip>
+  );
+}
+
+function PlayPauseButton() {
+  const [isPaused, setIsPaused] = useLocalStorage("DTIOutfitIsPaused", true);
+
+  const label = isPaused ? "Start animations" : "Stop animations";
+  return (
+    <Tooltip label={label} placement="left">
+      <Box>
+        <ControlButton
+          icon={isPaused ? <MdPlayArrow /> : <MdPause />}
+          aria-label={label}
+          onClick={() => setIsPaused(!isPaused)}
         />
       </Box>
     </Tooltip>

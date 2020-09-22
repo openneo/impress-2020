@@ -8,7 +8,7 @@ const EaselContext = React.createContext({
   removeResizeListener: () => {},
 });
 
-function OutfitCanvas({ children, width, height }) {
+function OutfitCanvas({ children, width, height, pauseMovieLayers }) {
   const [stage, setStage] = React.useState(null);
   const resizeListenersRef = React.useRef([]);
   const canvasRef = React.useRef(null);
@@ -77,6 +77,16 @@ function OutfitCanvas({ children, width, height }) {
     //       to do it on the next frame. (And, I don't understand why, but
     //       updating here actually paused all movies! So, don't!)
   }, [stage, width, height]);
+
+  // When it's time to pause/unpause the movie layers, we implement this by
+  // disabling/enabling passing ticks along to the children. We don't stop
+  // playing the ticks altogether though, because we do want our fade-in/out
+  // transitions to keep playing!
+  React.useEffect(() => {
+    if (stage) {
+      stage.tickOnUpdate = !pauseMovieLayers;
+    }
+  }, [stage, pauseMovieLayers]);
 
   if (loading) {
     return null;

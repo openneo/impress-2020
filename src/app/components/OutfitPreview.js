@@ -11,6 +11,7 @@ import OutfitCanvas, {
   useEaselDependenciesLoader,
 } from "./OutfitCanvas";
 import HangerSpinner from "./HangerSpinner";
+import { useLocalStorage } from "../util";
 import useOutfitAppearance from "./useOutfitAppearance";
 
 /**
@@ -96,8 +97,9 @@ export function OutfitLayers({
   );
 
   const { loading: loadingEasel } = useEaselDependenciesLoader();
-
   const loadingAnything = loading || loadingEasel;
+
+  const [isPaused] = useLocalStorage("DTIOutfitIsPaused", true);
 
   // When we start in a loading state, or re-enter a loading state, start the
   // loading delay timer.
@@ -152,7 +154,11 @@ export function OutfitLayers({
         engine === "canvas" ? (
           !loadingEasel && (
             <FullScreenCenter>
-              <OutfitCanvas width={canvasSize} height={canvasSize}>
+              <OutfitCanvas
+                width={canvasSize}
+                height={canvasSize}
+                pauseMovieLayers={isPaused}
+              >
                 {visibleLayers.map((layer) =>
                   layer.canvasMovieLibraryUrl ? (
                     <OutfitCanvasMovie
