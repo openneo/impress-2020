@@ -60,7 +60,7 @@ function OutfitCanvas({
       // NOTE: We don't bother firing an update, because we trust the ticker
       //       to do it on the next frame.
     },
-    [stage]
+    [stage, onChangeHasAnimations]
   );
 
   const removeChild = React.useCallback(
@@ -78,7 +78,7 @@ function OutfitCanvas({
       //       to do it on the next frame. (And, I don't understand why, but
       //       updating here actually paused remaining movies! So, don't!)
     },
-    [stage]
+    [stage, onChangeHasAnimations]
   );
 
   const addResizeListener = React.useCallback((handler) => {
