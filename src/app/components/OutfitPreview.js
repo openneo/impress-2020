@@ -119,7 +119,7 @@ export function OutfitLayers({
   }, [loadingDelayMs, loadingAnything]);
 
   React.useLayoutEffect(() => {
-    function computeAndSizeCanvasSize() {
+    function computeAndSaveCanvasSize() {
       setCanvasSize(
         Math.min(
           containerRef.current.offsetWidth,
@@ -128,8 +128,9 @@ export function OutfitLayers({
       );
     }
 
-    window.addEventListener("resize", computeAndSizeCanvasSize);
-    return () => window.removeEventListener("resize", computeAndSizeCanvasSize);
+    computeAndSaveCanvasSize();
+    window.addEventListener("resize", computeAndSaveCanvasSize);
+    return () => window.removeEventListener("resize", computeAndSaveCanvasSize);
   }, [setCanvasSize]);
 
   return (

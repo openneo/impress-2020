@@ -5,6 +5,7 @@ import {
   Badge,
   Button,
   Box,
+  IconButton,
   Skeleton,
   SkeletonText,
   Tooltip,
@@ -22,6 +23,7 @@ import {
   StarIcon,
   WarningIcon,
 } from "@chakra-ui/icons";
+import { MdPause, MdPlayArrow } from "react-icons/md";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
@@ -39,6 +41,7 @@ import {
 } from "./components/useOutfitAppearance";
 import OutfitPreview from "./components/OutfitPreview";
 import SpeciesColorPicker from "./components/SpeciesColorPicker";
+import { useLocalStorage } from "./util";
 
 function ItemPage() {
   const { itemId } = useParams();
@@ -539,6 +542,9 @@ function ItemPageOutfitPreview({ itemId }) {
     }
   );
 
+  const [hasAnimations, setHasAnimations] = React.useState(false);
+  const [isPaused, setIsPaused] = useLocalStorage("DTIOutfitIsPaused", true);
+
   const borderColor = useColorModeValue("green.700", "green.400");
   const errorColor = useColorModeValue("red.600", "red.400");
 
@@ -575,7 +581,25 @@ function ItemPageOutfitPreview({ itemId }) {
             isLoading={loading}
             spinnerVariant="corner"
             loadingDelayMs={2000}
+            engine="canvas"
+            onChangeHasAnimations={setHasAnimations}
           />
+          {hasAnimations && (
+            <IconButton
+              icon={isPaused ? <MdPlayArrow /> : <MdPause />}
+              aria-label={isPaused ? "Play" : "Pause"}
+              onClick={() => setIsPaused(!isPaused)}
+              borderRadius="full"
+              boxShadow="md"
+              color="gray.50"
+              backgroundColor="blackAlpha.700"
+              position="absolute"
+              bottom="2"
+              left="2"
+              _hover={{ backgroundColor: "blackAlpha.900" }}
+              _focus={{ backgroundColor: "blackAlpha.900" }}
+            />
+          )}
         </Box>
       </AspectRatio>
       <Box display="flex" width="100%" alignItems="center">
