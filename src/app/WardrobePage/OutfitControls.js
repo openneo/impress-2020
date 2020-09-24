@@ -2,6 +2,7 @@ import React from "react";
 import { css, cx } from "emotion";
 import {
   Box,
+  Button,
   DarkMode,
   Flex,
   IconButton,
@@ -88,9 +89,9 @@ function OutfitControls({ outfitState, dispatchToOutfit }) {
       padding={{ base: 2, lg: 6 }}
       display="grid"
       overflow="auto"
-      gridTemplateAreas={`"back sharing"
-                          "space space"
-                          "picker picker"`}
+      gridTemplateAreas={`"back play-pause sharing"
+                          "space space space"
+                          "picker picker picker"`}
       gridTemplateRows="auto minmax(1rem, 1fr) auto"
       className={cx(
         css`
@@ -139,6 +140,11 @@ function OutfitControls({ outfitState, dispatchToOutfit }) {
           d="inline-flex" // Not sure why <a> requires this to style right! ^^`
         />
       </Box>
+      <Box gridArea="play-pause" display="flex" justifyContent="center">
+        <DarkMode>
+          <PlayPauseButton />
+        </DarkMode>
+      </Box>
       <Stack
         gridArea="sharing"
         alignSelf="flex-end"
@@ -151,9 +157,6 @@ function OutfitControls({ outfitState, dispatchToOutfit }) {
         </Box>
         <Box>
           <CopyLinkButton outfitState={outfitState} />
-        </Box>
-        <Box>
-          <PlayPauseButton />
         </Box>
       </Stack>
       <Box gridArea="space" onClick={maybeUnlockFocus} />
@@ -246,17 +249,25 @@ function CopyLinkButton({ outfitState }) {
 function PlayPauseButton() {
   const [isPaused, setIsPaused] = useLocalStorage("DTIOutfitIsPaused", true);
 
-  const label = isPaused ? "Start animations" : "Stop animations";
   return (
-    <Tooltip label={label} placement="left">
-      <Box>
-        <ControlButton
-          icon={isPaused ? <MdPlayArrow /> : <MdPause />}
-          aria-label={label}
-          onClick={() => setIsPaused(!isPaused)}
-        />
-      </Box>
-    </Tooltip>
+    <Button
+      leftIcon={isPaused ? <MdPause /> : <MdPlayArrow />}
+      size="sm"
+      color="gray.300"
+      variant="outline"
+      borderColor="gray.300"
+      borderRadius="full"
+      backgroundColor="blackAlpha.500"
+      marginTop="0.3rem" // to center-align with buttons (not sure on amt?)
+      _hover={{
+        backgroundColor: "gray.600",
+        borderColor: "gray.50",
+        color: "gray.50",
+      }}
+      onClick={() => setIsPaused(!isPaused)}
+    >
+      {isPaused ? <>Paused</> : <>Playing</>}
+    </Button>
   );
 }
 
