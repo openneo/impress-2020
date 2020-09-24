@@ -72,7 +72,39 @@ function useOutfitState() {
     }
   );
 
-  const items = data?.items || [];
+  const resultItems = data?.items || [];
+
+  // Okay, time for some big perf hacks! Lower down in the app, we use
+  // React.memo to avoid re-rendering Item components if the items haven't
+  // updated. In simpler cases, we just make the component take the individual
+  // item fields as props... but items are complex and that makes it annoying
+  // :p Instead, we do these tricks to reuse physical item objects if they're
+  // still deep-equal to the previous version. This is because React.memo uses
+  // object identity to compare its props, so now when it checks whether
+  // `oldItem === newItem`, the answer will be `true`, unless the item really
+  // _did_ change!
+  const [cachedItemObjects, setCachedItemObjects] = React.useState([]);
+  let items = resultItems.map((item) => {
+    const cachedItemObject = cachedItemObjects.find((i) => i.id === item.id);
+    if (
+      cachedItemObject &&
+      JSON.stringify(cachedItemObject) === JSON.stringify(item)
+    ) {
+      return cachedItemObject;
+    }
+    return item;
+  });
+  if (
+    items.length === cachedItemObjects.length &&
+    items.every((_, index) => items[index] === cachedItemObjects[index])
+  ) {
+    // Even reuse the entire array if none of the items changed!
+    items = cachedItemObjects;
+  }
+  React.useEffect(() => {
+    setCachedItemObjects(items);
+  }, [items, setCachedItemObjects]);
+
   const itemsById = {};
   for (const item of items) {
     itemsById[item.id] = item;

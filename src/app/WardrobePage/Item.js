@@ -86,7 +86,7 @@ function Item({
               icon={<DeleteIcon />}
               label="Remove"
               onClick={(e) => {
-                onRemove();
+                onRemove(item.id);
                 e.preventDefault();
               }}
             />

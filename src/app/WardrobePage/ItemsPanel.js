@@ -117,6 +117,13 @@ function ItemZoneGroup({
     }
   };
 
+  const onRemove = React.useCallback(
+    (itemId) => {
+      dispatchToOutfit({ type: "removeItem", itemId });
+    },
+    [dispatchToOutfit]
+  );
+
   return (
     <Box mb="10">
       <Heading2 display="flex" alignItems="center" mx="1">
@@ -136,9 +143,7 @@ function ItemZoneGroup({
                   !isDisabled && outfitState.wornItemIds.includes(item.id)
                 }
                 isInOutfit={outfitState.allItemIds.includes(item.id)}
-                onRemove={() =>
-                  dispatchToOutfit({ type: "removeItem", itemId: item.id })
-                }
+                onRemove={onRemove}
                 isDisabled={isDisabled}
               />
             );
