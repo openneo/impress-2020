@@ -241,7 +241,7 @@ export function OutfitCanvasMovie({ librarySrc, zIndex }) {
 
     async function addMovieClip() {
       try {
-        library = await loadMovieLibrary(librarySrc);
+        library = await loadCanvasMovieLibrary(librarySrc);
       } catch (e) {
         console.error("Error loading movie library", librarySrc, e);
         return;
@@ -414,7 +414,7 @@ export function loadImage(url) {
   return promise;
 }
 
-async function loadMovieLibrary(librarySrc) {
+export async function loadCanvasMovieLibrary(librarySrc) {
   // These library JS files are interesting in their operation. It seems like
   // the idea is, it pushes an object to a global array, and you need to snap
   // it up and see it at the end of the array! And I don't really see a way to

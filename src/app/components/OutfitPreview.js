@@ -8,6 +8,7 @@ import OutfitCanvas, {
   OutfitCanvasImage,
   OutfitCanvasMovie,
   loadImage,
+  loadCanvasMovieLibrary,
   useEaselDependenciesLoader,
 } from "./OutfitCanvas";
 import HangerSpinner from "./HangerSpinner";
@@ -330,15 +331,21 @@ export function usePreloadLayers(layers) {
     let canceled = false;
     setError(null);
 
-    const loadImages = async () => {
-      const imagePromises = layers.map(getBestImageUrlForLayer).map(loadImage);
+    const loadAssets = async () => {
+      const assetPromises = layers.map((layer) => {
+        if (layer.canvasMovieLibraryUrl) {
+          return loadCanvasMovieLibrary(layer.canvasMovieLibraryUrl);
+        } else {
+          return loadImage(getBestImageUrlForLayer(layer));
+        }
+      });
       try {
         // TODO: Load in one at a time, under a loading spinner & delay?
-        await Promise.all(imagePromises);
+        await Promise.all(assetPromises);
       } catch (e) {
         if (canceled) return;
         console.error("Error preloading outfit layers", e);
-        imagePromises.forEach((p) => p.cancel());
+        assetPromises.forEach((p) => p.cancel());
         setError(e);
         return;
       }
@@ -347,7 +354,7 @@ export function usePreloadLayers(layers) {
       setLoadedLayers(layers);
     };
 
-    loadImages();
+    loadAssets();
 
     return () => {
       canceled = true;
