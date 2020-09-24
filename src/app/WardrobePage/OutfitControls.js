@@ -6,6 +6,7 @@ import {
   DarkMode,
   Flex,
   IconButton,
+  Portal,
   Stack,
   Tooltip,
   useClipboard,
@@ -255,28 +256,110 @@ function CopyLinkButton({ outfitState }) {
 function PlayPauseButton() {
   const [isPaused, setIsPaused] = useLocalStorage("DTIOutfitIsPaused", true);
 
+  // We show an intro animation if this mounts while paused. Whereas if we're
+  // not paused, we initialize as if we had already finished.
+  const [blinkInState, setBlinkInState] = React.useState(
+    isPaused ? { type: "ready" } : { type: "done" }
+  );
+  const buttonRef = React.useRef(null);
+
+  React.useLayoutEffect(() => {
+    if (blinkInState.type === "ready" && buttonRef.current) {
+      setBlinkInState({
+        type: "started",
+        position: {
+          left: buttonRef.current.offsetLeft,
+          top: buttonRef.current.offsetTop,
+        },
+      });
+    }
+  }, [blinkInState, setBlinkInState]);
+
   return (
-    <Button
-      leftIcon={isPaused ? <MdPause /> : <MdPlayArrow />}
-      size="sm"
-      color="gray.100"
-      variant="outline"
-      borderColor="gray.200"
-      borderRadius="full"
-      backgroundColor="blackAlpha.600"
-      boxShadow="md"
-      marginTop="0.3rem" // to center-align with buttons (not sure on amt?)
-      _hover={{
-        backgroundColor: "gray.600",
-        borderColor: "gray.50",
-        color: "gray.50",
-      }}
-      onClick={() => setIsPaused(!isPaused)}
-    >
-      {isPaused ? <>Paused</> : <>Playing</>}
-    </Button>
+    <>
+      <PlayPauseButtonContent
+        isPaused={isPaused}
+        setIsPaused={setIsPaused}
+        marginTop="0.3rem" // to center-align with buttons (not sure on amt?)
+        ref={buttonRef}
+      />
+      {blinkInState.type === "started" && (
+        <Portal>
+          <PlayPauseButtonContent
+            isPaused={isPaused}
+            setIsPaused={setIsPaused}
+            position="absolute"
+            left={blinkInState.position.left}
+            top={blinkInState.position.top}
+            backgroundColor="gray.600"
+            borderColor="gray.50"
+            color="gray.50"
+            onAnimationEnd={() => setBlinkInState({ type: "done" })}
+            // Don't disrupt the hover state of the controls! (And the button
+            // doesn't seem to click correctly, not sure why, but instead of
+            // debugging I'm adding this :p)
+            pointerEvents="none"
+            className={css`
+              @keyframes fade-in-out {
+                0% {
+                  opacity: 0;
+                }
+
+                10% {
+                  opacity: 1;
+                }
+
+                90% {
+                  opacity: 1;
+                }
+
+                100% {
+                  opacity: 0;
+                }
+              }
+
+              opacity: 0;
+              animation: fade-in-out 2s;
+            `}
+          />
+        </Portal>
+      )}
+    </>
   );
 }
+
+const PlayPauseButtonContent = React.forwardRef(
+  ({ isPaused, setIsPaused, ...props }, ref) => {
+    return (
+      <Button
+        ref={ref}
+        leftIcon={isPaused ? <MdPause /> : <MdPlayArrow />}
+        size="sm"
+        color="gray.100"
+        variant="outline"
+        borderColor="gray.200"
+        borderRadius="full"
+        backgroundColor="blackAlpha.600"
+        boxShadow="md"
+        position="absolute"
+        _hover={{
+          backgroundColor: "gray.600",
+          borderColor: "gray.50",
+          color: "gray.50",
+        }}
+        _focus={{
+          backgroundColor: "gray.600",
+          borderColor: "gray.50",
+          color: "gray.50",
+        }}
+        onClick={() => setIsPaused(!isPaused)}
+        {...props}
+      >
+        {isPaused ? <>Paused</> : <>Playing</>}
+      </Button>
+    );
+  }
+);
 
 /**
  * ControlButton is a UI helper to render the cute round buttons we use in
