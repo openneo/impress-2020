@@ -259,11 +259,12 @@ function PlayPauseButton() {
     <Button
       leftIcon={isPaused ? <MdPause /> : <MdPlayArrow />}
       size="sm"
-      color="gray.300"
+      color="gray.100"
       variant="outline"
-      borderColor="gray.300"
+      borderColor="gray.200"
       borderRadius="full"
-      backgroundColor="blackAlpha.500"
+      backgroundColor="blackAlpha.600"
+      boxShadow="md"
       marginTop="0.3rem" // to center-align with buttons (not sure on amt?)
       _hover={{
         backgroundColor: "gray.600",
