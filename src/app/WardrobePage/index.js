@@ -29,6 +29,10 @@ function WardrobePage() {
   const toast = useToast();
   const { loading, error, outfitState, dispatchToOutfit } = useOutfitState();
 
+  // Whether the current outfit preview has animations. Determines whether we
+  // show the play/pause button.
+  const [hasAnimations, setHasAnimations] = React.useState(false);
+
   usePageTitle(outfitState.name || "Untitled outfit");
 
   // TODO: I haven't found a great place for this error UI yet, and this case
@@ -64,12 +68,14 @@ function WardrobePage() {
             appearanceId={outfitState.appearanceId}
             wornItemIds={outfitState.wornItemIds}
             engine="canvas"
+            onChangeHasAnimations={setHasAnimations}
           />
         }
         controls={
           <OutfitControls
             outfitState={outfitState}
             dispatchToOutfit={dispatchToOutfit}
+            showAnimationControls={hasAnimations}
           />
         }
         itemsAndSearch={

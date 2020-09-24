@@ -8,7 +8,13 @@ const EaselContext = React.createContext({
   removeResizeListener: () => {},
 });
 
-function OutfitCanvas({ children, width, height, pauseMovieLayers }) {
+function OutfitCanvas({
+  children,
+  width,
+  height,
+  pauseMovieLayers = true,
+  onChangeHasAnimations = null,
+}) {
   const [stage, setStage] = React.useState(null);
   const resizeListenersRef = React.useRef([]);
   const canvasRef = React.useRef(null);
@@ -43,6 +49,14 @@ function OutfitCanvas({ children, width, height, pauseMovieLayers }) {
       if (afterFirstDraw) {
         stage.on("drawend", afterFirstDraw, null, true);
       }
+
+      if (onChangeHasAnimations) {
+        const hasAnimations = stage.children.some((c) =>
+          createjsNodeHasAnimations(c)
+        );
+        onChangeHasAnimations(hasAnimations);
+      }
+
       // NOTE: We don't bother firing an update, because we trust the ticker
       //       to do it on the next frame.
     },
@@ -52,6 +66,14 @@ function OutfitCanvas({ children, width, height, pauseMovieLayers }) {
   const removeChild = React.useCallback(
     (child) => {
       stage.removeChild(child);
+
+      if (onChangeHasAnimations) {
+        const hasAnimations = stage.children.some((c) =>
+          createjsNodeHasAnimations(c)
+        );
+        onChangeHasAnimations(hasAnimations);
+      }
+
       // NOTE: We don't bother firing an update, because we trust the ticker
       //       to do it on the next frame. (And, I don't understand why, but
       //       updating here actually paused remaining movies! So, don't!)

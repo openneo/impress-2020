@@ -29,7 +29,11 @@ import useOutfitAppearance from "../components/useOutfitAppearance";
  * OutfitControls is the set of controls layered over the outfit preview, to
  * control things like species/color and sharing links!
  */
-function OutfitControls({ outfitState, dispatchToOutfit }) {
+function OutfitControls({
+  outfitState,
+  dispatchToOutfit,
+  showAnimationControls,
+}) {
   const [focusIsLocked, setFocusIsLocked] = React.useState(false);
   const onLockFocus = React.useCallback(() => setFocusIsLocked(true), [
     setFocusIsLocked,
@@ -140,11 +144,13 @@ function OutfitControls({ outfitState, dispatchToOutfit }) {
           d="inline-flex" // Not sure why <a> requires this to style right! ^^`
         />
       </Box>
-      <Box gridArea="play-pause" display="flex" justifyContent="center">
-        <DarkMode>
-          <PlayPauseButton />
-        </DarkMode>
-      </Box>
+      {showAnimationControls && (
+        <Box gridArea="play-pause" display="flex" justifyContent="center">
+          <DarkMode>
+            <PlayPauseButton />
+          </DarkMode>
+        </Box>
+      )}
       <Stack
         gridArea="sharing"
         alignSelf="flex-end"

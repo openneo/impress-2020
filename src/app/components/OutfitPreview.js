@@ -39,6 +39,7 @@ function OutfitPreview({
   loadingDelayMs,
   spinnerVariant,
   engine = "images",
+  onChangeHasAnimations = null,
 }) {
   const { loading, error, visibleLayers } = useOutfitAppearance({
     speciesId,
@@ -72,6 +73,7 @@ function OutfitPreview({
       loadingDelayMs={loadingDelayMs}
       spinnerVariant={spinnerVariant}
       engine={engine}
+      onChangeHasAnimations={onChangeHasAnimations}
       doTransitions
     />
   );
@@ -89,6 +91,7 @@ export function OutfitLayers({
   spinnerVariant = "overlay",
   doTransitions = false,
   engine = "images",
+  onChangeHasAnimations = null,
 }) {
   const containerRef = React.useRef(null);
   const [canvasSize, setCanvasSize] = React.useState(0);
@@ -158,6 +161,7 @@ export function OutfitLayers({
                 width={canvasSize}
                 height={canvasSize}
                 pauseMovieLayers={isPaused}
+                onChangeHasAnimations={onChangeHasAnimations}
               >
                 {visibleLayers.map((layer) =>
                   layer.canvasMovieLibraryUrl ? (
