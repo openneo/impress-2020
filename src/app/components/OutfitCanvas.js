@@ -257,15 +257,29 @@ export function OutfitCanvasMovie({ librarySrc, zIndex }) {
         return;
       }
       movieClip = new LibraryMovieClipConstructor();
+
+      // For actual animated movies, we cache their appearance then update
+      // every time they advance a frame, so that they aren't recomputing
+      // things while we perform 60FPS fade transitions.
+      //
+      // For static assets, we go even further: we cache their appearance once,
+      // then never touch it again, even disabling the entire tick event for
+      // its entire remaining lifetime! (This is a surprisingly good perf win:
+      // static assets are often complex with a big sprite tree, and not having
+      // to walk it has a measurable impact on simulated low-power CPUs.)
       movieClip.cache(
         0,
         0,
         library.properties.width,
         library.properties.height
       );
-      movieClip.on("tick", () => {
-        movieClip.updateCache();
-      });
+      if (createjsNodeHasAnimations(movieClip)) {
+        movieClip.on("tick", () => {
+          movieClip.updateCache();
+        });
+      } else {
+        movieClip.tickEnabled = false;
+      }
 
       // We're gonna fade in! Wait for the first frame to draw, to make the
       // timing smooth, but yeah here we go!
@@ -447,6 +461,13 @@ function loadScriptTag(src) {
     script.src = src;
     document.body.appendChild(script);
   });
+}
+
+function createjsNodeHasAnimations(createjsNode) {
+  return (
+    createjsNode.totalFrames > 1 ||
+    (createjsNode.children || []).some(createjsNodeHasAnimations)
+  );
 }
 
 export default OutfitCanvas;
