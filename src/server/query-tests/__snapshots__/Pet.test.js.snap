@@ -1035,7 +1035,7 @@ Array [
     ],
   ],
   Array [
-    "UPDATE items SET rarity_index = ?, thumbnail_url = ?, updated_at = ?, zones_restrict = ? WHERE id = ?;",
+    "UPDATE items SET rarity_index = ?, thumbnail_url = ?, updated_at = ?, zones_restrict = ? WHERE id = ? LIMIT 1;",
     Array [
       500,
       "http://images.neopets.com/items/mall_staff_jewelled.gif",
@@ -1045,7 +1045,7 @@ Array [
     ],
   ],
   Array [
-    "UPDATE item_translations SET description = ?, name = ?, updated_at = ? WHERE item_id = ? AND locale = \\"en\\";",
+    "UPDATE item_translations SET description = ?, name = ?, updated_at = ? WHERE item_id = ? AND locale = \\"en\\" LIMIT 1;",
     Array [
       "This jewelled staff shines with a magical light.",
       "Jewelled Staff",
@@ -1466,7 +1466,7 @@ Array [
     ],
   ],
   Array [
-    "UPDATE swf_assets SET body_id = ? WHERE type = ? AND remote_id = ?;",
+    "UPDATE swf_assets SET body_id = ? WHERE type = ? AND remote_id = ? LIMIT 1;",
     Array [
       "0",
       "object",

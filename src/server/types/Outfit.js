@@ -488,10 +488,10 @@ async function syncToDb(
     const qs = columnNames.map((c) => `${c} = ?`).join(", ");
     const [conditionQs, ...conditionValues] = buildUpdateCondition(incomingRow);
     updatePromises.push(
-      db.execute(`UPDATE ${tableName} SET ${qs} WHERE ${conditionQs};`, [
-        ...rowValues,
-        ...conditionValues,
-      ])
+      db.execute(
+        `UPDATE ${tableName} SET ${qs} WHERE ${conditionQs} LIMIT 1;`,
+        [...rowValues, ...conditionValues]
+      )
     );
   }
   await Promise.all(updatePromises);
