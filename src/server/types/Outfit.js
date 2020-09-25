@@ -193,10 +193,33 @@ async function saveModelingData(
     url: objectAsset.asset_url,
     zoneId: String(objectAsset.zone_id),
     zonesRestrict: "",
-    // TODO: This doesn't actually work... sometimes it needs to be 0, yeah?
-    //       So we actually have to do asset writing after we load the current
-    //       row and compare... maybe a cutesy fn syntax here?
-    bodyId: String(customPet.body_id),
+    bodyId: (currentBodyId) => {
+      const incomingBodyId = String(customPet.body_id);
+
+      if (currentBodyId == null) {
+        // If this is a new asset, use the incoming body ID. This might not be
+        // totally true, the real ID might be 0, but we're conservative to
+        // start and will update it to 0 if we see a contradiction later!
+        //
+        // NOTE: There's an explicitly_body_specific column on Item. We don't
+        //       need to consider it here, because it's specifically to
+        //       override the heuristics in the old app that sometimes set
+        //       bodyId=0 for incoming items depending on their zone. We don't
+        //       do that here!
+        return incomingBodyId;
+      } else if (currentBodyId === "0") {
+        // If this is already an all-bodies asset, keep it that way.
+        return "0";
+      } else if (currentBodyId !== incomingBodyId) {
+        // If this isn't an all-bodies asset yet, but we've now seen it on two
+        // different items, then make it an all-bodies asset!
+        return "0";
+      } else {
+        // Okay, the row already exists, and its body ID matches this one.
+        // No change!
+        return currentBodyId;
+      }
+    },
   }));
 
   const biologyAssets = Object.values(customPet.biology_by_zone);
@@ -369,7 +392,21 @@ async function syncToDb(
     // If there is no corresponding row in the database, prepare an insert.
     // TODO: Should probably converge on whether not-found is null or an error
     if (currentRow == null || currentRow instanceof Error) {
-      const insert = { ...incomingRow };
+      const insert = {};
+      for (const key in incomingRow) {
+        let incomingValue = incomingRow[key];
+
+        // If you pass a function as a value, we treat it as a merge function:
+        // we'll pass it the current value, and you'll use it to determine and
+        // return the incoming value. In this case, the row doesn't exist yet,
+        // so the current value is `null`.
+        if (typeof incomingValue === "function") {
+          incomingValue = incomingValue(null);
+        }
+
+        insert[key] = incomingValue;
+      }
+
       if (includeCreatedAt) {
         insert.createdAt = new Date();
       }
@@ -387,14 +424,24 @@ async function syncToDb(
 
     // If there's a row in the database, and some of the values don't match,
     // prepare an update with the updated fields only.
-    const updatedKeys = Object.keys(incomingRow).filter(
-      (k) => incomingRow[k] !== currentRow[k]
-    );
-    if (updatedKeys.length > 0) {
-      const update = {};
-      for (const key of updatedKeys) {
-        update[key] = incomingRow[key];
+    const update = {};
+    for (const key in incomingRow) {
+      const currentValue = currentRow[key];
+      let incomingValue = incomingRow[key];
+
+      // If you pass a function as a value, we treat it as a merge function:
+      // we'll pass it the current value, and you'll use it to determine and
+      // return the incoming value.
+      if (typeof incomingValue === "function") {
+        incomingValue = incomingValue(currentValue);
       }
+
+      if (currentValue !== incomingValue) {
+        update[key] = incomingValue;
+      }
+    }
+
+    if (Object.keys(update).length > 0) {
       if (includeUpdatedAt) {
         update.updatedAt = new Date();
       }
@@ -417,10 +464,10 @@ async function syncToDb(
     const columnsStr = columnNames.join(", ");
     const qs = columnNames.map((_) => "?").join(", ");
     const rowQs = inserts.map((_) => "(" + qs + ")").join(", ");
-    const rowFields = inserts.map((row) => rowKeys.map((key) => row[key]));
+    const rowValues = inserts.map((row) => rowKeys.map((key) => row[key]));
     await db.execute(
       `INSERT INTO ${tableName} (${columnsStr}) VALUES ${rowQs};`,
-      rowFields.flat()
+      rowValues.flat()
     );
     if (afterInsert) {
       await afterInsert();

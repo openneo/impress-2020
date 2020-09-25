@@ -308,4 +308,40 @@ describe("Pet", () => {
     });
     expect(getDbCalls()).toMatchSnapshot();
   });
+
+  it("sets bodyId=0 after seeing it on two body types", async () => {
+    useTestDb();
+
+    // First, write the Moon and Stars Background SWF to the database, but with
+    // the Standard Acara body ID set.
+    const db = await connectToDb();
+    await db.query(
+      `INSERT INTO swf_assets (type, remote_id, url, zone_id, zones_restrict,
+                               created_at, body_id)
+         VALUES ("object", 6829, "http://images.neopets.com/cp/items/swf/000/000/006/6829_1707e50385.swf",
+                 3, "", CURRENT_TIMESTAMP(), 93);`
+    );
+
+    clearDbCalls();
+
+    // Then, model a Zafara wearing it.
+    await query({
+      query: gql`
+        query {
+          petOnNeopetsDotCom(petName: "roopal27") {
+            id
+          }
+        }
+      `,
+    });
+
+    expect(getDbCalls()).toMatchSnapshot("db");
+
+    // The body ID should be 0 now.
+    const [rows, _] = await db.query(
+      `SELECT body_id FROM swf_assets
+       WHERE type = "object" AND remote_id = 6829;`
+    );
+    expect(rows[0].body_id).toEqual(0);
+  });
 });

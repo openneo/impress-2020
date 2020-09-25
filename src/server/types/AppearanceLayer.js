@@ -71,7 +71,7 @@ const typeDefs = gql`
 
 const resolvers = {
   AppearanceLayer: {
-    bodyId: async ({ id }, _, { swfAssetLoader }) => {
+    remoteId: async ({ id }, _, { swfAssetLoader }) => {
       const layer = await swfAssetLoader.load(id);
       return layer.remoteId;
     },
@@ -79,7 +79,7 @@ const resolvers = {
       const layer = await swfAssetLoader.load(id);
       return layer.bodyId;
     },
-    zone: async ({ id }, _, { swfAssetLoader, zoneLoader }) => {
+    zone: async ({ id }, _, { swfAssetLoader }) => {
       const layer = await swfAssetLoader.load(id);
       return { id: layer.zoneId };
     },
