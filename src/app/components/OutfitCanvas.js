@@ -21,6 +21,11 @@ function OutfitCanvas({
 
   const { loading } = useEaselDependenciesLoader();
 
+  // Set the canvas's internal dimensions to be higher, if the device has high
+  // DPI like retina. But we'll keep the layout width/height as expected!
+  const internalWidth = width * window.devicePixelRatio;
+  const internalHeight = height * window.devicePixelRatio;
+
   React.useLayoutEffect(() => {
     if (loading) {
       return;
@@ -39,46 +44,106 @@ function OutfitCanvas({
     return () => window.createjs.Ticker.removeEventListener("tick", onTick);
   }, [loading]);
 
+  const reorganizeChildren = React.useCallback(() => {
+    // First, to simplify, let's clean out all of the main children, and any
+    // caching group containers they might be in. This will empty the stage.
+    // (This isn't like, _great_ to do re perf, but it only happens on
+    // add/remove, and we don't update yet, and it simplifies the algo a lot.)
+    //
+    // NOTE: We copy the arrays below, because mutating them while iterating
+    //       causes elements to get lost!
+    const children = [];
+    for (const childOrCacheGroup of [...stage.children]) {
+      if (childOrCacheGroup.DTI_isCacheGroup) {
+        for (const child of [...childOrCacheGroup.children]) {
+          children.push(child);
+          childOrCacheGroup.removeChild(child);
+        }
+        stage.removeChild(childOrCacheGroup);
+      } else {
+        const child = childOrCacheGroup;
+        children.push(child);
+        stage.removeChild(child);
+      }
+    }
+
+    // Sort the children in zIndex order.
+    children.sort((a, b) => a.DTI_zIndex - b.DTI_zIndex);
+
+    // Now, re-insert the children into the stage, while making a point of
+    // grouping adjacent non-animated assets into cache group containers.
+    let lastCacheGroup = null;
+    for (const child of children) {
+      stage.addChild(child);
+      if (child.DTI_hasAnimations) {
+        stage.addChild(child);
+        lastCacheGroup = null;
+      } else {
+        if (!lastCacheGroup) {
+          lastCacheGroup = new window.createjs.Container();
+          lastCacheGroup.DTI_isCacheGroup = true;
+          stage.addChild(lastCacheGroup);
+        }
+
+        lastCacheGroup.addChild(child);
+      }
+    }
+
+    // Finally, cache the cache groups! This will flatten them into a single
+    // bitmap, so that these adjacent static layers can render ~instantly on
+    // each frame, instead of spending time compositing all of them together.
+    // Doesn't seem like a big deal, but helps a lot for squeezing out that
+    // last oomph of performance!
+    for (const childOrCacheGroup of stage.children) {
+      if (childOrCacheGroup.DTI_isCacheGroup) {
+        childOrCacheGroup.cache(0, 0, internalWidth, internalHeight);
+      }
+    }
+
+    // Check whether any of the children have animations. Either way, call the
+    // onChangeHasAnimations callback to let the parent know.
+    if (onChangeHasAnimations) {
+      const hasAnimations = stage.children.some((c) => c.DTI_hasAnimations);
+      onChangeHasAnimations(hasAnimations);
+    }
+  }, [stage, onChangeHasAnimations, internalWidth, internalHeight]);
+
   const addChild = React.useCallback(
     (child, zIndex, { afterFirstDraw = null } = {}) => {
-      // Save this child's z-index for future sorting.
+      // Save this child's z-index and animation-ness for future use. (We could
+      // recompute the animation one at any time, it's just a cached value!)
       child.DTI_zIndex = zIndex;
-      // Add the child, then slot it into the right place in the order.
+      child.DTI_hasAnimations = createjsNodeHasAnimations(child);
+
+      // Add the child, then reorganize the children to get them sorted and
+      // grouped.
       stage.addChild(child);
-      stage.sortChildren((a, b) => a.DTI_zIndex - b.DTI_zIndex);
+      reorganizeChildren();
+
+      // Finally, add a one-time listener to trigger `afterFirstDraw`.
       if (afterFirstDraw) {
         stage.on("drawend", afterFirstDraw, null, true);
-      }
-
-      if (onChangeHasAnimations) {
-        const hasAnimations = stage.children.some((c) =>
-          createjsNodeHasAnimations(c)
-        );
-        onChangeHasAnimations(hasAnimations);
       }
 
       // NOTE: We don't bother firing an update, because we trust the ticker
       //       to do it on the next frame.
     },
-    [stage, onChangeHasAnimations]
+    [stage, reorganizeChildren]
   );
 
   const removeChild = React.useCallback(
     (child) => {
-      stage.removeChild(child);
-
-      if (onChangeHasAnimations) {
-        const hasAnimations = stage.children.some((c) =>
-          createjsNodeHasAnimations(c)
-        );
-        onChangeHasAnimations(hasAnimations);
-      }
+      // Remove the child, then reorganize the children in case this affects
+      // grouping for caching. (Note that the child's parent might not be the
+      // stage; it might be part of a caching group.)
+      child.parent.removeChild(child);
+      reorganizeChildren();
 
       // NOTE: We don't bother firing an update, because we trust the ticker
       //       to do it on the next frame. (And, I don't understand why, but
       //       updating here actually paused remaining movies! So, don't!)
     },
-    [stage, onChangeHasAnimations]
+    [reorganizeChildren]
   );
 
   const addResizeListener = React.useCallback((handler) => {
@@ -127,11 +192,8 @@ function OutfitCanvas({
     >
       <canvas
         ref={canvasRef}
-        // Set the canvas's internal dimensions to be higher, if the device has
-        // high DPI like retina. But we'll keep the layout width/height as
-        // expected!
-        width={width * window.devicePixelRatio}
-        height={height * window.devicePixelRatio}
+        width={internalWidth}
+        height={internalHeight}
         style={{
           width: width + "px",
           height: height + "px",
