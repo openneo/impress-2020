@@ -44,6 +44,25 @@ function OutfitCanvas({
     return () => window.createjs.Ticker.removeEventListener("tick", onTick);
   }, [loading]);
 
+  // Cache any cache groups whose children aren't doing a fade-in/out tween,
+  // and uncache any whose children are. We call this when tweens start and
+  // stop.
+  const onTweenStateChange = React.useCallback(() => {
+    for (const childOrCacheGroup of stage.children) {
+      if (childOrCacheGroup.DTI_isCacheGroup) {
+        const cacheGroup = childOrCacheGroup;
+        const isTweening = cacheGroup.children.some((c) =>
+          window.createjs.Tween.hasActiveTweens(c)
+        );
+        if (isTweening) {
+          cacheGroup.uncache();
+        } else {
+          cacheGroup.cache(0, 0, internalWidth, internalHeight);
+        }
+      }
+    }
+  });
+
   const reorganizeChildren = React.useCallback(() => {
     // First, to simplify, let's clean out all of the main children, and any
     // caching group containers they might be in. This will empty the stage.
@@ -55,11 +74,12 @@ function OutfitCanvas({
     const children = [];
     for (const childOrCacheGroup of [...stage.children]) {
       if (childOrCacheGroup.DTI_isCacheGroup) {
-        for (const child of [...childOrCacheGroup.children]) {
+        const cacheGroup = childOrCacheGroup;
+        for (const child of [...cacheGroup.children]) {
           children.push(child);
-          childOrCacheGroup.removeChild(child);
+          cacheGroup.removeChild(child);
         }
-        stage.removeChild(childOrCacheGroup);
+        stage.removeChild(cacheGroup);
       } else {
         const child = childOrCacheGroup;
         children.push(child);
@@ -187,6 +207,7 @@ function OutfitCanvas({
         removeChild,
         addResizeListener,
         removeResizeListener,
+        onTweenStateChange,
         stage, // Not used, but available for debugging.
       }}
     >
@@ -209,6 +230,7 @@ export function OutfitCanvasImage({ src, zIndex }) {
     canvasRef,
     addChild,
     removeChild,
+    onTweenStateChange,
     addResizeListener,
     removeResizeListener,
   } = React.useContext(EaselContext);
@@ -244,7 +266,9 @@ export function OutfitCanvasImage({ src, zIndex }) {
         //       doesn't work until the first draw.
         bitmap.cache(0, 0, image.width, image.height);
         tween.paused = false;
+        onTweenStateChange();
       };
+      tween.on("complete", onTweenStateChange);
 
       setBitmapSize();
       addChild(bitmap, zIndex, { afterFirstDraw: startFadeIn });
@@ -266,6 +290,7 @@ export function OutfitCanvasImage({ src, zIndex }) {
         tween.setPosition(0);
         tween.paused = false;
         tween.on("complete", removeBitmap, null, true);
+        onTweenStateChange();
       }
     };
   }, [
@@ -286,6 +311,7 @@ export function OutfitCanvasMovie({ librarySrc, zIndex }) {
     canvasRef,
     addChild,
     removeChild,
+    onTweenStateChange,
     addResizeListener,
     removeResizeListener,
   } = React.useContext(EaselContext);
@@ -374,7 +400,9 @@ export function OutfitCanvasMovie({ librarySrc, zIndex }) {
       );
       const startFadeIn = () => {
         tween.paused = false;
+        onTweenStateChange();
       };
+      tween.on("complete", onTweenStateChange);
 
       // Get it actually running! We need to set framerate _after_ adding it
       // to the stage, to overwrite the stage's defaults.
@@ -400,6 +428,7 @@ export function OutfitCanvasMovie({ librarySrc, zIndex }) {
         tween.setPosition(0);
         tween.paused = false;
         tween.on("complete", removeMovieClip, null, true);
+        onTweenStateChange();
       }
     };
   }, [
