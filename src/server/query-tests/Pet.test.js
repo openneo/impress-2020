@@ -344,4 +344,54 @@ describe("Pet", () => {
     );
     expect(rows[0].body_id).toEqual(0);
   });
+
+  it("models unconverted pets", async () => {
+    useTestDb();
+
+    // First, model an unconverted pet, and check its pose and layers.
+    const res = await query({
+      query: gql`
+        query {
+          petOnNeopetsDotCom(petName: "Marishka82") {
+            pose
+            petAppearance {
+              id
+              pose
+              layers {
+                id
+              }
+            }
+          }
+        }
+      `,
+    });
+    expect(res).toHaveNoErrors();
+
+    const modeledPet = res.data.petOnNeopetsDotCom;
+    expect(modeledPet.pose).toEqual("UNCONVERTED");
+    expect(modeledPet.petAppearance.pose).toEqual("UNCONVERTED");
+    expect(modeledPet.petAppearance.layers).toHaveLength(1);
+
+    // Then, request the corresponding appearance fresh from the db, and
+    // confirm we get the same back as when we modeled the pet.
+    const res2 = await query({
+      query: gql`
+        query {
+          petAppearance(speciesId: "31", colorId: "36", pose: UNCONVERTED) {
+            id
+            layers {
+              id
+            }
+          }
+        }
+      `,
+    });
+    expect(res2).toHaveNoErrors();
+
+    const petAppearance = res2.data.petAppearance;
+    expect(petAppearance.id).toEqual(modeledPet.petAppearance.id);
+    expect(petAppearance.layers.map((l) => l.id)).toEqual(
+      modeledPet.petAppearance.layers.map((l) => l.id)
+    );
+  });
 });
