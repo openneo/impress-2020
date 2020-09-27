@@ -1,5 +1,6 @@
 const fetch = require("node-fetch");
 const { gql } = require("apollo-server");
+const { getPoseFromPetState } = require("../util");
 
 const typeDefs = gql`
   type Outfit {
@@ -8,6 +9,14 @@ const typeDefs = gql`
     petAppearance: PetAppearance!
     wornItems: [Item!]!
     closetedItems: [Item!]!
+  }
+
+  # TODO: This maybe should move to a separate file?
+  type Pet {
+    id: ID!
+    name: String!
+    petAppearance: PetAppearance!
+    wornItems: [Item!]!
 
     species: Species! # to be deprecated? can use petAppearance? 🤔
     color: Color! # to be deprecated? can use petAppearance? 🤔
@@ -17,7 +26,7 @@ const typeDefs = gql`
 
   extend type Query {
     outfit(id: ID!): Outfit
-    petOnNeopetsDotCom(petName: String!): Outfit
+    petOnNeopetsDotCom(petName: String!): Pet
   }
 `;
 
@@ -43,6 +52,37 @@ const resolvers = {
         .filter((oir) => !oir.isWorn)
         .map((oir) => ({ id: oir.itemId }));
     },
+  },
+  Pet: {
+    species: ({ customPetData }) => ({
+      id: customPetData.custom_pet.species_id,
+    }),
+    color: ({ customPetData }) => ({ id: customPetData.custom_pet.color_id }),
+    pose: ({ customPetData, petMetaData }) =>
+      getPoseFromPetData(petMetaData, customPetData),
+    petAppearance: async (
+      { customPetData, petMetaData },
+      _,
+      { petTypeBySpeciesAndColorLoader, petStatesForPetTypeLoader }
+    ) => {
+      const petType = await petTypeBySpeciesAndColorLoader.load({
+        speciesId: customPetData.custom_pet.species_id,
+        colorId: customPetData.custom_pet.color_id,
+      });
+      const petStates = await petStatesForPetTypeLoader.load(petType.id);
+      const pose = getPoseFromPetData(petMetaData, customPetData);
+      const petState = petStates.find((ps) => getPoseFromPetState(ps) === pose);
+      return { id: petState.id };
+    },
+    wornItems: ({ customPetData }) =>
+      Object.values(customPetData.object_info_registry).map((o) => ({
+        id: o.obj_info_id,
+        name: o.name,
+        description: o.description,
+        thumbnailUrl: o.thumbnail_url,
+        rarityIndex: o.rarity_index,
+      })),
+    items: (...args) => resolvers.Pet.wornItems(...args),
   },
   Query: {
     outfit: (_, { id }) => ({ id }),
@@ -72,23 +112,7 @@ const resolvers = {
         swfAssetByRemoteIdLoader,
       });
 
-      const outfit = {
-        // TODO: This isn't a fully-working Outfit object. It works for the
-        //       client as currently implemented, but we'll probably want to
-        //       move the client and this onto our more generic fields!
-        species: { id: customPetData.custom_pet.species_id },
-        color: { id: customPetData.custom_pet.color_id },
-        pose: getPoseFromPetData(petMetaData, customPetData),
-        items: Object.values(customPetData.object_info_registry).map((o) => ({
-          id: o.obj_info_id,
-          name: o.name,
-          description: o.description,
-          thumbnailUrl: o.thumbnail_url,
-          rarityIndex: o.rarity_index,
-        })),
-      };
-
-      return outfit;
+      return { name, customPetData, petMetaData };
     },
   },
 };
@@ -129,10 +153,11 @@ async function loadCustomPetData(petName) {
 }
 
 function getPoseFromPetData(petMetaData, petCustomData) {
-  // TODO: Use custom data to decide if Unconverted.
   const moodId = petMetaData.mood;
   const genderId = petMetaData.gender;
-  if (String(moodId) === "1" && String(genderId) === "1") {
+  if (Object.keys(petCustomData.custom_pet.biology_by_zone).length === 1) {
+    return "UNCONVERTED";
+  } else if (String(moodId) === "1" && String(genderId) === "1") {
     return "HAPPY_MASC";
   } else if (String(moodId) === "1" && String(genderId) === "2") {
     return "HAPPY_FEM";

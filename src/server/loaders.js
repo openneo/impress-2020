@@ -324,7 +324,7 @@ const buildItemBodiesWithAppearanceDataLoader = (db) =>
     return itemIds.map((itemId) => entities.filter((e) => e.itemId === itemId));
   });
 
-const buildPetTypeLoader = (db) =>
+const buildPetTypeLoader = (db, loaders) =>
   new DataLoader(async (petTypeIds) => {
     const qs = petTypeIds.map((_) => "?").join(",");
     const [rows, _] = await db.execute(
@@ -333,6 +333,13 @@ const buildPetTypeLoader = (db) =>
     );
 
     const entities = rows.map(normalizeRow);
+
+    for (const petType of entities) {
+      loaders.petTypeBySpeciesAndColorLoader.prime(
+        { speciesId: petType.speciesId, colorId: petType.colorId },
+        petType
+      );
+    }
 
     return petTypeIds.map((petTypeId) =>
       entities.find((e) => e.id === petTypeId)
@@ -577,7 +584,7 @@ const buildCanonicalPetStateForBodyLoader = (db, loaders) =>
     );
   });
 
-const buildPetStateByPetTypeAndAssetsLoader = (db) =>
+const buildPetStateByPetTypeAndAssetsLoader = (db, loaders) =>
   new DataLoader(
     async (petTypeIdAndAssetIdsPairs) => {
       const qs = petTypeIdAndAssetIdsPairs
@@ -592,6 +599,10 @@ const buildPetStateByPetTypeAndAssetsLoader = (db) =>
       );
 
       const entities = rows.map(normalizeRow);
+
+      for (const petState of entities) {
+        loaders.petStateLoader.prime(petState.id, petState);
+      }
 
       return petTypeIdAndAssetIdsPairs.map(({ petTypeId, swfAssetIds }) =>
         entities.find(
@@ -721,7 +732,7 @@ function buildLoaders(db) {
   loaders.itemBodiesWithAppearanceDataLoader = buildItemBodiesWithAppearanceDataLoader(
     db
   );
-  loaders.petTypeLoader = buildPetTypeLoader(db);
+  loaders.petTypeLoader = buildPetTypeLoader(db, loaders);
   loaders.petTypeBySpeciesAndColorLoader = buildPetTypeBySpeciesAndColorLoader(
     db,
     loaders
@@ -744,7 +755,8 @@ function buildLoaders(db) {
     loaders
   );
   loaders.petStateByPetTypeAndAssetsLoader = buildPetStateByPetTypeAndAssetsLoader(
-    db
+    db,
+    loaders
   );
   loaders.speciesLoader = buildSpeciesLoader(db);
   loaders.speciesTranslationLoader = buildSpeciesTranslationLoader(db);
