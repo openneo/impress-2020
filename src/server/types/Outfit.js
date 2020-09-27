@@ -178,91 +178,29 @@ function getPoseFromPetData(petMetaData, petCustomData) {
   }
 }
 
-async function saveModelingData(
+async function saveModelingData(customPetData, petMetaData, context) {
+  await Promise.all([
+    savePetTypeAndStateModelingData(customPetData, petMetaData, context),
+    saveItemModelingData(customPetData, context),
+    saveSwfAssetModelingData(customPetData, context),
+  ]);
+}
+
+async function savePetTypeAndStateModelingData(
   customPetData,
   petMetaData,
-  {
+  context
+) {
+  const {
     db,
     petTypeBySpeciesAndColorLoader,
     petStateByPetTypeAndAssetsLoader,
-    itemLoader,
-    itemTranslationLoader,
     swfAssetByRemoteIdLoader,
-  }
-) {
-  const customPet = customPetData.custom_pet;
-
-  const objectInfos = Object.values(customPetData.object_info_registry);
-  const incomingItems = objectInfos.map((objectInfo) => ({
-    id: String(objectInfo.obj_info_id),
-    zonesRestrict: objectInfo.zones_restrict,
-    thumbnailUrl: objectInfo.thumbnail_url,
-    category: objectInfo.category,
-    type: objectInfo.type,
-    rarityIndex: objectInfo.rarity_index,
-    price: objectInfo.price,
-    weightLbs: objectInfo.weight_lbs,
-  }));
-  const incomingItemTranslations = objectInfos.map((objectInfo) => ({
-    itemId: String(objectInfo.obj_info_id),
-    locale: "en",
-    name: objectInfo.name,
-    description: objectInfo.description,
-    rarity: objectInfo.rarity,
-  }));
-
-  const objectAssets = Object.values(customPetData.object_asset_registry);
-  const incomingItemSwfAssets = objectAssets.map((objectAsset) => ({
-    type: "object",
-    remoteId: String(objectAsset.asset_id),
-    url: objectAsset.asset_url,
-    zoneId: String(objectAsset.zone_id),
-    zonesRestrict: "",
-    bodyId: (currentBodyId) => {
-      const incomingBodyId = String(customPet.body_id);
-
-      if (currentBodyId == null) {
-        // If this is a new asset, use the incoming body ID. This might not be
-        // totally true, the real ID might be 0, but we're conservative to
-        // start and will update it to 0 if we see a contradiction later!
-        //
-        // NOTE: There's an explicitly_body_specific column on Item. We don't
-        //       need to consider it here, because it's specifically to
-        //       override the heuristics in the old app that sometimes set
-        //       bodyId=0 for incoming items depending on their zone. We don't
-        //       do that here!
-        return incomingBodyId;
-      } else if (currentBodyId === "0") {
-        // If this is already an all-bodies asset, keep it that way.
-        return "0";
-      } else if (currentBodyId !== incomingBodyId) {
-        // If this isn't an all-bodies asset yet, but we've now seen it on two
-        // different items, then make it an all-bodies asset!
-        return "0";
-      } else {
-        // Okay, the row already exists, and its body ID matches this one.
-        // No change!
-        return currentBodyId;
-      }
-    },
-  }));
-
-  const biologyAssets = Object.values(customPet.biology_by_zone);
-  const incomingPetSwfAssets = biologyAssets.map((biologyAsset) => ({
-    type: "biology",
-    remoteId: String(biologyAsset.part_id),
-    url: biologyAsset.asset_url,
-    zoneId: String(biologyAsset.zone_id),
-    zonesRestrict: biologyAsset.zones_restrict,
-    bodyId: "0",
-  }));
-
-  const incomingSwfAssets = [...incomingItemSwfAssets, ...incomingPetSwfAssets];
-
+  } = context;
   const incomingPetType = {
-    colorId: String(customPet.color_id),
-    speciesId: String(customPet.species_id),
-    bodyId: String(customPet.body_id),
+    colorId: String(customPetData.custom_pet.color_id),
+    speciesId: String(customPetData.custom_pet.species_id),
+    bodyId: String(customPetData.custom_pet.body_id),
     // NOTE: I skip the image_hash stuff here... on Rails, we set a hash on
     //       creation, and may or may not bother to update it, I forget? But
     //       here I don't want to bother with an update. We could maybe do
@@ -270,67 +208,37 @@ async function saveModelingData(
     //       care enough ^_^`
   };
 
-  await Promise.all([
-    syncToDb(db, [incomingPetType], {
-      loader: petTypeBySpeciesAndColorLoader,
-      tableName: "pet_types",
-      buildLoaderKey: (row) => ({
-        speciesId: row.speciesId,
-        colorId: row.colorId,
-      }),
-      buildUpdateCondition: (row) => [
-        `species_id = ? AND color_id = ?`,
-        row.speciesId,
-        row.colorId,
-      ],
-      includeUpdatedAt: false,
+  await syncToDb(db, [incomingPetType], {
+    loader: petTypeBySpeciesAndColorLoader,
+    tableName: "pet_types",
+    buildLoaderKey: (row) => ({
+      speciesId: row.speciesId,
+      colorId: row.colorId,
     }),
-    syncToDb(db, incomingItems, {
-      loader: itemLoader,
-      tableName: "items",
-      buildLoaderKey: (row) => row.id,
-      buildUpdateCondition: (row) => [`id = ?`, row.id],
-    }),
-    syncToDb(db, incomingItemTranslations, {
-      loader: itemTranslationLoader,
-      tableName: "item_translations",
-      buildLoaderKey: (row) => row.itemId,
-      buildUpdateCondition: (row) => [
-        `item_id = ? AND locale = "en"`,
-        row.itemId,
-      ],
-    }),
-    syncToDb(db, incomingSwfAssets, {
-      loader: swfAssetByRemoteIdLoader,
-      tableName: "swf_assets",
-      buildLoaderKey: (row) => ({ type: row.type, remoteId: row.remoteId }),
-      buildUpdateCondition: (row) => [
-        `type = ? AND remote_id = ?`,
-        row.type,
-        row.remoteId,
-      ],
-      includeUpdatedAt: false,
-    }),
-  ]);
+    buildUpdateCondition: (row) => [
+      `species_id = ? AND color_id = ?`,
+      row.speciesId,
+      row.colorId,
+    ],
+    includeUpdatedAt: false,
+  });
 
-  // TODO: If we look up the potentially existing pet state earlier, then I
-  //       think we can prime the cache and avoid creating a waterfall of
-  //       queries here in the happy case, even though it'll look waterfall-y!
   // NOTE: This pet type should have been looked up when syncing pet type, so
   //       this should be cached.
   const petType = await petTypeBySpeciesAndColorLoader.load({
-    colorId: String(customPet.color_id),
-    speciesId: String(customPet.species_id),
+    colorId: String(customPetData.custom_pet.color_id),
+    speciesId: String(customPetData.custom_pet.species_id),
   });
+  const biologyAssets = Object.values(customPetData.custom_pet.biology_by_zone);
   const incomingPetState = {
     petTypeId: petType.id,
-    swfAssetIds: incomingPetSwfAssets
-      .map((row) => row.remoteId)
+    swfAssetIds: biologyAssets
+      .map((row) => row.part_id)
       .sort((a, b) => Number(a) - Number(b))
       .join(","),
     female: petMetaData.gender === 2 ? 1 : 0, // sorry for this column name :/
     moodId: String(petMetaData.mood),
-    unconverted: incomingPetSwfAssets.length === 1 ? 1 : 0,
+    unconverted: biologyAssets.length === 1 ? 1 : 0,
     labeled: 1,
   };
 
@@ -360,13 +268,16 @@ async function saveModelingData(
           swfAssetIds: incomingPetState.swfAssetIds,
         }),
         swfAssetByRemoteIdLoader.loadMany(
-          incomingPetSwfAssets.map((row) => ({
-            type: row.type,
-            remoteId: row.remoteId,
+          biologyAssets.map((asset) => ({
+            type: "biology",
+            remoteId: String(asset.part_id),
           }))
         ),
       ]);
       swfAssets = swfAssets.filter((sa) => sa != null);
+      if (swfAssets.length === 0) {
+        throw new Error(`pet state ${petState.id} has no saved assets?`);
+      }
       const qs = swfAssets.map((_) => `(?, ?, ?)`).join(", ");
       const values = swfAssets
         .map((sa) => ["PetState", petState.id, sa.id])
@@ -377,6 +288,111 @@ async function saveModelingData(
         values
       );
     },
+  });
+}
+
+async function saveItemModelingData(customPetData, context) {
+  const { db, itemLoader, itemTranslationLoader } = context;
+
+  const objectInfos = Object.values(customPetData.object_info_registry);
+  const incomingItems = objectInfos.map((objectInfo) => ({
+    id: String(objectInfo.obj_info_id),
+    zonesRestrict: objectInfo.zones_restrict,
+    thumbnailUrl: objectInfo.thumbnail_url,
+    category: objectInfo.category,
+    type: objectInfo.type,
+    rarityIndex: objectInfo.rarity_index,
+    price: objectInfo.price,
+    weightLbs: objectInfo.weight_lbs,
+  }));
+  const incomingItemTranslations = objectInfos.map((objectInfo) => ({
+    itemId: String(objectInfo.obj_info_id),
+    locale: "en",
+    name: objectInfo.name,
+    description: objectInfo.description,
+    rarity: objectInfo.rarity,
+  }));
+
+  await Promise.all([
+    syncToDb(db, incomingItems, {
+      loader: itemLoader,
+      tableName: "items",
+      buildLoaderKey: (row) => row.id,
+      buildUpdateCondition: (row) => [`id = ?`, row.id],
+    }),
+    syncToDb(db, incomingItemTranslations, {
+      loader: itemTranslationLoader,
+      tableName: "item_translations",
+      buildLoaderKey: (row) => row.itemId,
+      buildUpdateCondition: (row) => [
+        `item_id = ? AND locale = "en"`,
+        row.itemId,
+      ],
+    }),
+  ]);
+}
+
+async function saveSwfAssetModelingData(customPetData, context) {
+  const { db, swfAssetByRemoteIdLoader } = context;
+
+  const objectAssets = Object.values(customPetData.object_asset_registry);
+  const incomingItemSwfAssets = objectAssets.map((objectAsset) => ({
+    type: "object",
+    remoteId: String(objectAsset.asset_id),
+    url: objectAsset.asset_url,
+    zoneId: String(objectAsset.zone_id),
+    zonesRestrict: "",
+    bodyId: (currentBodyId) => {
+      const incomingBodyId = String(customPetData.custom_pet.body_id);
+
+      if (currentBodyId == null) {
+        // If this is a new asset, use the incoming body ID. This might not be
+        // totally true, the real ID might be 0, but we're conservative to
+        // start and will update it to 0 if we see a contradiction later!
+        //
+        // NOTE: There's an explicitly_body_specific column on Item. We don't
+        //       need to consider it here, because it's specifically to
+        //       override the heuristics in the old app that sometimes set
+        //       bodyId=0 for incoming items depending on their zone. We don't
+        //       do that here!
+        return incomingBodyId;
+      } else if (currentBodyId === "0") {
+        // If this is already an all-bodies asset, keep it that way.
+        return "0";
+      } else if (currentBodyId !== incomingBodyId) {
+        // If this isn't an all-bodies asset yet, but we've now seen it on two
+        // different items, then make it an all-bodies asset!
+        return "0";
+      } else {
+        // Okay, the row already exists, and its body ID matches this one.
+        // No change!
+        return currentBodyId;
+      }
+    },
+  }));
+
+  const biologyAssets = Object.values(customPetData.custom_pet.biology_by_zone);
+  const incomingPetSwfAssets = biologyAssets.map((biologyAsset) => ({
+    type: "biology",
+    remoteId: String(biologyAsset.part_id),
+    url: biologyAsset.asset_url,
+    zoneId: String(biologyAsset.zone_id),
+    zonesRestrict: biologyAsset.zones_restrict,
+    bodyId: "0",
+  }));
+
+  const incomingSwfAssets = [...incomingItemSwfAssets, ...incomingPetSwfAssets];
+
+  syncToDb(db, incomingSwfAssets, {
+    loader: swfAssetByRemoteIdLoader,
+    tableName: "swf_assets",
+    buildLoaderKey: (row) => ({ type: row.type, remoteId: row.remoteId }),
+    buildUpdateCondition: (row) => [
+      `type = ? AND remote_id = ?`,
+      row.type,
+      row.remoteId,
+    ],
+    includeUpdatedAt: false,
   });
 }
 

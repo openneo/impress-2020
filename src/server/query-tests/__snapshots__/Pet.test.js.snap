@@ -1035,6 +1035,13 @@ Array [
     ],
   ],
   Array [
+    "SELECT * FROM pet_types WHERE (species_id = ? AND color_id = ?)",
+    Array [
+      "54",
+      "75",
+    ],
+  ],
+  Array [
     "UPDATE items SET rarity_index = ?, thumbnail_url = ?, updated_at = ?, zones_restrict = ? WHERE id = ? LIMIT 1;",
     Array [
       500,
@@ -1051,13 +1058,6 @@ Array [
       "Jewelled Staff",
       2020-01-01T00:00:00.000Z,
       "43397",
-    ],
-  ],
-  Array [
-    "SELECT * FROM pet_types WHERE (species_id = ? AND color_id = ?)",
-    Array [
-      "54",
-      "75",
     ],
   ],
   Array [
@@ -1466,18 +1466,18 @@ Array [
     ],
   ],
   Array [
+    "SELECT * FROM pet_types WHERE (species_id = ? AND color_id = ?)",
+    Array [
+      "54",
+      "75",
+    ],
+  ],
+  Array [
     "UPDATE swf_assets SET body_id = ? WHERE type = ? AND remote_id = ? LIMIT 1;",
     Array [
       "0",
       "object",
       "6829",
-    ],
-  ],
-  Array [
-    "SELECT * FROM pet_types WHERE (species_id = ? AND color_id = ?)",
-    Array [
-      "54",
-      "75",
     ],
   ],
   Array [
