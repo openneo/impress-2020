@@ -112,7 +112,7 @@ const resolvers = {
         swfAssetByRemoteIdLoader,
       });
 
-      return { name, customPetData, petMetaData };
+      return { name: petName, customPetData, petMetaData };
     },
   },
 };
