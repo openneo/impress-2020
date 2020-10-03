@@ -380,12 +380,17 @@ const resolvers = {
 
       const oldPetState = await petStateLoader.load(appearanceId);
 
-      const { moodId, female, unconverted } = getPetStateFieldsFromPose(pose);
+      const {
+        moodId,
+        female,
+        unconverted,
+        labeled,
+      } = getPetStateFieldsFromPose(pose);
 
       const [result] = await db.execute(
-        `UPDATE pet_states SET mood_id = ?, female = ?, unconverted = ?
-         WHERE id = ? LIMIT 1`,
-        [moodId, female, unconverted, appearanceId]
+        `UPDATE pet_states SET mood_id = ?, female = ?, unconverted = ?,
+         labeled = ? WHERE id = ? LIMIT 1`,
+        [moodId, female, unconverted, labeled, appearanceId]
       );
 
       if (result.affectedRows !== 1) {

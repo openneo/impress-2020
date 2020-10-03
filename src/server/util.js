@@ -36,21 +36,21 @@ function getPoseFromPetState(petState) {
 
 function getPetStateFieldsFromPose(pose) {
   if (pose === "UNCONVERTED") {
-    return { moodId: null, female: null, unconverted: true };
+    return { moodId: null, female: null, unconverted: true, labeled: true };
   } else if (pose === "UNKNOWN") {
-    return { moodId: null, female: null, unconverted: false };
+    return { moodId: null, female: null, unconverted: false, labeled: false };
   } else if (pose === "HAPPY_MASC") {
-    return { moodId: "1", female: false, unconverted: false };
+    return { moodId: "1", female: false, unconverted: false, labeled: true };
   } else if (pose === "HAPPY_FEM") {
-    return { moodId: "1", female: true, unconverted: false };
+    return { moodId: "1", female: true, unconverted: false, labeled: true };
   } else if (pose === "SAD_MASC") {
-    return { moodId: "2", female: false, unconverted: false };
+    return { moodId: "2", female: false, unconverted: false, labeled: true };
   } else if (pose === "SAD_FEM") {
-    return { moodId: "2", female: true, unconverted: false };
+    return { moodId: "2", female: true, unconverted: false, labeled: true };
   } else if (pose === "SICK_MASC") {
-    return { moodId: "4", female: false, unconverted: false };
+    return { moodId: "4", female: false, unconverted: false, labeled: true };
   } else if (pose === "SICK_FEM") {
-    return { moodId: "4", female: true, unconverted: false };
+    return { moodId: "4", female: true, unconverted: false, labeled: true };
   } else {
     throw new Error(`unexpected pose ${pose}`);
   }
