@@ -19,6 +19,17 @@ function OutfitCanvas({
   const resizeListenersRef = React.useRef([]);
   const canvasRef = React.useRef(null);
 
+  // These fields keep track of whether there's something animating or awaiting
+  // animation. We use this to decide whether to enable or disable our
+  // `requestAnimationFrame` calls in `useRAFTicker`, as a performance
+  // optimization. (It's not so great to dive into an RAF callback at 60fps if
+  // there's nothing going on!)
+  const [hasAnimatedChildren, setHasAnimatedChildren] = React.useState(false);
+  const [isTweeningChildren, setIsTweeningChildren] = React.useState(false);
+  const [numChildrenAwaitingDraw, setNumChildrenAwaitingDraw] = React.useState(
+    0
+  );
+
   const { loading } = useEaselDependenciesLoader();
 
   // Set the canvas's internal dimensions to be higher, if the device has high
@@ -33,21 +44,13 @@ function OutfitCanvas({
 
     const stage = new window.createjs.Stage(canvasRef.current);
     setStage(stage);
-
-    function onTick(event) {
-      stage.update(event);
-    }
-
-    window.createjs.Ticker.timingMode = window.createjs.Ticker.RAF;
-    window.createjs.Ticker.addEventListener("tick", onTick);
-
-    return () => window.createjs.Ticker.removeEventListener("tick", onTick);
   }, [loading]);
 
   // Cache any cache groups whose children aren't doing a fade-in/out tween,
   // and uncache any whose children are. We call this when tweens start and
   // stop.
   const onTweenStateChange = React.useCallback(() => {
+    let isTweeningAnyChild = false;
     for (const childOrCacheGroup of stage.children) {
       if (childOrCacheGroup.DTI_isCacheGroup) {
         const cacheGroup = childOrCacheGroup;
@@ -56,12 +59,21 @@ function OutfitCanvas({
         );
         if (isTweening) {
           cacheGroup.uncache();
+          isTweeningAnyChild = true;
         } else {
           cacheGroup.cache(0, 0, internalWidth, internalHeight);
         }
+      } else {
+        const child = childOrCacheGroup;
+        const isTweening = window.createjs.Tween.hasActiveTweens(child);
+        if (isTweening) {
+          isTweeningAnyChild = true;
+        }
       }
     }
-  });
+
+    setIsTweeningChildren(isTweeningAnyChild);
+  }, [internalWidth, internalHeight, stage]);
 
   const reorganizeChildren = React.useCallback(() => {
     // First, to simplify, let's clean out all of the main children, and any
@@ -122,8 +134,9 @@ function OutfitCanvas({
 
     // Check whether any of the children have animations. Either way, call the
     // onChangeHasAnimations callback to let the parent know.
+    const hasAnimations = stage.children.some((c) => c.DTI_hasAnimations);
+    setHasAnimatedChildren(hasAnimations);
     if (onChangeHasAnimations) {
-      const hasAnimations = stage.children.some((c) => c.DTI_hasAnimations);
       onChangeHasAnimations(hasAnimations);
     }
   }, [stage, onChangeHasAnimations, internalWidth, internalHeight]);
@@ -142,11 +155,18 @@ function OutfitCanvas({
 
       // Finally, add a one-time listener to trigger `afterFirstDraw`.
       if (afterFirstDraw) {
-        stage.on("drawend", afterFirstDraw, null, true);
+        stage.on(
+          "drawend",
+          () => {
+            setNumChildrenAwaitingDraw((num) => num - 1);
+            afterFirstDraw();
+          },
+          null,
+          true
+        );
       }
 
-      // NOTE: We don't bother firing an update, because we trust the ticker
-      //       to do it on the next frame.
+      setNumChildrenAwaitingDraw((num) => num + 1);
     },
     [stage, reorganizeChildren]
   );
@@ -158,10 +178,6 @@ function OutfitCanvas({
       // stage; it might be part of a caching group.)
       child.parent.removeChild(child);
       reorganizeChildren();
-
-      // NOTE: We don't bother firing an update, because we trust the ticker
-      //       to do it on the next frame. (And, I don't understand why, but
-      //       updating here actually paused remaining movies! So, don't!)
     },
     [reorganizeChildren]
   );
@@ -175,14 +191,13 @@ function OutfitCanvas({
     );
   }, []);
 
+  const onTick = React.useCallback((event) => stage.update(event), [stage]);
+
   // When the canvas resizes, resize all the layers.
   React.useEffect(() => {
     for (const handler of resizeListenersRef.current) {
       handler();
     }
-    // NOTE: We don't bother firing an update, because we trust the ticker
-    //       to do it on the next frame. (And, I don't understand why, but
-    //       updating here actually paused all movies! So, don't!)
   }, [stage, width, height]);
 
   // When it's time to pause/unpause the movie layers, we implement this by
@@ -194,6 +209,12 @@ function OutfitCanvas({
       stage.tickOnUpdate = !pauseMovieLayers;
     }
   }, [stage, pauseMovieLayers]);
+
+  const isAnimatingRightNow =
+    isTweeningChildren ||
+    (hasAnimatedChildren && !pauseMovieLayers) ||
+    numChildrenAwaitingDraw > 0;
+  useRAFTicker(isAnimatingRightNow, onTick);
 
   if (loading) {
     return null;
@@ -223,6 +244,45 @@ function OutfitCanvas({
       {stage && children}
     </EaselContext.Provider>
   );
+}
+
+/**
+ * useRAFTicker calls `onTick` on every animation frame, when `isEnabled` is
+ * true. It uses `requestAnimationFrame` to do this.
+ *
+ * It passes to `onTick` an object with a key `delta`, which represents the
+ * time in milliseconds since the last tick. This is compatible with EaselJS's
+ * Ticker, and passing this to `stage.update()` will enable animations to
+ * update at the correct framerate.
+ */
+function useRAFTicker(isEnabled, onTick) {
+  React.useEffect(() => {
+    if (!isEnabled) {
+      return;
+    }
+
+    console.info("[OutfitCanvas] Starting animation ticker");
+
+    let canceled = false;
+    let lastTime = performance.now();
+    function tick(time) {
+      const delta = time - lastTime;
+      lastTime = time;
+
+      onTick({ delta });
+
+      if (!canceled) {
+        requestAnimationFrame(tick);
+      }
+    }
+    requestAnimationFrame(tick);
+
+    return () => {
+      console.info("[OutfitCanvas] Stopping animation ticker");
+      // Let the next scheduled frame finish, then stop.
+      canceled = true;
+    };
+  }, [isEnabled, onTick]);
 }
 
 export function OutfitCanvasImage({ src, zIndex }) {
@@ -301,6 +361,7 @@ export function OutfitCanvasImage({ src, zIndex }) {
     removeChild,
     addResizeListener,
     removeResizeListener,
+    onTweenStateChange,
   ]);
 
   return null;
@@ -439,6 +500,7 @@ export function OutfitCanvasMovie({ librarySrc, zIndex }) {
     removeChild,
     addResizeListener,
     removeResizeListener,
+    onTweenStateChange,
   ]);
 
   return null;
