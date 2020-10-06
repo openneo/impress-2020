@@ -45,7 +45,7 @@
     "mysql-dev": "mysql --host=localhost --user=impress_2020_dev --password=impress_2020_dev --database=impress_2020_dev",
     "mysql-admin": "mysql --host=impress.openneo.net --user=matchu --password --database=openneo_impress",
     "mysqldump": "mysqldump --host=impress.openneo.net --user=$(dotenv -p IMPRESS_MYSQL_USER) --password=$(dotenv -p IMPRESS_MYSQL_PASSWORD) --column-statistics=0",
-    "download-mysql-schema": "yarn --silent mysqldump --no-data openneo_impress items item_translations parents_swf_assets pet_types pet_states swf_assets | sed 's/ AUTO_INCREMENT=[0-9]*//g' > scripts/setup-mysql-dev-schema.sql && yarn --silent mysqldump openneo_impress species species_translations colors color_translations > scripts/setup-mysql-dev-constants.sql",
+    "download-mysql-schema": "yarn --silent mysqldump --no-data openneo_impress items item_translations parents_swf_assets pet_types pet_states swf_assets | sed 's/ AUTO_INCREMENT=[0-9]*//g' > scripts/setup-mysql-dev-schema.sql && yarn --silent mysqldump openneo_impress species species_translations colors color_translations zones zone_translations > scripts/setup-mysql-dev-constants.sql",
     "setup-mysql": "yarn mysql-admin < scripts/setup-mysql.sql",
     "setup-mysql-dev": "yarn mysql-dev < scripts/setup-mysql-dev-constants.sql && yarn mysql-dev < scripts/setup-mysql-dev-schema.sql",
     "build-cached-data": "node -r dotenv/config scripts/build-cached-data.js",
