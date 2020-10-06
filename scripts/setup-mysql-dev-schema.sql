@@ -69,6 +69,22 @@ CREATE TABLE `item_translations` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `modeling_logs`
+--
+
+DROP TABLE IF EXISTS `modeling_logs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `modeling_logs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `log_json` text NOT NULL,
+  `pet_name` varchar(128) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `parents_swf_assets`
 --
 
@@ -167,4 +183,4 @@ CREATE TABLE `swf_assets` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-10-06  6:09:45
+-- Dump completed on 2020-10-06  6:59:49

@@ -8,11 +8,26 @@
  * pet contains data we haven't seen before, we write!
  */
 async function saveModelingData(customPetData, petMetaData, context) {
+  const modelingLogs = [];
+  const addToModelingLogs = (entry) => {
+    console.log("[Modeling] " + JSON.stringify(entry, null, 4));
+    modelingLogs.push(entry);
+  };
+  context = { ...context, addToModelingLogs };
+
   await Promise.all([
     savePetTypeAndStateModelingData(customPetData, petMetaData, context),
     saveItemModelingData(customPetData, context),
     saveSwfAssetModelingData(customPetData, context),
   ]);
+
+  if (modelingLogs.length > 0) {
+    const { db } = context;
+    await db.execute(
+      `INSERT INTO modeling_logs (log_json, pet_name) VALUES (?, ?)`,
+      [JSON.stringify(modelingLogs, null, 4), petMetaData.name]
+    );
+  }
 }
 
 async function savePetTypeAndStateModelingData(
@@ -25,7 +40,9 @@ async function savePetTypeAndStateModelingData(
     petTypeBySpeciesAndColorLoader,
     petStateByPetTypeAndAssetsLoader,
     swfAssetByRemoteIdLoader,
+    addToModelingLogs,
   } = context;
+
   const incomingPetType = {
     colorId: String(customPetData.custom_pet.color_id),
     speciesId: String(customPetData.custom_pet.species_id),
@@ -50,6 +67,7 @@ async function savePetTypeAndStateModelingData(
       row.colorId,
     ],
     includeUpdatedAt: false,
+    addToModelingLogs,
   });
 
   // NOTE: This pet type should have been looked up when syncing pet type, so
@@ -107,21 +125,39 @@ async function savePetTypeAndStateModelingData(
       if (swfAssets.length === 0) {
         throw new Error(`pet state ${petState.id} has no saved assets?`);
       }
+
+      const relationshipInserts = swfAssets.map((sa) => ({
+        parentType: "PetState",
+        parentId: petState.id,
+        swfAssetId: sa.id,
+      }));
+
       const qs = swfAssets.map((_) => `(?, ?, ?)`).join(", ");
-      const values = swfAssets
-        .map((sa) => ["PetState", petState.id, sa.id])
+      const values = relationshipInserts
+        .map(({ parentType, parentId, swfAssetId }) => [
+          parentType,
+          parentId,
+          swfAssetId,
+        ])
         .flat();
       await db.execute(
         `INSERT INTO parents_swf_assets (parent_type, parent_id, swf_asset_id)
          VALUES ${qs};`,
         values
       );
+
+      addToModelingLogs({
+        tableName: "parents_swf_assets",
+        inserts: relationshipInserts,
+        updates: [],
+      });
     },
+    addToModelingLogs,
   });
 }
 
 async function saveItemModelingData(customPetData, context) {
-  const { db, itemLoader, itemTranslationLoader } = context;
+  const { db, itemLoader, itemTranslationLoader, addToModelingLogs } = context;
 
   const objectInfos = Object.values(customPetData.object_info_registry);
   const incomingItems = objectInfos.map((objectInfo) => ({
@@ -148,6 +184,7 @@ async function saveItemModelingData(customPetData, context) {
       tableName: "items",
       buildLoaderKey: (row) => row.id,
       buildUpdateCondition: (row) => [`id = ?`, row.id],
+      addToModelingLogs,
     }),
     syncToDb(db, incomingItemTranslations, {
       loader: itemTranslationLoader,
@@ -157,12 +194,13 @@ async function saveItemModelingData(customPetData, context) {
         `item_id = ? AND locale = "en"`,
         row.itemId,
       ],
+      addToModelingLogs,
     }),
   ]);
 }
 
 async function saveSwfAssetModelingData(customPetData, context) {
-  const { db, swfAssetByRemoteIdLoader } = context;
+  const { db, swfAssetByRemoteIdLoader, addToModelingLogs } = context;
 
   const objectAssets = Object.values(customPetData.object_asset_registry);
   const incomingItemSwfAssets = objectAssets.map((objectAsset) => ({
@@ -244,6 +282,12 @@ async function saveSwfAssetModelingData(customPetData, context) {
         return;
       }
 
+      const relationshipInserts = itemAssetInserts.map(({ remoteId }) => ({
+        parentType: "Item",
+        parentId: assetIdToItemIdMap.get(remoteId),
+        remoteId,
+      }));
+
       const qs = itemAssetInserts
         .map(
           (_) =>
@@ -254,11 +298,11 @@ async function saveSwfAssetModelingData(customPetData, context) {
             `(SELECT id FROM swf_assets WHERE type = "object" AND remote_id = ?))`
         )
         .join(", ");
-      const values = itemAssetInserts
-        .map(({ remoteId: swfAssetId }) => [
-          "Item",
-          assetIdToItemIdMap.get(swfAssetId),
-          swfAssetId,
+      const values = relationshipInserts
+        .map(({ parentType, parentId, remoteId }) => [
+          parentType,
+          parentId,
+          remoteId,
         ])
         .flat();
 
@@ -267,7 +311,14 @@ async function saveSwfAssetModelingData(customPetData, context) {
          VALUES ${qs}`,
         values
       );
+
+      addToModelingLogs({
+        tableName: "parents_swf_assets",
+        inserts: relationshipInserts,
+        updates: [],
+      });
     },
+    addToModelingLogs,
   });
 }
 
@@ -294,6 +345,7 @@ async function syncToDb(
     includeCreatedAt = true,
     includeUpdatedAt = true,
     afterInsert = null,
+    addToModelingLogs,
   }
 ) {
   const loaderKeys = incomingRows.map(buildLoaderKey);
@@ -411,6 +463,14 @@ async function syncToDb(
     );
   }
   await Promise.all(updatePromises);
+
+  if (inserts.length > 0 || updates.length > 0) {
+    addToModelingLogs({
+      tableName,
+      inserts,
+      updates,
+    });
+  }
 }
 
 module.exports = { saveModelingData };

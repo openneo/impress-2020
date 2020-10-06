@@ -5,6 +5,7 @@ GRANT SELECT ON colors TO impress2020;
 GRANT SELECT ON color_translations TO impress2020;
 GRANT SELECT ON items TO impress2020;
 GRANT SELECT ON item_translations TO impress2020;
+GRANT SELECT ON modeling_logs TO impress2020;
 GRANT SELECT ON parents_swf_assets TO impress2020;
 GRANT SELECT ON pet_types TO impress2020;
 GRANT SELECT ON pet_states TO impress2020;
@@ -14,11 +15,14 @@ GRANT SELECT ON swf_assets TO impress2020;
 GRANT SELECT ON zones TO impress2020;
 GRANT SELECT ON zone_translations TO impress2020;
 
--- Public data tables: write
-GRANT UPDATE ON items TO impress2020;
-GRANT DELETE ON parents_swf_assets TO impress2020;
-GRANT UPDATE ON pet_states TO impress2020;
-GRANT UPDATE ON swf_assets TO impress2020;
+-- Public data tables: write. Used in modeling and support tools.
+GRANT INSERT, UPDATE ON items TO impress2020;
+GRANT INSERT, UPDATE ON item_translations TO impress2020;
+GRANT INSERT, UPDATE, DELETE ON parents_swf_assets TO impress2020;
+GRANT INSERT, UPDATE ON pet_types TO impress2020;
+GRANT INSERT, UPDATE ON pet_states TO impress2020;
+GRANT INSERT, UPDATE ON swf_assets TO impress2020;
+GRANT INSERT ON modeling_logs TO impress2020;
 
 -- User data tables
 GRANT SELECT ON closet_hangers TO impress2020;
