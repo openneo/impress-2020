@@ -240,6 +240,10 @@ async function saveSwfAssetModelingData(customPetData, context) {
       // the item. (We do this separately for pet states, so that we can get
       // the pet state ID first.)
       const itemAssetInserts = inserts.filter((i) => i.type === "object");
+      if (itemAssetInserts.length === 0) {
+        return;
+      }
+
       const qs = itemAssetInserts
         .map(
           (_) =>
