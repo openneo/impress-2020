@@ -324,7 +324,7 @@ const buildItemBodiesWithAppearanceDataLoader = (db) =>
     return itemIds.map((itemId) => entities.filter((e) => e.itemId === itemId));
   });
 
-const buildPetTypeLoader = (db) =>
+const buildPetTypeLoader = (db, loaders) =>
   new DataLoader(async (petTypeIds) => {
     const qs = petTypeIds.map((_) => "?").join(",");
     const [rows, _] = await db.execute(
@@ -333,6 +333,13 @@ const buildPetTypeLoader = (db) =>
     );
 
     const entities = rows.map(normalizeRow);
+
+    for (const petType of entities) {
+      loaders.petTypeBySpeciesAndColorLoader.prime(
+        { speciesId: petType.speciesId, colorId: petType.colorId },
+        petType
+      );
+    }
 
     return petTypeIds.map((petTypeId) =>
       entities.find((e) => e.id === petTypeId)
@@ -384,6 +391,29 @@ const buildSwfAssetLoader = (db) =>
       entities.find((e) => e.id === swfAssetId)
     );
   });
+
+const buildSwfAssetByRemoteIdLoader = (db) =>
+  new DataLoader(
+    async (typeAndRemoteIdPairs) => {
+      const qs = typeAndRemoteIdPairs
+        .map((_) => "(type = ? AND remote_id = ?)")
+        .join(" OR ");
+      const values = typeAndRemoteIdPairs
+        .map(({ type, remoteId }) => [type, remoteId])
+        .flat();
+      const [rows, _] = await db.execute(
+        `SELECT * FROM swf_assets WHERE ${qs}`,
+        values
+      );
+
+      const entities = rows.map(normalizeRow);
+
+      return typeAndRemoteIdPairs.map(({ type, remoteId }) =>
+        entities.find((e) => e.type === type && e.remoteId === remoteId)
+      );
+    },
+    { cacheKeyFn: ({ type, remoteId }) => `${type},${remoteId}` }
+  );
 
 const buildItemSwfAssetLoader = (db, loaders) =>
   new DataLoader(
@@ -554,6 +584,37 @@ const buildCanonicalPetStateForBodyLoader = (db, loaders) =>
     );
   });
 
+const buildPetStateByPetTypeAndAssetsLoader = (db, loaders) =>
+  new DataLoader(
+    async (petTypeIdAndAssetIdsPairs) => {
+      const qs = petTypeIdAndAssetIdsPairs
+        .map((_) => "(pet_type_id = ? AND swf_asset_ids = ?)")
+        .join(" OR ");
+      const values = petTypeIdAndAssetIdsPairs
+        .map(({ petTypeId, swfAssetIds }) => [petTypeId, swfAssetIds])
+        .flat();
+      const [rows, _] = await db.execute(
+        `SELECT * FROM pet_states WHERE ${qs}`,
+        values
+      );
+
+      const entities = rows.map(normalizeRow);
+
+      for (const petState of entities) {
+        loaders.petStateLoader.prime(petState.id, petState);
+      }
+
+      return petTypeIdAndAssetIdsPairs.map(({ petTypeId, swfAssetIds }) =>
+        entities.find(
+          (e) => e.petTypeId === petTypeId && e.swfAssetIds === swfAssetIds
+        )
+      );
+    },
+    {
+      cacheKeyFn: ({ petTypeId, swfAssetIds }) => `${petTypeId}-${swfAssetIds}`,
+    }
+  );
+
 const buildUserLoader = (db) =>
   new DataLoader(async (ids) => {
     const qs = ids.map((_) => "?").join(",");
@@ -671,12 +732,13 @@ function buildLoaders(db) {
   loaders.itemBodiesWithAppearanceDataLoader = buildItemBodiesWithAppearanceDataLoader(
     db
   );
-  loaders.petTypeLoader = buildPetTypeLoader(db);
+  loaders.petTypeLoader = buildPetTypeLoader(db, loaders);
   loaders.petTypeBySpeciesAndColorLoader = buildPetTypeBySpeciesAndColorLoader(
     db,
     loaders
   );
   loaders.swfAssetLoader = buildSwfAssetLoader(db);
+  loaders.swfAssetByRemoteIdLoader = buildSwfAssetByRemoteIdLoader(db);
   loaders.itemSwfAssetLoader = buildItemSwfAssetLoader(db, loaders);
   loaders.petSwfAssetLoader = buildPetSwfAssetLoader(db, loaders);
   loaders.outfitLoader = buildOutfitLoader(db);
@@ -689,6 +751,10 @@ function buildLoaders(db) {
     loaders
   );
   loaders.canonicalPetStateForBodyLoader = buildCanonicalPetStateForBodyLoader(
+    db,
+    loaders
+  );
+  loaders.petStateByPetTypeAndAssetsLoader = buildPetStateByPetTypeAndAssetsLoader(
     db,
     loaders
   );

@@ -40,6 +40,7 @@ const schema = makeExecutableSchema(
     require("./types/Item"),
     require("./types/MutationsForSupport"),
     require("./types/Outfit"),
+    require("./types/Pet"),
     require("./types/PetAppearance"),
     require("./types/User"),
     require("./types/Zone"),
