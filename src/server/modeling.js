@@ -262,7 +262,7 @@ async function saveSwfAssetModelingData(customPetData, context) {
     }
   }
 
-  syncToDb(db, incomingSwfAssets, {
+  await syncToDb(db, incomingSwfAssets, {
     loader: swfAssetByRemoteIdLoader,
     tableName: "swf_assets",
     buildLoaderKey: (row) => ({ type: row.type, remoteId: row.remoteId }),
