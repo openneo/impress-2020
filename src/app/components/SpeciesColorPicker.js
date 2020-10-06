@@ -171,10 +171,15 @@ function SpeciesColorPicker({
   // think this matches users' mental hierarchy of species -> color: showing
   // supported colors for a species makes sense, but the other way around feels
   // confusing and restrictive.)
+  //
+  // Also, if a color is provided that wouldn't normally be visible, we still
+  // show it. This can happen when someone models a new species/color combo for
+  // the first time - the boxes will still be red as if it were invalid, but
+  // this still smooths out the experience a lot.
   let visibleColors = allColors;
   if (stateMustAlwaysBeValid && valids && speciesId) {
     visibleColors = visibleColors.filter(
-      (c) => getValidPoses(valids, speciesId, c.id).size > 0
+      (c) => getValidPoses(valids, speciesId, c.id).size > 0 || c.id === colorId
     );
   }
 

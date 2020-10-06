@@ -94,7 +94,12 @@ const resolvers = {
     imageUrl: async ({ id }, { size }, { swfAssetLoader }) => {
       const layer = await swfAssetLoader.load(id);
 
-      if (!layer.hasImage) {
+      // If there's no image, return null. (In the development db, which isn't
+      // aware which assets we have images for on the DTI CDN, assume we _do_
+      // have the image - it's usually true, and better for testing.)
+      const hasImage =
+        layer.hasImage || process.env["DB_ENV"] === "development";
+      if (!hasImage) {
         return null;
       }
 
@@ -234,12 +239,13 @@ async function loadAndCacheAssetManifest(db, layer) {
   //
   // TODO: Someday the manifests will all exist, right? So we'll want to
   //       reload all the missing ones at that time.
-  manifest = manifest || "";
+  const manifestJson = manifest ? JSON.stringify(manifest) : "";
+
   const [
     result,
   ] = await db.execute(
     `UPDATE swf_assets SET manifest = ? WHERE id = ? LIMIT 1;`,
-    [manifest, layer.id]
+    [manifestJson, layer.id]
   );
   if (result.affectedRows !== 1) {
     throw new Error(

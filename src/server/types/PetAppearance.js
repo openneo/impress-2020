@@ -106,6 +106,17 @@ const resolvers = {
         speciesId: id,
         colorId: "8", // Blue
       });
+
+      // In production, this should ~never happen, because all species have a
+      // Blue version, or at least if a new one is added it will be modeled
+      // quickly! But in development, before modeling happens, it's possible
+      // for this to be empty, so we return a fake body ID. (This seems better
+      // than making it nullable, which adds downstream complexity for a
+      // particularly edge-y case that generally isn't worth considering.)
+      if (!petType) {
+        return `<ERROR-BLUE-PET-NOT-MODELED-FOR-SPECIES-${id}>`;
+      }
+
       return petType.bodyId;
     },
   },
