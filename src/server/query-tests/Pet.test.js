@@ -192,6 +192,13 @@ describe("Pet", () => {
             rarityIndex
             isNc
             createdAt
+
+            appearanceOn(colorId: "75", speciesId: "54") {
+              layers {
+                id
+                swfUrl
+              }
+            }
           }
         }
       `,

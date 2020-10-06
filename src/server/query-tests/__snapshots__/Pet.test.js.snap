@@ -489,6 +489,36 @@ Array [
     ],
   ],
   Array [
+    "INSERT INTO parents_swf_assets (parent_type, parent_id, swf_asset_id)
+         VALUES (?, ?, (SELECT id FROM swf_assets WHERE type = \\"object\\" AND remote_id = ?)), (?, ?, (SELECT id FROM swf_assets WHERE type = \\"object\\" AND remote_id = ?)), (?, ?, (SELECT id FROM swf_assets WHERE type = \\"object\\" AND remote_id = ?)), (?, ?, (SELECT id FROM swf_assets WHERE type = \\"object\\" AND remote_id = ?)), (?, ?, (SELECT id FROM swf_assets WHERE type = \\"object\\" AND remote_id = ?)), (?, ?, (SELECT id FROM swf_assets WHERE type = \\"object\\" AND remote_id = ?)), (?, ?, (SELECT id FROM swf_assets WHERE type = \\"object\\" AND remote_id = ?)), (?, ?, (SELECT id FROM swf_assets WHERE type = \\"object\\" AND remote_id = ?))",
+    Array [
+      "Item",
+      "37375",
+      "6829",
+      "Item",
+      "38913",
+      "14855",
+      "Item",
+      "38912",
+      "14856",
+      "Item",
+      "38911",
+      "14857",
+      "Item",
+      "43014",
+      "36414",
+      "Item",
+      "43397",
+      "39646",
+      "Item",
+      "37229",
+      "51959",
+      "Item",
+      "48313",
+      "56478",
+    ],
+  ],
+  Array [
     "SELECT * FROM pet_states WHERE (pet_type_id = ? AND swf_asset_ids = ?)",
     Array [
       "1",
@@ -561,6 +591,14 @@ exports[`Pet models new pet and item data 3`] = `
 Object {
   "items": Array [
     Object {
+      "appearanceOn": Object {
+        "layers": Array [
+          Object {
+            "id": "7",
+            "swfUrl": "http://images.neopets.com/cp/items/swf/000/000/051/51959_4439727c48.swf",
+          },
+        ],
+      },
       "createdAt": "2020-01-01T00:00:00.000Z",
       "description": "What does this ball actually do?",
       "id": "37229",
@@ -570,6 +608,14 @@ Object {
       "thumbnailUrl": "http://images.neopets.com/items/gif_magicball_table.gif",
     },
     Object {
+      "appearanceOn": Object {
+        "layers": Array [
+          Object {
+            "id": "1",
+            "swfUrl": "http://images.neopets.com/cp/items/swf/000/000/006/6829_1707e50385.swf",
+          },
+        ],
+      },
       "createdAt": "2020-01-01T00:00:00.000Z",
       "description": "Dont forget to wish upon a star.",
       "id": "37375",
@@ -579,6 +625,14 @@ Object {
       "thumbnailUrl": "http://images.neopets.com/items/bg_moonstars.gif",
     },
     Object {
+      "appearanceOn": Object {
+        "layers": Array [
+          Object {
+            "id": "4",
+            "swfUrl": "http://images.neopets.com/cp/items/swf/000/000/014/14857_d43380ef66.swf",
+          },
+        ],
+      },
       "createdAt": "2020-01-01T00:00:00.000Z",
       "description": "Hide your face and hair so no one can recognise you.",
       "id": "38911",
@@ -588,6 +642,14 @@ Object {
       "thumbnailUrl": "http://images.neopets.com/items/clo_zafara_agent_hood.gif",
     },
     Object {
+      "appearanceOn": Object {
+        "layers": Array [
+          Object {
+            "id": "3",
+            "swfUrl": "http://images.neopets.com/cp/items/swf/000/000/014/14856_46c1b32797.swf",
+          },
+        ],
+      },
       "createdAt": "2020-01-01T00:00:00.000Z",
       "description": "This robe is great for being stealthy.",
       "id": "38912",
@@ -597,6 +659,14 @@ Object {
       "thumbnailUrl": "http://images.neopets.com/items/clo_zafara_agent_robe.gif",
     },
     Object {
+      "appearanceOn": Object {
+        "layers": Array [
+          Object {
+            "id": "2",
+            "swfUrl": "http://images.neopets.com/cp/items/swf/000/000/014/14855_215f367070.swf",
+          },
+        ],
+      },
       "createdAt": "2020-01-01T00:00:00.000Z",
       "description": "Dont leave any trace that you were there with these gloves.",
       "id": "38913",
@@ -606,6 +676,14 @@ Object {
       "thumbnailUrl": "http://images.neopets.com/items/clo_zafara_agent_gloves.gif",
     },
     Object {
+      "appearanceOn": Object {
+        "layers": Array [
+          Object {
+            "id": "5",
+            "swfUrl": "http://images.neopets.com/cp/items/swf/000/000/036/36414_1e2aaab4ad.swf",
+          },
+        ],
+      },
       "createdAt": "2020-01-01T00:00:00.000Z",
       "description": "These leaves almost look magical with their gentle glow.",
       "id": "43014",
@@ -615,6 +693,14 @@ Object {
       "thumbnailUrl": "http://images.neopets.com/items/toy_stringlight_illleaf.gif",
     },
     Object {
+      "appearanceOn": Object {
+        "layers": Array [
+          Object {
+            "id": "6",
+            "swfUrl": "http://images.neopets.com/cp/items/swf/000/000/039/39646_e129e22ada.swf",
+          },
+        ],
+      },
       "createdAt": "2020-01-01T00:00:00.000Z",
       "description": "This jewelled staff shines with a magical light.",
       "id": "43397",
@@ -624,6 +710,14 @@ Object {
       "thumbnailUrl": "http://images.neopets.com/items/mall_staff_jewelled.gif",
     },
     Object {
+      "appearanceOn": Object {
+        "layers": Array [
+          Object {
+            "id": "8",
+            "swfUrl": "http://images.neopets.com/cp/items/swf/000/000/056/56478_eabc28e7c7.swf",
+          },
+        ],
+      },
       "createdAt": "2020-01-01T00:00:00.000Z",
       "description": "Even the announcers of the Altador Cup celebrate.  This was given out by the Advent Calendar in Y11.",
       "id": "48313",
@@ -710,6 +804,31 @@ Array [
                 unconverted DESC, glitched ASC, id DESC",
     Array [
       "1",
+    ],
+  ],
+  Array [
+    "SELECT sa.*, rel.parent_id FROM swf_assets sa
+       INNER JOIN parents_swf_assets rel ON
+         rel.parent_type = \\"Item\\" AND
+         rel.swf_asset_id = sa.id
+       WHERE (rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0)) OR (rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0)) OR (rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0)) OR (rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0)) OR (rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0)) OR (rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0)) OR (rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0)) OR (rel.parent_id = ? AND (sa.body_id = ? OR sa.body_id = 0))",
+    Array [
+      "37229",
+      "180",
+      "37375",
+      "180",
+      "38911",
+      "180",
+      "38912",
+      "180",
+      "38913",
+      "180",
+      "43014",
+      "180",
+      "43397",
+      "180",
+      "48313",
+      "180",
     ],
   ],
   Array [
@@ -1058,6 +1177,36 @@ Array [
       "Jewelled Staff",
       2020-01-01T00:00:00.000Z,
       "43397",
+    ],
+  ],
+  Array [
+    "INSERT INTO parents_swf_assets (parent_type, parent_id, swf_asset_id)
+         VALUES (?, ?, (SELECT id FROM swf_assets WHERE type = \\"object\\" AND remote_id = ?)), (?, ?, (SELECT id FROM swf_assets WHERE type = \\"object\\" AND remote_id = ?)), (?, ?, (SELECT id FROM swf_assets WHERE type = \\"object\\" AND remote_id = ?)), (?, ?, (SELECT id FROM swf_assets WHERE type = \\"object\\" AND remote_id = ?)), (?, ?, (SELECT id FROM swf_assets WHERE type = \\"object\\" AND remote_id = ?)), (?, ?, (SELECT id FROM swf_assets WHERE type = \\"object\\" AND remote_id = ?)), (?, ?, (SELECT id FROM swf_assets WHERE type = \\"object\\" AND remote_id = ?)), (?, ?, (SELECT id FROM swf_assets WHERE type = \\"object\\" AND remote_id = ?))",
+    Array [
+      "Item",
+      "37375",
+      "6829",
+      "Item",
+      "38913",
+      "14855",
+      "Item",
+      "38912",
+      "14856",
+      "Item",
+      "38911",
+      "14857",
+      "Item",
+      "43014",
+      "36414",
+      "Item",
+      "43397",
+      "39646",
+      "Item",
+      "37229",
+      "51959",
+      "Item",
+      "48313",
+      "56478",
     ],
   ],
   Array [
@@ -1473,11 +1622,30 @@ Array [
     ],
   ],
   Array [
-    "UPDATE swf_assets SET body_id = ? WHERE type = ? AND remote_id = ? LIMIT 1;",
+    "INSERT INTO parents_swf_assets (parent_type, parent_id, swf_asset_id)
+         VALUES (?, ?, (SELECT id FROM swf_assets WHERE type = \\"object\\" AND remote_id = ?)), (?, ?, (SELECT id FROM swf_assets WHERE type = \\"object\\" AND remote_id = ?)), (?, ?, (SELECT id FROM swf_assets WHERE type = \\"object\\" AND remote_id = ?)), (?, ?, (SELECT id FROM swf_assets WHERE type = \\"object\\" AND remote_id = ?)), (?, ?, (SELECT id FROM swf_assets WHERE type = \\"object\\" AND remote_id = ?)), (?, ?, (SELECT id FROM swf_assets WHERE type = \\"object\\" AND remote_id = ?)), (?, ?, (SELECT id FROM swf_assets WHERE type = \\"object\\" AND remote_id = ?))",
     Array [
-      "0",
-      "object",
-      "6829",
+      "Item",
+      "38913",
+      "14855",
+      "Item",
+      "38912",
+      "14856",
+      "Item",
+      "38911",
+      "14857",
+      "Item",
+      "43014",
+      "36414",
+      "Item",
+      "43397",
+      "39646",
+      "Item",
+      "37229",
+      "51959",
+      "Item",
+      "48313",
+      "56478",
     ],
   ],
   Array [
@@ -1485,6 +1653,14 @@ Array [
     Array [
       "1",
       "7941,7942,7946,21057,21060,24008",
+    ],
+  ],
+  Array [
+    "UPDATE swf_assets SET body_id = ? WHERE type = ? AND remote_id = ? LIMIT 1;",
+    Array [
+      "0",
+      "object",
+      "6829",
     ],
   ],
   Array [

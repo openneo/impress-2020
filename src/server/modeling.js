@@ -212,6 +212,18 @@ async function saveSwfAssetModelingData(customPetData, context) {
 
   const incomingSwfAssets = [...incomingItemSwfAssets, ...incomingPetSwfAssets];
 
+  // Build a map from asset ID to item ID. We'll use this later to build the
+  // new parents_swf_assets rows.
+  const assetIdToItemIdMap = new Map();
+  const objectInfos = Object.values(customPetData.object_info_registry);
+  for (const objectInfo of objectInfos) {
+    const itemId = String(objectInfo.obj_info_id);
+    const assetIds = Object.values(objectInfo.assets_by_zone).map(String);
+    for (const assetId of assetIds) {
+      assetIdToItemIdMap.set(assetId, itemId);
+    }
+  }
+
   syncToDb(db, incomingSwfAssets, {
     loader: swfAssetByRemoteIdLoader,
     tableName: "swf_assets",
@@ -222,6 +234,36 @@ async function saveSwfAssetModelingData(customPetData, context) {
       row.remoteId,
     ],
     includeUpdatedAt: false,
+    afterInsert: async (inserts) => {
+      // After inserting the assets, insert corresponding rows in
+      // parents_swf_assets for item assets, to mark the asset as belonging to
+      // the item. (We do this separately for pet states, so that we can get
+      // the pet state ID first.)
+      const itemAssetInserts = inserts.filter((i) => i.type === "object");
+      const qs = itemAssetInserts
+        .map(
+          (_) =>
+            // A bit cheesy: we use a subquery here to insert _our_ ID for the
+            // asset, despite only having remote_id available here. This saves
+            // us from another round-trip to SELECT the inserted IDs.
+            `(?, ?, ` +
+            `(SELECT id FROM swf_assets WHERE type = "object" AND remote_id = ?))`
+        )
+        .join(", ");
+      const values = itemAssetInserts
+        .map(({ remoteId: swfAssetId }) => [
+          "Item",
+          assetIdToItemIdMap.get(swfAssetId),
+          swfAssetId,
+        ])
+        .flat();
+
+      await db.execute(
+        `INSERT INTO parents_swf_assets (parent_type, parent_id, swf_asset_id)
+         VALUES ${qs}`,
+        values
+      );
+    },
   });
 }
 
@@ -340,7 +382,7 @@ async function syncToDb(
       rowValues.flat()
     );
     if (afterInsert) {
-      await afterInsert();
+      await afterInsert(inserts);
     }
   }
 
