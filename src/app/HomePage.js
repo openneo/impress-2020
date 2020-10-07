@@ -53,6 +53,9 @@ function HomePage() {
       </Box>
       <Box height="4" />
       <Heading1>Dress to Impress</Heading1>
+      <Box fontSize="lg" fontStyle="italic" opacity="0.85" role="doc-subtitle">
+        Design and share your Neopets outfits!
+      </Box>
       <Box height="8" />
       <StartOutfitForm onChange={setPreviewState} />
       <Box height="4" />
