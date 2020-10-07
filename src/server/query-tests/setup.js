@@ -135,6 +135,10 @@ expect.extend({
   },
 });
 
+// Use the new modeling code, even though it's disabled in most environments,
+// in order to test it.
+process.env["USE_NEW_MODELING"] = "1";
+
 module.exports = {
   query,
   getDbCalls,

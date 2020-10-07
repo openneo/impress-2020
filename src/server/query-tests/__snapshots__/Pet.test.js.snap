@@ -584,6 +584,434 @@ Array [
       "14",
     ],
   ],
+  Array [
+    "INSERT INTO modeling_logs (log_json, pet_name) VALUES (?, ?)",
+    Array [
+      "[
+    {
+        \\"tableName\\": \\"pet_types\\",
+        \\"inserts\\": [
+            {
+                \\"colorId\\": \\"75\\",
+                \\"speciesId\\": \\"54\\",
+                \\"bodyId\\": \\"180\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            }
+        ],
+        \\"updates\\": []
+    },
+    {
+        \\"tableName\\": \\"items\\",
+        \\"inserts\\": [
+            {
+                \\"id\\": \\"37229\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000\\",
+                \\"thumbnailUrl\\": \\"http://images.neopets.com/items/gif_magicball_table.gif\\",
+                \\"category\\": \\"Gift\\",
+                \\"type\\": \\"Gift\\",
+                \\"rarityIndex\\": 101,
+                \\"price\\": 0,
+                \\"weightLbs\\": 1,
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"id\\": \\"37375\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000000000\\",
+                \\"thumbnailUrl\\": \\"http://images.neopets.com/items/bg_moonstars.gif\\",
+                \\"category\\": \\"Special\\",
+                \\"type\\": \\"Mystical Surroundings\\",
+                \\"rarityIndex\\": 75,
+                \\"price\\": 209,
+                \\"weightLbs\\": 1,
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"id\\": \\"38911\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000001100000000000000\\",
+                \\"thumbnailUrl\\": \\"http://images.neopets.com/items/clo_zafara_agent_hood.gif\\",
+                \\"category\\": \\"Clothes\\",
+                \\"type\\": \\"Clothes\\",
+                \\"rarityIndex\\": 92,
+                \\"price\\": 980,
+                \\"weightLbs\\": 1,
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"id\\": \\"38912\\",
+                \\"zonesRestrict\\": \\"0000000000000000000101000000000000000000000000000000\\",
+                \\"thumbnailUrl\\": \\"http://images.neopets.com/items/clo_zafara_agent_robe.gif\\",
+                \\"category\\": \\"Clothes\\",
+                \\"type\\": \\"Clothes\\",
+                \\"rarityIndex\\": 90,
+                \\"price\\": 1476,
+                \\"weightLbs\\": 1,
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"id\\": \\"38913\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000000000\\",
+                \\"thumbnailUrl\\": \\"http://images.neopets.com/items/clo_zafara_agent_gloves.gif\\",
+                \\"category\\": \\"Clothes\\",
+                \\"type\\": \\"Clothes\\",
+                \\"rarityIndex\\": 88,
+                \\"price\\": 1177,
+                \\"weightLbs\\": 1,
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"id\\": \\"43014\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000\\",
+                \\"thumbnailUrl\\": \\"http://images.neopets.com/items/toy_stringlight_illleaf.gif\\",
+                \\"category\\": \\"Toys\\",
+                \\"type\\": \\"Toy\\",
+                \\"rarityIndex\\": 80,
+                \\"price\\": 1033,
+                \\"weightLbs\\": 1,
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"id\\": \\"43397\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000\\",
+                \\"thumbnailUrl\\": \\"http://images.neopets.com/items/mall_staff_jewelled.gif\\",
+                \\"category\\": \\"Clothes\\",
+                \\"type\\": \\"Clothes\\",
+                \\"rarityIndex\\": 500,
+                \\"price\\": 0,
+                \\"weightLbs\\": 1,
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"id\\": \\"48313\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000000000\\",
+                \\"thumbnailUrl\\": \\"http://images.neopets.com/items/clo_altcuplogo_brooch.gif\\",
+                \\"category\\": \\"Clothes\\",
+                \\"type\\": \\"Clothes\\",
+                \\"rarityIndex\\": 101,
+                \\"price\\": 0,
+                \\"weightLbs\\": 1,
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            }
+        ],
+        \\"updates\\": []
+    },
+    {
+        \\"tableName\\": \\"item_translations\\",
+        \\"inserts\\": [
+            {
+                \\"itemId\\": \\"37229\\",
+                \\"locale\\": \\"en\\",
+                \\"name\\": \\"Magic Ball Table\\",
+                \\"description\\": \\"What does this ball actually do?\\",
+                \\"rarity\\": \\"Special\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"itemId\\": \\"37375\\",
+                \\"locale\\": \\"en\\",
+                \\"name\\": \\"Moon and Stars Background\\",
+                \\"description\\": \\"Dont forget to wish upon a star.\\",
+                \\"rarity\\": \\"Uncommon\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"itemId\\": \\"38911\\",
+                \\"locale\\": \\"en\\",
+                \\"name\\": \\"Zafara Agent Hood\\",
+                \\"description\\": \\"Hide your face and hair so no one can recognise you.\\",
+                \\"rarity\\": \\"Very Rare\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"itemId\\": \\"38912\\",
+                \\"locale\\": \\"en\\",
+                \\"name\\": \\"Zafara Agent Robe\\",
+                \\"description\\": \\"This robe is great for being stealthy.\\",
+                \\"rarity\\": \\"Very Rare\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"itemId\\": \\"38913\\",
+                \\"locale\\": \\"en\\",
+                \\"name\\": \\"Zafara Agent Gloves\\",
+                \\"description\\": \\"Dont leave any trace that you were there with these gloves.\\",
+                \\"rarity\\": \\"Rare\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"itemId\\": \\"43014\\",
+                \\"locale\\": \\"en\\",
+                \\"name\\": \\"Green Leaf String Lights\\",
+                \\"description\\": \\"These leaves almost look magical with their gentle glow.\\",
+                \\"rarity\\": \\"Uncommon\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"itemId\\": \\"43397\\",
+                \\"locale\\": \\"en\\",
+                \\"name\\": \\"Jewelled Staff\\",
+                \\"description\\": \\"This jewelled staff shines with a magical light.\\",
+                \\"rarity\\": \\"Artifact\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"itemId\\": \\"48313\\",
+                \\"locale\\": \\"en\\",
+                \\"name\\": \\"Altador Cup Brooch\\",
+                \\"description\\": \\"Even the announcers of the Altador Cup celebrate.  This was given out by the Advent Calendar in Y11.\\",
+                \\"rarity\\": \\"Special\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            }
+        ],
+        \\"updates\\": []
+    },
+    {
+        \\"tableName\\": \\"parents_swf_assets\\",
+        \\"inserts\\": [
+            {
+                \\"parentType\\": \\"Item\\",
+                \\"parentId\\": \\"37375\\",
+                \\"remoteId\\": \\"6829\\"
+            },
+            {
+                \\"parentType\\": \\"Item\\",
+                \\"parentId\\": \\"38913\\",
+                \\"remoteId\\": \\"14855\\"
+            },
+            {
+                \\"parentType\\": \\"Item\\",
+                \\"parentId\\": \\"38912\\",
+                \\"remoteId\\": \\"14856\\"
+            },
+            {
+                \\"parentType\\": \\"Item\\",
+                \\"parentId\\": \\"38911\\",
+                \\"remoteId\\": \\"14857\\"
+            },
+            {
+                \\"parentType\\": \\"Item\\",
+                \\"parentId\\": \\"43014\\",
+                \\"remoteId\\": \\"36414\\"
+            },
+            {
+                \\"parentType\\": \\"Item\\",
+                \\"parentId\\": \\"43397\\",
+                \\"remoteId\\": \\"39646\\"
+            },
+            {
+                \\"parentType\\": \\"Item\\",
+                \\"parentId\\": \\"37229\\",
+                \\"remoteId\\": \\"51959\\"
+            },
+            {
+                \\"parentType\\": \\"Item\\",
+                \\"parentId\\": \\"48313\\",
+                \\"remoteId\\": \\"56478\\"
+            }
+        ],
+        \\"updates\\": []
+    },
+    {
+        \\"tableName\\": \\"swf_assets\\",
+        \\"inserts\\": [
+            {
+                \\"type\\": \\"object\\",
+                \\"remoteId\\": \\"6829\\",
+                \\"url\\": \\"http://images.neopets.com/cp/items/swf/000/000/006/6829_1707e50385.swf\\",
+                \\"zoneId\\": \\"3\\",
+                \\"zonesRestrict\\": \\"\\",
+                \\"bodyId\\": \\"180\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"object\\",
+                \\"remoteId\\": \\"14855\\",
+                \\"url\\": \\"http://images.neopets.com/cp/items/swf/000/000/014/14855_215f367070.swf\\",
+                \\"zoneId\\": \\"25\\",
+                \\"zonesRestrict\\": \\"\\",
+                \\"bodyId\\": \\"180\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"object\\",
+                \\"remoteId\\": \\"14856\\",
+                \\"url\\": \\"http://images.neopets.com/cp/items/swf/000/000/014/14856_46c1b32797.swf\\",
+                \\"zoneId\\": \\"26\\",
+                \\"zonesRestrict\\": \\"\\",
+                \\"bodyId\\": \\"180\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"object\\",
+                \\"remoteId\\": \\"14857\\",
+                \\"url\\": \\"http://images.neopets.com/cp/items/swf/000/000/014/14857_d43380ef66.swf\\",
+                \\"zoneId\\": \\"40\\",
+                \\"zonesRestrict\\": \\"\\",
+                \\"bodyId\\": \\"180\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"object\\",
+                \\"remoteId\\": \\"36414\\",
+                \\"url\\": \\"http://images.neopets.com/cp/items/swf/000/000/036/36414_1e2aaab4ad.swf\\",
+                \\"zoneId\\": \\"48\\",
+                \\"zonesRestrict\\": \\"\\",
+                \\"bodyId\\": \\"180\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"object\\",
+                \\"remoteId\\": \\"39646\\",
+                \\"url\\": \\"http://images.neopets.com/cp/items/swf/000/000/039/39646_e129e22ada.swf\\",
+                \\"zoneId\\": \\"42\\",
+                \\"zonesRestrict\\": \\"\\",
+                \\"bodyId\\": \\"180\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"object\\",
+                \\"remoteId\\": \\"51959\\",
+                \\"url\\": \\"http://images.neopets.com/cp/items/swf/000/000/051/51959_4439727c48.swf\\",
+                \\"zoneId\\": \\"45\\",
+                \\"zonesRestrict\\": \\"\\",
+                \\"bodyId\\": \\"180\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"object\\",
+                \\"remoteId\\": \\"56478\\",
+                \\"url\\": \\"http://images.neopets.com/cp/items/swf/000/000/056/56478_eabc28e7c7.swf\\",
+                \\"zoneId\\": \\"27\\",
+                \\"zonesRestrict\\": \\"\\",
+                \\"bodyId\\": \\"180\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"biology\\",
+                \\"remoteId\\": \\"7942\\",
+                \\"url\\": \\"http://images.neopets.com/cp/bio/swf/000/000/007/7942_2eab06fd7b.swf\\",
+                \\"zoneId\\": \\"5\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000000000\\",
+                \\"bodyId\\": \\"0\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"biology\\",
+                \\"remoteId\\": \\"7941\\",
+                \\"url\\": \\"http://images.neopets.com/cp/bio/swf/000/000/007/7941_2c4cc4b846.swf\\",
+                \\"zoneId\\": \\"15\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000000000\\",
+                \\"bodyId\\": \\"0\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"biology\\",
+                \\"remoteId\\": \\"24008\\",
+                \\"url\\": \\"http://images.neopets.com/cp/bio/swf/000/000/024/24008_a05fe9876a.swf\\",
+                \\"zoneId\\": \\"30\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000000000\\",
+                \\"bodyId\\": \\"0\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"biology\\",
+                \\"remoteId\\": \\"21060\\",
+                \\"url\\": \\"http://images.neopets.com/cp/bio/swf/000/000/021/21060_d77ba93b7b.swf\\",
+                \\"zoneId\\": \\"33\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000000000\\",
+                \\"bodyId\\": \\"0\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"biology\\",
+                \\"remoteId\\": \\"21057\\",
+                \\"url\\": \\"http://images.neopets.com/cp/bio/swf/000/000/021/21057_4550efbb2f.swf\\",
+                \\"zoneId\\": \\"34\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000000000\\",
+                \\"bodyId\\": \\"0\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"biology\\",
+                \\"remoteId\\": \\"7946\\",
+                \\"url\\": \\"http://images.neopets.com/cp/bio/swf/000/000/007/7946_0348dad587.swf\\",
+                \\"zoneId\\": \\"37\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000000000\\",
+                \\"bodyId\\": \\"0\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            }
+        ],
+        \\"updates\\": []
+    },
+    {
+        \\"tableName\\": \\"parents_swf_assets\\",
+        \\"inserts\\": [
+            {
+                \\"parentType\\": \\"PetState\\",
+                \\"parentId\\": \\"1\\",
+                \\"swfAssetId\\": \\"9\\"
+            },
+            {
+                \\"parentType\\": \\"PetState\\",
+                \\"parentId\\": \\"1\\",
+                \\"swfAssetId\\": \\"10\\"
+            },
+            {
+                \\"parentType\\": \\"PetState\\",
+                \\"parentId\\": \\"1\\",
+                \\"swfAssetId\\": \\"11\\"
+            },
+            {
+                \\"parentType\\": \\"PetState\\",
+                \\"parentId\\": \\"1\\",
+                \\"swfAssetId\\": \\"12\\"
+            },
+            {
+                \\"parentType\\": \\"PetState\\",
+                \\"parentId\\": \\"1\\",
+                \\"swfAssetId\\": \\"13\\"
+            },
+            {
+                \\"parentType\\": \\"PetState\\",
+                \\"parentId\\": \\"1\\",
+                \\"swfAssetId\\": \\"14\\"
+            }
+        ],
+        \\"updates\\": []
+    },
+    {
+        \\"tableName\\": \\"pet_states\\",
+        \\"inserts\\": [
+            {
+                \\"petTypeId\\": \\"1\\",
+                \\"swfAssetIds\\": \\"7941,7942,7946,21057,21060,24008\\",
+                \\"female\\": 0,
+                \\"moodId\\": \\"2\\",
+                \\"unconverted\\": 0,
+                \\"labeled\\": 1
+            }
+        ],
+        \\"updates\\": []
+    }
+]",
+      "roopal27",
+    ],
+  ],
 ]
 `;
 
@@ -1275,6 +1703,447 @@ Array [
       "14",
     ],
   ],
+  Array [
+    "INSERT INTO modeling_logs (log_json, pet_name) VALUES (?, ?)",
+    Array [
+      "[
+    {
+        \\"tableName\\": \\"pet_types\\",
+        \\"inserts\\": [
+            {
+                \\"colorId\\": \\"75\\",
+                \\"speciesId\\": \\"54\\",
+                \\"bodyId\\": \\"180\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            }
+        ],
+        \\"updates\\": []
+    },
+    {
+        \\"tableName\\": \\"items\\",
+        \\"inserts\\": [
+            {
+                \\"id\\": \\"37229\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000\\",
+                \\"thumbnailUrl\\": \\"http://images.neopets.com/items/gif_magicball_table.gif\\",
+                \\"category\\": \\"Gift\\",
+                \\"type\\": \\"Gift\\",
+                \\"rarityIndex\\": 101,
+                \\"price\\": 0,
+                \\"weightLbs\\": 1,
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"id\\": \\"37375\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000000000\\",
+                \\"thumbnailUrl\\": \\"http://images.neopets.com/items/bg_moonstars.gif\\",
+                \\"category\\": \\"Special\\",
+                \\"type\\": \\"Mystical Surroundings\\",
+                \\"rarityIndex\\": 75,
+                \\"price\\": 209,
+                \\"weightLbs\\": 1,
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"id\\": \\"38911\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000001100000000000000\\",
+                \\"thumbnailUrl\\": \\"http://images.neopets.com/items/clo_zafara_agent_hood.gif\\",
+                \\"category\\": \\"Clothes\\",
+                \\"type\\": \\"Clothes\\",
+                \\"rarityIndex\\": 92,
+                \\"price\\": 980,
+                \\"weightLbs\\": 1,
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"id\\": \\"38912\\",
+                \\"zonesRestrict\\": \\"0000000000000000000101000000000000000000000000000000\\",
+                \\"thumbnailUrl\\": \\"http://images.neopets.com/items/clo_zafara_agent_robe.gif\\",
+                \\"category\\": \\"Clothes\\",
+                \\"type\\": \\"Clothes\\",
+                \\"rarityIndex\\": 90,
+                \\"price\\": 1476,
+                \\"weightLbs\\": 1,
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"id\\": \\"38913\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000000000\\",
+                \\"thumbnailUrl\\": \\"http://images.neopets.com/items/clo_zafara_agent_gloves.gif\\",
+                \\"category\\": \\"Clothes\\",
+                \\"type\\": \\"Clothes\\",
+                \\"rarityIndex\\": 88,
+                \\"price\\": 1177,
+                \\"weightLbs\\": 1,
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"id\\": \\"43014\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000\\",
+                \\"thumbnailUrl\\": \\"http://images.neopets.com/items/toy_stringlight_illleaf.gif\\",
+                \\"category\\": \\"Toys\\",
+                \\"type\\": \\"Toy\\",
+                \\"rarityIndex\\": 80,
+                \\"price\\": 1033,
+                \\"weightLbs\\": 1,
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"id\\": \\"48313\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000000000\\",
+                \\"thumbnailUrl\\": \\"http://images.neopets.com/items/clo_altcuplogo_brooch.gif\\",
+                \\"category\\": \\"Clothes\\",
+                \\"type\\": \\"Clothes\\",
+                \\"rarityIndex\\": 101,
+                \\"price\\": 0,
+                \\"weightLbs\\": 1,
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            }
+        ],
+        \\"updates\\": [
+            {
+                \\"incomingRow\\": {
+                    \\"id\\": \\"43397\\",
+                    \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000\\",
+                    \\"thumbnailUrl\\": \\"http://images.neopets.com/items/mall_staff_jewelled.gif\\",
+                    \\"category\\": \\"Clothes\\",
+                    \\"type\\": \\"Clothes\\",
+                    \\"rarityIndex\\": 500,
+                    \\"price\\": 0,
+                    \\"weightLbs\\": 1
+                },
+                \\"update\\": {
+                    \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000\\",
+                    \\"thumbnailUrl\\": \\"http://images.neopets.com/items/mall_staff_jewelled.gif\\",
+                    \\"rarityIndex\\": 500,
+                    \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+                }
+            }
+        ]
+    },
+    {
+        \\"tableName\\": \\"item_translations\\",
+        \\"inserts\\": [
+            {
+                \\"itemId\\": \\"37229\\",
+                \\"locale\\": \\"en\\",
+                \\"name\\": \\"Magic Ball Table\\",
+                \\"description\\": \\"What does this ball actually do?\\",
+                \\"rarity\\": \\"Special\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"itemId\\": \\"37375\\",
+                \\"locale\\": \\"en\\",
+                \\"name\\": \\"Moon and Stars Background\\",
+                \\"description\\": \\"Dont forget to wish upon a star.\\",
+                \\"rarity\\": \\"Uncommon\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"itemId\\": \\"38911\\",
+                \\"locale\\": \\"en\\",
+                \\"name\\": \\"Zafara Agent Hood\\",
+                \\"description\\": \\"Hide your face and hair so no one can recognise you.\\",
+                \\"rarity\\": \\"Very Rare\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"itemId\\": \\"38912\\",
+                \\"locale\\": \\"en\\",
+                \\"name\\": \\"Zafara Agent Robe\\",
+                \\"description\\": \\"This robe is great for being stealthy.\\",
+                \\"rarity\\": \\"Very Rare\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"itemId\\": \\"38913\\",
+                \\"locale\\": \\"en\\",
+                \\"name\\": \\"Zafara Agent Gloves\\",
+                \\"description\\": \\"Dont leave any trace that you were there with these gloves.\\",
+                \\"rarity\\": \\"Rare\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"itemId\\": \\"43014\\",
+                \\"locale\\": \\"en\\",
+                \\"name\\": \\"Green Leaf String Lights\\",
+                \\"description\\": \\"These leaves almost look magical with their gentle glow.\\",
+                \\"rarity\\": \\"Uncommon\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"itemId\\": \\"48313\\",
+                \\"locale\\": \\"en\\",
+                \\"name\\": \\"Altador Cup Brooch\\",
+                \\"description\\": \\"Even the announcers of the Altador Cup celebrate.  This was given out by the Advent Calendar in Y11.\\",
+                \\"rarity\\": \\"Special\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            }
+        ],
+        \\"updates\\": [
+            {
+                \\"incomingRow\\": {
+                    \\"itemId\\": \\"43397\\",
+                    \\"locale\\": \\"en\\",
+                    \\"name\\": \\"Jewelled Staff\\",
+                    \\"description\\": \\"This jewelled staff shines with a magical light.\\",
+                    \\"rarity\\": \\"Artifact\\"
+                },
+                \\"update\\": {
+                    \\"name\\": \\"Jewelled Staff\\",
+                    \\"description\\": \\"This jewelled staff shines with a magical light.\\",
+                    \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+                }
+            }
+        ]
+    },
+    {
+        \\"tableName\\": \\"parents_swf_assets\\",
+        \\"inserts\\": [
+            {
+                \\"parentType\\": \\"Item\\",
+                \\"parentId\\": \\"37375\\",
+                \\"remoteId\\": \\"6829\\"
+            },
+            {
+                \\"parentType\\": \\"Item\\",
+                \\"parentId\\": \\"38913\\",
+                \\"remoteId\\": \\"14855\\"
+            },
+            {
+                \\"parentType\\": \\"Item\\",
+                \\"parentId\\": \\"38912\\",
+                \\"remoteId\\": \\"14856\\"
+            },
+            {
+                \\"parentType\\": \\"Item\\",
+                \\"parentId\\": \\"38911\\",
+                \\"remoteId\\": \\"14857\\"
+            },
+            {
+                \\"parentType\\": \\"Item\\",
+                \\"parentId\\": \\"43014\\",
+                \\"remoteId\\": \\"36414\\"
+            },
+            {
+                \\"parentType\\": \\"Item\\",
+                \\"parentId\\": \\"43397\\",
+                \\"remoteId\\": \\"39646\\"
+            },
+            {
+                \\"parentType\\": \\"Item\\",
+                \\"parentId\\": \\"37229\\",
+                \\"remoteId\\": \\"51959\\"
+            },
+            {
+                \\"parentType\\": \\"Item\\",
+                \\"parentId\\": \\"48313\\",
+                \\"remoteId\\": \\"56478\\"
+            }
+        ],
+        \\"updates\\": []
+    },
+    {
+        \\"tableName\\": \\"swf_assets\\",
+        \\"inserts\\": [
+            {
+                \\"type\\": \\"object\\",
+                \\"remoteId\\": \\"6829\\",
+                \\"url\\": \\"http://images.neopets.com/cp/items/swf/000/000/006/6829_1707e50385.swf\\",
+                \\"zoneId\\": \\"3\\",
+                \\"zonesRestrict\\": \\"\\",
+                \\"bodyId\\": \\"180\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"object\\",
+                \\"remoteId\\": \\"14855\\",
+                \\"url\\": \\"http://images.neopets.com/cp/items/swf/000/000/014/14855_215f367070.swf\\",
+                \\"zoneId\\": \\"25\\",
+                \\"zonesRestrict\\": \\"\\",
+                \\"bodyId\\": \\"180\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"object\\",
+                \\"remoteId\\": \\"14856\\",
+                \\"url\\": \\"http://images.neopets.com/cp/items/swf/000/000/014/14856_46c1b32797.swf\\",
+                \\"zoneId\\": \\"26\\",
+                \\"zonesRestrict\\": \\"\\",
+                \\"bodyId\\": \\"180\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"object\\",
+                \\"remoteId\\": \\"14857\\",
+                \\"url\\": \\"http://images.neopets.com/cp/items/swf/000/000/014/14857_d43380ef66.swf\\",
+                \\"zoneId\\": \\"40\\",
+                \\"zonesRestrict\\": \\"\\",
+                \\"bodyId\\": \\"180\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"object\\",
+                \\"remoteId\\": \\"36414\\",
+                \\"url\\": \\"http://images.neopets.com/cp/items/swf/000/000/036/36414_1e2aaab4ad.swf\\",
+                \\"zoneId\\": \\"48\\",
+                \\"zonesRestrict\\": \\"\\",
+                \\"bodyId\\": \\"180\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"object\\",
+                \\"remoteId\\": \\"39646\\",
+                \\"url\\": \\"http://images.neopets.com/cp/items/swf/000/000/039/39646_e129e22ada.swf\\",
+                \\"zoneId\\": \\"42\\",
+                \\"zonesRestrict\\": \\"\\",
+                \\"bodyId\\": \\"180\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"object\\",
+                \\"remoteId\\": \\"51959\\",
+                \\"url\\": \\"http://images.neopets.com/cp/items/swf/000/000/051/51959_4439727c48.swf\\",
+                \\"zoneId\\": \\"45\\",
+                \\"zonesRestrict\\": \\"\\",
+                \\"bodyId\\": \\"180\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"object\\",
+                \\"remoteId\\": \\"56478\\",
+                \\"url\\": \\"http://images.neopets.com/cp/items/swf/000/000/056/56478_eabc28e7c7.swf\\",
+                \\"zoneId\\": \\"27\\",
+                \\"zonesRestrict\\": \\"\\",
+                \\"bodyId\\": \\"180\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"biology\\",
+                \\"remoteId\\": \\"7942\\",
+                \\"url\\": \\"http://images.neopets.com/cp/bio/swf/000/000/007/7942_2eab06fd7b.swf\\",
+                \\"zoneId\\": \\"5\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000000000\\",
+                \\"bodyId\\": \\"0\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"biology\\",
+                \\"remoteId\\": \\"7941\\",
+                \\"url\\": \\"http://images.neopets.com/cp/bio/swf/000/000/007/7941_2c4cc4b846.swf\\",
+                \\"zoneId\\": \\"15\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000000000\\",
+                \\"bodyId\\": \\"0\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"biology\\",
+                \\"remoteId\\": \\"24008\\",
+                \\"url\\": \\"http://images.neopets.com/cp/bio/swf/000/000/024/24008_a05fe9876a.swf\\",
+                \\"zoneId\\": \\"30\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000000000\\",
+                \\"bodyId\\": \\"0\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"biology\\",
+                \\"remoteId\\": \\"21060\\",
+                \\"url\\": \\"http://images.neopets.com/cp/bio/swf/000/000/021/21060_d77ba93b7b.swf\\",
+                \\"zoneId\\": \\"33\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000000000\\",
+                \\"bodyId\\": \\"0\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"biology\\",
+                \\"remoteId\\": \\"21057\\",
+                \\"url\\": \\"http://images.neopets.com/cp/bio/swf/000/000/021/21057_4550efbb2f.swf\\",
+                \\"zoneId\\": \\"34\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000000000\\",
+                \\"bodyId\\": \\"0\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"biology\\",
+                \\"remoteId\\": \\"7946\\",
+                \\"url\\": \\"http://images.neopets.com/cp/bio/swf/000/000/007/7946_0348dad587.swf\\",
+                \\"zoneId\\": \\"37\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000000000\\",
+                \\"bodyId\\": \\"0\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            }
+        ],
+        \\"updates\\": []
+    },
+    {
+        \\"tableName\\": \\"parents_swf_assets\\",
+        \\"inserts\\": [
+            {
+                \\"parentType\\": \\"PetState\\",
+                \\"parentId\\": \\"1\\",
+                \\"swfAssetId\\": \\"9\\"
+            },
+            {
+                \\"parentType\\": \\"PetState\\",
+                \\"parentId\\": \\"1\\",
+                \\"swfAssetId\\": \\"10\\"
+            },
+            {
+                \\"parentType\\": \\"PetState\\",
+                \\"parentId\\": \\"1\\",
+                \\"swfAssetId\\": \\"11\\"
+            },
+            {
+                \\"parentType\\": \\"PetState\\",
+                \\"parentId\\": \\"1\\",
+                \\"swfAssetId\\": \\"12\\"
+            },
+            {
+                \\"parentType\\": \\"PetState\\",
+                \\"parentId\\": \\"1\\",
+                \\"swfAssetId\\": \\"13\\"
+            },
+            {
+                \\"parentType\\": \\"PetState\\",
+                \\"parentId\\": \\"1\\",
+                \\"swfAssetId\\": \\"14\\"
+            }
+        ],
+        \\"updates\\": []
+    },
+    {
+        \\"tableName\\": \\"pet_states\\",
+        \\"inserts\\": [
+            {
+                \\"petTypeId\\": \\"1\\",
+                \\"swfAssetIds\\": \\"7941,7942,7946,21057,21060,24008\\",
+                \\"female\\": 0,
+                \\"moodId\\": \\"2\\",
+                \\"unconverted\\": 0,
+                \\"labeled\\": 1
+            }
+        ],
+        \\"updates\\": []
+    }
+]",
+      "roopal27",
+    ],
+  ],
 ]
 `;
 
@@ -1720,6 +2589,433 @@ Array [
       "PetState",
       "1",
       "14",
+    ],
+  ],
+  Array [
+    "INSERT INTO modeling_logs (log_json, pet_name) VALUES (?, ?)",
+    Array [
+      "[
+    {
+        \\"tableName\\": \\"pet_types\\",
+        \\"inserts\\": [
+            {
+                \\"colorId\\": \\"75\\",
+                \\"speciesId\\": \\"54\\",
+                \\"bodyId\\": \\"180\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            }
+        ],
+        \\"updates\\": []
+    },
+    {
+        \\"tableName\\": \\"items\\",
+        \\"inserts\\": [
+            {
+                \\"id\\": \\"37229\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000\\",
+                \\"thumbnailUrl\\": \\"http://images.neopets.com/items/gif_magicball_table.gif\\",
+                \\"category\\": \\"Gift\\",
+                \\"type\\": \\"Gift\\",
+                \\"rarityIndex\\": 101,
+                \\"price\\": 0,
+                \\"weightLbs\\": 1,
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"id\\": \\"37375\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000000000\\",
+                \\"thumbnailUrl\\": \\"http://images.neopets.com/items/bg_moonstars.gif\\",
+                \\"category\\": \\"Special\\",
+                \\"type\\": \\"Mystical Surroundings\\",
+                \\"rarityIndex\\": 75,
+                \\"price\\": 209,
+                \\"weightLbs\\": 1,
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"id\\": \\"38911\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000001100000000000000\\",
+                \\"thumbnailUrl\\": \\"http://images.neopets.com/items/clo_zafara_agent_hood.gif\\",
+                \\"category\\": \\"Clothes\\",
+                \\"type\\": \\"Clothes\\",
+                \\"rarityIndex\\": 92,
+                \\"price\\": 980,
+                \\"weightLbs\\": 1,
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"id\\": \\"38912\\",
+                \\"zonesRestrict\\": \\"0000000000000000000101000000000000000000000000000000\\",
+                \\"thumbnailUrl\\": \\"http://images.neopets.com/items/clo_zafara_agent_robe.gif\\",
+                \\"category\\": \\"Clothes\\",
+                \\"type\\": \\"Clothes\\",
+                \\"rarityIndex\\": 90,
+                \\"price\\": 1476,
+                \\"weightLbs\\": 1,
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"id\\": \\"38913\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000000000\\",
+                \\"thumbnailUrl\\": \\"http://images.neopets.com/items/clo_zafara_agent_gloves.gif\\",
+                \\"category\\": \\"Clothes\\",
+                \\"type\\": \\"Clothes\\",
+                \\"rarityIndex\\": 88,
+                \\"price\\": 1177,
+                \\"weightLbs\\": 1,
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"id\\": \\"43014\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000\\",
+                \\"thumbnailUrl\\": \\"http://images.neopets.com/items/toy_stringlight_illleaf.gif\\",
+                \\"category\\": \\"Toys\\",
+                \\"type\\": \\"Toy\\",
+                \\"rarityIndex\\": 80,
+                \\"price\\": 1033,
+                \\"weightLbs\\": 1,
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"id\\": \\"43397\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000\\",
+                \\"thumbnailUrl\\": \\"http://images.neopets.com/items/mall_staff_jewelled.gif\\",
+                \\"category\\": \\"Clothes\\",
+                \\"type\\": \\"Clothes\\",
+                \\"rarityIndex\\": 500,
+                \\"price\\": 0,
+                \\"weightLbs\\": 1,
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"id\\": \\"48313\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000000000\\",
+                \\"thumbnailUrl\\": \\"http://images.neopets.com/items/clo_altcuplogo_brooch.gif\\",
+                \\"category\\": \\"Clothes\\",
+                \\"type\\": \\"Clothes\\",
+                \\"rarityIndex\\": 101,
+                \\"price\\": 0,
+                \\"weightLbs\\": 1,
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            }
+        ],
+        \\"updates\\": []
+    },
+    {
+        \\"tableName\\": \\"item_translations\\",
+        \\"inserts\\": [
+            {
+                \\"itemId\\": \\"37229\\",
+                \\"locale\\": \\"en\\",
+                \\"name\\": \\"Magic Ball Table\\",
+                \\"description\\": \\"What does this ball actually do?\\",
+                \\"rarity\\": \\"Special\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"itemId\\": \\"37375\\",
+                \\"locale\\": \\"en\\",
+                \\"name\\": \\"Moon and Stars Background\\",
+                \\"description\\": \\"Dont forget to wish upon a star.\\",
+                \\"rarity\\": \\"Uncommon\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"itemId\\": \\"38911\\",
+                \\"locale\\": \\"en\\",
+                \\"name\\": \\"Zafara Agent Hood\\",
+                \\"description\\": \\"Hide your face and hair so no one can recognise you.\\",
+                \\"rarity\\": \\"Very Rare\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"itemId\\": \\"38912\\",
+                \\"locale\\": \\"en\\",
+                \\"name\\": \\"Zafara Agent Robe\\",
+                \\"description\\": \\"This robe is great for being stealthy.\\",
+                \\"rarity\\": \\"Very Rare\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"itemId\\": \\"38913\\",
+                \\"locale\\": \\"en\\",
+                \\"name\\": \\"Zafara Agent Gloves\\",
+                \\"description\\": \\"Dont leave any trace that you were there with these gloves.\\",
+                \\"rarity\\": \\"Rare\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"itemId\\": \\"43014\\",
+                \\"locale\\": \\"en\\",
+                \\"name\\": \\"Green Leaf String Lights\\",
+                \\"description\\": \\"These leaves almost look magical with their gentle glow.\\",
+                \\"rarity\\": \\"Uncommon\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"itemId\\": \\"43397\\",
+                \\"locale\\": \\"en\\",
+                \\"name\\": \\"Jewelled Staff\\",
+                \\"description\\": \\"This jewelled staff shines with a magical light.\\",
+                \\"rarity\\": \\"Artifact\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"itemId\\": \\"48313\\",
+                \\"locale\\": \\"en\\",
+                \\"name\\": \\"Altador Cup Brooch\\",
+                \\"description\\": \\"Even the announcers of the Altador Cup celebrate.  This was given out by the Advent Calendar in Y11.\\",
+                \\"rarity\\": \\"Special\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\",
+                \\"updatedAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            }
+        ],
+        \\"updates\\": []
+    },
+    {
+        \\"tableName\\": \\"parents_swf_assets\\",
+        \\"inserts\\": [
+            {
+                \\"parentType\\": \\"Item\\",
+                \\"parentId\\": \\"38913\\",
+                \\"remoteId\\": \\"14855\\"
+            },
+            {
+                \\"parentType\\": \\"Item\\",
+                \\"parentId\\": \\"38912\\",
+                \\"remoteId\\": \\"14856\\"
+            },
+            {
+                \\"parentType\\": \\"Item\\",
+                \\"parentId\\": \\"38911\\",
+                \\"remoteId\\": \\"14857\\"
+            },
+            {
+                \\"parentType\\": \\"Item\\",
+                \\"parentId\\": \\"43014\\",
+                \\"remoteId\\": \\"36414\\"
+            },
+            {
+                \\"parentType\\": \\"Item\\",
+                \\"parentId\\": \\"43397\\",
+                \\"remoteId\\": \\"39646\\"
+            },
+            {
+                \\"parentType\\": \\"Item\\",
+                \\"parentId\\": \\"37229\\",
+                \\"remoteId\\": \\"51959\\"
+            },
+            {
+                \\"parentType\\": \\"Item\\",
+                \\"parentId\\": \\"48313\\",
+                \\"remoteId\\": \\"56478\\"
+            }
+        ],
+        \\"updates\\": []
+    },
+    {
+        \\"tableName\\": \\"swf_assets\\",
+        \\"inserts\\": [
+            {
+                \\"type\\": \\"object\\",
+                \\"remoteId\\": \\"14855\\",
+                \\"url\\": \\"http://images.neopets.com/cp/items/swf/000/000/014/14855_215f367070.swf\\",
+                \\"zoneId\\": \\"25\\",
+                \\"zonesRestrict\\": \\"\\",
+                \\"bodyId\\": \\"180\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"object\\",
+                \\"remoteId\\": \\"14856\\",
+                \\"url\\": \\"http://images.neopets.com/cp/items/swf/000/000/014/14856_46c1b32797.swf\\",
+                \\"zoneId\\": \\"26\\",
+                \\"zonesRestrict\\": \\"\\",
+                \\"bodyId\\": \\"180\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"object\\",
+                \\"remoteId\\": \\"14857\\",
+                \\"url\\": \\"http://images.neopets.com/cp/items/swf/000/000/014/14857_d43380ef66.swf\\",
+                \\"zoneId\\": \\"40\\",
+                \\"zonesRestrict\\": \\"\\",
+                \\"bodyId\\": \\"180\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"object\\",
+                \\"remoteId\\": \\"36414\\",
+                \\"url\\": \\"http://images.neopets.com/cp/items/swf/000/000/036/36414_1e2aaab4ad.swf\\",
+                \\"zoneId\\": \\"48\\",
+                \\"zonesRestrict\\": \\"\\",
+                \\"bodyId\\": \\"180\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"object\\",
+                \\"remoteId\\": \\"39646\\",
+                \\"url\\": \\"http://images.neopets.com/cp/items/swf/000/000/039/39646_e129e22ada.swf\\",
+                \\"zoneId\\": \\"42\\",
+                \\"zonesRestrict\\": \\"\\",
+                \\"bodyId\\": \\"180\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"object\\",
+                \\"remoteId\\": \\"51959\\",
+                \\"url\\": \\"http://images.neopets.com/cp/items/swf/000/000/051/51959_4439727c48.swf\\",
+                \\"zoneId\\": \\"45\\",
+                \\"zonesRestrict\\": \\"\\",
+                \\"bodyId\\": \\"180\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"object\\",
+                \\"remoteId\\": \\"56478\\",
+                \\"url\\": \\"http://images.neopets.com/cp/items/swf/000/000/056/56478_eabc28e7c7.swf\\",
+                \\"zoneId\\": \\"27\\",
+                \\"zonesRestrict\\": \\"\\",
+                \\"bodyId\\": \\"180\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"biology\\",
+                \\"remoteId\\": \\"7942\\",
+                \\"url\\": \\"http://images.neopets.com/cp/bio/swf/000/000/007/7942_2eab06fd7b.swf\\",
+                \\"zoneId\\": \\"5\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000000000\\",
+                \\"bodyId\\": \\"0\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"biology\\",
+                \\"remoteId\\": \\"7941\\",
+                \\"url\\": \\"http://images.neopets.com/cp/bio/swf/000/000/007/7941_2c4cc4b846.swf\\",
+                \\"zoneId\\": \\"15\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000000000\\",
+                \\"bodyId\\": \\"0\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"biology\\",
+                \\"remoteId\\": \\"24008\\",
+                \\"url\\": \\"http://images.neopets.com/cp/bio/swf/000/000/024/24008_a05fe9876a.swf\\",
+                \\"zoneId\\": \\"30\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000000000\\",
+                \\"bodyId\\": \\"0\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"biology\\",
+                \\"remoteId\\": \\"21060\\",
+                \\"url\\": \\"http://images.neopets.com/cp/bio/swf/000/000/021/21060_d77ba93b7b.swf\\",
+                \\"zoneId\\": \\"33\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000000000\\",
+                \\"bodyId\\": \\"0\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"biology\\",
+                \\"remoteId\\": \\"21057\\",
+                \\"url\\": \\"http://images.neopets.com/cp/bio/swf/000/000/021/21057_4550efbb2f.swf\\",
+                \\"zoneId\\": \\"34\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000000000\\",
+                \\"bodyId\\": \\"0\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            },
+            {
+                \\"type\\": \\"biology\\",
+                \\"remoteId\\": \\"7946\\",
+                \\"url\\": \\"http://images.neopets.com/cp/bio/swf/000/000/007/7946_0348dad587.swf\\",
+                \\"zoneId\\": \\"37\\",
+                \\"zonesRestrict\\": \\"0000000000000000000000000000000000000000000000000000\\",
+                \\"bodyId\\": \\"0\\",
+                \\"createdAt\\": \\"2020-01-01T00:00:00.000Z\\"
+            }
+        ],
+        \\"updates\\": [
+            {
+                \\"incomingRow\\": {
+                    \\"type\\": \\"object\\",
+                    \\"remoteId\\": \\"6829\\",
+                    \\"url\\": \\"http://images.neopets.com/cp/items/swf/000/000/006/6829_1707e50385.swf\\",
+                    \\"zoneId\\": \\"3\\",
+                    \\"zonesRestrict\\": \\"\\"
+                },
+                \\"update\\": {
+                    \\"bodyId\\": \\"0\\"
+                }
+            }
+        ]
+    },
+    {
+        \\"tableName\\": \\"parents_swf_assets\\",
+        \\"inserts\\": [
+            {
+                \\"parentType\\": \\"PetState\\",
+                \\"parentId\\": \\"1\\",
+                \\"swfAssetId\\": \\"9\\"
+            },
+            {
+                \\"parentType\\": \\"PetState\\",
+                \\"parentId\\": \\"1\\",
+                \\"swfAssetId\\": \\"10\\"
+            },
+            {
+                \\"parentType\\": \\"PetState\\",
+                \\"parentId\\": \\"1\\",
+                \\"swfAssetId\\": \\"11\\"
+            },
+            {
+                \\"parentType\\": \\"PetState\\",
+                \\"parentId\\": \\"1\\",
+                \\"swfAssetId\\": \\"12\\"
+            },
+            {
+                \\"parentType\\": \\"PetState\\",
+                \\"parentId\\": \\"1\\",
+                \\"swfAssetId\\": \\"13\\"
+            },
+            {
+                \\"parentType\\": \\"PetState\\",
+                \\"parentId\\": \\"1\\",
+                \\"swfAssetId\\": \\"14\\"
+            }
+        ],
+        \\"updates\\": []
+    },
+    {
+        \\"tableName\\": \\"pet_states\\",
+        \\"inserts\\": [
+            {
+                \\"petTypeId\\": \\"1\\",
+                \\"swfAssetIds\\": \\"7941,7942,7946,21057,21060,24008\\",
+                \\"female\\": 0,
+                \\"moodId\\": \\"2\\",
+                \\"unconverted\\": 0,
+                \\"labeled\\": 1
+            }
+        ],
+        \\"updates\\": []
+    }
+]",
+      "roopal27",
     ],
   ],
 ]

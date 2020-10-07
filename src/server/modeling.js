@@ -6,8 +6,20 @@
  * These days, most calls to this function are a no-op: we detect that the
  * database already contains this data, and end up doing no writes. But when a
  * pet contains data we haven't seen before, we write!
+ *
+ * NOTE: This function currently only acts if process.env["USE_NEW_MODELING"]
+ *       is set to "1". Otherwise, it does nothing. This is because, while this
+ *       new modeling code seems to work well for modern stuff, it doesn't
+ *       upload SWFs to the Classic DTI Linode box, and doesn't upload PNGs to
+ *       AWS. Both are necessary for compatibility with Classic DTI, and PNGs
+ *       are necessary (even on Impress 2020) until all assets are converted to
+ *       HTML5.
  */
 async function saveModelingData(customPetData, petMetaData, context) {
+  if (process.env["USE_NEW_MODELING"] !== "1") {
+    return;
+  }
+
   const modelingLogs = [];
   const addToModelingLogs = (entry) => {
     console.log("[Modeling] " + JSON.stringify(entry, null, 4));
