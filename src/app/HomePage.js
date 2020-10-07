@@ -252,18 +252,31 @@ function FeedbackFormSection() {
 
   const openButtonRef = React.useRef(null);
   const emailFieldRef = React.useRef(null);
+  const elementAwaitingFocusRef = React.useRef(null);
 
+  const openForm = React.useCallback(() => {
+    setIsOpen(true);
+
+    // Wait for the re-render to enable the field, then focus it.
+    elementAwaitingFocusRef.current = emailFieldRef.current;
+  }, [setIsOpen]);
+
+  const closeForm = React.useCallback(() => {
+    setIsOpen(false);
+
+    // Wait for the re-render to enable the button, then focus it.
+    elementAwaitingFocusRef.current = openButtonRef.current;
+  }, [setIsOpen]);
+
+  // This lil layout effect will focus whatever element is awaiting focus, then
+  // clear it out. We use this to set up focus() calls, but wait until the next
+  // layout finishes to actually call them.
   React.useLayoutEffect(() => {
-    if (isOpen) {
-      if (emailFieldRef.current) {
-        emailFieldRef.current.focus();
-      }
-    } else {
-      if (openButtonRef.current) {
-        openButtonRef.current.focus();
-      }
+    if (elementAwaitingFocusRef.current) {
+      elementAwaitingFocusRef.current.focus();
+      elementAwaitingFocusRef.current = null;
     }
-  }, [isOpen]);
+  });
 
   return (
     <Flex
@@ -279,7 +292,7 @@ function FeedbackFormSection() {
       paddingRight="4"
       paddingY="2"
       cursor={!isOpen && "pointer"}
-      onClick={!isOpen && (() => setIsOpen(true))}
+      onClick={!isOpen ? openForm : null}
     >
       <Box
         padding="2"
@@ -318,7 +331,7 @@ function FeedbackFormSection() {
             icon={<CloseIcon />}
             size="xs"
             variant="ghost"
-            onClick={() => setIsOpen(false)}
+            onClick={closeForm}
             isDisabled={!isOpen}
           />
         </Box>
@@ -331,7 +344,7 @@ function FeedbackFormSection() {
         >
           <FeedbackFormPitch
             isDisabled={isOpen}
-            onClick={() => setIsOpen(true)}
+            onClick={openForm}
             openButtonRef={openButtonRef}
           />
         </Box>
@@ -344,7 +357,7 @@ function FeedbackFormSection() {
         >
           <FeedbackForm
             isDisabled={!isOpen}
-            onClose={() => setIsOpen(false)}
+            onClose={closeForm}
             emailFieldRef={emailFieldRef}
           />
         </Box>
