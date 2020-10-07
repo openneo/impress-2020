@@ -58,7 +58,7 @@ export function ItemPageContent({ itemId, isEmbedded }) {
     <VStack spacing="8">
       <ItemPageHeader itemId={itemId} isEmbedded={isEmbedded} />
       <ItemPageOwnWantButtons itemId={itemId} />
-      <ItemPageOutfitPreview itemId={itemId} />
+      {!isEmbedded && <ItemPageOutfitPreview itemId={itemId} />}
     </VStack>
   );
 }
