@@ -5,11 +5,14 @@ import {
   Box,
   Button,
   Flex,
+  IconButton,
   Input,
+  Textarea,
   useColorModeValue,
   useTheme,
   useToast,
 } from "@chakra-ui/core";
+import { CloseIcon } from "@chakra-ui/icons";
 import { useHistory, useLocation } from "react-router-dom";
 import { useLazyQuery } from "@apollo/client";
 
@@ -64,6 +67,8 @@ function HomePage() {
       </Box>
       <Box height="4" />
       <SubmitPetForm />
+      <Box height="16" />
+      <FeedbackFormSection />
     </Flex>
   );
 }
@@ -238,6 +243,197 @@ function SubmitPetForm() {
         </Button>
       </Flex>
     </form>
+  );
+}
+
+function FeedbackFormSection() {
+  const [isOpen, setIsOpen] = React.useState(false);
+  const borderColor = useColorModeValue("gray.300", "blue.400");
+
+  const openButtonRef = React.useRef(null);
+  const emailFieldRef = React.useRef(null);
+
+  React.useLayoutEffect(() => {
+    if (isOpen) {
+      if (emailFieldRef.current) {
+        emailFieldRef.current.focus();
+      }
+    } else {
+      if (openButtonRef.current) {
+        openButtonRef.current.focus();
+      }
+    }
+  }, [isOpen]);
+
+  return (
+    <Flex
+      as="section"
+      position="relative"
+      alignItems="center"
+      border="1px solid"
+      borderColor={borderColor}
+      borderRadius="lg"
+      boxShadow="lg"
+      maxWidth="500px"
+      paddingLeft="2"
+      paddingRight="4"
+      paddingY="2"
+      cursor={!isOpen && "pointer"}
+      onClick={!isOpen && (() => setIsOpen(true))}
+    >
+      <Box
+        padding="2"
+        background="white"
+        borderRadius="lg"
+        overflow="hidden"
+        flex="0 0 auto"
+      >
+        <Box
+          as="img"
+          // TODO: Bundle this after we're done prototyping!
+          src="http://images.neopets.com/new_shopkeepers/1524.gif"
+          height="90px"
+          width="90px"
+          opacity="0.9"
+        />
+      </Box>
+      <Box
+        display="grid"
+        gridTemplateAreas="the-single-area"
+        alignItems="center"
+        marginLeft="2"
+      >
+        <Box
+          position="absolute"
+          left="1"
+          top="1"
+          aria-hidden={!isOpen}
+          isDisabled={!isOpen}
+          opacity={isOpen ? "0.5" : "0"}
+          pointerEvents={isOpen ? "all" : "none"}
+          transition="opacity 0.25s"
+        >
+          <IconButton
+            aria-label="Close"
+            icon={<CloseIcon />}
+            size="xs"
+            variant="ghost"
+            onClick={() => setIsOpen(false)}
+            isDisabled={!isOpen}
+          />
+        </Box>
+        <Box
+          gridArea="the-single-area"
+          aria-hidden={isOpen}
+          opacity={isOpen ? "0" : "1"}
+          pointerEvents={isOpen ? "none" : "all"}
+          transition="opacity 0.25s"
+        >
+          <FeedbackFormPitch
+            isDisabled={isOpen}
+            onClick={() => setIsOpen(true)}
+            openButtonRef={openButtonRef}
+          />
+        </Box>
+        <Box
+          gridArea="the-single-area"
+          aria-hidden={!isOpen}
+          opacity={isOpen ? "1" : "0"}
+          pointerEvents={isOpen ? "all" : "none"}
+          transition="opacity 0.25s"
+        >
+          <FeedbackForm
+            isDisabled={!isOpen}
+            onClose={() => setIsOpen(false)}
+            emailFieldRef={emailFieldRef}
+          />
+        </Box>
+      </Box>
+    </Flex>
+  );
+}
+
+function FeedbackFormPitch({ isDisabled, onClick, openButtonRef }) {
+  return (
+    <Flex direction="column" textAlign="left" opacity="0.9">
+      <Box as="header">Hi friends! Welcome to the beta!</Box>
+      <Box as="p" fontSize="sm">
+        This is the new Dress to Impress! It's ready for the future, and it even
+        works great on mobile! More coming soon!
+      </Box>
+      <Box
+        as="button"
+        alignSelf="flex-end"
+        fontSize="sm"
+        marginTop="1"
+        opacity="0.8"
+        textDecoration="underline"
+        disabled={isDisabled}
+        onClick={onClick}
+        ref={openButtonRef}
+      >
+        Tell us what you think →
+      </Box>
+    </Flex>
+  );
+}
+
+function FeedbackForm({ isDisabled, onClose, emailFieldRef }) {
+  const [content, setContent] = React.useState("");
+  const toast = useToast();
+
+  return (
+    <Box
+      as="form"
+      // We use Grid here rather than our usual Flex, mainly so the fields will
+      // tab in the correct order!
+      display="grid"
+      gridTemplateAreas={`"email send" "content content"`}
+      gridTemplateColumns="1fr auto"
+      gridGap="2"
+      onSubmit={(e) => {
+        e.preventDefault();
+        toast({
+          title: "Ah, well, this form isn't hooked up yet!",
+          description:
+            "That's coming soon! 😅 For now, please send an email to matchu@openneo.net. Sorry and thanks!",
+          duration: null,
+          isClosable: true,
+        });
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") {
+          onClose();
+          e.stopPropagation();
+        }
+      }}
+    >
+      <Input
+        type="email"
+        placeholder="Email address (optional)"
+        size="sm"
+        gridArea="email"
+        ref={emailFieldRef}
+        isDisabled={isDisabled}
+      />
+      <Textarea
+        size="sm"
+        placeholder={"I love…\nI wish…\nNext, you should add…"}
+        gridArea="content"
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        isDisabled={isDisabled}
+      />
+      <Button
+        type="submit"
+        size="sm"
+        colorScheme="blue"
+        gridArea="send"
+        isDisabled={isDisabled || content.trim().length === 0}
+      >
+        Send
+      </Button>
+    </Box>
   );
 }
 
