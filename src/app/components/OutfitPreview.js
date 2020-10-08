@@ -4,15 +4,15 @@ import { WarningIcon } from "@chakra-ui/icons";
 import { css, cx } from "emotion";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 
-import OutfitCanvas, {
-  OutfitCanvasImage,
-  OutfitCanvasMovie,
+import OutfitMovieLayer, {
+  buildMovieClip,
+  hasAnimations,
   loadImage,
-  loadCanvasMovieLibrary,
+  loadMovieLibrary,
   useEaselDependenciesLoader,
-} from "./OutfitCanvas";
+} from "./OutfitMovieLayer";
 import HangerSpinner from "./HangerSpinner";
-import { useLocalStorage } from "../util";
+import { safeImageUrl, useLocalStorage } from "../util";
 import useOutfitAppearance from "./useOutfitAppearance";
 
 /**
@@ -39,7 +39,6 @@ function OutfitPreview({
   placeholder,
   loadingDelayMs,
   spinnerVariant,
-  engine = "images",
   onChangeHasAnimations = null,
 }) {
   const { loading, error, visibleLayers } = useOutfitAppearance({
@@ -50,9 +49,18 @@ function OutfitPreview({
     wornItemIds,
   });
 
-  const { loading: loading2, error: error2, loadedLayers } = usePreloadLayers(
-    visibleLayers
-  );
+  const {
+    loading: loading2,
+    error: error2,
+    loadedLayers,
+    layersHaveAnimations,
+  } = usePreloadLayers(visibleLayers);
+
+  const [isPaused] = useLocalStorage("DTIOutfitIsPaused", true);
+
+  React.useEffect(() => {
+    onChangeHasAnimations(layersHaveAnimations);
+  }, [layersHaveAnimations, onChangeHasAnimations]);
 
   if (error || error2) {
     return (
@@ -73,9 +81,9 @@ function OutfitPreview({
       placeholder={placeholder}
       loadingDelayMs={loadingDelayMs}
       spinnerVariant={spinnerVariant}
-      engine={engine}
       onChangeHasAnimations={onChangeHasAnimations}
       doTransitions
+      isPaused={isPaused}
     />
   );
 }
@@ -91,8 +99,8 @@ export function OutfitLayers({
   loadingDelayMs = 500,
   spinnerVariant = "overlay",
   doTransitions = false,
-  engine = "images",
   onChangeHasAnimations = null,
+  isPaused = true,
 }) {
   const containerRef = React.useRef(null);
   const [canvasSize, setCanvasSize] = React.useState(0);
@@ -102,8 +110,6 @@ export function OutfitLayers({
 
   const { loading: loadingEasel } = useEaselDependenciesLoader();
   const loadingAnything = loading || loadingEasel;
-
-  const [isPaused] = useLocalStorage("DTIOutfitIsPaused", true);
 
   // When we start in a loading state, or re-enter a loading state, start the
   // loading delay timer.
@@ -154,95 +160,72 @@ export function OutfitLayers({
           </Box>
         </FullScreenCenter>
       )}
-      {
-        // TODO: A bit of a mess in here! Extract these out?
-        engine === "canvas" ? (
-          !loadingEasel && (
-            <FullScreenCenter>
-              <OutfitCanvas
-                width={canvasSize}
-                height={canvasSize}
-                pauseMovieLayers={isPaused}
-                onChangeHasAnimations={onChangeHasAnimations}
-              >
-                {visibleLayers.map((layer) =>
-                  layer.canvasMovieLibraryUrl ? (
-                    <OutfitCanvasMovie
-                      key={layer.id}
-                      librarySrc={layer.canvasMovieLibraryUrl}
-                      zIndex={layer.zone.depth}
-                    />
-                  ) : (
-                    <OutfitCanvasImage
-                      key={layer.id}
-                      src={getBestImageUrlForLayer(layer)}
-                      zIndex={layer.zone.depth}
-                    />
-                  )
-                )}
-              </OutfitCanvas>
+      <TransitionGroup enter={false} exit={doTransitions}>
+        {visibleLayers.map((layer) => (
+          <CSSTransition
+            // We manage the fade-in and fade-out separately! The fade-out
+            // happens here, when the layer exits the DOM.
+            key={layer.id}
+            classNames={css`
+              &-exit {
+                opacity: 1;
+              }
+
+              &-exit-active {
+                opacity: 0;
+                transition: opacity 0.2s;
+              }
+            `}
+            timeout={200}
+          >
+            <FullScreenCenter zIndex={layer.zone.depth}>
+              {layer.canvasMovieLibraryUrl ? (
+                <OutfitMovieLayer
+                  libraryUrl={layer.canvasMovieLibraryUrl}
+                  width={canvasSize}
+                  height={canvasSize}
+                  isPaused={isPaused}
+                />
+              ) : (
+                <img
+                  src={getBestImageUrlForLayer(layer)}
+                  alt=""
+                  // We manage the fade-in and fade-out separately! The fade-in
+                  // happens here, when the <Image> finishes preloading and
+                  // applies the src to the underlying <img>.
+                  className={cx(
+                    css`
+                      object-fit: contain;
+                      max-width: 100%;
+                      max-height: 100%;
+
+                      &.do-animations {
+                        animation: fade-in 0.2s;
+                      }
+
+                      @keyframes fade-in {
+                        from {
+                          opacity: 0;
+                        }
+                        to {
+                          opacity: 1;
+                        }
+                      }
+                    `,
+                    doTransitions && "do-animations"
+                  )}
+                  // This sets up the cache to not need to reload images during
+                  // download!
+                  // TODO: Re-enable this once we get our change into Chakra
+                  // main. For now, this will make Downloads a bit slower, which
+                  // is fine!
+                  // crossOrigin="Anonymous"
+                />
+              )}
             </FullScreenCenter>
-          )
-        ) : (
-          <TransitionGroup enter={false} exit={doTransitions}>
-            {visibleLayers.map((layer) => (
-              <CSSTransition
-                // We manage the fade-in and fade-out separately! The fade-out
-                // happens here, when the layer exits the DOM.
-                key={layer.id}
-                classNames={css`
-                  &-exit {
-                    opacity: 1;
-                  }
-
-                  &-exit-active {
-                    opacity: 0;
-                    transition: opacity 0.2s;
-                  }
-                `}
-                timeout={200}
-              >
-                <FullScreenCenter zIndex={layer.zone.depth}>
-                  <img
-                    src={getBestImageUrlForLayer(layer)}
-                    alt=""
-                    // We manage the fade-in and fade-out separately! The fade-in
-                    // happens here, when the <Image> finishes preloading and
-                    // applies the src to the underlying <img>.
-                    className={cx(
-                      css`
-                        object-fit: contain;
-                        max-width: 100%;
-                        max-height: 100%;
-
-                        &.do-animations {
-                          animation: fade-in 0.2s;
-                        }
-
-                        @keyframes fade-in {
-                          from {
-                            opacity: 0;
-                          }
-                          to {
-                            opacity: 1;
-                          }
-                        }
-                      `,
-                      doTransitions && "do-animations"
-                    )}
-                    // This sets up the cache to not need to reload images during
-                    // download!
-                    // TODO: Re-enable this once we get our change into Chakra
-                    // main. For now, this will make Downloads a bit slower, which
-                    // is fine!
-                    // crossOrigin="Anonymous"
-                  />
-                </FullScreenCenter>
-              </CSSTransition>
-            ))}
-          </TransitionGroup>
-        )
-      }
+          </CSSTransition>
+        ))}
+      </TransitionGroup>
       <FullScreenCenter
         zIndex="9000"
         // This is similar to our Delay util component, but Delay disappears
@@ -297,7 +280,7 @@ export function FullScreenCenter({ children, ...otherProps }) {
 
 function getBestImageUrlForLayer(layer) {
   if (layer.svgUrl) {
-    return `/api/assetProxy?url=${encodeURIComponent(layer.svgUrl)}`;
+    return safeImageUrl(layer.svgUrl);
   } else {
     return layer.imageUrl;
   }
@@ -311,6 +294,7 @@ function getBestImageUrlForLayer(layer) {
 export function usePreloadLayers(layers) {
   const [error, setError] = React.useState(null);
   const [loadedLayers, setLoadedLayers] = React.useState([]);
+  const [layersHaveAnimations, setLayersHaveAnimations] = React.useState(false);
 
   // NOTE: This condition would need to change if we started loading one at a
   // time, or if the error case would need to show a partial state!
@@ -335,14 +319,24 @@ export function usePreloadLayers(layers) {
     const loadAssets = async () => {
       const assetPromises = layers.map((layer) => {
         if (layer.canvasMovieLibraryUrl) {
-          return loadCanvasMovieLibrary(layer.canvasMovieLibraryUrl);
+          return loadMovieLibrary(layer.canvasMovieLibraryUrl).then(
+            (library) => ({
+              type: "movie",
+              library,
+              libraryUrl: layer.canvasMovieLibraryUrl,
+            })
+          );
         } else {
-          return loadImage(getBestImageUrlForLayer(layer));
+          return loadImage(getBestImageUrlForLayer(layer)).then((image) => ({
+            type: "image",
+            image,
+          }));
         }
       });
+
+      let assets;
       try {
-        // TODO: Load in one at a time, under a loading spinner & delay?
-        await Promise.all(assetPromises);
+        assets = await Promise.all(assetPromises);
       } catch (e) {
         if (canceled) return;
         console.error("Error preloading outfit layers", e);
@@ -352,7 +346,14 @@ export function usePreloadLayers(layers) {
       }
 
       if (canceled) return;
+
+      const newLayersHaveAnimations = assets.some(
+        (a) =>
+          a.type === "movie" &&
+          hasAnimations(buildMovieClip(a.library, a.libraryUrl))
+      );
       setLoadedLayers(layers);
+      setLayersHaveAnimations(newLayersHaveAnimations);
     };
 
     loadAssets();
@@ -362,7 +363,7 @@ export function usePreloadLayers(layers) {
     };
   }, [layers, loadedLayers.length, loading]);
 
-  return { loading, error, loadedLayers };
+  return { loading, error, loadedLayers, layersHaveAnimations };
 }
 
 export default OutfitPreview;

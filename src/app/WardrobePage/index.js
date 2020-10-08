@@ -67,7 +67,6 @@ function WardrobePage() {
             pose={outfitState.pose}
             appearanceId={outfitState.appearanceId}
             wornItemIds={outfitState.wornItemIds}
-            engine="canvas"
             onChangeHasAnimations={setHasAnimations}
           />
         }
