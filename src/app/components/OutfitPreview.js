@@ -59,7 +59,9 @@ function OutfitPreview({
   const [isPaused] = useLocalStorage("DTIOutfitIsPaused", true);
 
   React.useEffect(() => {
-    onChangeHasAnimations(layersHaveAnimations);
+    if (onChangeHasAnimations) {
+      onChangeHasAnimations(layersHaveAnimations);
+    }
   }, [layersHaveAnimations, onChangeHasAnimations]);
 
   if (error || error2) {
