@@ -25,7 +25,7 @@ async function handle(req, res) {
 
   try {
     await sendgridMail.send({
-      to: "matchu@openneo.net",
+      to: "matchu1993@gmail.com",
       from: "impress-2020-feedback@openneo.net",
       subject: `DTI feedback: ${contentSummary}`,
       replyTo: email,
