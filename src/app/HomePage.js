@@ -16,7 +16,7 @@ import { CloseIcon } from "@chakra-ui/icons";
 import { useHistory, useLocation } from "react-router-dom";
 import { useLazyQuery } from "@apollo/client";
 
-import { Heading1, usePageTitle } from "./util";
+import { Heading1, useLocalStorage, usePageTitle } from "./util";
 import OutfitPreview from "./components/OutfitPreview";
 import SpeciesColorPicker from "./components/SpeciesColorPicker";
 
@@ -390,7 +390,57 @@ function FeedbackFormPitch({ isDisabled, onClick, openButtonRef }) {
 
 function FeedbackForm({ isDisabled, onClose, emailFieldRef }) {
   const [content, setContent] = React.useState("");
+  const [email, setEmail] = useLocalStorage("DTIFeedbackFormEmail", "");
+  const [isSending, setIsSending] = React.useState(false);
   const toast = useToast();
+
+  const onSubmit = React.useCallback(
+    (e) => {
+      e.preventDefault();
+
+      const formData = new FormData();
+      formData.set("content", content);
+      formData.set("email", email);
+
+      fetch("/api/sendFeedback", {
+        method: "POST",
+        body: formData,
+      })
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(`/api/sendFeedback returned status ${res.status}`);
+          }
+
+          setIsSending(false);
+          setContent("");
+          onClose();
+          toast({
+            status: "success",
+            title: "Got it! We'll take a look soon.",
+            description:
+              "Thanks for helping us get better! Best wishes to you and your " +
+              "pets!!",
+          });
+        })
+        .catch((e) => {
+          setIsSending(false);
+          console.error(e);
+          toast({
+            status: "warning",
+            title: "Oops, we had an error sending this, sorry!",
+            description:
+              "We'd still love to hear from you! Please reach out to " +
+              "matchu@openneo.net with whatever's on your mind. Thanks and " +
+              "enjoy the site!",
+            duration: null,
+            isClosable: true,
+          });
+        });
+
+      setIsSending(true);
+    },
+    [content]
+  );
 
   return (
     <Box
@@ -401,16 +451,7 @@ function FeedbackForm({ isDisabled, onClose, emailFieldRef }) {
       gridTemplateAreas={`"email send" "content content"`}
       gridTemplateColumns="1fr auto"
       gridGap="2"
-      onSubmit={(e) => {
-        e.preventDefault();
-        toast({
-          title: "Ah, well, this form isn't hooked up yet!",
-          description:
-            "That's coming soon! 😅 For now, please send an email to matchu@openneo.net. Sorry and thanks!",
-          duration: null,
-          isClosable: true,
-        });
-      }}
+      onSubmit={onSubmit}
       onKeyDown={(e) => {
         if (e.key === "Escape") {
           onClose();
@@ -423,6 +464,8 @@ function FeedbackForm({ isDisabled, onClose, emailFieldRef }) {
         placeholder="Email address (optional)"
         size="sm"
         gridArea="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
         ref={emailFieldRef}
         isDisabled={isDisabled}
       />
@@ -440,6 +483,7 @@ function FeedbackForm({ isDisabled, onClose, emailFieldRef }) {
         colorScheme="blue"
         gridArea="send"
         isDisabled={isDisabled || content.trim().length === 0}
+        isLoading={isSending}
       >
         Send
       </Button>
