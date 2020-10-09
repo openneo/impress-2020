@@ -398,13 +398,10 @@ function FeedbackForm({ isDisabled, onClose, emailFieldRef }) {
     (e) => {
       e.preventDefault();
 
-      const formData = new FormData();
-      formData.set("content", content);
-      formData.set("email", email);
-
       fetch("/api/sendFeedback", {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content, email }),
       })
         .then((res) => {
           if (!res.ok) {
