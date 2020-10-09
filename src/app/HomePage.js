@@ -18,10 +18,12 @@ import { useLazyQuery } from "@apollo/client";
 
 import { Heading1, usePageTitle } from "./util";
 import OutfitPreview from "./components/OutfitPreview";
+import SpeciesColorPicker from "./components/SpeciesColorPicker";
 
 import HomepageSplashImg from "../images/homepage-splash.png";
 import HomepageSplashImg2x from "../images/homepage-splash@2x.png";
-import SpeciesColorPicker from "./components/SpeciesColorPicker";
+import FeedbackXweeImg from "../images/feedback-xwee.png";
+import FeedbackXweeImg2x from "../images/feedback-xwee@2x.png";
 
 function HomePage() {
   usePageTitle(null);
@@ -294,20 +296,15 @@ function FeedbackFormSection() {
       cursor={!isOpen && "pointer"}
       onClick={!isOpen ? openForm : null}
     >
-      <Box
-        padding="2"
-        background="white"
-        borderRadius="lg"
-        overflow="hidden"
-        flex="0 0 auto"
-      >
+      <Box padding="2" borderRadius="lg" overflow="hidden" flex="0 0 auto">
         <Box
           as="img"
-          // TODO: Bundle this after we're done prototyping!
-          src="http://images.neopets.com/new_shopkeepers/1524.gif"
+          src={FeedbackXweeImg}
+          srcSet={`${FeedbackXweeImg} 1x, ${FeedbackXweeImg2x} 2x`}
           height="90px"
           width="90px"
           opacity="0.9"
+          alt=""
         />
       </Box>
       <Box
