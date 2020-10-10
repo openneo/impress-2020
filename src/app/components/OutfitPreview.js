@@ -188,7 +188,7 @@ export function OutfitLayers({
                   isPaused={isPaused}
                 />
               ) : (
-                <img
+                <FadeInImage
                   src={getBestImageUrlForLayer(layer).src}
                   // The crossOrigin prop isn't strictly necessary for loading
                   // here (<img> tags are always allowed through CORS), but
@@ -197,30 +197,9 @@ export function OutfitLayers({
                   // image instead of requesting it again with crossOrigin!
                   crossOrigin={getBestImageUrlForLayer(layer).crossOrigin}
                   alt=""
-                  // We manage the fade-in and fade-out separately! The fade-in
-                  // happens here, when the <Image> finishes preloading and
-                  // applies the src to the underlying <img>.
-                  className={cx(
-                    css`
-                      object-fit: contain;
-                      max-width: 100%;
-                      max-height: 100%;
-
-                      &.do-animations {
-                        animation: fade-in 0.2s;
-                      }
-
-                      @keyframes fade-in {
-                        from {
-                          opacity: 0;
-                        }
-                        to {
-                          opacity: 1;
-                        }
-                      }
-                    `,
-                    doTransitions && "do-animations"
-                  )}
+                  objectFit="contain"
+                  maxWidth="100%"
+                  maxHeight="100%"
                 />
               )}
             </FullScreenCenter>
@@ -369,6 +348,24 @@ export function usePreloadLayers(layers) {
   }, [layers, loadedLayers.length, loading]);
 
   return { loading, error, loadedLayers, layersHaveAnimations };
+}
+
+/**
+ * FadeInImage is like a <Box as="img" />, but with one extra feature: once the
+ * image loads, we fade in!
+ */
+function FadeInImage(props) {
+  const [isLoaded, setIsLoaded] = React.useState(false);
+
+  return (
+    <Box
+      {...props}
+      as="img"
+      opacity={isLoaded ? 1 : 0}
+      transition="opacity 0.2s"
+      onLoad={() => setIsLoaded(true)}
+    />
+  );
 }
 
 export default OutfitPreview;
