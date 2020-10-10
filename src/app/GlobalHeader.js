@@ -42,9 +42,15 @@ function HomeLink(props) {
       display="flex"
       alignItems="center"
       role="group"
+      // HACK: When we're on the homepage, I want the title "Dress to Impress"
+      //       to stay visible for transition, but I don't want it to be a
+      //       click target. To do this, I constrain the size of the container,
+      //       and also remove pointer events from the overflowing children.
+      maxWidth={isHomePage ? "32px" : "none"}
       {...props}
     >
       <Box
+        flex="0 0 auto"
         display="flex"
         alignItems="center"
         marginRight="2"
@@ -58,6 +64,7 @@ function HomeLink(props) {
           position="absolute"
           right="100%"
           opacity={isHomePage ? "0" : "1"}
+          pointerEvents={isHomePage ? "none" : "all"}
           transform={isHomePage ? "translateX(3px)" : "none"}
           transition="all 0.2s"
         >
@@ -86,6 +93,7 @@ function HomeLink(props) {
         />
       </Box>
       <Box
+        flex="0 0 auto"
         fontFamily="Delicious"
         fontWeight="600"
         fontSize="2xl"
@@ -93,6 +101,7 @@ function HomeLink(props) {
         opacity={isHomePage ? "0" : "1"}
         transition="all 0.2s"
         marginRight="2"
+        pointerEvents={isHomePage ? "none" : "all"}
         _groupHover={{ fontWeight: "900" }}
         _groupFocus={{ fontWeight: "900" }}
       >
