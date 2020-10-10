@@ -436,7 +436,7 @@ function FeedbackForm({ isDisabled, onClose, emailFieldRef }) {
 
       setIsSending(true);
     },
-    [content]
+    [content, email, onClose, toast]
   );
 
   return (
