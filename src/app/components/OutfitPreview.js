@@ -7,12 +7,11 @@ import { CSSTransition, TransitionGroup } from "react-transition-group";
 import OutfitMovieLayer, {
   buildMovieClip,
   hasAnimations,
-  loadImage,
   loadMovieLibrary,
   useEaselDependenciesLoader,
 } from "./OutfitMovieLayer";
 import HangerSpinner from "./HangerSpinner";
-import { safeImageUrl, useLocalStorage } from "../util";
+import { loadImage, safeImageUrl, useLocalStorage } from "../util";
 import useOutfitAppearance from "./useOutfitAppearance";
 
 /**
@@ -190,7 +189,13 @@ export function OutfitLayers({
                 />
               ) : (
                 <img
-                  src={getBestImageUrlForLayer(layer)}
+                  src={getBestImageUrlForLayer(layer).src}
+                  // The crossOrigin prop isn't strictly necessary for loading
+                  // here (<img> tags are always allowed through CORS), but
+                  // this means we make the same request that the Download
+                  // button makes, so it can use the cached version of this
+                  // image instead of requesting it again with crossOrigin!
+                  crossOrigin={getBestImageUrlForLayer(layer).crossOrigin}
                   alt=""
                   // We manage the fade-in and fade-out separately! The fade-in
                   // happens here, when the <Image> finishes preloading and
@@ -216,12 +221,6 @@ export function OutfitLayers({
                     `,
                     doTransitions && "do-animations"
                   )}
-                  // This sets up the cache to not need to reload images during
-                  // download!
-                  // TODO: Re-enable this once we get our change into Chakra
-                  // main. For now, this will make Downloads a bit slower, which
-                  // is fine!
-                  // crossOrigin="Anonymous"
                 />
               )}
             </FullScreenCenter>
@@ -280,11 +279,11 @@ export function FullScreenCenter({ children, ...otherProps }) {
   );
 }
 
-function getBestImageUrlForLayer(layer) {
+export function getBestImageUrlForLayer(layer) {
   if (layer.svgUrl) {
-    return safeImageUrl(layer.svgUrl);
+    return { src: safeImageUrl(layer.svgUrl) };
   } else {
-    return layer.imageUrl;
+    return { src: layer.imageUrl, crossOrigin: "anonymous" };
   }
 }
 

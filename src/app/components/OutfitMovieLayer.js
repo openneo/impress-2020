@@ -1,6 +1,6 @@
 import React from "react";
 
-import { safeImageUrl } from "../util";
+import { loadImage, safeImageUrl } from "../util";
 
 function OutfitMovieLayer({ libraryUrl, width, height, isPaused = false }) {
   const [stage, setStage] = React.useState(null);
@@ -221,7 +221,7 @@ export async function loadMovieLibrary(librarySrc) {
   const manifestImages = new Map(
     library.properties.manifest.map(({ id, src }) => [
       id,
-      loadImage(safeImageUrl(librarySrcDir + "/" + src)),
+      loadImage({src: safeImageUrl(librarySrcDir + "/" + src)}),
     ])
   );
   await Promise.all(manifestImages.values());
@@ -240,19 +240,6 @@ export async function loadMovieLibrary(librarySrc) {
   }
 
   return library;
-}
-
-export function loadImage(url) {
-  const image = new Image();
-  const promise = new Promise((resolve, reject) => {
-    image.onload = () => resolve(image);
-    image.onerror = (e) => reject(e);
-    image.src = url;
-  });
-  promise.cancel = () => {
-    image.src = "";
-  };
-  return promise;
 }
 
 export function buildMovieClip(library, libraryUrl) {

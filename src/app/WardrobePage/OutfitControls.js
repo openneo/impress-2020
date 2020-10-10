@@ -21,9 +21,10 @@ import {
 import { MdPause, MdPlayArrow } from "react-icons/md";
 import { Link } from "react-router-dom";
 
+import { getBestImageUrlForLayer } from "../components/OutfitPreview";
 import PosePicker from "./PosePicker";
 import SpeciesColorPicker from "../components/SpeciesColorPicker";
-import { useLocalStorage } from "../util";
+import { loadImage, useLocalStorage } from "../util";
 import useOutfitAppearance from "../components/useOutfitAppearance";
 
 /**
@@ -409,15 +410,8 @@ function useDownloadableImage(visibleLayers) {
 
     setDownloadImageUrl(null);
 
-    const imagePromises = visibleLayers.map(
-      (layer) =>
-        new Promise((resolve, reject) => {
-          const image = new window.Image();
-          image.crossOrigin = "Anonymous"; // Requires S3 CORS config!
-          image.addEventListener("load", () => resolve(image), false);
-          image.addEventListener("error", (e) => reject(e), false);
-          image.src = layer.imageUrl + "&xoxo";
-        })
+    const imagePromises = visibleLayers.map((layer) =>
+      loadImage(getBestImageUrlForLayer(layer))
     );
 
     const images = await Promise.all(imagePromises);

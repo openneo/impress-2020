@@ -225,3 +225,19 @@ export function useLocalStorage(key, initialValue) {
 
   return [storedValue, setValue];
 }
+
+export function loadImage({ src, crossOrigin = null }) {
+  const image = new Image();
+  const promise = new Promise((resolve, reject) => {
+    image.onload = () => resolve(image);
+    image.onerror = (e) => reject(e);
+    if (crossOrigin) {
+      image.crossOrigin = crossOrigin;
+    }
+    image.src = src;
+  });
+  promise.cancel = () => {
+    image.src = "";
+  };
+  return promise;
+}
