@@ -119,8 +119,13 @@ function OutfitMovieLayer({
     movieClip.scaleX = internalWidth / library.properties.width;
     movieClip.scaleY = internalHeight / library.properties.height;
 
-    // Ensure that we update here, in case the movie is paused or not animated.
+    // Redraw the stage with the new dimensions - but with `tickOnUpdate` set
+    // to `false`, so that we don't advance by a frame. This keeps us
+    // really-paused if we're paused, and avoids skipping ahead by a frame if
+    // we're playing.
+    stage.tickOnUpdate = false;
     stage.update();
+    stage.tickOnUpdate = true;
   }, [stage, library, movieClip, internalWidth, internalHeight]);
 
   return (
