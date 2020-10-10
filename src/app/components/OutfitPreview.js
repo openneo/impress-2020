@@ -341,7 +341,11 @@ export function usePreloadLayers(layers) {
       } catch (e) {
         if (canceled) return;
         console.error("Error preloading outfit layers", e);
-        assetPromises.forEach((p) => p.cancel());
+        assetPromises.forEach((p) => {
+          if (p.cancel) {
+            p.cancel();
+          }
+        });
         setError(e);
         return;
       }
