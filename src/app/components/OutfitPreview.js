@@ -128,9 +128,17 @@ export function OutfitLayers({
   React.useLayoutEffect(() => {
     function computeAndSaveCanvasSize() {
       setCanvasSize(
+        // Follow an algorithm similar to the <img> sizing: a square that
+        // covers the available space, without exceeding the natural image size
+        // (which is 600px).
+        //
+        // TODO: Once we're entirely off PNGs, we could drop the 600
+        //       requirement, and let SVGs and movies scale up as far as they
+        //       want...
         Math.min(
           containerRef.current.offsetWidth,
-          containerRef.current.offsetHeight
+          containerRef.current.offsetHeight,
+          600
         )
       );
     }
