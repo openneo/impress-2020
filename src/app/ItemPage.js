@@ -171,7 +171,7 @@ function ItemPageBadges({ item, isEmbedded }) {
           href={`https://impress.openneo.net/items/${item.id}`}
           isEmbedded={isEmbedded}
         >
-          Old DTI
+          Classic DTI
         </LinkBadge>
       </SubtleSkeleton>
       <SubtleSkeleton isLoaded={searchBadgesAreLoaded}>
