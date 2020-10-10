@@ -15,6 +15,7 @@ import ItemCard, {
   YouWantThisBadge,
 } from "./components/ItemCard";
 import useCurrentUser from "./components/useCurrentUser";
+import WIPCallout from "./components/WIPCallout";
 
 function UserItemsPage() {
   const { userId } = useParams();
@@ -100,6 +101,9 @@ function UserItemsPage() {
 
   return (
     <Box>
+      <Box float="right">
+        <WIPCallout details="These lists are simplified and read-only for now. Full power coming soon!" />
+      </Box>
       <Heading1 marginBottom="6">
         {isCurrentUser ? "Items you own" : `Items ${data.user.username} owns`}
       </Heading1>
