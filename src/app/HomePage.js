@@ -382,7 +382,7 @@ function FeedbackFormPitch({ isDisabled, onClick, openButtonRef }) {
         onClick={onClick}
         ref={openButtonRef}
       >
-        Tell us what you think →
+        Got ideas? Send us your feedback →
       </Box>
     </Flex>
   );
