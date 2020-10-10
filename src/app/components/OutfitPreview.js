@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, DarkMode, Flex, Text } from "@chakra-ui/core";
 import { WarningIcon } from "@chakra-ui/icons";
-import { css, cx } from "emotion";
+import { css } from "emotion";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 
 import OutfitMovieLayer, {
@@ -179,7 +179,7 @@ export function OutfitLayers({
             `}
             timeout={200}
           >
-            <FullScreenCenter zIndex={layer.zone.depth}>
+            <FadeInOnLoad as={FullScreenCenter} zIndex={layer.zone.depth}>
               {layer.canvasMovieLibraryUrl ? (
                 <OutfitMovieLayer
                   libraryUrl={layer.canvasMovieLibraryUrl}
@@ -188,7 +188,8 @@ export function OutfitLayers({
                   isPaused={isPaused}
                 />
               ) : (
-                <FadeInImage
+                <Box
+                  as="img"
                   src={getBestImageUrlForLayer(layer).src}
                   // The crossOrigin prop isn't strictly necessary for loading
                   // here (<img> tags are always allowed through CORS), but
@@ -202,7 +203,7 @@ export function OutfitLayers({
                   maxHeight="100%"
                 />
               )}
-            </FullScreenCenter>
+            </FadeInOnLoad>
           </CSSTransition>
         ))}
       </TransitionGroup>
@@ -351,20 +352,21 @@ export function usePreloadLayers(layers) {
 }
 
 /**
- * FadeInImage is like a <Box as="img" />, but with one extra feature: once the
- * image loads, we fade in!
+ * FadeInOnLoad attaches an `onLoad` handler to its single child, and fades in
+ * the container element once it triggers.
  */
-function FadeInImage(props) {
+function FadeInOnLoad({ children, ...props }) {
   const [isLoaded, setIsLoaded] = React.useState(false);
 
+  const onLoad = React.useCallback(() => setIsLoaded(true), []);
+
+  const child = React.Children.only(children);
+  const wrappedChild = React.cloneElement(child, { onLoad });
+
   return (
-    <Box
-      {...props}
-      as="img"
-      opacity={isLoaded ? 1 : 0}
-      transition="opacity 0.2s"
-      onLoad={() => setIsLoaded(true)}
-    />
+    <Box opacity={isLoaded ? 1 : 0} transition="opacity 0.2s" {...props}>
+      {wrappedChild}
+    </Box>
   );
 }
 

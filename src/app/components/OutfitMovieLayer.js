@@ -2,7 +2,13 @@ import React from "react";
 
 import { loadImage, safeImageUrl } from "../util";
 
-function OutfitMovieLayer({ libraryUrl, width, height, isPaused = false }) {
+function OutfitMovieLayer({
+  libraryUrl,
+  width,
+  height,
+  isPaused = false,
+  onLoad = null,
+}) {
   const [stage, setStage] = React.useState(null);
   const [library, setLibrary] = React.useState(null);
   const [movieClip, setMovieClip] = React.useState(null);
@@ -73,6 +79,11 @@ function OutfitMovieLayer({ libraryUrl, width, height, isPaused = false }) {
     // Render the movie's first frame. If it's animated and we're not paused,
     // then another effect will perform subsequent updates.
     stage.update();
+
+    // This is when we trigger `onLoad`: once we're actually showing it!
+    if (onLoad) {
+      onLoad();
+    }
 
     return () => stage.removeChild(movieClip);
   }, [stage, movieClip]);
@@ -221,7 +232,7 @@ export async function loadMovieLibrary(librarySrc) {
   const manifestImages = new Map(
     library.properties.manifest.map(({ id, src }) => [
       id,
-      loadImage({src: safeImageUrl(librarySrcDir + "/" + src)}),
+      loadImage({ src: safeImageUrl(librarySrcDir + "/" + src) }),
     ])
   );
   await Promise.all(manifestImages.values());
