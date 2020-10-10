@@ -42,6 +42,7 @@ import {
 import OutfitPreview from "./components/OutfitPreview";
 import SpeciesColorPicker from "./components/SpeciesColorPicker";
 import { useLocalStorage } from "./util";
+import WIPCallout from "./components/WIPCallout";
 
 function ItemPage() {
   const { itemId } = useParams();
@@ -59,6 +60,7 @@ export function ItemPageContent({ itemId, isEmbedded }) {
       <ItemPageHeader itemId={itemId} isEmbedded={isEmbedded} />
       <ItemPageOwnWantButtons itemId={itemId} />
       {!isEmbedded && <ItemPageOutfitPreview itemId={itemId} />}
+      <WIPCallout>Trade lists coming soon!</WIPCallout>
     </VStack>
   );
 }
