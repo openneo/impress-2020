@@ -9,9 +9,10 @@ const VALID_URL_PATTERNS = [
   /^http:\/\/images\.neopets\.com\/cp\/(bio|items)\/data\/[0-9]{3}\/[0-9]{3}\/[0-9]{3}\/[a-f0-9_]+\/[a-zA-Z0-9_ \-\/]+\.(svg|png|js)(\?[0-9]*)?$/,
   /^http:\/\/images\.neopets\.com\/cp\/(bio|items)\/swf\/[0-9]{3}\/[0-9]{3}\/[0-9]{3}\/[a-f0-9_]+\.swf$/,
 
-  // This one isn't actually used Impress 2020 - we added a cheap hack to old
-  // Impress to upgrade images to use the Impress 2020 asset proxy 😅
+  // These ones aren't actually used Impress 2020 - we added a cheap hack to
+  // old Impress to upgrade images to use the Impress 2020 asset proxy 😅
   /^http:\/\/pets\.neopets\.com\/cp\/[a-zA-Z90-9]+\/[0-9]+\/[0-9]+\.png$/,
+  /^http:\/\/pets\.neopets\.com\/cpn\/[a-zA-Z90-9_]+\/[0-9]+\/[0-9]+\.png$/,
 ];
 
 export default async (req, res) => {
