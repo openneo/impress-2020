@@ -15,6 +15,7 @@ import {
 } from "@chakra-ui/core";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 
+import { safeImageUrl } from "../../util";
 import useSupport from "./useSupport";
 
 /**
@@ -412,7 +413,7 @@ function ItemLayerSupportFlashPlayer({ swfUrl, backgroundColor }) {
         >
           <object
             type="application/x-shockwave-flash"
-            data={`/api/assetProxy?url=${encodeURIComponent(swfUrl)}`}
+            data={safeImageUrl(swfUrl)}
             width="100%"
             height="100%"
           >

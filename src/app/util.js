@@ -64,16 +64,26 @@ export function Heading2({ children, ...props }) {
 /**
  * safeImageUrl returns an HTTPS-safe image URL for Neopets assets!
  */
-export function safeImageUrl(url) {
-  let safeUrl = `/api/assetProxy?url=${encodeURIComponent(url)}`;
+export function safeImageUrl(urlString) {
+  const url = new URL(urlString);
 
-  // On our Storybook server, we need to request from the main dev server.
-  const { host } = document.location;
-  if (host === "localhost:6006") {
-    safeUrl = "http://localhost:3000" + safeUrl;
+  if (url.origin === "http://images.neopets.com") {
+    url.protocol = "https:";
+    url.host = "images.neopets-asset-proxy.openneo.net";
+  } else if (url.origin === "http://pets.neopets.com") {
+    url.protocol = "https:";
+    url.host = "pets.neopets-asset-proxy.openneo.net";
   }
 
-  return safeUrl;
+  if (url.protocol !== "https:") {
+    console.warn(
+      "safeImageUrl was provided an unsafe URL, but we don't know how to " +
+        "upgrade it to HTTPS. Returning as-is: " +
+        urlString
+    );
+  }
+
+  return url.toString();
 }
 
 /**
