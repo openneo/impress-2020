@@ -5,14 +5,13 @@ import {
   Box,
   Button,
   Flex,
-  IconButton,
   Input,
   Textarea,
   useColorModeValue,
   useTheme,
   useToast,
+  VStack,
 } from "@chakra-ui/core";
-import { CloseIcon } from "@chakra-ui/icons";
 import { useHistory, useLocation } from "react-router-dom";
 import { useLazyQuery } from "@apollo/client";
 
@@ -249,42 +248,51 @@ function SubmitPetForm() {
 }
 
 function FeedbackFormSection() {
-  const [isOpen, setIsOpen] = React.useState(false);
-  const borderColor = useColorModeValue("gray.300", "blue.400");
-
-  const openButtonRef = React.useRef(null);
-  const emailFieldRef = React.useRef(null);
-  const elementAwaitingFocusRef = React.useRef(null);
-
-  const openForm = React.useCallback(() => {
-    setIsOpen(true);
-
-    // Wait for the re-render to enable the field, then focus it.
-    elementAwaitingFocusRef.current = emailFieldRef.current;
-  }, [setIsOpen]);
-
-  const closeForm = React.useCallback(() => {
-    setIsOpen(false);
-
-    // Wait for the re-render to enable the button, then focus it.
-    elementAwaitingFocusRef.current = openButtonRef.current;
-  }, [setIsOpen]);
-
-  // This lil layout effect will focus whatever element is awaiting focus, then
-  // clear it out. We use this to set up focus() calls, but wait until the next
-  // layout finishes to actually call them.
-  React.useLayoutEffect(() => {
-    if (elementAwaitingFocusRef.current) {
-      elementAwaitingFocusRef.current.focus();
-      elementAwaitingFocusRef.current = null;
-    }
-  });
+  const pitchBorderColor = useColorModeValue("gray.300", "green.400");
+  const formBorderColor = useColorModeValue("gray.300", "blue.400");
 
   return (
-    <Flex
+    <VStack spacing="4" alignItems="stretch">
+      <FeedbackFormContainer borderColor={pitchBorderColor}>
+        <Flex position="relative" alignItems="center">
+          <Box padding="2" borderRadius="lg" overflow="hidden" flex="0 0 auto">
+            <Box
+              as="img"
+              src={FeedbackXweeImg}
+              srcSet={`${FeedbackXweeImg} 1x, ${FeedbackXweeImg2x} 2x`}
+              height="90px"
+              width="90px"
+              opacity="0.9"
+              alt=""
+            />
+          </Box>
+          <FeedbackFormPitch />
+        </Flex>
+      </FeedbackFormContainer>
+      <FeedbackFormContainer
+        borderColor={formBorderColor}
+        image={
+          <Box
+            as="img"
+            src={FeedbackXweeImg}
+            srcSet={`${FeedbackXweeImg} 1x, ${FeedbackXweeImg2x} 2x`}
+            height="90px"
+            width="90px"
+            opacity="0.9"
+            alt=""
+          />
+        }
+      >
+        <FeedbackForm />
+      </FeedbackFormContainer>
+    </VStack>
+  );
+}
+
+function FeedbackFormContainer({ borderColor, children }) {
+  return (
+    <Box
       as="section"
-      position="relative"
-      alignItems="center"
       border="1px solid"
       borderColor={borderColor}
       borderRadius="lg"
@@ -293,77 +301,13 @@ function FeedbackFormSection() {
       paddingLeft="2"
       paddingRight="4"
       paddingY="2"
-      cursor={!isOpen && "pointer"}
-      onClick={!isOpen ? openForm : null}
     >
-      <Box padding="2" borderRadius="lg" overflow="hidden" flex="0 0 auto">
-        <Box
-          as="img"
-          src={FeedbackXweeImg}
-          srcSet={`${FeedbackXweeImg} 1x, ${FeedbackXweeImg2x} 2x`}
-          height="90px"
-          width="90px"
-          opacity="0.9"
-          alt=""
-        />
-      </Box>
-      <Box
-        display="grid"
-        gridTemplateAreas="the-single-area"
-        alignItems="center"
-        marginLeft="2"
-      >
-        <Box
-          position="absolute"
-          left="1"
-          top="1"
-          aria-hidden={!isOpen}
-          isDisabled={!isOpen}
-          opacity={isOpen ? "0.5" : "0"}
-          pointerEvents={isOpen ? "all" : "none"}
-          transition="opacity 0.25s"
-        >
-          <IconButton
-            aria-label="Close"
-            icon={<CloseIcon />}
-            size="xs"
-            variant="ghost"
-            onClick={closeForm}
-            isDisabled={!isOpen}
-          />
-        </Box>
-        <Box
-          gridArea="the-single-area"
-          aria-hidden={isOpen}
-          opacity={isOpen ? "0" : "1"}
-          pointerEvents={isOpen ? "none" : "all"}
-          transition="opacity 0.25s"
-        >
-          <FeedbackFormPitch
-            isDisabled={isOpen}
-            onClick={openForm}
-            openButtonRef={openButtonRef}
-          />
-        </Box>
-        <Box
-          gridArea="the-single-area"
-          aria-hidden={!isOpen}
-          opacity={isOpen ? "1" : "0"}
-          pointerEvents={isOpen ? "all" : "none"}
-          transition="opacity 0.25s"
-        >
-          <FeedbackForm
-            isDisabled={!isOpen}
-            onClose={closeForm}
-            emailFieldRef={emailFieldRef}
-          />
-        </Box>
-      </Box>
-    </Flex>
+      {children}
+    </Box>
   );
 }
 
-function FeedbackFormPitch({ isDisabled, onClick, openButtonRef }) {
+function FeedbackFormPitch() {
   return (
     <Flex direction="column" textAlign="left" opacity="0.9">
       <Box as="header">Hi friends! Welcome to the beta!</Box>
@@ -371,24 +315,17 @@ function FeedbackFormPitch({ isDisabled, onClick, openButtonRef }) {
         This is the new Dress to Impress! It's ready for the future, and it even
         works great on mobile! More coming soon!
       </Box>
-      <Box
-        as="button"
-        alignSelf="flex-end"
-        fontSize="sm"
-        marginTop="1"
-        opacity="0.8"
-        textDecoration="underline"
-        disabled={isDisabled}
-        onClick={onClick}
-        ref={openButtonRef}
-      >
-        Got ideas? Send us your feedback →
+      <Box fontSize="sm" marginTop="1">
+        ↓ Got ideas? Send them to us, please!{" "}
+        <span role="img" aria-label="Sparkle heart emoji">
+          💖
+        </span>
       </Box>
     </Flex>
   );
 }
 
-function FeedbackForm({ isDisabled, onClose, emailFieldRef }) {
+function FeedbackForm() {
   const [content, setContent] = React.useState("");
   const [email, setEmail] = useLocalStorage("DTIFeedbackFormEmail", "");
   const [isSending, setIsSending] = React.useState(false);
@@ -410,7 +347,6 @@ function FeedbackForm({ isDisabled, onClose, emailFieldRef }) {
 
           setIsSending(false);
           setContent("");
-          onClose();
           toast({
             status: "success",
             title: "Got it! We'll take a look soon.",
@@ -436,7 +372,7 @@ function FeedbackForm({ isDisabled, onClose, emailFieldRef }) {
 
       setIsSending(true);
     },
-    [content, email, onClose, toast]
+    [content, email, toast]
   );
 
   return (
@@ -449,12 +385,6 @@ function FeedbackForm({ isDisabled, onClose, emailFieldRef }) {
       gridTemplateColumns="1fr auto"
       gridGap="2"
       onSubmit={onSubmit}
-      onKeyDown={(e) => {
-        if (e.key === "Escape") {
-          onClose();
-          e.stopPropagation();
-        }
-      }}
     >
       <Input
         type="email"
@@ -463,8 +393,6 @@ function FeedbackForm({ isDisabled, onClose, emailFieldRef }) {
         gridArea="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        ref={emailFieldRef}
-        isDisabled={isDisabled}
       />
       <Textarea
         size="sm"
@@ -472,14 +400,13 @@ function FeedbackForm({ isDisabled, onClose, emailFieldRef }) {
         gridArea="content"
         value={content}
         onChange={(e) => setContent(e.target.value)}
-        isDisabled={isDisabled}
       />
       <Button
         type="submit"
         size="sm"
         colorScheme="blue"
         gridArea="send"
-        isDisabled={isDisabled || content.trim().length === 0}
+        isDisabled={content.trim().length === 0}
         isLoading={isSending}
       >
         Send
