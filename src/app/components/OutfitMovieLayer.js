@@ -86,7 +86,7 @@ function OutfitMovieLayer({
     }
 
     return () => stage.removeChild(movieClip);
-  }, [stage, movieClip]);
+  }, [stage, movieClip, onLoad]);
 
   // This effect updates the `stage` according to the `library`'s framerate,
   // but only if there's actual animation to do - i.e., there's more than one
