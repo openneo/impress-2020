@@ -85,6 +85,14 @@ const typeDefs = gql`
     #       bodies like Blue, Green, Red, etc.
     itemsThatNeedModels(colorId: ID): [Item!]!
   }
+
+  extend type Mutation {
+    addToItemsCurrentUserOwns(itemId: ID!): Item
+    removeFromItemsCurrentUserOwns(itemId: ID!): Item
+
+    addToItemsCurrentUserWants(itemId: ID!): Item
+    removeFromItemsCurrentUserWants(itemId: ID!): Item
+  }
 `;
 
 const resolvers = {
@@ -271,6 +279,91 @@ const resolvers = {
       const speciesIdsByItemIds = speciesIdsByColorIdAndItemId.get(colorId);
       const itemIds = (speciesIdsByItemIds && speciesIdsByItemIds.keys()) || [];
       return Array.from(itemIds, (id) => ({ id }));
+    },
+  },
+
+  Mutation: {
+    addToItemsCurrentUserOwns: async (
+      _,
+      { itemId },
+      { currentUserId, db, itemLoader }
+    ) => {
+      if (currentUserId == null) {
+        throw new Error(`must be logged in`);
+      }
+
+      const item = await itemLoader.load(itemId);
+      if (item == null) {
+        return null;
+      }
+
+      // Send an INSERT query that will add a hanger, if the user doesn't
+      // already have one for this item.
+      // Adapted from https://stackoverflow.com/a/3025332/107415
+      const now = new Date().toISOString().slice(0, 19).replace("T", " ");
+      await db.query(
+        `
+          INSERT INTO closet_hangers
+            (item_id, user_id, quantity, created_at, updated_at, owned)
+            SELECT ?, ?, ?, ?, ?, ? FROM DUAL
+              WHERE NOT EXISTS (
+                SELECT 1 FROM closet_hangers
+                  WHERE item_id = ? AND user_id = ? AND owned = ?
+              )
+        `,
+        [itemId, currentUserId, 1, now, now, true, itemId, currentUserId, true]
+      );
+
+      return { id: itemId };
+    },
+    removeFromItemsCurrentUserOwns: () => {
+      throw new Error("TODO: Not yet implemented");
+    },
+    addToItemsCurrentUserWants: async (
+      _,
+      { itemId },
+      { currentUserId, db, itemLoader }
+    ) => {
+      if (currentUserId == null) {
+        throw new Error(`must be logged in`);
+      }
+
+      const item = await itemLoader.load(itemId);
+      if (item == null) {
+        return null;
+      }
+
+      // Send an INSERT query that will add a hanger, if the user doesn't
+      // already have one for this item.
+      // Adapted from https://stackoverflow.com/a/3025332/107415
+      const now = new Date().toISOString().slice(0, 19).replace("T", " ");
+      await db.query(
+        `
+          INSERT INTO closet_hangers
+            (item_id, user_id, quantity, created_at, updated_at, owned)
+            SELECT ?, ?, ?, ?, ?, ? FROM DUAL
+              WHERE NOT EXISTS (
+                SELECT 1 FROM closet_hangers
+                  WHERE item_id = ? AND user_id = ? AND owned = ?
+              )
+        `,
+        [
+          itemId,
+          currentUserId,
+          1,
+          now,
+          now,
+          false,
+          itemId,
+          currentUserId,
+          false,
+        ]
+      );
+
+      return { id: itemId };
+    },
+    removeFromItemsCurrentUserWants: () => {
+      throw new Error("TODO: Not yet implemented");
     },
   },
 };

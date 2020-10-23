@@ -1,5 +1,12 @@
 const gql = require("graphql-tag");
-const { query, getDbCalls, logInAsTestUser } = require("./setup.js");
+const {
+  query,
+  mutate,
+  getDbCalls,
+  useTestDb,
+  logInAsTestUser,
+  createItem,
+} = require("./setup.js");
 
 describe("Item", () => {
   it("loads metadata", async () => {
@@ -329,32 +336,18 @@ describe("Item", () => {
           },
           Object {
             "currentUserOwnsThis": false,
-            "currentUserWantsThis": true,
+            "currentUserWantsThis": false,
             "id": "39945",
           },
           Object {
-            "currentUserOwnsThis": true,
+            "currentUserOwnsThis": false,
             "currentUserWantsThis": false,
             "id": "39948",
           },
         ],
       }
     `);
-    expect(getDbCalls()).toMatchInlineSnapshot(`
-      Array [
-        Array [
-          "SELECT closet_hangers.*, item_translations.name as item_name FROM closet_hangers
-             INNER JOIN items ON items.id = closet_hangers.item_id
-             INNER JOIN item_translations ON
-               item_translations.item_id = items.id AND locale = \\"en\\"
-             WHERE user_id IN (?)
-             ORDER BY item_name",
-          Array [
-            "44743",
-          ],
-        ],
-      ]
-    `);
+    expect(getDbCalls()).toMatchInlineSnapshot(`Array []`);
   });
 
   it("does not own/want items if not logged in", async () => {
@@ -597,6 +590,204 @@ describe("Item", () => {
     );
     expect(body.canonicalAppearance).toBeTruthy();
     expect(body.canonicalAppearance).toMatchSnapshot("pet layers");
+    expect(getDbCalls()).toMatchSnapshot("db");
+  });
+
+  it("adds new item to items current user owns", async () => {
+    useTestDb();
+    await Promise.all([logInAsTestUser(), createItem("1")]);
+
+    // To start, the user should not own the item yet.
+    let res = await query({
+      query: gql`
+        query {
+          item(id: "1") {
+            currentUserOwnsThis
+          }
+        }
+      `,
+    });
+    expect(res).toHaveNoErrors();
+    expect(res.data.item.currentUserOwnsThis).toBe(false);
+
+    // Mutate the item to mark that the user owns it, and check that the
+    // immediate response reflects this.
+    res = await mutate({
+      mutation: gql`
+        mutation {
+          item: addToItemsCurrentUserOwns(itemId: "1") {
+            currentUserOwnsThis
+          }
+        }
+      `,
+    });
+    expect(res).toHaveNoErrors();
+    expect(res.data.item.currentUserOwnsThis).toBe(true);
+
+    // Confirm that, when replaying the first query, we see that the user now
+    // _does_ own the item.
+    res = await query({
+      query: gql`
+        query {
+          item(id: "1") {
+            currentUserOwnsThis
+          }
+        }
+      `,
+    });
+    expect(res).toHaveNoErrors();
+    expect(res.data.item.currentUserOwnsThis).toBe(true);
+
+    expect(getDbCalls()).toMatchSnapshot("db");
+  });
+
+  it("does not add duplicates when user already owns item", async () => {
+    useTestDb();
+    await Promise.all([logInAsTestUser(), createItem("1")]);
+
+    // Send the add mutation for the first time. This should add it to the
+    // items we own.
+    let res = await mutate({
+      mutation: gql`
+        mutation {
+          item: addToItemsCurrentUserOwns(itemId: "1") {
+            currentUserOwnsThis
+          }
+        }
+      `,
+    });
+    expect(res).toHaveNoErrors();
+    expect(res.data.item.currentUserOwnsThis).toBe(true);
+
+    // Send the add mutation for the second time. This should do nothing,
+    // because we already own it.
+    res = await mutate({
+      mutation: gql`
+        mutation {
+          item: addToItemsCurrentUserOwns(itemId: "1") {
+            currentUserOwnsThis
+          }
+        }
+      `,
+    });
+    expect(res).toHaveNoErrors();
+    expect(res.data.item.currentUserOwnsThis).toBe(true);
+
+    // Afterwards, confirm that it only appears once in the list of items we
+    // own, instead of duplicating.
+    res = await query({
+      query: gql`
+        query {
+          currentUser {
+            itemsTheyOwn {
+              id
+            }
+          }
+        }
+      `,
+    });
+    expect(res).toHaveNoErrors();
+    expect(res.data.currentUser.itemsTheyOwn).toEqual([{ id: "1" }]);
+
+    expect(getDbCalls()).toMatchSnapshot("db");
+  });
+
+  it("adds new item to items current user wants", async () => {
+    useTestDb();
+    await Promise.all([logInAsTestUser(), createItem("1")]);
+
+    // To start, the user should not want the item yet.
+    let res = await query({
+      query: gql`
+        query {
+          item(id: "1") {
+            currentUserWantsThis
+          }
+        }
+      `,
+    });
+    expect(res).toHaveNoErrors();
+    expect(res.data.item.currentUserWantsThis).toBe(false);
+
+    // Mutate the item to mark that the user wants it, and check that the
+    // immediate response reflects this.
+    res = await mutate({
+      mutation: gql`
+        mutation {
+          item: addToItemsCurrentUserWants(itemId: "1") {
+            currentUserWantsThis
+          }
+        }
+      `,
+    });
+    expect(res).toHaveNoErrors();
+    expect(res.data.item.currentUserWantsThis).toBe(true);
+
+    // Confirm that, when replaying the first query, we see that the user now
+    // _does_ want the item.
+    res = await query({
+      query: gql`
+        query {
+          item(id: "1") {
+            currentUserWantsThis
+          }
+        }
+      `,
+    });
+    expect(res).toHaveNoErrors();
+    expect(res.data.item.currentUserWantsThis).toBe(true);
+
+    expect(getDbCalls()).toMatchSnapshot("db");
+  });
+
+  it("does not add duplicates when user already wants item", async () => {
+    useTestDb();
+    await Promise.all([logInAsTestUser(), createItem("1")]);
+
+    // Send the add mutation for the first time. This should add it to the
+    // items we want.
+    let res = await mutate({
+      mutation: gql`
+        mutation {
+          item: addToItemsCurrentUserWants(itemId: "1") {
+            currentUserWantsThis
+          }
+        }
+      `,
+    });
+    expect(res).toHaveNoErrors();
+    expect(res.data.item.currentUserWantsThis).toBe(true);
+
+    // Send the add mutation for the second time. This should do nothing,
+    // because we already want it.
+    res = await mutate({
+      mutation: gql`
+        mutation {
+          item: addToItemsCurrentUserWants(itemId: "1") {
+            currentUserWantsThis
+          }
+        }
+      `,
+    });
+    expect(res).toHaveNoErrors();
+    expect(res.data.item.currentUserWantsThis).toBe(true);
+
+    // Afterwards, confirm that it only appears once in the list of items we
+    // want, instead of duplicating.
+    res = await query({
+      query: gql`
+        query {
+          currentUser {
+            itemsTheyWant {
+              id
+            }
+          }
+        }
+      `,
+    });
+    expect(res).toHaveNoErrors();
+    expect(res.data.currentUser.itemsTheyWant).toEqual([{ id: "1" }]);
+
     expect(getDbCalls()).toMatchSnapshot("db");
   });
 });
