@@ -28,11 +28,14 @@ async function handle(req, res) {
       to: "matchu1993@gmail.com",
       from: "impress-2020-feedback@openneo.net",
       subject: `DTI feedback: ${contentSummary}`,
-      replyTo: email,
+      replyTo: email || undefined,
       text: content,
     });
   } catch (e) {
     console.error(e);
+    if (e.response && e.response.body && e.response.body.errors) {
+      console.error(e.response.body.errors);
+    }
     return res.status(500).send("Error sending message, see logs");
   }
 
