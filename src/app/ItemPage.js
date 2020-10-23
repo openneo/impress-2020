@@ -25,7 +25,7 @@ import {
 } from "@chakra-ui/icons";
 import { MdPause, MdPlayArrow } from "react-icons/md";
 import gql from "graphql-tag";
-import { useQuery } from "@apollo/client";
+import { useQuery, useMutation } from "@apollo/client";
 import { useParams } from "react-router-dom";
 
 import {
@@ -41,6 +41,7 @@ import {
 } from "./components/useOutfitAppearance";
 import OutfitPreview from "./components/OutfitPreview";
 import SpeciesColorPicker from "./components/SpeciesColorPicker";
+import useCurrentUser from "./components/useCurrentUser";
 import { useLocalStorage } from "./util";
 import WIPCallout from "./components/WIPCallout";
 
@@ -55,10 +56,12 @@ function ItemPage() {
  * `isEmbedded` prop is true, so we know not to e.g. set the page title.
  */
 export function ItemPageContent({ itemId, isEmbedded }) {
+  const { isLoggedIn } = useCurrentUser();
+
   return (
     <VStack spacing="8">
       <ItemPageHeader itemId={itemId} isEmbedded={isEmbedded} />
-      <ItemPageOwnWantButtons itemId={itemId} />
+      {isLoggedIn && <ItemPageOwnWantButtons itemId={itemId} />}
       {!isEmbedded && <ItemPageOutfitPreview itemId={itemId} />}
       <WIPCallout>Trade lists coming soon!</WIPCallout>
     </VStack>
@@ -311,10 +314,9 @@ function ItemPageOwnWantButtons({ itemId }) {
   const theme = useTheme();
   const toast = useToast();
 
-  const [currentUserOwnsThis, setCurrentUserOwnsThis] = React.useState(false);
   const [currentUserWantsThis, setCurrentUserWantsThis] = React.useState(false);
 
-  const { loading, error } = useQuery(
+  const { loading, error, data } = useQuery(
     gql`
       query ItemPageOwnWantButtons($itemId: ID!) {
         item(id: $itemId) {
@@ -327,7 +329,6 @@ function ItemPageOwnWantButtons({ itemId }) {
     {
       variables: { itemId },
       onCompleted: (data) => {
-        setCurrentUserOwnsThis(data?.item?.currentUserOwnsThis || false);
         setCurrentUserWantsThis(data?.item?.currentUserWantsThis || false);
       },
     }
@@ -340,78 +341,168 @@ function ItemPageOwnWantButtons({ itemId }) {
   return (
     <Box display="flex">
       <SubtleSkeleton isLoaded={!loading} marginRight="4">
-        <Box as="label">
-          <VisuallyHidden
-            as="input"
-            type="checkbox"
-            checked={currentUserOwnsThis}
-            onChange={(e) => {
-              setCurrentUserOwnsThis(e.target.checked);
-              toast({
-                title: "Todo: This doesn't actually work yet!",
-                status: "info",
-                duration: 1500,
-              });
-            }}
-          />
-          <Button
-            as="div"
-            colorScheme={currentUserOwnsThis ? "green" : "gray"}
-            size="lg"
-            cursor="pointer"
-            transitionDuration="0.4s"
-            className={css`
-              input:focus + & {
-                box-shadow: ${theme.shadows.outline};
-              }
-            `}
-          >
-            <IconCheckbox
-              icon={<CheckIcon />}
-              isChecked={currentUserOwnsThis}
-              marginRight="0.5em"
-            />
-            I own this
-          </Button>
-        </Box>
+        <ItemPageOwnButton
+          itemId={itemId}
+          isChecked={data?.item?.currentUserOwnsThis}
+        />
       </SubtleSkeleton>
 
       <SubtleSkeleton isLoaded={!loading}>
-        <Box as="label">
-          <VisuallyHidden
-            as="input"
-            type="checkbox"
-            isChecked={currentUserWantsThis}
-            onChange={(e) => {
-              setCurrentUserWantsThis(e.target.checked);
-              toast({
-                title: "Todo: This doesn't actually work yet!",
-                status: "info",
-                duration: 1500,
-              });
-            }}
-          />
-          <Button
-            as="div"
-            colorScheme={currentUserWantsThis ? "blue" : "gray"}
-            size="lg"
-            cursor="pointer"
-            transitionDuration="0.4s"
-            className={css`
-              input:focus + & {
-                box-shadow: ${theme.shadows.outline};
-              }
-            `}
-          >
-            <IconCheckbox
-              icon={<StarIcon />}
-              isChecked={currentUserWantsThis}
-              marginRight="0.5em"
-            />
-            I want this
-          </Button>
-        </Box>
+        <ItemPageWantButton
+          itemId={itemId}
+          isChecked={data?.item?.currentUserWantsThis}
+        />
       </SubtleSkeleton>
+    </Box>
+  );
+}
+
+function ItemPageOwnButton({ itemId, isChecked }) {
+  const theme = useTheme();
+  const toast = useToast();
+
+  const [sendAddMutation] = useMutation(
+    gql`
+      mutation ItemPageOwnButtonAdd($itemId: ID!) {
+        addToItemsCurrentUserOwns(itemId: $itemId) {
+          id
+          currentUserOwnsThis
+        }
+      }
+    `,
+    {
+      variables: { itemId },
+      optimisticResponse: {
+        __typename: "Mutation",
+        addToItemsCurrentUserOwns: {
+          __typename: "Item",
+          id: itemId,
+          currentUserOwnsThis: true,
+        },
+      },
+    }
+  );
+
+  return (
+    <Box as="label">
+      <VisuallyHidden
+        as="input"
+        type="checkbox"
+        checked={isChecked}
+        onChange={(e) => {
+          if (e.target.checked) {
+            sendAddMutation().catch((e) => {
+              console.error(e);
+              toast({
+                title: "We had trouble adding this to the items you own.",
+                description: "Check your internet connection, and try again.",
+                status: "error",
+                duration: 5000,
+              });
+            });
+          } else {
+            toast({
+              title: "Todo: This doesn't actually work yet!",
+              status: "info",
+              duration: 1500,
+            });
+          }
+        }}
+      />
+      <Button
+        as="div"
+        colorScheme={isChecked ? "green" : "gray"}
+        size="lg"
+        cursor="pointer"
+        transitionDuration="0.4s"
+        className={css`
+          input:focus + & {
+            box-shadow: ${theme.shadows.outline};
+          }
+        `}
+      >
+        <IconCheckbox
+          icon={<CheckIcon />}
+          isChecked={isChecked}
+          marginRight="0.5em"
+        />
+        I own this
+      </Button>
+    </Box>
+  );
+}
+
+function ItemPageWantButton({ itemId, isChecked }) {
+  const theme = useTheme();
+  const toast = useToast();
+
+  const [sendAddMutation] = useMutation(
+    gql`
+      mutation ItemPageWantButtonAdd($itemId: ID!) {
+        addToItemsCurrentUserWants(itemId: $itemId) {
+          id
+          currentUserWantsThis
+        }
+      }
+    `,
+    {
+      variables: { itemId },
+      optimisticResponse: {
+        __typename: "Mutation",
+        addToItemsCurrentUserWants: {
+          __typename: "Item",
+          id: itemId,
+          currentUserWantsThis: true,
+        },
+      },
+    }
+  );
+
+  return (
+    <Box as="label">
+      <VisuallyHidden
+        as="input"
+        type="checkbox"
+        isChecked={isChecked}
+        onChange={(e) => {
+          if (e.target.checked) {
+            sendAddMutation().catch((e) => {
+              console.error(e);
+              toast({
+                title: "We had trouble adding this to the items you want.",
+                description: "Check your internet connection, and try again.",
+                status: "error",
+                duration: 5000,
+              });
+            });
+          } else {
+            toast({
+              title: "Todo: This doesn't actually work yet!",
+              status: "info",
+              duration: 1500,
+            });
+          }
+        }}
+      />
+      <Button
+        as="div"
+        colorScheme={isChecked ? "blue" : "gray"}
+        size="lg"
+        cursor="pointer"
+        transitionDuration="0.4s"
+        className={css`
+          input:focus + & {
+            box-shadow: ${theme.shadows.outline};
+          }
+        `}
+      >
+        <IconCheckbox
+          icon={<StarIcon />}
+          isChecked={isChecked}
+          marginRight="0.5em"
+        />
+        I want this
+      </Button>
     </Box>
   );
 }
