@@ -311,11 +311,6 @@ function ShortTimestamp({ when }) {
 }
 
 function ItemPageOwnWantButtons({ itemId }) {
-  const theme = useTheme();
-  const toast = useToast();
-
-  const [currentUserWantsThis, setCurrentUserWantsThis] = React.useState(false);
-
   const { loading, error, data } = useQuery(
     gql`
       query ItemPageOwnWantButtons($itemId: ID!) {
@@ -326,12 +321,7 @@ function ItemPageOwnWantButtons({ itemId }) {
         }
       }
     `,
-    {
-      variables: { itemId },
-      onCompleted: (data) => {
-        setCurrentUserWantsThis(data?.item?.currentUserWantsThis || false);
-      },
-    }
+    { variables: { itemId } }
   );
 
   if (error) {
