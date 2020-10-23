@@ -16,6 +16,30 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `closet_hangers`
+--
+
+DROP TABLE IF EXISTS `closet_hangers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `closet_hangers` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `item_id` int(11) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `quantity` int(11) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `owned` tinyint(1) NOT NULL DEFAULT '1',
+  `list_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_closet_hangers_on_list_id` (`list_id`),
+  KEY `index_closet_hangers_on_user_id` (`user_id`),
+  KEY `index_closet_hangers_on_item_id_and_owned` (`item_id`,`owned`),
+  KEY `index_closet_hangers_test_20131226` (`user_id`,`list_id`,`item_id`,`owned`,`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `items`
 --
 
@@ -173,6 +197,30 @@ CREATE TABLE `swf_assets` (
   KEY `swf_assets_type_and_id` (`type`,`remote_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `users`
+--
+
+DROP TABLE IF EXISTS `users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  `auth_server_id` tinyint(4) NOT NULL,
+  `remote_id` int(11) NOT NULL,
+  `points` int(11) NOT NULL DEFAULT '0',
+  `beta` tinyint(1) NOT NULL DEFAULT '0',
+  `remember_token` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `remember_created_at` datetime DEFAULT NULL,
+  `image_mode_tester` tinyint(1) NOT NULL DEFAULT '0',
+  `owned_closet_hangers_visibility` int(11) NOT NULL DEFAULT '1',
+  `wanted_closet_hangers_visibility` int(11) NOT NULL DEFAULT '1',
+  `contact_neopets_connection_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -183,4 +231,4 @@ CREATE TABLE `swf_assets` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-10-06  6:59:49
+-- Dump completed on 2020-10-22 19:52:36
