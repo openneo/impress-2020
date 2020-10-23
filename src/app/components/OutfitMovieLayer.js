@@ -237,7 +237,10 @@ export async function loadMovieLibrary(librarySrc) {
   const manifestImages = new Map(
     library.properties.manifest.map(({ id, src }) => [
       id,
-      loadImage({ src: safeImageUrl(librarySrcDir + "/" + src) }),
+      loadImage({
+        src: safeImageUrl(librarySrcDir + "/" + src),
+        crossOrigin: "anonymous",
+      }),
     ])
   );
   await Promise.all(manifestImages.values());
