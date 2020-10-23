@@ -1,5 +1,8 @@
+const util = require("util");
+
 const fetch = require("node-fetch");
 const { gql } = require("apollo-server");
+const xmlrpc = require("xmlrpc");
 
 const { getPoseFromPetState } = require("../util");
 const { saveModelingData } = require("../modeling");
@@ -87,38 +90,25 @@ const resolvers = {
   },
 };
 
-async function loadPetMetaData(petName) {
-  const url = `http://www.neopets.com/amfphp/json.php/PetService.getPet/${petName}`;
-  const res = await fetch(url);
-  if (!res.ok) {
-    throw new Error(
-      `for pet meta data, neopets.com returned: ` +
-        `${res.status} ${res.statusText}. (${url})`
-    );
-  }
+const neopetsXmlrpcClient = xmlrpc.createClient({
+  host: "www.neopets.com",
+  port: 80,
+  path: "/amfphp/xmlrpc.php",
+});
+const neopetsXmlrpcCall = util
+  .promisify(neopetsXmlrpcClient.methodCall)
+  .bind(neopetsXmlrpcClient);
 
-  const json = await res.json();
-  return json;
+async function loadPetMetaData(petName) {
+  const response = await neopetsXmlrpcCall("PetService.getPet", [petName]);
+  return response;
 }
 
 async function loadCustomPetData(petName) {
-  const url =
-    `http://www.neopets.com/amfphp/json.php/CustomPetService.getViewerData` +
-    `/${petName}`;
-  const res = await fetch(url);
-  if (!res.ok) {
-    throw new Error(
-      `for custom pet data, neopets.com returned: ` +
-        `${res.status} ${res.statusText}. (${url})`
-    );
-  }
-
-  const json = await res.json();
-  if (!json.custom_pet) {
-    throw new Error(`missing custom_pet data`);
-  }
-
-  return json;
+  const response = await neopetsXmlrpcCall("CustomPetService.getViewerData", [
+    petName,
+  ]);
+  return response;
 }
 
 function getPoseFromPetData(petMetaData, petCustomData) {
