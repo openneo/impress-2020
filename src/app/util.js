@@ -65,6 +65,10 @@ export function Heading2({ children, ...props }) {
  * safeImageUrl returns an HTTPS-safe image URL for Neopets assets!
  */
 export function safeImageUrl(urlString) {
+  if (urlString == null) {
+    return urlString;
+  }
+
   const url = new URL(urlString);
 
   if (url.origin === "http://images.neopets.com") {
