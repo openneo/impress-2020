@@ -340,13 +340,24 @@ export function usePreloadLayers(layers) {
 
       if (canceled) return;
 
-      const newLayersHaveAnimations = assets.some(
-        (a) =>
-          a.type === "movie" &&
-          hasAnimations(buildMovieClip(a.library, a.libraryUrl))
-      );
+      let movieClips;
+      try {
+        movieClips = assets
+          .filter((a) => a.type === "movie")
+          .map((a) => buildMovieClip(a.library, a.libraryUrl));
+      } catch (e) {
+        console.error("Error building movie clips", e);
+        assetPromises.forEach((p) => {
+          if (p.cancel) {
+            p.cancel();
+          }
+        });
+        setError(e);
+        return;
+      }
+
+      setLayersHaveAnimations(movieClips.some(hasAnimations));
       setLoadedLayers(layers);
-      setLayersHaveAnimations(newLayersHaveAnimations);
     };
 
     loadAssets();
