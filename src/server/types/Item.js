@@ -48,6 +48,11 @@ const typeDefs = gql`
     # which species this is for by going through the body field on
     # ItemAppearance!)
     canonicalAppearance: ItemAppearance
+
+    # All zones that this item occupies, for at least one body. That is, it's
+    # a union of zones for all of its appearances! We use this for overview
+    # info about the item.
+    allOccupiedZones: [Zone!]!
   }
 
   type ItemAppearance {
@@ -209,6 +214,11 @@ const resolvers = {
         //       setting it here?
         body: { id: canonicalBodyId, species: { id: rows[0].speciesId } },
       };
+    },
+    allOccupiedZones: async ({ id }, _, { itemAllOccupiedZonesLoader }) => {
+      const zoneIds = await itemAllOccupiedZonesLoader.load(id);
+      const zones = zoneIds.map((id) => ({ id }));
+      return zones;
     },
   },
 

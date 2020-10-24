@@ -26,6 +26,9 @@ describe("Item", () => {
               name
             }
             explicitlyBodySpecific
+            allOccupiedZones {
+              label
+            }
           }
         }
       `,
@@ -58,10 +61,37 @@ describe("Item", () => {
           ],
         ],
         Array [
+          "SELECT items.id, GROUP_CONCAT(DISTINCT sa.zone_id) AS zone_ids FROM items
+             INNER JOIN parents_swf_assets psa
+               ON psa.parent_type = \\"Item\\" AND psa.parent_id = items.id
+             INNER JOIN swf_assets sa ON sa.id = psa.swf_asset_id
+             WHERE items.id IN (?, ?, ?, ?, ?, ?)
+             GROUP BY items.id;",
+          Array [
+            "38913",
+            "38911",
+            "38912",
+            "55788",
+            "77530",
+            "78104",
+          ],
+        ],
+        Array [
           "SELECT * FROM color_translations
              WHERE color_id IN (?) AND locale = \\"en\\"",
           Array [
             "44",
+          ],
+        ],
+        Array [
+          "SELECT * FROM zone_translations WHERE zone_id IN (?,?,?,?,?,?) AND locale = \\"en\\"",
+          Array [
+            "25",
+            "40",
+            "26",
+            "46",
+            "23",
+            "3",
           ],
         ],
       ]

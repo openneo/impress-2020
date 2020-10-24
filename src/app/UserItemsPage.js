@@ -13,6 +13,7 @@ import ItemCard, {
   NpBadge,
   YouOwnThisBadge,
   YouWantThisBadge,
+  ZoneBadgeList,
 } from "./components/ItemCard";
 import useCurrentUser from "./components/useCurrentUser";
 import WIPCallout from "./components/WIPCallout";
@@ -35,6 +36,10 @@ function UserItemsPage() {
             isNc
             name
             thumbnailUrl
+            allOccupiedZones {
+              id
+              label @client
+            }
           }
 
           itemsTheyWant {
@@ -42,6 +47,10 @@ function UserItemsPage() {
             isNc
             name
             thumbnailUrl
+            allOccupiedZones {
+              id
+              label @client
+            }
           }
         }
 
@@ -114,18 +123,24 @@ function UserItemsPage() {
         {isCurrentUser ? "Items you own" : `Items ${data.user.username} owns`}
       </Heading2>
       <ItemCardList>
-        {sortedItemsTheyOwn.map((item) => (
-          <ItemCard
-            key={item.id}
-            item={item}
-            badges={
-              <ItemBadgeList>
-                {item.isNc ? <NcBadge /> : <NpBadge />}
-                {showYouWantThisBadge(item) && <YouWantThisBadge />}
-              </ItemBadgeList>
-            }
-          />
-        ))}
+        {sortedItemsTheyOwn.map((item) => {
+          return (
+            <ItemCard
+              key={item.id}
+              item={item}
+              badges={
+                <ItemBadgeList>
+                  {item.isNc ? <NcBadge /> : <NpBadge />}
+                  {showYouWantThisBadge(item) && <YouWantThisBadge />}
+                  <ZoneBadgeList
+                    zones={item.allOccupiedZones}
+                    variant="occupies"
+                  />
+                </ItemBadgeList>
+              }
+            />
+          );
+        })}
       </ItemCardList>
 
       <Heading2 marginBottom="6" marginTop="8">
@@ -140,6 +155,10 @@ function UserItemsPage() {
               <ItemBadgeList>
                 {item.isNc ? <NcBadge /> : <NpBadge />}
                 {showYouOwnThisBadge(item) && <YouOwnThisBadge />}
+                <ZoneBadgeList
+                  zones={item.allOccupiedZones}
+                  variant="occupies"
+                />
               </ItemBadgeList>
             }
           />

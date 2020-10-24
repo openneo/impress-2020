@@ -9,7 +9,7 @@ import {
   useColorModeValue,
   useTheme,
 } from "@chakra-ui/core";
-import { CheckIcon, StarIcon } from "@chakra-ui/icons";
+import { CheckIcon, NotAllowedIcon, StarIcon } from "@chakra-ui/icons";
 import { HiSparkles } from "react-icons/hi";
 import { Link } from "react-router-dom";
 
@@ -277,6 +277,53 @@ export function YouWantThisBadge({ variant = "long" }) {
   }
 
   return badge;
+}
+
+function ZoneBadge({ variant, zoneLabel }) {
+  // Shorten the label when necessary, to make the badges less bulky
+  const shorthand = zoneLabel
+    .replace("Background Item", "BG Item")
+    .replace("Foreground Item", "FG Item")
+    .replace("Lower-body", "Lower")
+    .replace("Upper-body", "Upper")
+    .replace("Transient", "Trans")
+    .replace("Biology", "Bio");
+
+  if (variant === "restricts") {
+    return (
+      <ItemBadgeTooltip
+        label={`Restricted: This item can't be worn with ${zoneLabel} items`}
+      >
+        <Badge>
+          <Box display="flex" alignItems="center">
+            {shorthand} <NotAllowedIcon marginLeft="1" />
+          </Box>
+        </Badge>
+      </ItemBadgeTooltip>
+    );
+  }
+
+  if (shorthand !== zoneLabel) {
+    return (
+      <ItemBadgeTooltip label={zoneLabel}>
+        <Badge>{shorthand}</Badge>
+      </ItemBadgeTooltip>
+    );
+  }
+
+  return <Badge>{shorthand}</Badge>;
+}
+
+export function ZoneBadgeList({ zones, variant }) {
+  // Get the sorted zone labels. Sometimes an item occupies multiple zones of
+  // the same name, so it's important to de-duplicate them!
+  let labels = zones.map((z) => z.label);
+  labels = new Set(labels);
+  labels = [...labels].sort();
+
+  return labels.map((label) => (
+    <ZoneBadge key={label} zoneLabel={label} variant={variant} />
+  ));
 }
 
 export function MaybeAnimatedBadge() {

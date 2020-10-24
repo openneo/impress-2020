@@ -1,7 +1,6 @@
 import React from "react";
 import { css, cx } from "emotion";
 import {
-  Badge,
   Box,
   Flex,
   IconButton,
@@ -10,24 +9,19 @@ import {
   useColorModeValue,
   useTheme,
 } from "@chakra-ui/core";
-import {
-  EditIcon,
-  DeleteIcon,
-  InfoIcon,
-  NotAllowedIcon,
-} from "@chakra-ui/icons";
+import { EditIcon, DeleteIcon, InfoIcon } from "@chakra-ui/icons";
 import { Link } from "react-router-dom";
 import loadable from "@loadable/component";
 
 import {
   ItemCardContent,
   ItemBadgeList,
-  ItemBadgeTooltip,
   MaybeAnimatedBadge,
   NcBadge,
   NpBadge,
   YouOwnThisBadge,
   YouWantThisBadge,
+  ZoneBadgeList,
 } from "../components/ItemCard";
 import SupportOnly from "./support/SupportOnly";
 import useSupport from "./support/useSupport";
@@ -207,11 +201,9 @@ function ItemContainer({ children, isDisabled = false }) {
 
 function ItemBadges({ item }) {
   const { isSupportUser } = useSupport();
-  const occupiedZoneLabels = getZoneLabels(
-    item.appearanceOn.layers.map((l) => l.zone)
-  );
-  const restrictedZoneLabels = getZoneLabels(
-    item.appearanceOn.restrictedZones.filter((z) => z.isCommonlyUsedByItems)
+  const occupiedZones = item.appearanceOn.layers.map((l) => l.zone);
+  const restrictedZones = item.appearanceOn.restrictedZones.filter(
+    (z) => z.isCommonlyUsedByItems
   );
   const isMaybeAnimated = item.appearanceOn.layers.some(
     (l) => l.canvasMovieLibraryUrl
@@ -239,12 +231,8 @@ function ItemBadges({ item }) {
       }
       {item.currentUserOwnsThis && <YouOwnThisBadge variant="short" />}
       {item.currentUserWantsThis && <YouWantThisBadge variant="short" />}
-      {occupiedZoneLabels.map((zoneLabel) => (
-        <ZoneBadge key={zoneLabel} variant="occupies" zoneLabel={zoneLabel} />
-      ))}
-      {restrictedZoneLabels.map((zoneLabel) => (
-        <ZoneBadge key={zoneLabel} variant="restricts" zoneLabel={zoneLabel} />
-      ))}
+      <ZoneBadgeList zones={occupiedZones} variant="occupied" />
+      <ZoneBadgeList zones={restrictedZones} variant="restricts" />
     </ItemBadgeList>
   );
 }
@@ -321,53 +309,6 @@ export function ItemListSkeleton({ count }) {
       ))}
     </ItemListContainer>
   );
-}
-
-/**
- * getZoneLabels returns the set of labels for the given zones. Sometimes an
- * item occupies multiple zones of the same name, so it's especially important
- * to de-duplicate them here!
- */
-function getZoneLabels(zones) {
-  let labels = zones.map((z) => z.label);
-  labels = new Set(labels);
-  labels = [...labels].sort();
-  return labels;
-}
-
-function ZoneBadge({ variant, zoneLabel }) {
-  // Shorten the label when necessary, to make the badges less bulky
-  const shorthand = zoneLabel
-    .replace("Background Item", "BG Item")
-    .replace("Foreground Item", "FG Item")
-    .replace("Lower-body", "Lower")
-    .replace("Upper-body", "Upper")
-    .replace("Transient", "Trans")
-    .replace("Biology", "Bio");
-
-  if (variant === "restricts") {
-    return (
-      <ItemBadgeTooltip
-        label={`Restricted: This item can't be worn with ${zoneLabel} items`}
-      >
-        <Badge>
-          <Box display="flex" alignItems="center">
-            {shorthand} <NotAllowedIcon marginLeft="1" />
-          </Box>
-        </Badge>
-      </ItemBadgeTooltip>
-    );
-  }
-
-  if (shorthand !== zoneLabel) {
-    return (
-      <ItemBadgeTooltip label={zoneLabel}>
-        <Badge>{shorthand}</Badge>
-      </ItemBadgeTooltip>
-    );
-  }
-
-  return <Badge>{shorthand}</Badge>;
 }
 
 /**
