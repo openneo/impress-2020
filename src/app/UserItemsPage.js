@@ -37,6 +37,7 @@ function UserItemsPage() {
             isNc
             name
             thumbnailUrl
+            currentUserWantsThis
             allOccupiedZones {
               id
               label @client
@@ -48,20 +49,11 @@ function UserItemsPage() {
             isNc
             name
             thumbnailUrl
+            currentUserOwnsThis
             allOccupiedZones {
               id
               label @client
             }
-          }
-        }
-
-        currentUser {
-          itemsTheyOwn {
-            id
-          }
-
-          itemsTheyWant {
-            id
           }
         }
       }
@@ -81,20 +73,13 @@ function UserItemsPage() {
     return <Box color="red.400">{error.message}</Box>;
   }
 
-  const itemIdsYouOwn = new Set(
-    data.currentUser?.itemsTheyOwn.map((i) => i.id) || []
-  );
-  const itemIdsYouWant = new Set(
-    data.currentUser?.itemsTheyWant.map((i) => i.id) || []
-  );
-
   // This helps you compare your owns/wants to other users! If they own
   // something, and you want it, we say "You want this!". And if they want
   // something, and you own it, we say "You own this!".
   const showYouOwnThisBadge = (item) =>
-    !isCurrentUser && itemIdsYouOwn.has(item.id);
+    !isCurrentUser && item.currentUserOwnsThis;
   const showYouWantThisBadge = (item) =>
-    !isCurrentUser && itemIdsYouWant.has(item.id);
+    !isCurrentUser && item.currentUserWantsThis;
 
   const numYouOwnThisBadges = data.user.itemsTheyWant.filter(
     showYouOwnThisBadge
