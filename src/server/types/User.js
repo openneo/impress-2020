@@ -4,6 +4,7 @@ const typeDefs = gql`
   type User {
     id: ID!
     username: String!
+    contactNeopetsUsername: String
     itemsTheyOwn: [Item!]!
     itemsTheyWant: [Item!]!
   }
@@ -19,6 +20,18 @@ const resolvers = {
     username: async ({ id }, _, { userLoader }) => {
       const user = await userLoader.load(id);
       return user.name;
+    },
+
+    contactNeopetsUsername: async (
+      { id },
+      _,
+      { userLoader, neopetsConnectionLoader }
+    ) => {
+      const user = await userLoader.load(id);
+      const neopetsConnection = await neopetsConnectionLoader.load(
+        user.contactNeopetsConnectionId
+      );
+      return neopetsConnection.neopetsUsername;
     },
 
     itemsTheyOwn: async (

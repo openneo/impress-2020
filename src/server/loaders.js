@@ -475,6 +475,19 @@ const buildPetSwfAssetLoader = (db, loaders) =>
     );
   });
 
+const buildNeopetsConnectionLoader = (db) =>
+  new DataLoader(async (ids) => {
+    const qs = ids.map((_) => "?").join(", ");
+    const [rows, _] = await db.execute(
+      `SELECT * FROM neopets_connections WHERE id IN (${qs})`,
+      ids
+    );
+
+    const entities = rows.map(normalizeRow);
+
+    return ids.map((id) => entities.find((e) => e.id === id));
+  });
+
 const buildOutfitLoader = (db) =>
   new DataLoader(async (outfitIds) => {
     const qs = outfitIds.map((_) => "?").join(",");
@@ -741,6 +754,7 @@ function buildLoaders(db) {
   loaders.swfAssetByRemoteIdLoader = buildSwfAssetByRemoteIdLoader(db);
   loaders.itemSwfAssetLoader = buildItemSwfAssetLoader(db, loaders);
   loaders.petSwfAssetLoader = buildPetSwfAssetLoader(db, loaders);
+  loaders.neopetsConnectionLoader = buildNeopetsConnectionLoader(db);
   loaders.outfitLoader = buildOutfitLoader(db);
   loaders.itemOutfitRelationshipsLoader = buildItemOutfitRelationshipsLoader(
     db

@@ -12,6 +12,7 @@ describe("User", () => {
           user(id: "6") {
             id
             username
+            contactNeopetsUsername
           }
         }
       `,
@@ -21,6 +22,7 @@ describe("User", () => {
     expect(res.data).toMatchInlineSnapshot(`
       Object {
         "user": Object {
+          "contactNeopetsUsername": "matchu1993",
           "id": "6",
           "username": "matchu",
         },
@@ -32,6 +34,12 @@ describe("User", () => {
           "SELECT * FROM users WHERE id IN (?)",
           Array [
             "6",
+          ],
+        ],
+        Array [
+          "SELECT * FROM neopets_connections WHERE id IN (?)",
+          Array [
+            "1",
           ],
         ],
       ]
