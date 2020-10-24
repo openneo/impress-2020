@@ -201,9 +201,32 @@ export function ItemCardList({ children }) {
 
 export function ItemBadgeList({ children }) {
   return (
-    <Wrap spacing="2" marginTop="1" opacity="0.7">
+    <Box marginTop="1" opacity="0.7">
+      <Box
+        // This is copying the styles of <Wrap spacing="2" />! The individual
+        // ItemBadges have their own `margin="1"`, which we counteract here for
+        // consistency.
+        //
+        // The difference between this and `Wrap` is that `Wrap` uses
+        // React.Children to wrap its children in containers with `margin="1"`,
+        // but that doesn't work when the badges aren't _direct_ children, like
+        // in `ZoneBadgeList`. The badges are what we want to have wrap, not
+        // whatever component happens to be the direct child!
+        margin="-1"
+        display="flex"
+        flexWrap="wrap"
+      >
+        {children}
+      </Box>
+    </Box>
+  );
+}
+
+export function ItemBadge({ children, ...props }) {
+  return (
+    <Badge margin="1" {...props}>
       {children}
-    </Wrap>
+    </Badge>
   );
 }
 
@@ -222,9 +245,9 @@ export function ItemBadgeTooltip({ label, children }) {
 export function NcBadge() {
   return (
     <ItemBadgeTooltip label="Neocash">
-      <Badge colorScheme="purple" display="block">
+      <ItemBadge colorScheme="purple" display="block">
         NC
-      </Badge>
+      </ItemBadge>
     </ItemBadgeTooltip>
   );
 }
@@ -234,14 +257,14 @@ export function NpBadge() {
   //       default of inline-block.
   return (
     <ItemBadgeTooltip label="Neopoints">
-      <Badge display="block">NP</Badge>
+      <ItemBadge display="block">NP</ItemBadge>
     </ItemBadgeTooltip>
   );
 }
 
 export function YouOwnThisBadge({ variant = "long" }) {
   let badge = (
-    <Badge
+    <ItemBadge
       colorScheme="green"
       display="flex"
       alignItems="center"
@@ -249,7 +272,7 @@ export function YouOwnThisBadge({ variant = "long" }) {
     >
       <CheckIcon aria-label="Star" />
       {variant === "long" && <Box marginLeft="1">You own this!</Box>}
-    </Badge>
+    </ItemBadge>
   );
 
   if (variant === "short") {
@@ -261,7 +284,7 @@ export function YouOwnThisBadge({ variant = "long" }) {
 
 export function YouWantThisBadge({ variant = "long" }) {
   let badge = (
-    <Badge
+    <ItemBadge
       colorScheme="blue"
       display="flex"
       alignItems="center"
@@ -269,7 +292,7 @@ export function YouWantThisBadge({ variant = "long" }) {
     >
       <StarIcon aria-label="Star" />
       {variant === "long" && <Box marginLeft="1">You want this!</Box>}
-    </Badge>
+    </ItemBadge>
   );
 
   if (variant === "short") {
@@ -294,11 +317,11 @@ function ZoneBadge({ variant, zoneLabel }) {
       <ItemBadgeTooltip
         label={`Restricted: This item can't be worn with ${zoneLabel} items`}
       >
-        <Badge>
+        <ItemBadge>
           <Box display="flex" alignItems="center">
             {shorthand} <NotAllowedIcon marginLeft="1" />
           </Box>
-        </Badge>
+        </ItemBadge>
       </ItemBadgeTooltip>
     );
   }
@@ -306,12 +329,12 @@ function ZoneBadge({ variant, zoneLabel }) {
   if (shorthand !== zoneLabel) {
     return (
       <ItemBadgeTooltip label={zoneLabel}>
-        <Badge>{shorthand}</Badge>
+        <ItemBadge>{shorthand}</ItemBadge>
       </ItemBadgeTooltip>
     );
   }
 
-  return <Badge>{shorthand}</Badge>;
+  return <ItemBadge>{shorthand}</ItemBadge>;
 }
 
 export function ZoneBadgeList({ zones, variant }) {
@@ -329,14 +352,14 @@ export function ZoneBadgeList({ zones, variant }) {
 export function MaybeAnimatedBadge() {
   return (
     <ItemBadgeTooltip label="Maybe animated? (Support only)">
-      <Badge
+      <ItemBadge
         colorScheme="orange"
         display="flex"
         alignItems="center"
         minHeight="1.5em"
       >
         <Box as={HiSparkles} aria-label="Sparkles" />
-      </Badge>
+      </ItemBadge>
     </ItemBadgeTooltip>
   );
 }

@@ -1,5 +1,5 @@
 import React from "react";
-import { Badge, Box, Tooltip } from "@chakra-ui/core";
+import { Box, Tooltip } from "@chakra-ui/core";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
 
@@ -7,6 +7,7 @@ import { Delay } from "./util";
 import HangerSpinner from "./components/HangerSpinner";
 import { Heading1, Heading2, usePageTitle } from "./util";
 import ItemCard, {
+  ItemBadge,
   ItemBadgeList,
   ItemCardList,
   NcBadge,
@@ -173,7 +174,7 @@ function ItemModelBadges({ item, currentUserOwnsItem }) {
       {item.isNc && <NcBadge />}
       {currentUserOwnsItem && <YouOwnThisBadge />}
       {item.speciesThatNeedModels.map((species) => (
-        <Badge>{species.name}</Badge>
+        <ItemBadge>{species.name}</ItemBadge>
       ))}
     </ItemBadgeList>
   );
@@ -191,7 +192,7 @@ function NewItemBadge({ createdAt }) {
       placement="top"
       openDelay={400}
     >
-      <Badge colorScheme="yellow">New!</Badge>
+      <ItemBadge colorScheme="yellow">New!</ItemBadge>
     </Tooltip>
   );
 }
