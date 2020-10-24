@@ -28,6 +28,10 @@ const resolvers = {
       { userLoader, neopetsConnectionLoader }
     ) => {
       const user = await userLoader.load(id);
+      if (user.contactNeopetsConnectionId == null) {
+        return null;
+      }
+
       const neopetsConnection = await neopetsConnectionLoader.load(
         user.contactNeopetsConnectionId
       );
