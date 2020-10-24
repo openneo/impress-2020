@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom";
 import { useQuery } from "@apollo/client";
 
 import HangerSpinner from "./components/HangerSpinner";
-import { Heading1 } from "./util";
+import { Heading1, Heading2 } from "./util";
 import ItemCard, {
   ItemBadgeList,
   ItemCardList,
@@ -28,6 +28,7 @@ function UserItemsPage() {
         user(id: $userId) {
           id
           username
+          contactNeopetsUsername
 
           itemsTheyOwn {
             id
@@ -106,9 +107,12 @@ function UserItemsPage() {
       <Box float="right">
         <WIPCallout details="These lists are simplified and read-only for now. Full power coming soon!" />
       </Box>
-      <Heading1 marginBottom="6">
-        {isCurrentUser ? "Items you own" : `Items ${data.user.username} owns`}
+      <Heading1 marginBottom="4">
+        {isCurrentUser ? "Your items" : `${data.user.username}'s items`}
       </Heading1>
+      <Heading2 marginBottom="6">
+        {isCurrentUser ? "Items you own" : `Items ${data.user.username} owns`}
+      </Heading2>
       <ItemCardList>
         {sortedItemsTheyOwn.map((item) => (
           <ItemCard
@@ -124,9 +128,9 @@ function UserItemsPage() {
         ))}
       </ItemCardList>
 
-      <Heading1 marginBottom="6" marginTop="8">
+      <Heading2 marginBottom="6" marginTop="8">
         {isCurrentUser ? "Items you want" : `Items ${data.user.username} wants`}
-      </Heading1>
+      </Heading2>
       <ItemCardList>
         {sortedItemsTheyWant.map((item) => (
           <ItemCard
