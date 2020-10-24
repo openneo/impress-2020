@@ -70,9 +70,11 @@ function UserItemsPage() {
     return <Box color="red.400">{error.message}</Box>;
   }
 
-  const itemIdsYouOwn = new Set(data.currentUser.itemsTheyOwn.map((i) => i.id));
+  const itemIdsYouOwn = new Set(
+    data.currentUser?.itemsTheyOwn.map((i) => i.id) || []
+  );
   const itemIdsYouWant = new Set(
-    data.currentUser.itemsTheyWant.map((i) => i.id)
+    data.currentUser?.itemsTheyWant.map((i) => i.id) || []
   );
 
   // This helps you compare your owns/wants to other users! If they own
