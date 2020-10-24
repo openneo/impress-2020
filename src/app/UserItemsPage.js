@@ -192,6 +192,7 @@ function UserItemsPage() {
 }
 
 function NeopetsStarIcon(props) {
+  // Converted from the Neopets favicon with https://www.vectorizer.io/.
   return (
     <Box {...props}>
       <svg
