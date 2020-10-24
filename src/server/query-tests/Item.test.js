@@ -790,4 +790,134 @@ describe("Item", () => {
 
     expect(getDbCalls()).toMatchSnapshot("db");
   });
+
+  it("removes item from items user owns", async () => {
+    useTestDb();
+    await Promise.all([logInAsTestUser(), createItem("1")]);
+
+    // First, add the item.
+    let res = await mutate({
+      mutation: gql`
+        mutation {
+          item: addToItemsCurrentUserOwns(itemId: "1") {
+            currentUserOwnsThis
+          }
+        }
+      `,
+    });
+    expect(res).toHaveNoErrors();
+    expect(res.data.item.currentUserOwnsThis).toBe(true);
+
+    // Then, remove the item.
+    res = await mutate({
+      mutation: gql`
+        mutation {
+          item: removeFromItemsCurrentUserOwns(itemId: "1") {
+            currentUserOwnsThis
+          }
+        }
+      `,
+    });
+    expect(res).toHaveNoErrors();
+    expect(res.data.item.currentUserOwnsThis).toBe(false);
+
+    // Finally, confirm the removal was persisted.
+    res = await query({
+      query: gql`
+        query {
+          item(id: "1") {
+            currentUserOwnsThis
+          }
+        }
+      `,
+    });
+    expect(res).toHaveNoErrors();
+    expect(res.data.item.currentUserOwnsThis).toBe(false);
+
+    expect(getDbCalls()).toMatchSnapshot("db");
+  });
+
+  it("does nothing when removing an item we don't own", async () => {
+    useTestDb();
+    await Promise.all([logInAsTestUser(), createItem("1")]);
+
+    let res = await mutate({
+      mutation: gql`
+        mutation {
+          item: removeFromItemsCurrentUserOwns(itemId: "1") {
+            currentUserOwnsThis
+          }
+        }
+      `,
+    });
+    expect(res).toHaveNoErrors();
+    expect(res.data.item.currentUserOwnsThis).toBe(false);
+
+    expect(getDbCalls()).toMatchSnapshot("db");
+  });
+
+  it("removes item from items user wants", async () => {
+    useTestDb();
+    await Promise.all([logInAsTestUser(), createItem("1")]);
+
+    // First, add the item.
+    let res = await mutate({
+      mutation: gql`
+        mutation {
+          item: addToItemsCurrentUserWants(itemId: "1") {
+            currentUserWantsThis
+          }
+        }
+      `,
+    });
+    expect(res).toHaveNoErrors();
+    expect(res.data.item.currentUserWantsThis).toBe(true);
+
+    // Then, remove the item.
+    res = await mutate({
+      mutation: gql`
+        mutation {
+          item: removeFromItemsCurrentUserWants(itemId: "1") {
+            currentUserWantsThis
+          }
+        }
+      `,
+    });
+    expect(res).toHaveNoErrors();
+    expect(res.data.item.currentUserWantsThis).toBe(false);
+
+    // Finally, confirm the removal was persisted.
+    res = await query({
+      query: gql`
+        query {
+          item(id: "1") {
+            currentUserWantsThis
+          }
+        }
+      `,
+    });
+    expect(res).toHaveNoErrors();
+    expect(res.data.item.currentUserWantsThis).toBe(false);
+
+    expect(getDbCalls()).toMatchSnapshot("db");
+  });
+
+  it("does nothing when removing an item we don't want", async () => {
+    useTestDb();
+    await Promise.all([logInAsTestUser(), createItem("1")]);
+
+    let res = await mutate({
+      mutation: gql`
+        mutation {
+          item: removeFromItemsCurrentUserWants(itemId: "1") {
+            currentUserWantsThis
+          }
+        }
+      `,
+    });
+    expect(res).toHaveNoErrors();
+    expect(res.data.item.currentUserWantsThis).toBe(false);
+
+    expect(getDbCalls()).toMatchSnapshot("db");
+  });
 });

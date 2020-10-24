@@ -316,8 +316,27 @@ const resolvers = {
 
       return { id: itemId };
     },
-    removeFromItemsCurrentUserOwns: () => {
-      throw new Error("TODO: Not yet implemented");
+    removeFromItemsCurrentUserOwns: async (
+      _,
+      { itemId },
+      { currentUserId, db, itemLoader }
+    ) => {
+      if (currentUserId == null) {
+        throw new Error(`must be logged in`);
+      }
+
+      const item = await itemLoader.load(itemId);
+      if (item == null) {
+        return null;
+      }
+
+      await db.query(
+        `DELETE FROM closet_hangers
+         WHERE item_id = ? AND user_id = ? AND owned = ?;`,
+        [itemId, currentUserId, true]
+      );
+
+      return { id: itemId };
     },
     addToItemsCurrentUserWants: async (
       _,
@@ -362,8 +381,27 @@ const resolvers = {
 
       return { id: itemId };
     },
-    removeFromItemsCurrentUserWants: () => {
-      throw new Error("TODO: Not yet implemented");
+    removeFromItemsCurrentUserWants: async (
+      _,
+      { itemId },
+      { currentUserId, db, itemLoader }
+    ) => {
+      if (currentUserId == null) {
+        throw new Error(`must be logged in`);
+      }
+
+      const item = await itemLoader.load(itemId);
+      if (item == null) {
+        return null;
+      }
+
+      await db.query(
+        `DELETE FROM closet_hangers
+         WHERE item_id = ? AND user_id = ? AND owned = ?;`,
+        [itemId, currentUserId, false]
+      );
+
+      return { id: itemId };
     },
   },
 };

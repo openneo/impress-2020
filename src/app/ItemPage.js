@@ -373,6 +373,28 @@ function ItemPageOwnButton({ itemId, isChecked }) {
     }
   );
 
+  const [sendRemoveMutation] = useMutation(
+    gql`
+      mutation ItemPageOwnButtonRemove($itemId: ID!) {
+        removeFromItemsCurrentUserOwns(itemId: $itemId) {
+          id
+          currentUserOwnsThis
+        }
+      }
+    `,
+    {
+      variables: { itemId },
+      optimisticResponse: {
+        __typename: "Mutation",
+        removeFromItemsCurrentUserOwns: {
+          __typename: "Item",
+          id: itemId,
+          currentUserOwnsThis: false,
+        },
+      },
+    }
+  );
+
   return (
     <Box as="label">
       <VisuallyHidden
@@ -391,10 +413,14 @@ function ItemPageOwnButton({ itemId, isChecked }) {
               });
             });
           } else {
-            toast({
-              title: "Todo: This doesn't actually work yet!",
-              status: "info",
-              duration: 1500,
+            sendRemoveMutation().catch((e) => {
+              console.error(e);
+              toast({
+                title: "We had trouble removing this from the items you own.",
+                description: "Check your internet connection, and try again.",
+                status: "error",
+                duration: 5000,
+              });
             });
           }
         }}
@@ -448,6 +474,28 @@ function ItemPageWantButton({ itemId, isChecked }) {
     }
   );
 
+  const [sendRemoveMutation] = useMutation(
+    gql`
+      mutation ItemPageWantButtonRemove($itemId: ID!) {
+        removeFromItemsCurrentUserWants(itemId: $itemId) {
+          id
+          currentUserWantsThis
+        }
+      }
+    `,
+    {
+      variables: { itemId },
+      optimisticResponse: {
+        __typename: "Mutation",
+        removeFromItemsCurrentUserWants: {
+          __typename: "Item",
+          id: itemId,
+          currentUserWantsThis: false,
+        },
+      },
+    }
+  );
+
   return (
     <Box as="label">
       <VisuallyHidden
@@ -466,10 +514,14 @@ function ItemPageWantButton({ itemId, isChecked }) {
               });
             });
           } else {
-            toast({
-              title: "Todo: This doesn't actually work yet!",
-              status: "info",
-              duration: 1500,
+            sendRemoveMutation().catch((e) => {
+              console.error(e);
+              toast({
+                title: "We had trouble removing this from the items you want.",
+                description: "Check your internet connection, and try again.",
+                status: "error",
+                duration: 5000,
+              });
             });
           }
         }}
