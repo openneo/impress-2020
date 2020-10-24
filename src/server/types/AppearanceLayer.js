@@ -117,7 +117,7 @@ const resolvers = {
         `/${rid1}/${rid2}/${rid3}/${rid}/${sizeNum}x${sizeNum}.png?v2-${time}`
       );
     },
-    svgUrl: async ({ id }, _, { db, swfAssetLoader, svgLogger }) => {
+    svgUrl: async ({ id }, _, { db, swfAssetLoader }) => {
       const layer = await swfAssetLoader.load(id);
       let manifest = layer.manifest && JSON.parse(layer.manifest);
 
@@ -128,27 +128,22 @@ const resolvers = {
       }
 
       if (!manifest) {
-        svgLogger.log("no-manifest");
         return null;
       }
 
       if (manifest.assets.length !== 1) {
-        svgLogger.log(`wrong-asset-count:${manifest.assets.length}!=1`);
         return null;
       }
 
       const asset = manifest.assets[0];
       if (asset.format !== "vector") {
-        svgLogger.log(`wrong-asset-format:${asset.format}`);
         return null;
       }
 
       if (asset.assetData.length !== 1) {
-        svgLogger.log(`wrong-assetData-length:${asset.assetData.length}!=1`);
         return null;
       }
 
-      svgLogger.log("success");
       const assetDatum = asset.assetData[0];
       const url = new URL(assetDatum.path, "http://images.neopets.com");
       return url.toString();
@@ -273,43 +268,4 @@ function convertSwfUrlToManifestUrl(swfUrl) {
   return `http://images.neopets.com/cp/${type}/data/${folders}/manifest.json`;
 }
 
-let lastSvgLogger = null;
-const svgLoggingPlugin = {
-  requestDidStart() {
-    return {
-      willSendResponse({ operationName }) {
-        const logEntries = lastSvgLogger.entries;
-        if (logEntries.length === 0) {
-          return;
-        }
-
-        console.log(`[svgLogger] Operation: ${operationName}`);
-
-        const logEntryCounts = {};
-        for (const logEntry of logEntries) {
-          logEntryCounts[logEntry] = (logEntryCounts[logEntry] || 0) + 1;
-        }
-
-        const logEntriesSortedByCount = Object.entries(logEntryCounts).sort(
-          (a, b) => b[1] - a[1]
-        );
-        for (const [logEntry, count] of logEntriesSortedByCount) {
-          console.log(`[svgLogger] - ${logEntry}: ${count}`);
-        }
-      },
-    };
-  },
-
-  buildSvgLogger() {
-    const svgLogger = {
-      entries: [],
-      log(entry) {
-        this.entries.push(entry);
-      },
-    };
-    lastSvgLogger = svgLogger;
-    return svgLogger;
-  },
-};
-
-module.exports = { typeDefs, resolvers, svgLoggingPlugin };
+module.exports = { typeDefs, resolvers };

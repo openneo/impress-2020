@@ -4,7 +4,6 @@ const { gql, makeExecutableSchema } = require("apollo-server");
 const { getUserIdFromToken } = require("./auth");
 const connectToDb = require("./db");
 const buildLoaders = require("./loaders");
-const { svgLoggingPlugin } = require("./types/AppearanceLayer");
 
 const rootTypeDefs = gql`
   directive @cacheControl(maxAge: Int!) on FIELD_DEFINITION | OBJECT
@@ -44,7 +43,7 @@ const schema = makeExecutableSchema(
   ])
 );
 
-const plugins = [svgLoggingPlugin];
+const plugins = [];
 
 if (process.env["NODE_ENV"] !== "test") {
   plugins.push(beelinePlugin);
@@ -55,8 +54,6 @@ const config = {
   context: async ({ req }) => {
     const db = await connectToDb();
 
-    const svgLogger = svgLoggingPlugin.buildSvgLogger();
-
     const auth = (req && req.headers && req.headers.authorization) || "";
     const authMatch = auth.match(/^Bearer (.+)$/);
     const token = authMatch && authMatch[1];
@@ -64,7 +61,6 @@ const config = {
 
     return {
       db,
-      svgLogger,
       currentUserId,
       ...buildLoaders(db),
     };
