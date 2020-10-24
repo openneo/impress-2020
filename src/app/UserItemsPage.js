@@ -1,5 +1,6 @@
 import React from "react";
-import { Box, Center } from "@chakra-ui/core";
+import { Badge, Box, Center, Wrap } from "@chakra-ui/core";
+import { EmailIcon } from "@chakra-ui/icons";
 import gql from "graphql-tag";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@apollo/client";
@@ -116,10 +117,32 @@ function UserItemsPage() {
       <Box float="right">
         <WIPCallout details="These lists are simplified and read-only for now. Full power coming soon!" />
       </Box>
-      <Heading1 marginBottom="4">
+      <Heading1>
         {isCurrentUser ? "Your items" : `${data.user.username}'s items`}
       </Heading1>
-      <Heading2 marginBottom="6">
+      {data.user.contactNeopetsUsername && (
+        <Wrap spacing="2" opacity="0.7">
+          <Badge
+            as="a"
+            href={`http://www.neopets.com/userlookup.phtml?user=${data.user.contactNeopetsUsername}`}
+            display="inline-flex"
+            alignItems="center"
+          >
+            <NeopetsStarIcon marginRight="1" />
+            {data.user.contactNeopetsUsername}
+          </Badge>
+          <Badge
+            as="a"
+            href={`http://www.neopets.com/neomessages.phtml?type=send&recipient=${data.user.contactNeopetsUsername}`}
+            display="inline-flex"
+            alignItems="center"
+          >
+            <EmailIcon marginRight="1" />
+            Neomail
+          </Badge>
+        </Wrap>
+      )}
+      <Heading2 marginTop="4" marginBottom="6">
         {isCurrentUser ? "Items you own" : `Items ${data.user.username} owns`}
       </Heading2>
       <ItemCardList>
@@ -164,6 +187,27 @@ function UserItemsPage() {
           />
         ))}
       </ItemCardList>
+    </Box>
+  );
+}
+
+function NeopetsStarIcon(props) {
+  return (
+    <Box {...props}>
+      <svg
+        version="1.0"
+        xmlns="http://www.w3.org/2000/svg"
+        width="1.2em"
+        height="1.2em"
+        viewBox="0 0 160 160"
+        preserveAspectRatio="xMidYMid meet"
+      >
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
+          d="M85 129 L60 108 40 119 C11 135,7 132,24 108 L39 86 23 68 L6 50 32 50 L58 50 73 29 L88 8 94 29 L101 50 128 50 L155 50 131 68 L107 86 113 118 C121 155,118 156,85 129 "
+        />
+      </svg>
     </Box>
   );
 }
