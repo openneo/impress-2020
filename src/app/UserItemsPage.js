@@ -1,6 +1,6 @@
 import React from "react";
 import { Badge, Box, Center, Wrap } from "@chakra-ui/core";
-import { EmailIcon } from "@chakra-ui/icons";
+import { CheckIcon, EmailIcon, StarIcon } from "@chakra-ui/icons";
 import gql from "graphql-tag";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@apollo/client";
@@ -96,6 +96,13 @@ function UserItemsPage() {
   const showYouWantThisBadge = (item) =>
     !isCurrentUser && itemIdsYouWant.has(item.id);
 
+  const numYouOwnThisBadges = data.user.itemsTheyWant.filter(
+    showYouOwnThisBadge
+  ).length;
+  const numYouWantThisBadges = data.user.itemsTheyOwn.filter(
+    showYouWantThisBadge
+  ).length;
+
   const sortedItemsTheyOwn = [...data.user.itemsTheyOwn].sort((a, b) => {
     // This is a cute sort hack. We sort first by, bringing "You want this!" to
     // the top, and then sorting by name _within_ those two groups.
@@ -120,29 +127,59 @@ function UserItemsPage() {
       <Heading1>
         {isCurrentUser ? "Your items" : `${data.user.username}'s items`}
       </Heading1>
-      {data.user.contactNeopetsUsername && (
-        <Wrap spacing="2" opacity="0.7">
+      <Wrap spacing="2" opacity="0.7">
+        {data.user.contactNeopetsUsername && (
           <Badge
             as="a"
             href={`http://www.neopets.com/userlookup.phtml?user=${data.user.contactNeopetsUsername}`}
-            display="inline-flex"
+            display="flex"
             alignItems="center"
           >
             <NeopetsStarIcon marginRight="1" />
             {data.user.contactNeopetsUsername}
           </Badge>
+        )}
+        {data.user.contactNeopetsUsername && (
           <Badge
             as="a"
             href={`http://www.neopets.com/neomessages.phtml?type=send&recipient=${data.user.contactNeopetsUsername}`}
-            display="inline-flex"
+            display="flex"
             alignItems="center"
           >
             <EmailIcon marginRight="1" />
             Neomail
           </Badge>
-        </Wrap>
-      )}
-      <Heading2 marginTop="4" marginBottom="6">
+        )}
+        {numYouOwnThisBadges > 0 && (
+          <Badge
+            as="a"
+            href="#wanted-items"
+            colorScheme="green"
+            display="flex"
+            alignItems="center"
+          >
+            <CheckIcon marginRight="1" />
+            {numYouOwnThisBadges > 1
+              ? `${numYouOwnThisBadges} items you own`
+              : "1 item you own"}
+          </Badge>
+        )}
+        {numYouWantThisBadges > 0 && (
+          <Badge
+            as="a"
+            href="#owned-items"
+            colorScheme="blue"
+            display="flex"
+            alignItems="center"
+          >
+            <StarIcon marginRight="1" />
+            {numYouWantThisBadges > 1
+              ? `${numYouWantThisBadges} items you want`
+              : "1 item you want"}
+          </Badge>
+        )}
+      </Wrap>
+      <Heading2 id="owned-items" marginTop="4" marginBottom="6">
         {isCurrentUser ? "Items you own" : `Items ${data.user.username} owns`}
       </Heading2>
       <ItemCardList>
@@ -166,7 +203,7 @@ function UserItemsPage() {
         })}
       </ItemCardList>
 
-      <Heading2 marginBottom="6" marginTop="8">
+      <Heading2 id="wanted-items" marginBottom="6" marginTop="8">
         {isCurrentUser ? "Items you want" : `Items ${data.user.username} wants`}
       </Heading2>
       <ItemCardList>

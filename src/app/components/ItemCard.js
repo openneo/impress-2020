@@ -270,7 +270,7 @@ export function YouOwnThisBadge({ variant = "long" }) {
       alignItems="center"
       minHeight="1.5em"
     >
-      <CheckIcon aria-label="Star" />
+      <CheckIcon aria-label="Check" />
       {variant === "long" && <Box marginLeft="1">You own this!</Box>}
     </ItemBadge>
   );
