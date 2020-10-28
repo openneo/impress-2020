@@ -264,7 +264,7 @@ export async function loadMovieLibrary(librarySrc) {
 export function buildMovieClip(library, libraryUrl) {
   let constructorName;
   try {
-    const fileName = libraryUrl.split("/").pop();
+    const fileName = decodeURI(libraryUrl).split("/").pop();
     const fileNameWithoutExtension = fileName.split(".")[0];
     constructorName = fileNameWithoutExtension.replace(/[ -]/g, "");
     if (constructorName.match(/^[0-9]/)) {
