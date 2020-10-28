@@ -34,6 +34,7 @@ export function Delay({ children, ms = 300 }) {
 export function Heading1({ children, ...props }) {
   return (
     <Heading
+      as="h1"
       size="2xl"
       fontFamily="Delicious, sans-serif"
       fontWeight="800"
@@ -51,7 +52,26 @@ export function Heading1({ children, ...props }) {
 export function Heading2({ children, ...props }) {
   return (
     <Heading
+      as="h2"
       size="xl"
+      fontFamily="Delicious, sans-serif"
+      fontWeight="700"
+      {...props}
+    >
+      {children}
+    </Heading>
+  );
+}
+
+/**
+ * Heading2 is a minor subheading, with our DTI-brand-y Delicious font and some
+ * special typographical styles!!
+ */
+export function Heading3({ children, ...props }) {
+  return (
+    <Heading
+      as="h3"
+      size="lg"
       fontFamily="Delicious, sans-serif"
       fontWeight="700"
       {...props}

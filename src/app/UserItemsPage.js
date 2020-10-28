@@ -1,12 +1,12 @@
 import React from "react";
-import { Badge, Box, Center, Wrap } from "@chakra-ui/core";
+import { Badge, Box, Center, Wrap, VStack } from "@chakra-ui/core";
 import { CheckIcon, EmailIcon, StarIcon } from "@chakra-ui/icons";
 import gql from "graphql-tag";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@apollo/client";
 
 import HangerSpinner from "./components/HangerSpinner";
-import { Heading1, Heading2 } from "./util";
+import { Heading1, Heading2, Heading3 } from "./util";
 import ItemCard, {
   ItemBadgeList,
   ItemCardList,
@@ -32,27 +32,22 @@ function UserItemsPage() {
           username
           contactNeopetsUsername
 
-          itemsTheyOwn {
+          closetLists {
             id
-            isNc
             name
-            thumbnailUrl
-            currentUserWantsThis
-            allOccupiedZones {
+            ownsOrWantsItems
+            isDefaultList
+            items {
               id
-              label @client
-            }
-          }
-
-          itemsTheyWant {
-            id
-            isNc
-            name
-            thumbnailUrl
-            currentUserOwnsThis
-            allOccupiedZones {
-              id
-              label @client
+              isNc
+              name
+              thumbnailUrl
+              currentUserOwnsThis
+              currentUserWantsThis
+              allOccupiedZones {
+                id
+                label @client
+              }
             }
           }
         }
@@ -73,36 +68,48 @@ function UserItemsPage() {
     return <Box color="red.400">{error.message}</Box>;
   }
 
-  // This helps you compare your owns/wants to other users! If they own
-  // something, and you want it, we say "You want this!". And if they want
-  // something, and you own it, we say "You own this!".
-  const showYouOwnThisBadge = (item) =>
-    !isCurrentUser && item.currentUserOwnsThis;
-  const showYouWantThisBadge = (item) =>
-    !isCurrentUser && item.currentUserWantsThis;
+  if (data.user == null) {
+    return <Box color="red.400">User not found</Box>;
+  }
 
-  const numYouOwnThisBadges = data.user.itemsTheyWant.filter(
-    showYouOwnThisBadge
-  ).length;
-  const numYouWantThisBadges = data.user.itemsTheyOwn.filter(
-    showYouWantThisBadge
-  ).length;
+  const listsOfOwnedItems = data.user.closetLists.filter(
+    (l) => l.ownsOrWantsItems === "OWNS"
+  );
+  const listsOfWantedItems = data.user.closetLists.filter(
+    (l) => l.ownsOrWantsItems === "WANTS"
+  );
 
-  const sortedItemsTheyOwn = [...data.user.itemsTheyOwn].sort((a, b) => {
-    // This is a cute sort hack. We sort first by, bringing "You want this!" to
-    // the top, and then sorting by name _within_ those two groups.
-    const aName = `${showYouWantThisBadge(a) ? "000" : "999"} ${a.name}`;
-    const bName = `${showYouWantThisBadge(b) ? "000" : "999"} ${b.name}`;
+  // Sort default list to the end, then sort alphabetically. We use a similar
+  // sort hack that we use for sorting items in ClosetList!
+  listsOfOwnedItems.sort((a, b) => {
+    const aName = `${a.isDefaultList ? "ZZZ" : "AAA"} ${a.name}`;
+    const bName = `${b.isDefaultList ? "ZZZ" : "AAA"} ${b.name}`;
+    return aName.localeCompare(bName);
+  });
+  listsOfWantedItems.sort((a, b) => {
+    const aName = `${a.isDefaultList ? "ZZZ" : "AAA"} ${a.name}`;
+    const bName = `${b.isDefaultList ? "ZZZ" : "AAA"} ${b.name}`;
     return aName.localeCompare(bName);
   });
 
-  const sortedItemsTheyWant = [...data.user.itemsTheyWant].sort((a, b) => {
-    // This is a cute sort hack. We sort first by, bringing "You own this!" to
-    // the top, and then sorting by name _within_ those two groups.
-    const aName = `${showYouOwnThisBadge(a) ? "000" : "999"} ${a.name}`;
-    const bName = `${showYouOwnThisBadge(b) ? "000" : "999"} ${b.name}`;
-    return aName.localeCompare(bName);
-  });
+  const allItemsTheyOwn = listsOfOwnedItems.map((l) => l.items).flat();
+  const allItemsTheyWant = listsOfWantedItems.map((l) => l.items).flat();
+
+  const itemsTheyOwnThatYouWant = allItemsTheyOwn.filter(
+    (i) => i.currentUserWantsThis
+  );
+  const itemsTheyWantThatYouOwn = allItemsTheyWant.filter(
+    (i) => i.currentUserOwnsThis
+  );
+
+  // It's important to de-duplicate these! Otherwise, if the same item appears
+  // in multiple lists, we'll double-count it.
+  const numItemsTheyOwnThatYouWant = new Set(
+    itemsTheyOwnThatYouWant.map((i) => i.id)
+  ).size;
+  const numItemsTheyWantThatYouOwn = new Set(
+    itemsTheyWantThatYouOwn.map((i) => i.id)
+  ).size;
 
   return (
     <Box>
@@ -140,7 +147,7 @@ function UserItemsPage() {
          * _this user_ owns, so they come first. I think it's also probably a
          * more natural train of thought: you come to someone's list _wanting_
          * something, and _then_ thinking about what you can offer. */}
-        {numYouWantThisBadges > 0 && (
+        {!isCurrentUser && numItemsTheyOwnThatYouWant > 0 && (
           <Badge
             as="a"
             href="#owned-items"
@@ -149,12 +156,12 @@ function UserItemsPage() {
             alignItems="center"
           >
             <StarIcon marginRight="1" />
-            {numYouWantThisBadges > 1
-              ? `${numYouWantThisBadges} items you want`
+            {numItemsTheyOwnThatYouWant > 1
+              ? `${numItemsTheyOwnThatYouWant} items you want`
               : "1 item you want"}
           </Badge>
         )}
-        {numYouOwnThisBadges > 0 && (
+        {!isCurrentUser && numItemsTheyWantThatYouOwn > 0 && (
           <Badge
             as="a"
             href="#wanted-items"
@@ -163,25 +170,84 @@ function UserItemsPage() {
             alignItems="center"
           >
             <CheckIcon marginRight="1" />
-            {numYouOwnThisBadges > 1
-              ? `${numYouOwnThisBadges} items you own`
+            {numItemsTheyWantThatYouOwn > 1
+              ? `${numItemsTheyWantThatYouOwn} items you own`
               : "1 item you own"}
           </Badge>
         )}
       </Wrap>
-      <Heading2 id="owned-items" marginTop="4" marginBottom="6">
+      <Heading2 id="owned-items" marginTop="4" marginBottom="2">
         {isCurrentUser ? "Items you own" : `Items ${data.user.username} owns`}
       </Heading2>
-      <ItemCardList>
-        {sortedItemsTheyOwn.map((item) => {
-          return (
+      <VStack spacing="8" alignItems="stretch">
+        {listsOfOwnedItems.map((closetList) => (
+          <ClosetList
+            key={closetList.id}
+            closetList={closetList}
+            isCurrentUser={isCurrentUser}
+            showHeading={listsOfOwnedItems.length > 1}
+          />
+        ))}
+      </VStack>
+
+      <Heading2 id="wanted-items" marginTop="10" marginBottom="2">
+        {isCurrentUser ? "Items you want" : `Items ${data.user.username} wants`}
+      </Heading2>
+      <VStack spacing="4" alignItems="stretch">
+        {listsOfWantedItems.map((closetList) => (
+          <ClosetList
+            key={closetList.id}
+            closetList={closetList}
+            isCurrentUser={isCurrentUser}
+            showHeading={listsOfWantedItems.length > 1}
+          />
+        ))}
+      </VStack>
+    </Box>
+  );
+}
+
+function ClosetList({ closetList, isCurrentUser, showHeading }) {
+  const hasYouWantThisBadge = (item) =>
+    !isCurrentUser &&
+    closetList.ownsOrWantsItems === "OWNS" &&
+    item.currentUserWantsThis;
+  const hasYouOwnThisBadge = (item) =>
+    !isCurrentUser &&
+    closetList.ownsOrWantsItems === "WANTS" &&
+    item.currentUserOwnsThis;
+  const hasAnyTradeBadge = (item) =>
+    hasYouOwnThisBadge(item) || hasYouWantThisBadge(item);
+
+  const sortedItems = [...closetList.items].sort((a, b) => {
+    // This is a cute sort hack. We sort first by, bringing "You own/want
+    // this!" to the top, and then sorting by name _within_ those two groups.
+    const aName = `${hasAnyTradeBadge(a) ? "000" : "999"} ${a.name}`;
+    const bName = `${hasAnyTradeBadge(b) ? "000" : "999"} ${b.name}`;
+    return aName.localeCompare(bName);
+  });
+
+  return (
+    <Box>
+      {showHeading && (
+        <Heading3
+          marginBottom="2"
+          fontStyle={closetList.isDefaultList ? "italic" : "normal"}
+        >
+          {closetList.name}
+        </Heading3>
+      )}
+      {sortedItems.length > 0 ? (
+        <ItemCardList>
+          {sortedItems.map((item) => (
             <ItemCard
               key={item.id}
               item={item}
               badges={
                 <ItemBadgeList>
                   {item.isNc ? <NcBadge /> : <NpBadge />}
-                  {showYouWantThisBadge(item) && <YouWantThisBadge />}
+                  {hasYouOwnThisBadge(item) && <YouOwnThisBadge />}
+                  {hasYouWantThisBadge(item) && <YouWantThisBadge />}
                   <ZoneBadgeList
                     zones={item.allOccupiedZones}
                     variant="occupies"
@@ -189,31 +255,11 @@ function UserItemsPage() {
                 </ItemBadgeList>
               }
             />
-          );
-        })}
-      </ItemCardList>
-
-      <Heading2 id="wanted-items" marginBottom="6" marginTop="8">
-        {isCurrentUser ? "Items you want" : `Items ${data.user.username} wants`}
-      </Heading2>
-      <ItemCardList>
-        {sortedItemsTheyWant.map((item) => (
-          <ItemCard
-            key={item.id}
-            item={item}
-            badges={
-              <ItemBadgeList>
-                {item.isNc ? <NcBadge /> : <NpBadge />}
-                {showYouOwnThisBadge(item) && <YouOwnThisBadge />}
-                <ZoneBadgeList
-                  zones={item.allOccupiedZones}
-                  variant="occupies"
-                />
-              </ItemBadgeList>
-            }
-          />
-        ))}
-      </ItemCardList>
+          ))}
+        </ItemCardList>
+      ) : (
+        <Box fontStyle="italic">This list is empty!</Box>
+      )}
     </Box>
   );
 }

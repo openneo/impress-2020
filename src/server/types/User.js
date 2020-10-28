@@ -168,7 +168,7 @@ const resolvers = {
       if (isCurrentUser || user.ownedClosetHangersVisibility >= 1) {
         closetListNodes.push({
           id: `user-${id}-default-list-OWNS`,
-          name: "(Not in a list)",
+          name: "Not in a list",
           ownsOrWantsItems: "OWNS",
           isDefaultList: true,
           items: allClosetHangers
@@ -180,7 +180,7 @@ const resolvers = {
       if (isCurrentUser || user.wantedClosetHangersVisibility >= 1) {
         closetListNodes.push({
           id: `user-${id}-default-list-WANTS`,
-          name: "(Not in a list)",
+          name: "Not in a list",
           ownsOrWantsItems: "WANTS",
           isDefaultList: true,
           items: allClosetHangers
