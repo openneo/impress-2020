@@ -135,20 +135,11 @@ function UserItemsPage() {
             Neomail
           </Badge>
         )}
-        {numYouOwnThisBadges > 0 && (
-          <Badge
-            as="a"
-            href="#wanted-items"
-            colorScheme="green"
-            display="flex"
-            alignItems="center"
-          >
-            <CheckIcon marginRight="1" />
-            {numYouOwnThisBadges > 1
-              ? `${numYouOwnThisBadges} items you own`
-              : "1 item you own"}
-          </Badge>
-        )}
+        {/* Usually I put "Own" before "Want", but this matches the natural
+         * order on the page: the _matches_ for things you want are things
+         * _this user_ owns, so they come first. I think it's also probably a
+         * more natural train of thought: you come to someone's list _wanting_
+         * something, and _then_ thinking about what you can offer. */}
         {numYouWantThisBadges > 0 && (
           <Badge
             as="a"
@@ -161,6 +152,20 @@ function UserItemsPage() {
             {numYouWantThisBadges > 1
               ? `${numYouWantThisBadges} items you want`
               : "1 item you want"}
+          </Badge>
+        )}
+        {numYouOwnThisBadges > 0 && (
+          <Badge
+            as="a"
+            href="#wanted-items"
+            colorScheme="green"
+            display="flex"
+            alignItems="center"
+          >
+            <CheckIcon marginRight="1" />
+            {numYouOwnThisBadges > 1
+              ? `${numYouOwnThisBadges} items you own`
+              : "1 item you own"}
           </Badge>
         )}
       </Wrap>
