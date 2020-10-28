@@ -1,9 +1,12 @@
 import React from "react";
+import { css } from "emotion";
 import { Badge, Box, Center, Wrap, VStack } from "@chakra-ui/core";
 import { CheckIcon, EmailIcon, StarIcon } from "@chakra-ui/icons";
 import gql from "graphql-tag";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@apollo/client";
+import SimpleMarkdown from "simple-markdown";
+import DOMPurify from "dompurify";
 
 import HangerSpinner from "./components/HangerSpinner";
 import { Heading1, Heading2, Heading3 } from "./util";
@@ -35,6 +38,7 @@ function UserItemsPage() {
           closetLists {
             id
             name
+            description
             ownsOrWantsItems
             isDefaultList
             items {
@@ -237,6 +241,11 @@ function ClosetList({ closetList, isCurrentUser, showHeading }) {
           {closetList.name}
         </Heading3>
       )}
+      {closetList.description && (
+        <Box marginBottom="2">
+          <MarkdownAndSafeHTML>{closetList.description}</MarkdownAndSafeHTML>
+        </Box>
+      )}
       {sortedItems.length > 0 ? (
         <ItemCardList>
           {sortedItems.map((item) => (
@@ -261,6 +270,77 @@ function ClosetList({ closetList, isCurrentUser, showHeading }) {
         <Box fontStyle="italic">This list is empty!</Box>
       )}
     </Box>
+  );
+}
+
+const unsafeMarkdownRules = {
+  autolink: SimpleMarkdown.defaultRules.autolink,
+  br: SimpleMarkdown.defaultRules.br,
+  em: SimpleMarkdown.defaultRules.em,
+  escape: SimpleMarkdown.defaultRules.escape,
+  link: SimpleMarkdown.defaultRules.link,
+  list: SimpleMarkdown.defaultRules.list,
+  newline: SimpleMarkdown.defaultRules.newline,
+  paragraph: SimpleMarkdown.defaultRules.paragraph,
+  strong: SimpleMarkdown.defaultRules.strong,
+  u: SimpleMarkdown.defaultRules.u,
+
+  // DANGER: We override Markdown's `text` rule to _not_ escape HTML. This is
+  // intentional, to allow users to embed some limited HTML. DOMPurify is
+  // responsible for sanitizing the HTML afterward. Do not use these rules
+  // without sanitizing!!
+  text: {
+    ...SimpleMarkdown.defaultRules.text,
+    html: (node) => node.content,
+  },
+};
+const markdownParser = SimpleMarkdown.parserFor(unsafeMarkdownRules);
+const unsafeMarkdownOutput = SimpleMarkdown.htmlFor(
+  SimpleMarkdown.ruleOutput(unsafeMarkdownRules, "html")
+);
+
+function MarkdownAndSafeHTML({ children }) {
+  const htmlAndMarkdown = children;
+
+  const unsafeHtml = unsafeMarkdownOutput(markdownParser(htmlAndMarkdown));
+
+  const sanitizedHtml = DOMPurify.sanitize(unsafeHtml, {
+    ALLOWED_TAGS: [
+      "b",
+      "i",
+      "u",
+      "strong",
+      "em",
+      "a",
+      "p",
+      "div",
+      "br",
+      "ol",
+      "ul",
+      "li",
+    ],
+    ALLOWED_ATTR: ["href", "class"],
+    // URL must either start with an approved host (external link), or with a
+    // slash or hash (internal link).
+    ALLOWED_URI_REGEXP: /^https?:\/\/(impress\.openneo\.net|impress-2020\.openneo\.net|www\.neopets\.com|neopets\.com)\/|^[\/#]/,
+  });
+
+  return (
+    <Box
+      dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+      className={css`
+        .paragraph,
+        ol,
+        ul {
+          margin-bottom: 1em;
+        }
+
+        ol,
+        ul {
+          margin-left: 2em;
+        }
+      `}
+    ></Box>
   );
 }
 

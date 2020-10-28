@@ -21,6 +21,9 @@ const typeDefs = gql`
     id: ID!
     name: String
 
+    # A user-customized description. May contain Markdown and limited HTML.
+    description: String
+
     # Whether this is a list of items they own, or items they want.
     ownsOrWantsItems: OwnsOrWants!
 
@@ -158,6 +161,7 @@ const resolvers = {
         .map((closetList) => ({
           id: closetList.id,
           name: closetList.name,
+          description: closetList.description,
           ownsOrWantsItems: closetList.hangersOwned ? "OWNS" : "WANTS",
           isDefaultList: false,
           items: allClosetHangers
@@ -169,6 +173,7 @@ const resolvers = {
         closetListNodes.push({
           id: `user-${id}-default-list-OWNS`,
           name: "Not in a list",
+          description: null,
           ownsOrWantsItems: "OWNS",
           isDefaultList: true,
           items: allClosetHangers
@@ -181,6 +186,7 @@ const resolvers = {
         closetListNodes.push({
           id: `user-${id}-default-list-WANTS`,
           name: "Not in a list",
+          description: null,
           ownsOrWantsItems: "WANTS",
           isDefaultList: true,
           items: allClosetHangers
