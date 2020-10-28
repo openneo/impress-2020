@@ -399,4 +399,60 @@ describe("User", () => {
       ]
     `);
   });
+
+  it("gets public closet lists, but not private, for other users", async () => {
+    const res = await query({
+      query: gql`
+        query {
+          user(id: "44743") {
+            id
+            username
+            closetLists {
+              id
+              name
+              ownsOrWantsItems
+              isDefaultList
+              items {
+                id
+                name
+              }
+            }
+          }
+        }
+      `,
+    });
+
+    expect(res).toHaveNoErrors();
+    expect(res.data).toMatchSnapshot("data");
+    expect(getDbCalls()).toMatchSnapshot("db");
+  });
+
+  it("gets public and private closet lists for current user", async () => {
+    await logInAsTestUser();
+
+    const res = await query({
+      query: gql`
+        query {
+          user(id: "44743") {
+            id
+            username
+            closetLists {
+              id
+              name
+              ownsOrWantsItems
+              isDefaultList
+              items {
+                id
+                name
+              }
+            }
+          }
+        }
+      `,
+    });
+
+    expect(res).toHaveNoErrors();
+    expect(res.data).toMatchSnapshot("data");
+    expect(getDbCalls()).toMatchSnapshot("db");
+  });
 });

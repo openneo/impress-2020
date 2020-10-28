@@ -1,12 +1,38 @@
 const { gql } = require("apollo-server");
 
 const typeDefs = gql`
+  enum OwnsOrWants {
+    OWNS
+    WANTS
+  }
+
   type User {
     id: ID!
     username: String!
     contactNeopetsUsername: String
+
+    closetLists: [ClosetList!]!
+
     itemsTheyOwn: [Item!]!
     itemsTheyWant: [Item!]!
+  }
+
+  type ClosetList {
+    id: ID!
+    name: String
+
+    # Whether this is a list of items they own, or items they want.
+    ownsOrWantsItems: OwnsOrWants!
+
+    # Each user has a "default list" of items they own/want. When users click
+    # the Own/Want button on the item page, items go here automatically. (On
+    # the backend, this is managed as the hangers having a null list ID.)
+    #
+    # This field is true if the list is the default list, so we can style it
+    # differently and change certain behaviors (e.g. can't be deleted).
+    isDefaultList: Boolean!
+
+    items: [Item!]!
   }
 
   extend type Query {
@@ -108,6 +134,62 @@ const resolvers = {
         name: h.itemName,
       }));
       return items;
+    },
+
+    closetLists: async (
+      { id },
+      _,
+      {
+        currentUserId,
+        userLoader,
+        userClosetListsLoader,
+        userClosetHangersLoader,
+      }
+    ) => {
+      const isCurrentUser = currentUserId === id;
+      const [allClosetHangers, closetLists, user] = await Promise.all([
+        userClosetHangersLoader.load(id),
+        userClosetListsLoader.load(id),
+        userLoader.load(id),
+      ]);
+
+      const closetListNodes = closetLists
+        .filter((closetList) => isCurrentUser || closetList.visibility >= 1)
+        .map((closetList) => ({
+          id: closetList.id,
+          name: closetList.name,
+          ownsOrWantsItems: closetList.hangersOwned ? "OWNS" : "WANTS",
+          isDefaultList: false,
+          items: allClosetHangers
+            .filter((h) => h.listId === closetList.id)
+            .map((h) => ({ id: h.itemId })),
+        }));
+
+      if (isCurrentUser || user.ownedClosetHangersVisibility >= 1) {
+        closetListNodes.push({
+          id: `user-${id}-default-list-OWNS`,
+          name: "(Not in a list)",
+          ownsOrWantsItems: "OWNS",
+          isDefaultList: true,
+          items: allClosetHangers
+            .filter((h) => h.listId == null && h.owned)
+            .map((h) => ({ id: h.itemId })),
+        });
+      }
+
+      if (isCurrentUser || user.wantedClosetHangersVisibility >= 1) {
+        closetListNodes.push({
+          id: `user-${id}-default-list-WANTS`,
+          name: "(Not in a list)",
+          ownsOrWantsItems: "WANTS",
+          isDefaultList: true,
+          items: allClosetHangers
+            .filter((h) => h.listId == null && !h.owned)
+            .map((h) => ({ id: h.itemId })),
+        });
+      }
+
+      return closetListNodes;
     },
   },
 
