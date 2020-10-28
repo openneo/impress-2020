@@ -30,7 +30,7 @@ async function getUserIdFromToken(token) {
       algorithms: ["RS256"],
     });
   } catch (e) {
-    console.error(`Invalid auth token: ${token}\n${e}`);
+    console.error(`Invalid auth token: ${token}`, e);
     return null;
   }
 

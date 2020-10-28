@@ -366,18 +366,32 @@ describe("Item", () => {
           },
           Object {
             "currentUserOwnsThis": false,
-            "currentUserWantsThis": false,
+            "currentUserWantsThis": true,
             "id": "39945",
           },
           Object {
-            "currentUserOwnsThis": false,
+            "currentUserOwnsThis": true,
             "currentUserWantsThis": false,
             "id": "39948",
           },
         ],
       }
     `);
-    expect(getDbCalls()).toMatchInlineSnapshot(`Array []`);
+    expect(getDbCalls()).toMatchInlineSnapshot(`
+      Array [
+        Array [
+          "SELECT closet_hangers.*, item_translations.name as item_name FROM closet_hangers
+             INNER JOIN items ON items.id = closet_hangers.item_id
+             INNER JOIN item_translations ON
+               item_translations.item_id = items.id AND locale = \\"en\\"
+             WHERE user_id IN (?)
+             ORDER BY item_name",
+          Array [
+            "44743",
+          ],
+        ],
+      ]
+    `);
   });
 
   it("does not own/want items if not logged in", async () => {

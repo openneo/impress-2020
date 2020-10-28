@@ -5,7 +5,8 @@ const { ApolloServer } = require("apollo-server");
 const { createTestClient } = require("apollo-server-testing");
 const { AuthenticationClient } = require("auth0");
 
-const { getUserIdFromToken } = require("../auth");
+const auth = require("../auth");
+const actualAuth = jest.requireActual("../auth");
 const connectToDb = require("../db");
 const actualConnectToDb = jest.requireActual("../db");
 const { config } = require("../index");
@@ -74,13 +75,15 @@ beforeAll(() => {
   });
 
   // Mock out a current "now" date, for consistent snapshots
-  const NOW = new Date("2020-01-01T00:00:00.000Z");
+  const ActualDate = Date;
+  const NOW = new ActualDate("2020-01-01T00:00:00.000Z");
   jest.spyOn(global, "Date").mockImplementation(() => NOW);
+  Date.now = () => NOW.getTime();
 });
 beforeEach(() => {
   // Restore auth values to default state.
   accessTokenForQueries = null;
-  getUserIdFromToken.mockRestore();
+  auth.getUserIdFromToken.mockImplementation(actualAuth.getUserIdFromToken);
 
   // Restore db values to default state.
   if (dbExecuteFn) {
@@ -131,7 +134,7 @@ async function logInAsTestUser() {
     );
 
     // Mock the server's auth code to return user ID 1.
-    getUserIdFromToken.mockReturnValue("1");
+    auth.getUserIdFromToken.mockImplementation(async () => "1");
     accessTokenForQueries = "mock-access-token-test-user-1";
   } else {
     throw new Error(`unexpected dbEnvironment ${dbEnvironment}`);
