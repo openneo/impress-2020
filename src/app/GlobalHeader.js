@@ -155,26 +155,31 @@ function UserNavBarSection() {
 }
 
 function NavLinksList({ children }) {
-  const navStyle = useBreakpointValue({ base: "menu", md: "buttons" });
-
-  if (navStyle === "menu") {
-    return (
-      <Menu>
-        <MenuButton>
-          <NavButton icon={<HamburgerIcon />} />
-        </MenuButton>
-        <MenuList>{children}</MenuList>
-      </Menu>
-    );
-  } else {
-    return children;
-  }
+  return (
+    <>
+      <Box display={{ base: "block", md: "none" }}>
+        <Menu>
+          <MenuButton>
+            <NavButton icon={<HamburgerIcon />} />
+          </MenuButton>
+          <MenuList>
+            {React.Children.map(children, (c) =>
+              React.cloneElement(c, { listVariant: "menu" })
+            )}
+          </MenuList>
+        </Menu>
+      </Box>
+      <HStack spacing="2" display={{ base: "none", md: "flex" }}>
+        {React.Children.map(children, (c) =>
+          React.cloneElement(c, { listVariant: "buttons" })
+        )}
+      </HStack>
+    </>
+  );
 }
 
-function NavLinkItem(props) {
-  const navStyle = useBreakpointValue({ base: "menu", md: "buttons" });
-
-  if (navStyle === "menu") {
+function NavLinkItem({ listVariant, ...props }) {
+  if (listVariant === "menu") {
     return <MenuItem {...props} />;
   } else {
     return <NavButton {...props} />;
