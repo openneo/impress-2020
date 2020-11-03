@@ -117,9 +117,11 @@ function UserItemsPage() {
 
   return (
     <Box>
-      <Box float="right">
-        <WIPCallout details="These lists are simplified and read-only for now. Full power coming soon!" />
-      </Box>
+      {isCurrentUser && (
+        <Box float="right">
+          <WIPCallout details="These lists are read-only for now. To edit, head back to Classic DTI!" />
+        </Box>
+      )}
       <Heading1>
         {isCurrentUser ? "Your items" : `${data.user.username}'s items`}
       </Heading1>
