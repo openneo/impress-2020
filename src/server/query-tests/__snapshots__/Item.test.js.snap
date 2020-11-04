@@ -852,10 +852,6 @@ Object {
       "name": "Dyeworks Cream: Cosy Baby Onesie",
       "speciesThatNeedModels": Array [
         Object {
-          "id": "4",
-          "name": "Bori",
-        },
-        Object {
           "id": "7",
           "name": "Chia",
         },
@@ -866,10 +862,6 @@ Object {
         Object {
           "id": "11",
           "name": "Elephante",
-        },
-        Object {
-          "id": "13",
-          "name": "Flotsam",
         },
         Object {
           "id": "15",
@@ -958,10 +950,6 @@ Object {
       "name": "Dyeworks Pink: Cosy Baby Onesie",
       "speciesThatNeedModels": Array [
         Object {
-          "id": "4",
-          "name": "Bori",
-        },
-        Object {
           "id": "7",
           "name": "Chia",
         },
@@ -972,10 +960,6 @@ Object {
         Object {
           "id": "12",
           "name": "Eyrie",
-        },
-        Object {
-          "id": "13",
-          "name": "Flotsam",
         },
         Object {
           "id": "16",
@@ -996,10 +980,6 @@ Object {
         Object {
           "id": "23",
           "name": "Kau",
-        },
-        Object {
-          "id": "24",
-          "name": "Kiko",
         },
         Object {
           "id": "25",
@@ -1076,14 +1056,6 @@ Object {
       "name": "Dyeworks Black: Cosy Baby Onesie",
       "speciesThatNeedModels": Array [
         Object {
-          "id": "4",
-          "name": "Bori",
-        },
-        Object {
-          "id": "7",
-          "name": "Chia",
-        },
-        Object {
           "id": "8",
           "name": "Chomby",
         },
@@ -1098,10 +1070,6 @@ Object {
         Object {
           "id": "12",
           "name": "Eyrie",
-        },
-        Object {
-          "id": "13",
-          "name": "Flotsam",
         },
         Object {
           "id": "15",
@@ -1364,10 +1332,6 @@ Object {
           "name": "Tuskaninny",
         },
         Object {
-          "id": "51",
-          "name": "Wocky",
-        },
-        Object {
           "id": "52",
           "name": "Xweetok",
         },
@@ -1600,10 +1564,6 @@ Object {
           "name": "Bruce",
         },
         Object {
-          "id": "6",
-          "name": "Buzz",
-        },
-        Object {
           "id": "7",
           "name": "Chia",
         },
@@ -1660,10 +1620,6 @@ Object {
           "name": "Lenny",
         },
         Object {
-          "id": "34",
-          "name": "Moehog",
-        },
-        Object {
           "id": "36",
           "name": "Nimmo",
         },
@@ -1688,10 +1644,6 @@ Object {
           "name": "Tuskaninny",
         },
         Object {
-          "id": "51",
-          "name": "Wocky",
-        },
-        Object {
           "id": "52",
           "name": "Xweetok",
         },
@@ -1712,10 +1664,6 @@ Object {
         Object {
           "id": "5",
           "name": "Bruce",
-        },
-        Object {
-          "id": "6",
-          "name": "Buzz",
         },
         Object {
           "id": "7",
@@ -1750,10 +1698,6 @@ Object {
           "name": "Jetsam",
         },
         Object {
-          "id": "21",
-          "name": "Jubjub",
-        },
-        Object {
           "id": "23",
           "name": "Kau",
         },
@@ -1774,24 +1718,12 @@ Object {
           "name": "Lenny",
         },
         Object {
-          "id": "32",
-          "name": "Lutari",
-        },
-        Object {
-          "id": "34",
-          "name": "Moehog",
-        },
-        Object {
           "id": "36",
           "name": "Nimmo",
         },
         Object {
           "id": "38",
           "name": "Peophin",
-        },
-        Object {
-          "id": "40",
-          "name": "Pteri",
         },
         Object {
           "id": "41",
@@ -1808,10 +1740,6 @@ Object {
         Object {
           "id": "48",
           "name": "Tuskaninny",
-        },
-        Object {
-          "id": "51",
-          "name": "Wocky",
         },
         Object {
           "id": "52",
@@ -1840,10 +1768,6 @@ Object {
           "name": "Bruce",
         },
         Object {
-          "id": "6",
-          "name": "Buzz",
-        },
-        Object {
           "id": "7",
           "name": "Chia",
         },
@@ -1896,10 +1820,6 @@ Object {
           "name": "Lenny",
         },
         Object {
-          "id": "34",
-          "name": "Moehog",
-        },
-        Object {
           "id": "36",
           "name": "Nimmo",
         },
@@ -1926,10 +1846,6 @@ Object {
         Object {
           "id": "48",
           "name": "Tuskaninny",
-        },
-        Object {
-          "id": "51",
-          "name": "Wocky",
         },
         Object {
           "id": "52",
@@ -1960,14 +1876,6 @@ Object {
           "name": "Acara",
         },
         Object {
-          "id": "2",
-          "name": "Aisha",
-        },
-        Object {
-          "id": "8",
-          "name": "Chomby",
-        },
-        Object {
           "id": "15",
           "name": "Gnorbu",
         },
@@ -1980,10 +1888,6 @@ Object {
           "name": "Jubjub",
         },
         Object {
-          "id": "22",
-          "name": "Kacheek",
-        },
-        Object {
           "id": "24",
           "name": "Kiko",
         },
@@ -1992,24 +1896,8 @@ Object {
           "name": "Krawk",
         },
         Object {
-          "id": "29",
-          "name": "Kyrii",
-        },
-        Object {
           "id": "33",
           "name": "Meerca",
-        },
-        Object {
-          "id": "34",
-          "name": "Moehog",
-        },
-        Object {
-          "id": "36",
-          "name": "Nimmo",
-        },
-        Object {
-          "id": "39",
-          "name": "Poogle",
         },
         Object {
           "id": "40",
@@ -2024,20 +1912,12 @@ Object {
           "name": "Skeith",
         },
         Object {
-          "id": "47",
-          "name": "Tonu",
-        },
-        Object {
           "id": "49",
           "name": "Uni",
         },
         Object {
           "id": "50",
           "name": "Usul",
-        },
-        Object {
-          "id": "51",
-          "name": "Wocky",
         },
         Object {
           "id": "54",
@@ -2054,18 +1934,6 @@ Object {
           "name": "Acara",
         },
         Object {
-          "id": "2",
-          "name": "Aisha",
-        },
-        Object {
-          "id": "4",
-          "name": "Bori",
-        },
-        Object {
-          "id": "8",
-          "name": "Chomby",
-        },
-        Object {
           "id": "15",
           "name": "Gnorbu",
         },
@@ -2078,20 +1946,12 @@ Object {
           "name": "Jubjub",
         },
         Object {
-          "id": "22",
-          "name": "Kacheek",
-        },
-        Object {
           "id": "24",
           "name": "Kiko",
         },
         Object {
           "id": "28",
           "name": "Krawk",
-        },
-        Object {
-          "id": "29",
-          "name": "Kyrii",
         },
         Object {
           "id": "32",
@@ -2102,14 +1962,6 @@ Object {
           "name": "Meerca",
         },
         Object {
-          "id": "34",
-          "name": "Moehog",
-        },
-        Object {
-          "id": "36",
-          "name": "Nimmo",
-        },
-        Object {
           "id": "40",
           "name": "Pteri",
         },
@@ -2118,20 +1970,8 @@ Object {
           "name": "Quiggle",
         },
         Object {
-          "id": "43",
-          "name": "Scorchio",
-        },
-        Object {
-          "id": "47",
-          "name": "Tonu",
-        },
-        Object {
           "id": "49",
           "name": "Uni",
-        },
-        Object {
-          "id": "50",
-          "name": "Usul",
         },
         Object {
           "id": "51",
@@ -2152,18 +1992,6 @@ Object {
           "name": "Acara",
         },
         Object {
-          "id": "2",
-          "name": "Aisha",
-        },
-        Object {
-          "id": "4",
-          "name": "Bori",
-        },
-        Object {
-          "id": "8",
-          "name": "Chomby",
-        },
-        Object {
           "id": "15",
           "name": "Gnorbu",
         },
@@ -2176,10 +2004,6 @@ Object {
           "name": "Jubjub",
         },
         Object {
-          "id": "22",
-          "name": "Kacheek",
-        },
-        Object {
           "id": "24",
           "name": "Kiko",
         },
@@ -2188,28 +2012,12 @@ Object {
           "name": "Krawk",
         },
         Object {
-          "id": "29",
-          "name": "Kyrii",
-        },
-        Object {
           "id": "32",
           "name": "Lutari",
         },
         Object {
           "id": "33",
           "name": "Meerca",
-        },
-        Object {
-          "id": "34",
-          "name": "Moehog",
-        },
-        Object {
-          "id": "36",
-          "name": "Nimmo",
-        },
-        Object {
-          "id": "39",
-          "name": "Poogle",
         },
         Object {
           "id": "40",
@@ -2222,10 +2030,6 @@ Object {
         Object {
           "id": "43",
           "name": "Scorchio",
-        },
-        Object {
-          "id": "47",
-          "name": "Tonu",
         },
         Object {
           "id": "49",
@@ -2638,132 +2442,6 @@ Object {
         Object {
           "id": "46",
           "name": "Techo",
-        },
-        Object {
-          "id": "48",
-          "name": "Tuskaninny",
-        },
-        Object {
-          "id": "49",
-          "name": "Uni",
-        },
-        Object {
-          "id": "52",
-          "name": "Xweetok",
-        },
-        Object {
-          "id": "53",
-          "name": "Yurble",
-        },
-      ],
-    },
-    Object {
-      "id": "42546",
-      "name": "Blue Scorchio Star Balloon With Screen",
-      "speciesThatNeedModels": Array [
-        Object {
-          "id": "4",
-          "name": "Bori",
-        },
-        Object {
-          "id": "5",
-          "name": "Bruce",
-        },
-        Object {
-          "id": "6",
-          "name": "Buzz",
-        },
-        Object {
-          "id": "11",
-          "name": "Elephante",
-        },
-        Object {
-          "id": "13",
-          "name": "Flotsam",
-        },
-        Object {
-          "id": "14",
-          "name": "Gelert",
-        },
-        Object {
-          "id": "15",
-          "name": "Gnorbu",
-        },
-        Object {
-          "id": "16",
-          "name": "Grarrl",
-        },
-        Object {
-          "id": "19",
-          "name": "Ixi",
-        },
-        Object {
-          "id": "20",
-          "name": "Jetsam",
-        },
-        Object {
-          "id": "21",
-          "name": "Jubjub",
-        },
-        Object {
-          "id": "23",
-          "name": "Kau",
-        },
-        Object {
-          "id": "25",
-          "name": "Koi",
-        },
-        Object {
-          "id": "26",
-          "name": "Korbat",
-        },
-        Object {
-          "id": "27",
-          "name": "Kougra",
-        },
-        Object {
-          "id": "30",
-          "name": "Lenny",
-        },
-        Object {
-          "id": "32",
-          "name": "Lutari",
-        },
-        Object {
-          "id": "34",
-          "name": "Moehog",
-        },
-        Object {
-          "id": "36",
-          "name": "Nimmo",
-        },
-        Object {
-          "id": "40",
-          "name": "Pteri",
-        },
-        Object {
-          "id": "41",
-          "name": "Quiggle",
-        },
-        Object {
-          "id": "42",
-          "name": "Ruki",
-        },
-        Object {
-          "id": "44",
-          "name": "Shoyru",
-        },
-        Object {
-          "id": "45",
-          "name": "Skeith",
-        },
-        Object {
-          "id": "46",
-          "name": "Techo",
-        },
-        Object {
-          "id": "47",
-          "name": "Tonu",
         },
         Object {
           "id": "48",
@@ -6414,6 +6092,10 @@ Object {
           "name": "Lutari",
         },
         Object {
+          "id": "36",
+          "name": "Nimmo",
+        },
+        Object {
           "id": "37",
           "name": "Ogrin",
         },
@@ -6726,8 +6408,16 @@ Object {
       "name": "MME25-S5a: Storage Gear Trinket",
       "speciesThatNeedModels": Array [
         Object {
+          "id": "1",
+          "name": "Acara",
+        },
+        Object {
           "id": "2",
           "name": "Aisha",
+        },
+        Object {
+          "id": "3",
+          "name": "Blumaroo",
         },
         Object {
           "id": "4",
@@ -6776,6 +6466,10 @@ Object {
         Object {
           "id": "17",
           "name": "Grundo",
+        },
+        Object {
+          "id": "18",
+          "name": "Hissi",
         },
         Object {
           "id": "19",
@@ -6836,6 +6530,10 @@ Object {
         Object {
           "id": "37",
           "name": "Ogrin",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
         },
         Object {
           "id": "39",
@@ -6900,6 +6598,10 @@ Object {
       "name": "MME25-S5b: Moltaran Magma Chandelier",
       "speciesThatNeedModels": Array [
         Object {
+          "id": "1",
+          "name": "Acara",
+        },
+        Object {
           "id": "2",
           "name": "Aisha",
         },
@@ -6954,6 +6656,10 @@ Object {
         Object {
           "id": "17",
           "name": "Grundo",
+        },
+        Object {
+          "id": "18",
+          "name": "Hissi",
         },
         Object {
           "id": "19",
@@ -7018,6 +6724,10 @@ Object {
         Object {
           "id": "37",
           "name": "Ogrin",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
         },
         Object {
           "id": "39",
@@ -7211,36 +6921,12 @@ Object {
           "id": "1",
           "name": "Acara",
         },
-        Object {
-          "id": "4",
-          "name": "Bori",
-        },
-        Object {
-          "id": "7",
-          "name": "Chia",
-        },
-        Object {
-          "id": "20",
-          "name": "Jetsam",
-        },
-        Object {
-          "id": "23",
-          "name": "Kau",
-        },
-        Object {
-          "id": "24",
-          "name": "Kiko",
-        },
       ],
     },
     Object {
       "id": "81708",
       "name": "Constellation Dress",
       "speciesThatNeedModels": Array [
-        Object {
-          "id": "1",
-          "name": "Acara",
-        },
         Object {
           "id": "4",
           "name": "Bori",
@@ -7250,48 +6936,8 @@ Object {
           "name": "Eyrie",
         },
         Object {
-          "id": "13",
-          "name": "Flotsam",
-        },
-        Object {
-          "id": "18",
-          "name": "Hissi",
-        },
-        Object {
-          "id": "21",
-          "name": "Jubjub",
-        },
-        Object {
-          "id": "25",
-          "name": "Koi",
-        },
-        Object {
-          "id": "34",
-          "name": "Moehog",
-        },
-        Object {
-          "id": "36",
-          "name": "Nimmo",
-        },
-        Object {
-          "id": "40",
-          "name": "Pteri",
-        },
-        Object {
-          "id": "43",
-          "name": "Scorchio",
-        },
-        Object {
-          "id": "47",
-          "name": "Tonu",
-        },
-        Object {
           "id": "48",
           "name": "Tuskaninny",
-        },
-        Object {
-          "id": "53",
-          "name": "Yurble",
         },
       ],
     },
@@ -7306,10 +6952,6 @@ Object {
         Object {
           "id": "4",
           "name": "Bori",
-        },
-        Object {
-          "id": "5",
-          "name": "Bruce",
         },
         Object {
           "id": "7",
@@ -7336,38 +6978,12 @@ Object {
           "name": "Kiko",
         },
         Object {
-          "id": "27",
-          "name": "Kougra",
-        },
-        Object {
           "id": "33",
           "name": "Meerca",
         },
         Object {
           "id": "54",
           "name": "Zafara",
-        },
-      ],
-    },
-    Object {
-      "id": "81710",
-      "name": "Spear of Radiance",
-      "speciesThatNeedModels": Array [
-        Object {
-          "id": "1",
-          "name": "Acara",
-        },
-        Object {
-          "id": "24",
-          "name": "Kiko",
-        },
-        Object {
-          "id": "41",
-          "name": "Quiggle",
-        },
-        Object {
-          "id": "42",
-          "name": "Ruki",
         },
       ],
     },
@@ -7386,82 +7002,12 @@ Object {
       ],
     },
     Object {
-      "id": "81753",
-      "name": "Staff of the Dead",
-      "speciesThatNeedModels": Array [
-        Object {
-          "id": "4",
-          "name": "Bori",
-        },
-        Object {
-          "id": "5",
-          "name": "Bruce",
-        },
-        Object {
-          "id": "7",
-          "name": "Chia",
-        },
-        Object {
-          "id": "8",
-          "name": "Chomby",
-        },
-        Object {
-          "id": "17",
-          "name": "Grundo",
-        },
-        Object {
-          "id": "21",
-          "name": "Jubjub",
-        },
-        Object {
-          "id": "25",
-          "name": "Koi",
-        },
-        Object {
-          "id": "34",
-          "name": "Moehog",
-        },
-        Object {
-          "id": "37",
-          "name": "Ogrin",
-        },
-        Object {
-          "id": "40",
-          "name": "Pteri",
-        },
-        Object {
-          "id": "41",
-          "name": "Quiggle",
-        },
-        Object {
-          "id": "43",
-          "name": "Scorchio",
-        },
-        Object {
-          "id": "53",
-          "name": "Yurble",
-        },
-        Object {
-          "id": "54",
-          "name": "Zafara",
-        },
-      ],
-    },
-    Object {
       "id": "81783",
       "name": "Dyeworks Blue: Decorated Witch Hat and Wig",
       "speciesThatNeedModels": Array [
         Object {
           "id": "7",
           "name": "Chia",
-        },
-        Object {
-          "id": "20",
-          "name": "Jetsam",
-        },
-        Object {
-          "id": "24",
-          "name": "Kiko",
         },
         Object {
           "id": "26",
@@ -7492,12 +7038,40 @@ Object {
       ],
     },
     Object {
-      "id": "81805",
-      "name": "Dyeworks Orange: Playful Scarecrow Makeup",
+      "id": "81792",
+      "name": "Dyeworks Blue & Purple: MiniMME18-S2a: Galactic Traveller Wig",
       "speciesThatNeedModels": Array [
         Object {
-          "id": "15",
-          "name": "Gnorbu",
+          "id": "6",
+          "name": "Buzz",
+        },
+        Object {
+          "id": "11",
+          "name": "Elephante",
+        },
+        Object {
+          "id": "28",
+          "name": "Krawk",
+        },
+        Object {
+          "id": "46",
+          "name": "Techo",
+        },
+        Object {
+          "id": "48",
+          "name": "Tuskaninny",
+        },
+        Object {
+          "id": "49",
+          "name": "Uni",
+        },
+        Object {
+          "id": "52",
+          "name": "Xweetok",
+        },
+        Object {
+          "id": "54",
+          "name": "Zafara",
         },
       ],
     },
@@ -7508,12 +7082,11 @@ Object {
 exports[`Item loads items that need models 2`] = `
 Array [
   Array [
-    "SELECT * FROM item_translations WHERE item_id IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) AND locale = \\"en\\"",
+    "SELECT * FROM item_translations WHERE item_id IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) AND locale = \\"en\\"",
     Array [
       "36907",
       "42448",
       "42544",
-      "42546",
       "47830",
       "50669",
       "50670",
@@ -7559,12 +7132,10 @@ Array [
       "81697",
       "81708",
       "81709",
-      "81710",
       "81736",
-      "81753",
       "81783",
       "81785",
-      "81805",
+      "81792",
       "72260",
       "81136",
       "81515",
@@ -7666,6 +7237,7 @@ Object {
       "explicitlyBodySpecific": false,
       "id": "38913",
       "isNc": false,
+      "isPb": false,
       "manualSpecialColor": null,
       "name": "Zafara Agent Gloves",
       "rarityIndex": 88,
@@ -7682,6 +7254,7 @@ Object {
       "explicitlyBodySpecific": false,
       "id": "38911",
       "isNc": false,
+      "isPb": false,
       "manualSpecialColor": null,
       "name": "Zafara Agent Hood",
       "rarityIndex": 92,
@@ -7698,6 +7271,7 @@ Object {
       "explicitlyBodySpecific": false,
       "id": "38912",
       "isNc": false,
+      "isPb": false,
       "manualSpecialColor": null,
       "name": "Zafara Agent Robe",
       "rarityIndex": 90,
@@ -7714,6 +7288,7 @@ Object {
       "explicitlyBodySpecific": true,
       "id": "55788",
       "isNc": true,
+      "isPb": false,
       "manualSpecialColor": null,
       "name": "Encased in Ice",
       "rarityIndex": 500,
@@ -7726,10 +7301,28 @@ Object {
         },
       ],
       "createdAt": "2020-01-01T00:00:00.000Z",
+      "description": "This item is part of a deluxe paint brush set!",
+      "explicitlyBodySpecific": false,
+      "id": "60671",
+      "isNc": false,
+      "isPb": true,
+      "manualSpecialColor": null,
+      "name": "8-Bit Aisha Shirt",
+      "rarityIndex": 101,
+      "thumbnailUrl": "http://images.neopets.com/items/clo_8-bit_aisha_shirt.gif",
+    },
+    Object {
+      "allOccupiedZones": Array [
+        Object {
+          "label": "Shirt/Dress",
+        },
+      ],
+      "createdAt": "2020-01-01T00:00:00.000Z",
       "description": "Made with the finest jewels of the sea!",
       "explicitlyBodySpecific": false,
       "id": "77530",
       "isNc": true,
+      "isPb": false,
       "manualSpecialColor": Object {
         "id": "44",
         "name": "Maraquan",
@@ -7749,6 +7342,7 @@ Object {
       "explicitlyBodySpecific": false,
       "id": "78104",
       "isNc": true,
+      "isPb": false,
       "manualSpecialColor": null,
       "name": "#1 Fan Room Background",
       "rarityIndex": 500,

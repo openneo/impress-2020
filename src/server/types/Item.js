@@ -8,7 +8,12 @@ const typeDefs = gql`
     description: String!
     thumbnailUrl: String!
     rarityIndex: Int!
+
+    # Whether this item comes from the NC Mall.
     isNc: Boolean!
+
+    # Whether this item comes from a paintbrush.
+    isPb: Boolean!
 
     # When this item was first added to DTI. ISO 8601 string, or null if the
     # item was added so long ago that we don't have this field!
@@ -126,6 +131,18 @@ const resolvers = {
       if (rarityIndex != null) return rarityIndex === 500 || rarityIndex === 0;
       const item = await itemLoader.load(id);
       return item.rarityIndex === 500 || item.rarityIndex === 0;
+    },
+    isPb: async ({ id }, _, { itemTranslationLoader }) => {
+      const translation = await itemTranslationLoader.load(id);
+      if (!translation) {
+        console.warn(
+          `Item.isPb: Translation not found for item ${id}. Returning false.`
+        );
+        return false;
+      }
+      return translation.description.includes(
+        "This item is part of a deluxe paint brush set!"
+      );
     },
     createdAt: async ({ id }, _, { itemLoader }) => {
       const item = await itemLoader.load(id);
