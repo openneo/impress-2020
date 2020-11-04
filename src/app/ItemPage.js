@@ -2,6 +2,7 @@ import React from "react";
 import { css } from "emotion";
 import {
   AspectRatio,
+  Badge,
   Button,
   Box,
   IconButton,
@@ -28,7 +29,6 @@ import { useQuery, useMutation } from "@apollo/client";
 import { useParams } from "react-router-dom";
 
 import {
-  ItemBadge,
   ItemBadgeList,
   ItemThumbnail,
   NcBadge,
@@ -148,7 +148,7 @@ function ItemPageBadges({ item, isEmbedded }) {
   const searchBadgesAreLoaded = item?.name != null && item?.isNc != null;
 
   return (
-    <ItemBadgeList>
+    <ItemBadgeList marginTop="1">
       <SubtleSkeleton isLoaded={item?.isNc != null}>
         {item?.isNc ? <NcBadge /> : <NpBadge />}
       </SubtleSkeleton>
@@ -160,14 +160,14 @@ function ItemPageBadges({ item, isEmbedded }) {
             // empty).
             isLoaded={item.createdAt !== undefined}
           >
-            <ItemBadge
+            <Badge
               display="block"
               minWidth="5.25em"
               boxSizing="content-box"
               textAlign="center"
             >
               {item.createdAt && <ShortTimestamp when={item.createdAt} />}
-            </ItemBadge>
+            </Badge>
           </SubtleSkeleton>
         )
       }
@@ -249,7 +249,7 @@ function ItemPageBadges({ item, isEmbedded }) {
 
 function LinkBadge({ children, href, isEmbedded }) {
   return (
-    <ItemBadge
+    <Badge
       as="a"
       href={href}
       display="flex"
@@ -265,7 +265,7 @@ function LinkBadge({ children, href, isEmbedded }) {
         // window or not!
         isEmbedded ? <ExternalLinkIcon marginLeft="1" /> : <ChevronRightIcon />
       }
-    </ItemBadge>
+    </Badge>
   );
 }
 

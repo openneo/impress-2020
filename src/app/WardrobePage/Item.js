@@ -21,7 +21,7 @@ import {
   NpBadge,
   YouOwnThisBadge,
   YouWantThisBadge,
-  ZoneBadgeList,
+  getZoneBadges,
 } from "../components/ItemCard";
 import SupportOnly from "./support/SupportOnly";
 import useSupport from "./support/useSupport";
@@ -231,8 +231,8 @@ function ItemBadges({ item }) {
       }
       {item.currentUserOwnsThis && <YouOwnThisBadge variant="short" />}
       {item.currentUserWantsThis && <YouWantThisBadge variant="short" />}
-      <ZoneBadgeList zones={occupiedZones} variant="occupied" />
-      <ZoneBadgeList zones={restrictedZones} variant="restricts" />
+      {getZoneBadges(occupiedZones, { variant: "occupies" })}
+      {getZoneBadges(restrictedZones, { variant: "restricts" })}
     </ItemBadgeList>
   );
 }

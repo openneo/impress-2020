@@ -17,7 +17,7 @@ import ItemCard, {
   NpBadge,
   YouOwnThisBadge,
   YouWantThisBadge,
-  ZoneBadgeList,
+  getZoneBadges,
 } from "./components/ItemCard";
 import useCurrentUser from "./components/useCurrentUser";
 import WIPCallout from "./components/WIPCallout";
@@ -259,10 +259,9 @@ function ClosetList({ closetList, isCurrentUser, showHeading }) {
                   {item.isNc ? <NcBadge /> : <NpBadge />}
                   {hasYouOwnThisBadge(item) && <YouOwnThisBadge />}
                   {hasYouWantThisBadge(item) && <YouWantThisBadge />}
-                  <ZoneBadgeList
-                    zones={item.allOccupiedZones}
-                    variant="occupies"
-                  />
+                  {getZoneBadges(item.allOccupiedZones, {
+                    variant: "occupies",
+                  })}
                 </ItemBadgeList>
               }
             />
