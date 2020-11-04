@@ -154,6 +154,12 @@ function UserNavBarSection() {
   }
 }
 
+/**
+ * Renders the given <NavLinkItem /> children as a dropdown menu or as a list
+ * of buttons, depending on the screen size.
+ *
+ * It actually renders both, and shows/hides them by media query!
+ */
 function NavLinksList({ children }) {
   return (
     <>
@@ -163,27 +169,27 @@ function NavLinksList({ children }) {
             <NavButton icon={<HamburgerIcon />} />
           </MenuButton>
           <MenuList>
-            {React.Children.map(children, (c) =>
-              React.cloneElement(c, { listVariant: "menu" })
-            )}
+            {React.Children.map(children, (c) => (
+              <MenuItem {...c.props} />
+            ))}
           </MenuList>
         </Menu>
       </Box>
       <HStack spacing="2" display={{ base: "none", md: "flex" }}>
-        {React.Children.map(children, (c) =>
-          React.cloneElement(c, { listVariant: "buttons" })
-        )}
+        {React.Children.map(children, (c) => (
+          <NavButton {...c.props} />
+        ))}
       </HStack>
     </>
   );
 }
 
-function NavLinkItem({ listVariant, ...props }) {
-  if (listVariant === "menu") {
-    return <MenuItem {...props} />;
-  } else {
-    return <NavButton {...props} />;
-  }
+function NavLinkItem() {
+  throw new Error(
+    `NavLinkItem should only be rendered in a NavLinksList, which should ` +
+      `render it as both a MenuItem or NavButton element. That way, we can ` +
+      `show the best layout depending on a CSS media query!`
+  );
 }
 
 const NavButton = React.forwardRef(({ icon, ...props }, ref) => {
