@@ -229,10 +229,10 @@ function ItemBadges({ item }) {
         // on the additional empty child.
         isMaybeAnimated && isSupportUser && <MaybeAnimatedBadge />
       }
-      {item.currentUserOwnsThis && <YouOwnThisBadge variant="short" />}
-      {item.currentUserWantsThis && <YouWantThisBadge variant="short" />}
       {getZoneBadges(occupiedZones, { variant: "occupies" })}
       {getZoneBadges(restrictedZones, { variant: "restricts" })}
+      {item.currentUserOwnsThis && <YouOwnThisBadge variant="medium" />}
+      {item.currentUserWantsThis && <YouWantThisBadge variant="medium" />}
     </ItemBadgeList>
   );
 }

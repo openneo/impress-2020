@@ -248,12 +248,15 @@ export function YouOwnThisBadge({ variant = "long" }) {
       minHeight="1.5em"
     >
       <CheckIcon aria-label="Check" />
+      {variant === "medium" && <Box marginLeft="1">Own</Box>}
       {variant === "long" && <Box marginLeft="1">You own this!</Box>}
     </Badge>
   );
 
-  if (variant === "short") {
-    badge = <ItemBadgeTooltip label="You own this">{badge}</ItemBadgeTooltip>;
+  if (variant === "short" || variant === "medium") {
+    badge = (
+      <ItemBadgeTooltip label="You own this item">{badge}</ItemBadgeTooltip>
+    );
   }
 
   return badge;
@@ -268,12 +271,15 @@ export function YouWantThisBadge({ variant = "long" }) {
       minHeight="1.5em"
     >
       <StarIcon aria-label="Star" />
+      {variant === "medium" && <Box marginLeft="1">Want</Box>}
       {variant === "long" && <Box marginLeft="1">You want this!</Box>}
     </Badge>
   );
 
-  if (variant === "short") {
-    badge = <ItemBadgeTooltip label="You want this">{badge}</ItemBadgeTooltip>;
+  if (variant === "short" || variant === "medium") {
+    badge = (
+      <ItemBadgeTooltip label="You want this item">{badge}</ItemBadgeTooltip>
+    );
   }
 
   return badge;
