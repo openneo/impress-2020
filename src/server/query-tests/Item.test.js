@@ -113,7 +113,14 @@ describe("Item", () => {
             name
             thumbnailUrl
           }
-          itemsByName(names: ["Zafara Agent Robe", "pile of dung"]) {
+          notFoundItem: itemByName(name: "?! fake name") {
+            id
+            name
+            thumbnailUrl
+          }
+          itemsByName(
+            names: [" Zafara Agent Robe  ", "pile of dung", "?! fake name"]
+          ) {
             id
             name
             thumbnailUrl

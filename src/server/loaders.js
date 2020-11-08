@@ -148,35 +148,39 @@ const buildItemTranslationLoader = (db) =>
   });
 
 const buildItemByNameLoader = (db, loaders) =>
-  new DataLoader(async (names) => {
-    const qs = names.map((_) => "?").join(", ");
-    const [rows, _] = await db.execute(
-      {
-        // NOTE: In our MySQL schema, this is a case-insensitive exact search.
-        sql: `SELECT items.*, item_translations.* FROM item_translations
+  new DataLoader(
+    async (names) => {
+      const qs = names.map((_) => "?").join(", ");
+      const normalizedNames = names.map((name) => name.trim().toLowerCase());
+      const [rows, _] = await db.execute(
+        {
+          // NOTE: In our MySQL schema, this is a case-insensitive exact search.
+          sql: `SELECT items.*, item_translations.* FROM item_translations
               INNER JOIN items ON items.id = item_translations.item_id
               WHERE name IN (${qs}) AND locale = "en"`,
-        nestTables: true,
-      },
-      names
-    );
+          nestTables: true,
+        },
+        normalizedNames
+      );
 
-    const entities = rows.map((row) => {
-      const item = normalizeRow(row.items);
-      const itemTranslation = normalizeRow(row.item_translations);
-      loaders.itemLoader.prime(item.id, item);
-      loaders.itemTranslationLoader.prime(item.id, itemTranslation);
-      return { item, itemTranslation };
-    });
+      const entitiesByName = new Map();
+      for (const row of rows) {
+        const item = normalizeRow(row.items);
+        const itemTranslation = normalizeRow(row.item_translations);
+        loaders.itemLoader.prime(item.id, item);
+        loaders.itemTranslationLoader.prime(item.id, itemTranslation);
 
-    return names.map((name) =>
-      entities.find(
-        (e) =>
-          e.itemTranslation.name.trim().toLowerCase() ===
-          name.trim().toLowerCase()
-      )
-    );
-  });
+        const normalizedName = itemTranslation.name.trim().toLowerCase();
+        entitiesByName.set(normalizedName, { item, itemTranslation });
+      }
+
+      return normalizedNames.map(
+        (name) =>
+          entitiesByName.get(name) || { item: null, itemTranslation: null }
+      );
+    },
+    { cacheKeyFn: (name) => name.trim().toLowerCase() }
+  );
 
 const buildItemSearchLoader = (db, loaders) =>
   new DataLoader(async (queries) => {

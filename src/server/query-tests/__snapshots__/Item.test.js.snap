@@ -742,7 +742,9 @@ Object {
       "name": "Pile of Dung",
       "thumbnailUrl": "http://images.neopets.com/items/med_booby_5.gif",
     },
+    null,
   ],
+  "notFoundItem": null,
 }
 `;
 
@@ -753,16 +755,18 @@ Array [
       "nestTables": true,
       "sql": "SELECT items.*, item_translations.* FROM item_translations
               INNER JOIN items ON items.id = item_translations.item_id
-              WHERE name IN (?, ?, ?) AND locale = \\"en\\"",
+              WHERE name IN (?, ?, ?, ?) AND locale = \\"en\\"",
       "values": Array [
-        "Moon and Stars Background",
-        "Zafara Agent Robe",
+        "moon and stars background",
+        "?! fake name",
+        "zafara agent robe",
         "pile of dung",
       ],
     },
     Array [
-      "Moon and Stars Background",
-      "Zafara Agent Robe",
+      "moon and stars background",
+      "?! fake name",
+      "zafara agent robe",
       "pile of dung",
     ],
   ],
@@ -790,10 +794,6 @@ Object {
           "id": "28",
           "name": "Krawk",
         },
-        Object {
-          "id": "46",
-          "name": "Techo",
-        },
       ],
     },
     Object {
@@ -811,10 +811,6 @@ Object {
         Object {
           "id": "38",
           "name": "Peophin",
-        },
-        Object {
-          "id": "46",
-          "name": "Techo",
         },
       ],
     },
@@ -837,10 +833,6 @@ Object {
         Object {
           "id": "38",
           "name": "Peophin",
-        },
-        Object {
-          "id": "46",
-          "name": "Techo",
         },
       ],
     },
@@ -949,10 +941,6 @@ Object {
           "name": "Nimmo",
         },
         Object {
-          "id": "37",
-          "name": "Ogrin",
-        },
-        Object {
           "id": "39",
           "name": "Poogle",
         },
@@ -971,10 +959,6 @@ Object {
         Object {
           "id": "45",
           "name": "Skeith",
-        },
-        Object {
-          "id": "46",
-          "name": "Techo",
         },
         Object {
           "id": "47",
@@ -1051,10 +1035,6 @@ Object {
           "name": "Nimmo",
         },
         Object {
-          "id": "37",
-          "name": "Ogrin",
-        },
-        Object {
           "id": "39",
           "name": "Poogle",
         },
@@ -1063,20 +1043,12 @@ Object {
           "name": "Quiggle",
         },
         Object {
-          "id": "42",
-          "name": "Ruki",
-        },
-        Object {
           "id": "43",
           "name": "Scorchio",
         },
         Object {
           "id": "45",
           "name": "Skeith",
-        },
-        Object {
-          "id": "46",
-          "name": "Techo",
         },
         Object {
           "id": "47",
@@ -1161,10 +1133,6 @@ Object {
           "name": "Nimmo",
         },
         Object {
-          "id": "37",
-          "name": "Ogrin",
-        },
-        Object {
           "id": "38",
           "name": "Peophin",
         },
@@ -1183,10 +1151,6 @@ Object {
         Object {
           "id": "45",
           "name": "Skeith",
-        },
-        Object {
-          "id": "46",
-          "name": "Techo",
         },
         Object {
           "id": "47",
@@ -1212,10 +1176,6 @@ Object {
       "id": "81137",
       "name": "Maraquan Ocean Blue Contacts",
       "speciesThatNeedModels": Array [
-        Object {
-          "id": "8",
-          "name": "Chomby",
-        },
         Object {
           "id": "13",
           "name": "Flotsam",
@@ -1271,10 +1231,6 @@ Object {
       "name": "Maraquan White Lace Gown",
       "speciesThatNeedModels": Array [
         Object {
-          "id": "8",
-          "name": "Chomby",
-        },
-        Object {
           "id": "13",
           "name": "Flotsam",
         },
@@ -1323,10 +1279,6 @@ Object {
         Object {
           "id": "7",
           "name": "Chia",
-        },
-        Object {
-          "id": "8",
-          "name": "Chomby",
         },
         Object {
           "id": "13",
@@ -1397,10 +1349,6 @@ Object {
         Object {
           "id": "7",
           "name": "Chia",
-        },
-        Object {
-          "id": "8",
-          "name": "Chomby",
         },
         Object {
           "id": "13",
@@ -1901,10 +1849,6 @@ Object {
           "name": "Yurble",
         },
         Object {
-          "id": "54",
-          "name": "Zafara",
-        },
-        Object {
           "id": "55",
           "name": "Vandagyre",
         },
@@ -1931,10 +1875,6 @@ Object {
         Object {
           "id": "21",
           "name": "Jubjub",
-        },
-        Object {
-          "id": "24",
-          "name": "Kiko",
         },
         Object {
           "id": "28",
@@ -1991,10 +1931,6 @@ Object {
           "name": "Jubjub",
         },
         Object {
-          "id": "24",
-          "name": "Kiko",
-        },
-        Object {
           "id": "28",
           "name": "Krawk",
         },
@@ -2047,10 +1983,6 @@ Object {
         Object {
           "id": "21",
           "name": "Jubjub",
-        },
-        Object {
-          "id": "24",
-          "name": "Kiko",
         },
         Object {
           "id": "28",
@@ -3125,6 +3057,10 @@ Object {
         Object {
           "id": "4",
           "name": "Bori",
+        },
+        Object {
+          "id": "5",
+          "name": "Bruce",
         },
         Object {
           "id": "6",
@@ -4711,6 +4647,20 @@ Object {
         Object {
           "id": "54",
           "name": "Zafara",
+        },
+      ],
+    },
+    Object {
+      "id": "67237",
+      "name": "Winter Lights Effect",
+      "speciesThatNeedModels": Array [
+        Object {
+          "id": "28",
+          "name": "Krawk",
+        },
+        Object {
+          "id": "38",
+          "name": "Peophin",
         },
       ],
     },
@@ -6999,10 +6949,6 @@ Object {
           "name": "Bori",
         },
         Object {
-          "id": "7",
-          "name": "Chia",
-        },
-        Object {
           "id": "9",
           "name": "Cybunny",
         },
@@ -7015,14 +6961,6 @@ Object {
           "name": "Grundo",
         },
         Object {
-          "id": "20",
-          "name": "Jetsam",
-        },
-        Object {
-          "id": "24",
-          "name": "Kiko",
-        },
-        Object {
           "id": "33",
           "name": "Meerca",
         },
@@ -7033,27 +6971,9 @@ Object {
       ],
     },
     Object {
-      "id": "81736",
-      "name": "Purple & Black Ponytails Wig",
-      "speciesThatNeedModels": Array [
-        Object {
-          "id": "7",
-          "name": "Chia",
-        },
-        Object {
-          "id": "20",
-          "name": "Jetsam",
-        },
-      ],
-    },
-    Object {
       "id": "81783",
       "name": "Dyeworks Blue: Decorated Witch Hat and Wig",
       "speciesThatNeedModels": Array [
-        Object {
-          "id": "7",
-          "name": "Chia",
-        },
         Object {
           "id": "26",
           "name": "Korbat",
@@ -7067,18 +6987,6 @@ Object {
         Object {
           "id": "5",
           "name": "Bruce",
-        },
-        Object {
-          "id": "7",
-          "name": "Chia",
-        },
-        Object {
-          "id": "20",
-          "name": "Jetsam",
-        },
-        Object {
-          "id": "24",
-          "name": "Kiko",
         },
       ],
     },
@@ -7095,20 +7003,12 @@ Object {
           "name": "Elephante",
         },
         Object {
-          "id": "28",
-          "name": "Krawk",
-        },
-        Object {
           "id": "46",
           "name": "Techo",
         },
         Object {
           "id": "48",
           "name": "Tuskaninny",
-        },
-        Object {
-          "id": "49",
-          "name": "Uni",
         },
         Object {
           "id": "52",
@@ -7146,6 +7046,7 @@ Array [
       "62939",
       "64195",
       "64387",
+      "67237",
       "69311",
       "70843",
       "71937",
@@ -7177,7 +7078,6 @@ Array [
       "81697",
       "81708",
       "81709",
-      "81736",
       "81783",
       "81785",
       "81792",
