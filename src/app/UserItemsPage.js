@@ -13,8 +13,7 @@ import { Heading1, Heading2, Heading3 } from "./util";
 import ItemCard, {
   ItemBadgeList,
   ItemCardList,
-  NcBadge,
-  NpBadge,
+  ItemKindBadge,
   YouOwnThisBadge,
   YouWantThisBadge,
   getZoneBadges,
@@ -44,6 +43,7 @@ function UserItemsPage() {
             items {
               id
               isNc
+              isPb
               name
               thumbnailUrl
               currentUserOwnsThis
@@ -256,7 +256,7 @@ function ClosetList({ closetList, isCurrentUser, showHeading }) {
               item={item}
               badges={
                 <ItemBadgeList>
-                  {item.isNc ? <NcBadge /> : <NpBadge />}
+                  <ItemKindBadge isNc={item.isNc} isPb={item.isPb} />
                   {hasYouOwnThisBadge(item) && <YouOwnThisBadge />}
                   {hasYouWantThisBadge(item) && <YouWantThisBadge />}
                   {getZoneBadges(item.allOccupiedZones, {

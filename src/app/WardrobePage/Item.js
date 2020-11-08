@@ -16,9 +16,8 @@ import loadable from "@loadable/component";
 import {
   ItemCardContent,
   ItemBadgeList,
+  ItemKindBadge,
   MaybeAnimatedBadge,
-  NcBadge,
-  NpBadge,
   YouOwnThisBadge,
   YouWantThisBadge,
   getZoneBadges,
@@ -211,17 +210,7 @@ function ItemBadges({ item }) {
 
   return (
     <ItemBadgeList>
-      {item.isNc ? (
-        <NcBadge />
-      ) : (
-        // The main purpose of the NP badge is alignment: if there are
-        // zone badges, we want them to start at the same rough position,
-        // even if there's an NC badge at the start. But if this view
-        // generally avoids zone badges, we'd rather have the NC badge be
-        // a little extra that might pop up and hide the NP case, rather
-        // than try to line things up like a table.
-        <NpBadge />
-      )}
+      <ItemKindBadge isNc={item.isNc} isPb={item.isPb} />
       {
         // This badge is unreliable, but it's helpful for looking for animated
         // items to test, so we show it only to support. We use this form

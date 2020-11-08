@@ -230,13 +230,31 @@ export function NcBadge() {
 }
 
 export function NpBadge() {
-  // NOTE: display:block helps with some layout consistency, overriding the
-  //       default of inline-block.
   return (
     <ItemBadgeTooltip label="Neopoints">
       <Badge display="block">NP</Badge>
     </ItemBadgeTooltip>
   );
+}
+
+export function PbBadge() {
+  return (
+    <ItemBadgeTooltip label="This item is only obtainable via paintbrush">
+      <Badge colorScheme="orange" display="block">
+        PB
+      </Badge>
+    </ItemBadgeTooltip>
+  );
+}
+
+export function ItemKindBadge({ isNc, isPb }) {
+  if (isNc) {
+    return <NcBadge />;
+  } else if (isPb) {
+    return <PbBadge />;
+  } else {
+    return <NpBadge />;
+  }
 }
 
 export function YouOwnThisBadge({ variant = "long" }) {

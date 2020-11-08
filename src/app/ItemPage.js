@@ -30,9 +30,8 @@ import { useParams } from "react-router-dom";
 
 import {
   ItemBadgeList,
+  ItemKindBadge,
   ItemThumbnail,
-  NcBadge,
-  NpBadge,
 } from "./components/ItemCard";
 import { Delay, Heading1, usePageTitle } from "./util";
 import {
@@ -76,6 +75,7 @@ function ItemPageHeader({ itemId, isEmbedded }) {
           id
           name
           isNc
+          isPb
           thumbnailUrl
           description
           createdAt
@@ -150,7 +150,7 @@ function ItemPageBadges({ item, isEmbedded }) {
   return (
     <ItemBadgeList marginTop="1">
       <SubtleSkeleton isLoaded={item?.isNc != null}>
-        {item?.isNc ? <NcBadge /> : <NpBadge />}
+        <ItemKindBadge isNc={item.isNc} isPb={item.isPb} />
       </SubtleSkeleton>
       {
         // If the createdAt date is null (loaded and empty), hide the badge.
@@ -192,7 +192,7 @@ function ItemPageBadges({ item, isEmbedded }) {
         </LinkBadge>
       </SubtleSkeleton>
       <SubtleSkeleton isLoaded={searchBadgesAreLoaded}>
-        {!item?.isNc && (
+        {!item?.isNc && !item?.isPb && (
           <LinkBadge
             href={
               "http://www.neopets.com/market.phtml?type=wizard&string=" +
@@ -205,7 +205,7 @@ function ItemPageBadges({ item, isEmbedded }) {
         )}
       </SubtleSkeleton>
       <SubtleSkeleton isLoaded={searchBadgesAreLoaded}>
-        {!item?.isNc && (
+        {!item?.isNc && !item?.isPb && (
           <LinkBadge
             href={
               "http://www.neopets.com/portal/supershopwiz.phtml?string=" +
@@ -218,7 +218,7 @@ function ItemPageBadges({ item, isEmbedded }) {
         )}
       </SubtleSkeleton>
       <SubtleSkeleton isLoaded={searchBadgesAreLoaded}>
-        {!item?.isNc && (
+        {!item?.isNc && !item?.isPb && (
           <LinkBadge
             href={
               "http://www.neopets.com/island/tradingpost.phtml?type=browse&criteria=item_exact&search_string=" +
@@ -231,7 +231,7 @@ function ItemPageBadges({ item, isEmbedded }) {
         )}
       </SubtleSkeleton>
       <SubtleSkeleton isLoaded={searchBadgesAreLoaded}>
-        {!item?.isNc && (
+        {!item?.isNc && !item?.isPb && (
           <LinkBadge
             href={
               "http://www.neopets.com/genie.phtml?type=process_genie&criteria=exact&auctiongenie=" +

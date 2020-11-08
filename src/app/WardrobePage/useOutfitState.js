@@ -38,6 +38,7 @@ function useOutfitState() {
           name
           thumbnailUrl
           isNc
+          isPb
           currentUserOwnsThis
           currentUserWantsThis
 
