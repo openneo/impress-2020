@@ -323,7 +323,7 @@ function MarkdownAndSafeHTML({ children }) {
     ALLOWED_ATTR: ["href", "class"],
     // URL must either start with an approved host (external link), or with a
     // slash or hash (internal link).
-    ALLOWED_URI_REGEXP: /^https?:\/\/(impress\.openneo\.net|impress-2020\.openneo\.net|www\.neopets\.com|neopets\.com)\/|^[\/#]/,
+    ALLOWED_URI_REGEXP: /^https?:\/\/(impress\.openneo\.net|impress-2020\.openneo\.net|www\.neopets\.com|neopets\.com)\/|^[/#]/,
   });
 
   return (

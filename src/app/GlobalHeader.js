@@ -8,7 +8,6 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
-  useBreakpointValue,
 } from "@chakra-ui/core";
 import { HamburgerIcon } from "@chakra-ui/icons";
 import { Link, useLocation } from "react-router-dom";
