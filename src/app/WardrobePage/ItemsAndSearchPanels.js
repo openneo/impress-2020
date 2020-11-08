@@ -41,7 +41,9 @@ function ItemsAndSearchPanels({ loading, outfitState, dispatchToOutfit }) {
           onChange={onChange}
         />
       </Box>
-      {searchQuery.value || searchQuery.filterToZoneLabel ? (
+      {searchQuery.value ||
+      searchQuery.filterToItemKind ||
+      searchQuery.filterToZoneLabel ? (
         <Box
           key="search-panel"
           gridArea="items"

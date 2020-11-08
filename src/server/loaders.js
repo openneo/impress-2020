@@ -219,12 +219,20 @@ const buildItemSearchLoader = (db, loaders) =>
     return responses;
   });
 
+const itemSearchKindConditions = {
+  // NOTE: We assume that items cannot have NC rarity and the PB description,
+  //       so we don't bother to filter out PB items in the NC filter, for perf.
+  NC: `rarity_index IN (0, 500)`,
+  NP: `rarity_index NOT IN (0, 500) AND description NOT LIKE "%This item is part of a deluxe paint brush set!%"`,
+  PB: `description LIKE "%This item is part of a deluxe paint brush set!%"`,
+};
+
 const buildItemSearchToFitLoader = (db, loaders) =>
   new DataLoader(async (queryAndBodyIdPairs) => {
     // This isn't actually optimized as a batch query, we're just using a
     // DataLoader API consistency with our other loaders!
     const queryPromises = queryAndBodyIdPairs.map(
-      async ({ query, bodyId, zoneIds = [], offset, limit }) => {
+      async ({ query, bodyId, itemKind, zoneIds = [], offset, limit }) => {
         const actualOffset = offset || 0;
         const actualLimit = Math.min(limit || 30, 30);
 
@@ -235,6 +243,7 @@ const buildItemSearchToFitLoader = (db, loaders) =>
         const matcherPlaceholders = words
           .map((_) => "t.name LIKE ?")
           .join(" AND ");
+        const itemKindCondition = itemSearchKindConditions[itemKind] || "1";
         const zoneIdsPlaceholder =
           zoneIds.length > 0
             ? `swf_assets.zone_id IN (${zoneIds.map((_) => "?").join(", ")})`
@@ -245,9 +254,9 @@ const buildItemSearchToFitLoader = (db, loaders) =>
            INNER JOIN parents_swf_assets rel
                ON rel.parent_type = "Item" AND rel.parent_id = items.id
            INNER JOIN swf_assets ON rel.swf_asset_id = swf_assets.id
-           WHERE ${matcherPlaceholders} AND t.locale="en" AND
+           WHERE ${matcherPlaceholders} AND t.locale = "en" AND
                (swf_assets.body_id = ? OR swf_assets.body_id = 0) AND
-               ${zoneIdsPlaceholder}
+               ${zoneIdsPlaceholder} AND ${itemKindCondition}
            ORDER BY t.name
            LIMIT ? OFFSET ?`,
           [

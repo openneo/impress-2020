@@ -69,6 +69,12 @@ const typeDefs = gql`
     restrictedZones: [Zone!]!
   }
 
+  enum ItemKindSearchFilter {
+    NC
+    NP
+    PB
+  }
+
   type ItemSearchResult {
     query: String!
     zones: [Zone!]!
@@ -91,9 +97,10 @@ const typeDefs = gql`
     itemSearch(query: String!): ItemSearchResult!
     itemSearchToFit(
       query: String!
+      itemKind: ItemKindSearchFilter
+      zoneIds: [ID!]
       speciesId: ID!
       colorId: ID!
-      zoneIds: [ID!]
       offset: Int
       limit: Int
     ): ItemSearchResult!
@@ -295,7 +302,7 @@ const resolvers = {
     },
     itemSearchToFit: async (
       _,
-      { query, speciesId, colorId, zoneIds = [], offset, limit },
+      { query, speciesId, colorId, itemKind, zoneIds = [], offset, limit },
       { petTypeBySpeciesAndColorLoader, itemSearchToFitLoader }
     ) => {
       const petType = await petTypeBySpeciesAndColorLoader.load({
@@ -305,8 +312,9 @@ const resolvers = {
       const { bodyId } = petType;
       const items = await itemSearchToFitLoader.load({
         query: query.trim(),
-        bodyId,
+        itemKind,
         zoneIds,
+        bodyId,
         offset,
         limit,
       });

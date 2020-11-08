@@ -61,7 +61,7 @@ function SearchToolbar({
   const highlightedBgColor = useColorModeValue("gray.100", "whiteAlpha.300");
 
   const renderSuggestion = React.useCallback(
-    (zoneLabel, { isHighlighted }) => (
+    ({ text }, { isHighlighted }) => (
       <Box
         fontWeight={isHighlighted ? "bold" : "normal"}
         background={isHighlighted ? highlightedBgColor : suggestionBgColor}
@@ -69,7 +69,7 @@ function SearchToolbar({
         paddingLeft="2.5rem"
         fontSize="sm"
       >
-        {zoneLabel}
+        {text}
       </Box>
     ),
     [suggestionBgColor, highlightedBgColor]
@@ -101,10 +101,12 @@ function SearchToolbar({
     []
   );
 
-  // When we change the filter zone, clear out the suggestions.
+  // When we change the query filters, clear out the suggestions.
   React.useEffect(() => {
     setSuggestions([]);
-  }, [query.filterToZoneLabel]);
+  }, [query.filterToItemKind, query.filterToZoneLabel]);
+
+  const queryFilterText = getQueryFilterText(query);
 
   const focusBorderColor = useColorModeValue("green.600", "green.400");
 
@@ -112,7 +114,7 @@ function SearchToolbar({
     <Autosuggest
       suggestions={suggestions}
       onSuggestionsFetchRequested={({ value }) =>
-        setSuggestions(getSuggestions(value, zoneLabels))
+        setSuggestions(getSuggestions(value, query, zoneLabels))
       }
       onSuggestionsClearRequested={() => setSuggestions([])}
       onSuggestionSelected={(e, { suggestion }) => {
@@ -120,20 +122,20 @@ function SearchToolbar({
         onChange({
           ...query,
           value: valueWithoutLastWord,
-          filterToZoneLabel: suggestion,
+          filterToZoneLabel: suggestion.zoneLabel || query.filterToZoneLabel,
+          filterToItemKind: suggestion.itemKind || query.filterToItemKind,
         });
       }}
       getSuggestionValue={(zl) => zl}
-      shouldRenderSuggestions={() => query.filterToZoneLabel == null}
       highlightFirstSuggestion={true}
       renderSuggestion={renderSuggestion}
       renderSuggestionsContainer={renderSuggestionsContainer}
       renderInputComponent={(props) => (
         <InputGroup>
-          {query.filterToZoneLabel ? (
+          {queryFilterText ? (
             <InputLeftAddon>
               <SearchIcon color="gray.400" marginRight="3" />
-              <Box fontSize="sm">{query.filterToZoneLabel}</Box>
+              <Box fontSize="sm">{queryFilterText}</Box>
             </InputLeftAddon>
           ) : (
             <InputLeftElement>
@@ -141,7 +143,7 @@ function SearchToolbar({
             </InputLeftElement>
           )}
           <Input {...props} />
-          {(query.value || query.filterToZoneLabel) && (
+          {(query.value || queryFilterText) && (
             <InputRightElement>
               <IconButton
                 icon={<CloseIcon />}
@@ -172,13 +174,11 @@ function SearchToolbar({
         //       for the InputLeftAddon, so the styles aren't updating...
         //       Hard override!
         className: css`
-          padding-left: ${query.filterToZoneLabel
-            ? "1rem"
-            : "2.5rem"} !important;
-          border-bottom-left-radius: ${query.filterToZoneLabel
+          padding-left: ${queryFilterText ? "1rem" : "2.5rem"} !important;
+          border-bottom-left-radius: ${queryFilterText
             ? "0"
             : "0.25rem"} !important;
-          border-top-left-radius: ${query.filterToZoneLabel
+          border-top-left-radius: ${queryFilterText
             ? "0"
             : "0.25rem"} !important;
         `,
@@ -204,7 +204,11 @@ function SearchToolbar({
             }
             onMoveFocusDownToResults(e);
           } else if (e.key === "Backspace" && e.target.selectionStart === 0) {
-            onChange({ ...query, filterToZoneLabel: null });
+            onChange({
+              ...query,
+              filterToItemKind: null,
+              filterToZoneLabel: null,
+            });
           }
         },
       }}
@@ -212,17 +216,56 @@ function SearchToolbar({
   );
 }
 
-function getSuggestions(value, zoneLabels) {
+function getSuggestions(value, query, zoneLabels) {
   const words = value.split(/\s+/);
   const lastWord = words[words.length - 1];
   if (lastWord.length < 2) {
     return [];
   }
 
-  const matchingZoneLabels = zoneLabels.filter((zl) =>
-    zl.toLowerCase().includes(lastWord.toLowerCase())
-  );
-  return matchingZoneLabels;
+  const suggestions = [];
+
+  if (query.filterToItemKind == null) {
+    if (wordMatches("NC", lastWord) || wordMatches("Neocash", lastWord)) {
+      suggestions.push({ itemKind: "NC", text: "Neocash items" });
+    }
+
+    if (wordMatches("NP", lastWord) || wordMatches("Neopoints", lastWord)) {
+      suggestions.push({ itemKind: "NP", text: "Neopoint items" });
+    }
+
+    if (wordMatches("PB", lastWord) || wordMatches("Paintbrush", lastWord)) {
+      suggestions.push({ itemKind: "PB", text: "Paintbrush items" });
+    }
+  }
+
+  if (query.filterToZoneLabel == null) {
+    for (const zoneLabel of zoneLabels) {
+      if (wordMatches(zoneLabel, lastWord)) {
+        suggestions.push({ zoneLabel, text: zoneLabel });
+      }
+    }
+  }
+
+  return suggestions;
+}
+
+function wordMatches(target, word) {
+  return target.toLowerCase().includes(word.toLowerCase());
+}
+
+function getQueryFilterText(query) {
+  const textWords = [];
+
+  if (query.filterToItemKind) {
+    textWords.push(query.filterToItemKind);
+  }
+
+  if (query.filterToZoneLabel) {
+    textWords.push(query.filterToZoneLabel);
+  }
+
+  return textWords.join(" ");
 }
 
 export default SearchToolbar;

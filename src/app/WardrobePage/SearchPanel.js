@@ -217,7 +217,11 @@ function useSearchResults(query, outfitState) {
   // the user types anything.
   const debouncedQuery = useDebounce(query, 300, {
     waitForFirstPause: true,
-    initialValue: { value: "", filterToZoneLabel: null },
+    initialValue: {
+      value: "",
+      filterToItemKind: null,
+      filterToZoneLabel: null,
+    },
   });
 
   // When the query changes, we should update our impression of whether we've
@@ -251,13 +255,15 @@ function useSearchResults(query, outfitState) {
     gql`
       query SearchPanel(
         $query: String!
-        $speciesId: ID!
+        $itemKind: ItemKindSearchFilter
         $zoneIds: [ID!]!
+        $speciesId: ID!
         $colorId: ID!
         $offset: Int!
       ) {
         itemSearchToFit(
           query: $query
+          itemKind: $itemKind
           zoneIds: $zoneIds
           speciesId: $speciesId
           colorId: $colorId
@@ -303,12 +309,16 @@ function useSearchResults(query, outfitState) {
     {
       variables: {
         query: debouncedQuery.value,
+        itemKind: debouncedQuery.filterToItemKind,
         zoneIds: filterToZoneIds,
         speciesId,
         colorId,
         offset: 0,
       },
-      skip: !debouncedQuery.value && !debouncedQuery.filterToZoneLabel,
+      skip:
+        !debouncedQuery.value &&
+        !debouncedQuery.filterToItemKind &&
+        !debouncedQuery.filterToZoneLabel,
       notifyOnNetworkStatusChange: true,
       onCompleted: (d) => {
         // This is called each time the query completes, including on
@@ -434,7 +444,11 @@ function useScrollTracker(scrollContainerRef, threshold, onScrolledToBottom) {
  * JS comparison.
  */
 function serializeQuery(query) {
-  return `${JSON.stringify([query.value, query.filterToZoneLabel])}`;
+  return `${JSON.stringify([
+    query.value,
+    query.filterToItemKind,
+    query.filterToZoneLabel,
+  ])}`;
 }
 
 export default SearchPanel;
