@@ -5,6 +5,7 @@ import {
   Badge,
   Button,
   Box,
+  HStack,
   IconButton,
   Skeleton,
   SkeletonText,
@@ -42,7 +43,6 @@ import OutfitPreview from "./components/OutfitPreview";
 import SpeciesColorPicker from "./components/SpeciesColorPicker";
 import useCurrentUser from "./components/useCurrentUser";
 import { useLocalStorage } from "./util";
-import WIPCallout from "./components/WIPCallout";
 
 function ItemPage() {
   const { itemId } = useParams();
@@ -60,9 +60,11 @@ export function ItemPageContent({ itemId, isEmbedded }) {
   return (
     <VStack spacing="8">
       <ItemPageHeader itemId={itemId} isEmbedded={isEmbedded} />
-      {isLoggedIn && <ItemPageOwnWantButtons itemId={itemId} />}
+      <VStack spacing="4">
+        {isLoggedIn && <ItemPageOwnWantButtons itemId={itemId} />}
+        <ItemPageTradeLinks itemId={itemId} />
+      </VStack>
       {!isEmbedded && <ItemPageOutfitPreview itemId={itemId} />}
-      <WIPCallout>Trade lists coming soon!</WIPCallout>
     </VStack>
   );
 }
@@ -546,6 +548,52 @@ function ItemPageWantButton({ itemId, isChecked }) {
         I want this
       </Button>
     </Box>
+  );
+}
+
+function ItemPageTradeLinks({ itemId }) {
+  return (
+    <Tooltip label="These are placeholders—real trade lists coming soon!">
+      <HStack spacing="2">
+        <Box as="header" fontSize="sm" fontWeight="bold">
+          Trading:
+        </Box>
+        <ItemPageTradeLink count={8} label="offering" colorScheme="green" />
+        <ItemPageTradeLink count={12} label="seeking" colorScheme="blue" />
+      </HStack>
+    </Tooltip>
+  );
+}
+
+function ItemPageTradeLink({ count, label, colorScheme }) {
+  return (
+    <Button
+      size="xs"
+      variant="outline"
+      colorScheme={colorScheme}
+      borderRadius="full"
+      paddingRight="1"
+    >
+      <Box display="grid" gridTemplateAreas="single-area">
+        <Box
+          gridArea="single-area"
+          display="flex"
+          flexAlign="center"
+          justifyContent="center"
+        >
+          {count} {label} <ChevronRightIcon minHeight="1.2em" />
+        </Box>
+        <Box
+          gridArea="single-area"
+          display="flex"
+          flexAlign="center"
+          justifyContent="center"
+          visibility="hidden"
+        >
+          888 offering <ChevronRightIcon minHeight="1.2em" />
+        </Box>
+      </Box>
+    </Button>
   );
 }
 
