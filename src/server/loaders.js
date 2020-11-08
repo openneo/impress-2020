@@ -147,6 +147,37 @@ const buildItemTranslationLoader = (db) =>
     );
   });
 
+const buildItemByNameLoader = (db, loaders) =>
+  new DataLoader(async (names) => {
+    const qs = names.map((_) => "?").join(", ");
+    const [rows, _] = await db.execute(
+      {
+        // NOTE: In our MySQL schema, this is a case-insensitive exact search.
+        sql: `SELECT items.*, item_translations.* FROM item_translations
+              INNER JOIN items ON items.id = item_translations.item_id
+              WHERE name IN (${qs}) AND locale = "en"`,
+        nestTables: true,
+      },
+      names
+    );
+
+    const entities = rows.map((row) => {
+      const item = normalizeRow(row.items);
+      const itemTranslation = normalizeRow(row.item_translations);
+      loaders.itemLoader.prime(item.id, item);
+      loaders.itemTranslationLoader.prime(item.id, itemTranslation);
+      return { item, itemTranslation };
+    });
+
+    return names.map((name) =>
+      entities.find(
+        (e) =>
+          e.itemTranslation.name.trim().toLowerCase() ===
+          name.trim().toLowerCase()
+      )
+    );
+  });
+
 const buildItemSearchLoader = (db, loaders) =>
   new DataLoader(async (queries) => {
     // This isn't actually optimized as a batch query, we're just using a
@@ -759,6 +790,7 @@ function buildLoaders(db) {
   loaders.colorTranslationLoader = buildColorTranslationLoader(db);
   loaders.itemLoader = buildItemLoader(db);
   loaders.itemTranslationLoader = buildItemTranslationLoader(db);
+  loaders.itemByNameLoader = buildItemByNameLoader(db, loaders);
   loaders.itemSearchLoader = buildItemSearchLoader(db, loaders);
   loaders.itemSearchToFitLoader = buildItemSearchToFitLoader(db, loaders);
   loaders.itemsThatNeedModelsLoader = buildItemsThatNeedModelsLoader(db);

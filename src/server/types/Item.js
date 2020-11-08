@@ -78,6 +78,16 @@ const typeDefs = gql`
   extend type Query {
     item(id: ID!): Item
     items(ids: [ID!]!): [Item!]!
+
+    # Find items by name. Exact match, except for some tweaks, like
+    # case-insensitivity and trimming extra whitespace. Null if not found.
+    #
+    # NOTE: These aren't used in DTI at time of writing; they're a courtesy API
+    #       for the /r/Neopets Discord bot's outfit preview command!
+    itemByName(name: String!): Item
+    itemsByName(names: [String!]!): [Item]!
+
+    # Search for items with fuzzy matching.
     itemSearch(query: String!): ItemSearchResult!
     itemSearchToFit(
       query: String!
@@ -270,6 +280,14 @@ const resolvers = {
     item: (_, { id }) => ({ id }),
     items: (_, { ids }) => {
       return ids.map((id) => ({ id }));
+    },
+    itemByName: async (_, { name }, { itemByNameLoader }) => {
+      const { item } = await itemByNameLoader.load(name);
+      return item ? { id: item.id } : null;
+    },
+    itemsByName: async (_, { names }, { itemByNameLoader }) => {
+      const items = await itemByNameLoader.loadMany(names);
+      return items.map(({ item }) => (item ? { id: item.id } : null));
     },
     itemSearch: async (_, { query }, { itemSearchLoader }) => {
       const items = await itemSearchLoader.load(query.trim());

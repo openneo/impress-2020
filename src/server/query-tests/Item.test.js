@@ -104,6 +104,29 @@ describe("Item", () => {
     `);
   });
 
+  it("loads items by name", async () => {
+    const res = await query({
+      query: gql`
+        query {
+          itemByName(name: "Moon and Stars Background") {
+            id
+            name
+            thumbnailUrl
+          }
+          itemsByName(names: ["Zafara Agent Robe", "pile of dung"]) {
+            id
+            name
+            thumbnailUrl
+          }
+        }
+      `,
+    });
+
+    expect(res).toHaveNoErrors();
+    expect(res.data).toMatchSnapshot("data");
+    expect(getDbCalls()).toMatchSnapshot("db");
+  });
+
   it("loads appearance data", async () => {
     const res = await query({
       query: gql`

@@ -724,6 +724,51 @@ Object {
 }
 `;
 
+exports[`Item loads items by name: data 1`] = `
+Object {
+  "itemByName": Object {
+    "id": "37375",
+    "name": "Moon and Stars Background",
+    "thumbnailUrl": "http://images.neopets.com/items/bg_moonstars.gif",
+  },
+  "itemsByName": Array [
+    Object {
+      "id": "38912",
+      "name": "Zafara Agent Robe",
+      "thumbnailUrl": "http://images.neopets.com/items/clo_zafara_agent_robe.gif",
+    },
+    Object {
+      "id": "18579",
+      "name": "Pile of Dung",
+      "thumbnailUrl": "http://images.neopets.com/items/med_booby_5.gif",
+    },
+  ],
+}
+`;
+
+exports[`Item loads items by name: db 1`] = `
+Array [
+  Array [
+    Object {
+      "nestTables": true,
+      "sql": "SELECT items.*, item_translations.* FROM item_translations
+              INNER JOIN items ON items.id = item_translations.item_id
+              WHERE name IN (?, ?, ?) AND locale = \\"en\\"",
+      "values": Array [
+        "Moon and Stars Background",
+        "Zafara Agent Robe",
+        "pile of dung",
+      ],
+    },
+    Array [
+      "Moon and Stars Background",
+      "Zafara Agent Robe",
+      "pile of dung",
+    ],
+  ],
+]
+`;
+
 exports[`Item loads items that need models 1`] = `
 Object {
   "babyItems": Array [
