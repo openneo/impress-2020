@@ -356,6 +356,12 @@ export function usePreloadLayers(layers) {
         return;
       }
 
+      // Some movie clips require you to tick to the first frame of the movie
+      // before the children mount onto the stage. If we detect animations
+      // without doing this, we'll say no, because we see no children!
+      // Example: http://images.neopets.com/cp/items/data/000/000/235/235877_6d273e217c/235877.js
+      movieClips.forEach((mc) => mc.advance());
+
       setLayersHaveAnimations(movieClips.some(hasAnimations));
       setLoadedLayers(layers);
     };
