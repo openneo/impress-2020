@@ -400,10 +400,9 @@ const buildItemTradeCountsLoader = (db) =>
       const [rows, _] = await db.execute(
         `
         SELECT
-          items.id AS item_id, closet_hangers.owned AS is_owned,
+          closet_hangers.item_id AS item_id, closet_hangers.owned AS is_owned,
             count(DISTINCT closet_hangers.user_id) AS users_count
-          FROM items
-          INNER JOIN closet_hangers ON closet_hangers.item_id = items.id
+          FROM closet_hangers
           INNER JOIN users ON users.id = closet_hangers.user_id
           LEFT JOIN closet_lists ON closet_lists.id = closet_hangers.list_id
           WHERE (
@@ -420,7 +419,7 @@ const buildItemTradeCountsLoader = (db) =>
               )
             )
           )
-          GROUP BY items.id, closet_hangers.owned;
+          GROUP BY closet_hangers.item_id, closet_hangers.owned;
       `,
         values
       );
