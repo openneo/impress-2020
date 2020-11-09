@@ -22,6 +22,10 @@ const typeDefs = gql`
     currentUserOwnsThis: Boolean!
     currentUserWantsThis: Boolean!
 
+    # How many users are offering/seeking this in their public trade lists.
+    numUsersOfferingThis: Int!
+    numUsersSeekingThis: Int!
+
     # How this item appears on the given species/color combo. If it does not
     # fit the pet, we'll return an empty ItemAppearance with no layers.
     appearanceOn(speciesId: ID!, colorId: ID!): ItemAppearance!
@@ -183,6 +187,21 @@ const resolvers = {
       if (currentUserId == null) return false;
       const closetHangers = await userClosetHangersLoader.load(currentUserId);
       return closetHangers.some((h) => h.itemId === id && !h.owned);
+    },
+
+    numUsersOfferingThis: async ({ id }, _, { itemTradeCountsLoader }) => {
+      const count = await itemTradeCountsLoader.load({
+        itemId: id,
+        isOwned: true,
+      });
+      return count;
+    },
+    numUsersSeekingThis: async ({ id }, _, { itemTradeCountsLoader }) => {
+      const count = await itemTradeCountsLoader.load({
+        itemId: id,
+        isOwned: false,
+      });
+      return count;
     },
 
     appearanceOn: async (

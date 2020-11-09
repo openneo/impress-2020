@@ -552,22 +552,54 @@ function ItemPageWantButton({ itemId, isChecked }) {
 }
 
 function ItemPageTradeLinks({ itemId }) {
+  const { data, loading, error } = useQuery(
+    gql`
+      query ItemPageTradeLinks($itemId: ID!) {
+        item(id: $itemId) {
+          id
+          numUsersOfferingThis
+          numUsersSeekingThis
+        }
+      }
+    `,
+    { variables: { itemId } }
+  );
+
+  if (error) {
+    return <Box color="red.400">{error.message}</Box>;
+  }
+
   return (
-    <Tooltip label="These are placeholders—real trade lists coming soon!">
-      <HStack spacing="2">
-        <Box as="header" fontSize="sm" fontWeight="bold">
-          Trading:
-        </Box>
-        <ItemPageTradeLink count={8} label="offering" colorScheme="green" />
-        <ItemPageTradeLink count={12} label="seeking" colorScheme="blue" />
-      </HStack>
-    </Tooltip>
+    <HStack spacing="2">
+      <Box as="header" fontSize="sm" fontWeight="bold">
+        Trading:
+      </Box>
+      <SubtleSkeleton isLoaded={!loading}>
+        <ItemPageTradeLink
+          itemId={itemId}
+          count={data?.item?.numUsersOfferingThis || 0}
+          label="offering"
+          colorScheme="green"
+        />
+      </SubtleSkeleton>
+      <SubtleSkeleton isLoaded={!loading}>
+        <ItemPageTradeLink
+          itemId={itemId}
+          count={data?.item?.numUsersSeekingThis || 0}
+          label="seeking"
+          colorScheme="blue"
+        />
+      </SubtleSkeleton>
+    </HStack>
   );
 }
 
-function ItemPageTradeLink({ count, label, colorScheme }) {
+function ItemPageTradeLink({ itemId, count, label, colorScheme }) {
   return (
     <Button
+      as="a"
+      // TODO: Link to a new Impress 2020 page instead!
+      href={`https://impress.openneo.net/items/${itemId}`}
       size="xs"
       variant="outline"
       colorScheme={colorScheme}
