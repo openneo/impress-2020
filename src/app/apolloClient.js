@@ -32,6 +32,9 @@ const typePolicies = {
       color: (_, { args, toReference }) => {
         return toReference({ __typename: "Color", id: args.id }, true);
       },
+      user: (_, { args, toReference }) => {
+        return toReference({ __typename: "User", id: args.id }, true);
+      },
     },
   },
 

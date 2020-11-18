@@ -10,6 +10,11 @@ import {
   InputGroup,
   InputLeftElement,
   InputRightElement,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  Portal,
   Wrap,
   VStack,
   useToast,
@@ -17,13 +22,14 @@ import {
 import {
   ArrowForwardIcon,
   CheckIcon,
+  EditIcon,
   EmailIcon,
   SearchIcon,
   StarIcon,
 } from "@chakra-ui/icons";
 import gql from "graphql-tag";
 import { useHistory, useParams } from "react-router-dom";
-import { useQuery, useLazyQuery } from "@apollo/client";
+import { useQuery, useLazyQuery, useMutation } from "@apollo/client";
 import SimpleMarkdown from "simple-markdown";
 import DOMPurify from "dompurify";
 
@@ -37,8 +43,14 @@ import ItemCard, {
   YouWantThisBadge,
   getZoneBadges,
 } from "./components/ItemCard";
+import SupportOnly from "./WardrobePage/support/SupportOnly";
+import useSupport from "./WardrobePage/support/useSupport";
 import useCurrentUser from "./components/useCurrentUser";
 import WIPCallout from "./components/WIPCallout";
+
+const BadgeButton = React.forwardRef((props, ref) => (
+  <Badge as="button" ref={ref} {...props} />
+));
 
 function UserItemsPage() {
   const { userId } = useParams();
@@ -164,6 +176,14 @@ function UserItemsPage() {
                 Neomail
               </Badge>
             )}
+            <SupportOnly>
+              <UserSupportMenu user={data.user}>
+                <MenuButton as={BadgeButton} display="flex" alignItems="center">
+                  <EditIcon marginRight="1" />
+                  Support
+                </MenuButton>
+              </UserSupportMenu>
+            </SupportOnly>
             {/* Usually I put "Own" before "Want", but this matches the natural
              * order on the page: the _matches_ for things you want are things
              * _this user_ owns, so they come first. I think it's also probably a
@@ -451,6 +471,76 @@ function MarkdownAndSafeHTML({ children }) {
         }
       `}
     ></Box>
+  );
+}
+
+function UserSupportMenu({ children, user }) {
+  const { supportSecret } = useSupport();
+  const toast = useToast();
+
+  const [sendEditUsernameMutation] = useMutation(
+    gql`
+      mutation UserSupportMenuRename(
+        $userId: ID!
+        $newUsername: String!
+        $supportSecret: String!
+      ) {
+        setUsername(
+          userId: $userId
+          newUsername: $newUsername
+          supportSecret: $supportSecret
+        ) {
+          id
+          username
+        }
+      }
+    `,
+    {
+      onCompleted: (data) => {
+        const updatedUser = data.setUsername;
+        toast({
+          status: "success",
+          title: `Successfully renamed user ${updatedUser.id} to ${updatedUser.username}!`,
+        });
+      },
+    }
+  );
+
+  const editUsername = React.useCallback(() => {
+    const newUsername = prompt(
+      "What should this user's username be?",
+      user.username
+    );
+    if (!newUsername || newUsername === user.username) {
+      toast({
+        status: "info",
+        title: "Got it, no change!",
+        description: `User ${user.id}'s username will continue to be ${user.username}.`,
+      });
+      return;
+    }
+
+    sendEditUsernameMutation({
+      variables: { userId: user.id, newUsername, supportSecret },
+    }).catch((e) => {
+      console.error(e);
+      toast({
+        status: "error",
+        title: "Error renaming user.",
+        description: "See error details in the console!",
+      });
+    });
+  }, [sendEditUsernameMutation, user.id, user.username, supportSecret, toast]);
+
+  return (
+    <Menu>
+      {children}
+      <Portal>
+        <MenuList>
+          <MenuItem onClick={editUsername}>Edit username</MenuItem>
+        </MenuList>
+      </Portal>
+    </Menu>
   );
 }
 

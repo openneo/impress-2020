@@ -1,4 +1,13 @@
 const { gql } = require("apollo-server");
+const { ManagementClient } = require("auth0");
+
+const auth0 = new ManagementClient({
+  domain: "openneo.us.auth0.com",
+  clientId: process.env.AUTH0_SUPPORT_CLIENT_ID,
+  clientSecret: process.env.AUTH0_SUPPORT_CLIENT_SECRET,
+  scope: "read:users update:users",
+});
+
 const {
   capitalize,
   getPoseFromPetState,
@@ -51,6 +60,8 @@ const typeDefs = gql`
       isGlitched: Boolean!
       supportSecret: String!
     ): PetAppearance!
+
+    setUsername(userId: ID!, newUsername: String!, supportSecret: String!): User
   }
 `;
 
@@ -61,9 +72,7 @@ const resolvers = {
       { itemId, colorId, supportSecret },
       { itemLoader, itemTranslationLoader, colorTranslationLoader, db }
     ) => {
-      if (supportSecret !== process.env["SUPPORT_SECRET"]) {
-        throw new Error(`Support secret is incorrect. Try setting up again?`);
-      }
+      assertSupportSecretOrThrow(supportSecret);
 
       const oldItem = await itemLoader.load(itemId);
 
@@ -139,9 +148,7 @@ const resolvers = {
       { itemId, explicitlyBodySpecific, supportSecret },
       { itemLoader, itemTranslationLoader, db }
     ) => {
-      if (supportSecret !== process.env["SUPPORT_SECRET"]) {
-        throw new Error(`Support secret is incorrect. Try setting up again?`);
-      }
+      assertSupportSecretOrThrow(supportSecret);
 
       const oldItem = await itemLoader.load(itemId);
 
@@ -210,9 +217,7 @@ const resolvers = {
         db,
       }
     ) => {
-      if (supportSecret !== process.env["SUPPORT_SECRET"]) {
-        throw new Error(`Support secret is incorrect. Try setting up again?`);
-      }
+      assertSupportSecretOrThrow(supportSecret);
 
       const oldSwfAsset = await swfAssetLoader.load(layerId);
 
@@ -298,9 +303,7 @@ const resolvers = {
         db,
       }
     ) => {
-      if (supportSecret !== process.env["SUPPORT_SECRET"]) {
-        throw new Error(`Support secret is incorrect. Try setting up again?`);
-      }
+      assertSupportSecretOrThrow(supportSecret);
 
       const oldSwfAsset = await swfAssetLoader.load(layerId);
 
@@ -374,9 +377,7 @@ const resolvers = {
         db,
       }
     ) => {
-      if (supportSecret !== process.env["SUPPORT_SECRET"]) {
-        throw new Error(`Support secret is incorrect. Try setting up again?`);
-      }
+      assertSupportSecretOrThrow(supportSecret);
 
       const oldPetState = await petStateLoader.load(appearanceId);
 
@@ -457,9 +458,7 @@ const resolvers = {
         db,
       }
     ) => {
-      if (supportSecret !== process.env["SUPPORT_SECRET"]) {
-        throw new Error(`Support secret is incorrect. Try setting up again?`);
-      }
+      assertSupportSecretOrThrow(supportSecret);
 
       const oldPetState = await petStateLoader.load(appearanceId);
 
@@ -526,7 +525,85 @@ const resolvers = {
 
       return { id: appearanceId };
     },
+
+    setUsername: async (
+      _,
+      { userId, newUsername, supportSecret },
+      { userLoader, db }
+    ) => {
+      assertSupportSecretOrThrow(supportSecret);
+
+      const oldUser = await userLoader.load(userId);
+      if (!oldUser) {
+        return null;
+      }
+
+      const [[result1, result2]] = await db.query(
+        `
+          UPDATE users SET name = ? WHERE id = ? LIMIT 1;
+          UPDATE openneo_id.users SET name = ? WHERE id = ? LIMIT 1;
+        `,
+        [newUsername, userId, newUsername, oldUser.remoteId]
+      );
+
+      if (result1.affectedRows !== 1) {
+        throw new Error(
+          `[UPDATE 1] Expected to affect 1 user, but affected ${result1.affectedRows}`
+        );
+      }
+
+      if (result2.affectedRows !== 1) {
+        throw new Error(
+          `[UPDATE 2] Expected to affect 1 user, but affected ${result2.affectedRows}`
+        );
+      }
+
+      // we changed it, so clear it from cache
+      userLoader.clear(userId);
+
+      // We also want to update the username in Auth0, which is separate! It's
+      // possible that this will fail even though the db update succeeded, but
+      // I'm not going to bother to write recovery code; in that case, the
+      // error will reach the support user console, and we can work to manually
+      // fix it.
+      await auth0.users.update(
+        { id: `auth0|impress-${userId}` },
+        { username: newUsername }
+      );
+
+      if (process.env["SUPPORT_TOOLS_DISCORD_WEBHOOK_URL"]) {
+        try {
+          await logToDiscord({
+            embeds: [
+              {
+                title: `🛠 User ${oldUser.id}: ${newUsername}`,
+                fields: [
+                  {
+                    name: `Username`,
+                    value: `${oldUser.name} → **${newUsername}**`,
+                  },
+                ],
+                timestamp: new Date().toISOString(),
+                url: `https://impress-2020.openneo.net/user/${oldUser.id}/items`,
+              },
+            ],
+          });
+        } catch (e) {
+          console.error("Error sending Discord support log", e);
+        }
+      } else {
+        console.warn("No Discord support webhook provided, skipping");
+      }
+
+      return { id: userId };
+    },
   },
 };
+
+function assertSupportSecretOrThrow(supportSecret) {
+  if (supportSecret !== process.env["SUPPORT_SECRET"]) {
+    throw new Error(`Support secret is incorrect. Try setting up again?`);
+  }
+}
 
 module.exports = { typeDefs, resolvers };
