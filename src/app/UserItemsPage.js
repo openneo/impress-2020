@@ -1,10 +1,29 @@
 import React from "react";
 import { css } from "emotion";
-import { Badge, Box, Center, Wrap, VStack } from "@chakra-ui/core";
-import { CheckIcon, EmailIcon, StarIcon } from "@chakra-ui/icons";
+import {
+  Badge,
+  Box,
+  Center,
+  Flex,
+  IconButton,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  InputRightElement,
+  Wrap,
+  VStack,
+  useToast,
+} from "@chakra-ui/core";
+import {
+  ArrowForwardIcon,
+  CheckIcon,
+  EmailIcon,
+  SearchIcon,
+  StarIcon,
+} from "@chakra-ui/icons";
 import gql from "graphql-tag";
-import { useParams } from "react-router-dom";
-import { useQuery } from "@apollo/client";
+import { useHistory, useParams } from "react-router-dom";
+import { useQuery, useLazyQuery } from "@apollo/client";
 import SimpleMarkdown from "simple-markdown";
 import DOMPurify from "dompurify";
 
@@ -117,84 +136,95 @@ function UserItemsPage() {
 
   return (
     <Box>
-      {isCurrentUser && (
-        <Box float="right">
-          <WIPCallout details="These lists are read-only for now. To edit, head back to Classic DTI!" />
+      <Flex align="center" wrap="wrap-reverse">
+        <Box>
+          <Heading1>
+            {isCurrentUser ? "Your items" : `${data.user.username}'s items`}
+          </Heading1>
+          <Wrap spacing="2" opacity="0.7">
+            {data.user.contactNeopetsUsername && (
+              <Badge
+                as="a"
+                href={`http://www.neopets.com/userlookup.phtml?user=${data.user.contactNeopetsUsername}`}
+                display="flex"
+                alignItems="center"
+              >
+                <NeopetsStarIcon marginRight="1" />
+                {data.user.contactNeopetsUsername}
+              </Badge>
+            )}
+            {data.user.contactNeopetsUsername && (
+              <Badge
+                as="a"
+                href={`http://www.neopets.com/neomessages.phtml?type=send&recipient=${data.user.contactNeopetsUsername}`}
+                display="flex"
+                alignItems="center"
+              >
+                <EmailIcon marginRight="1" />
+                Neomail
+              </Badge>
+            )}
+            {/* Usually I put "Own" before "Want", but this matches the natural
+             * order on the page: the _matches_ for things you want are things
+             * _this user_ owns, so they come first. I think it's also probably a
+             * more natural train of thought: you come to someone's list _wanting_
+             * something, and _then_ thinking about what you can offer. */}
+            {!isCurrentUser && numItemsTheyOwnThatYouWant > 0 && (
+              <Badge
+                as="a"
+                href="#owned-items"
+                colorScheme="blue"
+                display="flex"
+                alignItems="center"
+              >
+                <StarIcon marginRight="1" />
+                {numItemsTheyOwnThatYouWant > 1
+                  ? `${numItemsTheyOwnThatYouWant} items you want`
+                  : "1 item you want"}
+              </Badge>
+            )}
+            {!isCurrentUser && numItemsTheyWantThatYouOwn > 0 && (
+              <Badge
+                as="a"
+                href="#wanted-items"
+                colorScheme="green"
+                display="flex"
+                alignItems="center"
+              >
+                <CheckIcon marginRight="1" />
+                {numItemsTheyWantThatYouOwn > 1
+                  ? `${numItemsTheyWantThatYouOwn} items you own`
+                  : "1 item you own"}
+              </Badge>
+            )}
+          </Wrap>
         </Box>
-      )}
-      <Heading1>
-        {isCurrentUser ? "Your items" : `${data.user.username}'s items`}
-      </Heading1>
-      <Wrap spacing="2" opacity="0.7">
-        {data.user.contactNeopetsUsername && (
-          <Badge
-            as="a"
-            href={`http://www.neopets.com/userlookup.phtml?user=${data.user.contactNeopetsUsername}`}
-            display="flex"
-            alignItems="center"
-          >
-            <NeopetsStarIcon marginRight="1" />
-            {data.user.contactNeopetsUsername}
-          </Badge>
+        <Box flex="1 0 auto" width="2" />
+        <Box marginBottom="1">
+          <UserSearchForm />
+        </Box>
+      </Flex>
+
+      <Box marginTop="4">
+        {isCurrentUser && (
+          <Box float="right">
+            <WIPCallout details="These lists are read-only for now. To edit, head back to Classic DTI!" />
+          </Box>
         )}
-        {data.user.contactNeopetsUsername && (
-          <Badge
-            as="a"
-            href={`http://www.neopets.com/neomessages.phtml?type=send&recipient=${data.user.contactNeopetsUsername}`}
-            display="flex"
-            alignItems="center"
-          >
-            <EmailIcon marginRight="1" />
-            Neomail
-          </Badge>
-        )}
-        {/* Usually I put "Own" before "Want", but this matches the natural
-         * order on the page: the _matches_ for things you want are things
-         * _this user_ owns, so they come first. I think it's also probably a
-         * more natural train of thought: you come to someone's list _wanting_
-         * something, and _then_ thinking about what you can offer. */}
-        {!isCurrentUser && numItemsTheyOwnThatYouWant > 0 && (
-          <Badge
-            as="a"
-            href="#owned-items"
-            colorScheme="blue"
-            display="flex"
-            alignItems="center"
-          >
-            <StarIcon marginRight="1" />
-            {numItemsTheyOwnThatYouWant > 1
-              ? `${numItemsTheyOwnThatYouWant} items you want`
-              : "1 item you want"}
-          </Badge>
-        )}
-        {!isCurrentUser && numItemsTheyWantThatYouOwn > 0 && (
-          <Badge
-            as="a"
-            href="#wanted-items"
-            colorScheme="green"
-            display="flex"
-            alignItems="center"
-          >
-            <CheckIcon marginRight="1" />
-            {numItemsTheyWantThatYouOwn > 1
-              ? `${numItemsTheyWantThatYouOwn} items you own`
-              : "1 item you own"}
-          </Badge>
-        )}
-      </Wrap>
-      <Heading2 id="owned-items" marginTop="4" marginBottom="2">
-        {isCurrentUser ? "Items you own" : `Items ${data.user.username} owns`}
-      </Heading2>
-      <VStack spacing="8" alignItems="stretch">
-        {listsOfOwnedItems.map((closetList) => (
-          <ClosetList
-            key={closetList.id}
-            closetList={closetList}
-            isCurrentUser={isCurrentUser}
-            showHeading={listsOfOwnedItems.length > 1}
-          />
-        ))}
-      </VStack>
+        <Heading2 id="owned-items" marginBottom="2">
+          {isCurrentUser ? "Items you own" : `Items ${data.user.username} owns`}
+        </Heading2>
+        <VStack spacing="8" alignItems="stretch">
+          {listsOfOwnedItems.map((closetList) => (
+            <ClosetList
+              key={closetList.id}
+              closetList={closetList}
+              isCurrentUser={isCurrentUser}
+              showHeading={listsOfOwnedItems.length > 1}
+            />
+          ))}
+        </VStack>
+      </Box>
 
       <Heading2 id="wanted-items" marginTop="10" marginBottom="2">
         {isCurrentUser ? "Items you want" : `Items ${data.user.username} wants`}
@@ -209,6 +239,85 @@ function UserItemsPage() {
           />
         ))}
       </VStack>
+    </Box>
+  );
+}
+
+function UserSearchForm() {
+  const [query, setQuery] = React.useState("");
+  const history = useHistory();
+  const toast = useToast();
+
+  const [loadUserSearch, { loading }] = useLazyQuery(
+    gql`
+      query UserSearchForm($name: String!) {
+        userByName(name: $name) {
+          id
+          # Consider preloading UserItemsPage fields here, too?
+        }
+      }
+    `,
+    {
+      onCompleted: (data) => {
+        const user = data.userByName;
+        if (!user) {
+          toast({
+            status: "warning",
+            title: "We couldn't find that user!",
+            description: "Check the spelling and try again?",
+          });
+          return;
+        }
+
+        history.push(`/user/${user.id}/items`);
+      },
+      onError: (error) => {
+        console.error(error);
+        toast({
+          status: "error",
+          title: "Error loading user!",
+          description: "Check your connection and try again?",
+        });
+      },
+    }
+  );
+
+  return (
+    <Box
+      as="form"
+      onSubmit={(e) => {
+        loadUserSearch({ variables: { name: query } });
+        e.preventDefault();
+      }}
+    >
+      <InputGroup size="sm">
+        <InputLeftElement pointerEvents="none">
+          <SearchIcon color="gray.400" />
+        </InputLeftElement>
+        <Input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search for another user…"
+          borderRadius="full"
+        />
+        <InputRightElement>
+          <IconButton
+            type="submit"
+            variant="ghost"
+            icon={<ArrowForwardIcon />}
+            aria-label="Search"
+            isLoading={loading}
+            minWidth="1.5rem"
+            minHeight="1.5rem"
+            width="1.5rem"
+            height="1.5rem"
+            borderRadius="full"
+            opacity={query ? 1 : 0}
+            transition="opacity 0.2s"
+            aria-hidden={query ? "false" : "true"}
+          />
+        </InputRightElement>
+      </InputGroup>
     </Box>
   );
 }

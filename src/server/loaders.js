@@ -759,6 +759,21 @@ const buildUserLoader = (db) =>
     );
   });
 
+const buildUserByNameLoader = (db) =>
+  new DataLoader(async (names) => {
+    const qs = names.map((_) => "?").join(",");
+    const [rows, _] = await db.execute(
+      `SELECT * FROM users WHERE name IN (${qs})`,
+      names
+    );
+
+    const entities = rows.map(normalizeRow);
+
+    return names.map((name) =>
+      entities.find((e) => e.name.toLowerCase() === name.toLowerCase())
+    );
+  });
+
 const buildUserClosetHangersLoader = (db) =>
   new DataLoader(async (userIds) => {
     const qs = userIds.map((_) => "?").join(",");
@@ -891,6 +906,7 @@ function buildLoaders(db) {
   loaders.speciesLoader = buildSpeciesLoader(db);
   loaders.speciesTranslationLoader = buildSpeciesTranslationLoader(db);
   loaders.userLoader = buildUserLoader(db);
+  loaders.userByNameLoader = buildUserByNameLoader(db);
   loaders.userClosetHangersLoader = buildUserClosetHangersLoader(db);
   loaders.userClosetListsLoader = buildUserClosetListsLoader(db);
   loaders.zoneLoader = buildZoneLoader(db);

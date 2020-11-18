@@ -40,6 +40,7 @@ const typeDefs = gql`
 
   extend type Query {
     user(id: ID!): User
+    userByName(name: String!): User
     currentUser: User
   }
 `;
@@ -213,6 +214,16 @@ const resolvers = {
 
       return { id };
     },
+
+    userByName: async (_, { name }, { userByNameLoader }) => {
+      const user = await userByNameLoader.load(name);
+      if (!user) {
+        return null;
+      }
+
+      return { id: user.id };
+    },
+
     currentUser: async (_, __, { currentUserId, userLoader }) => {
       if (currentUserId == null) {
         return null;
