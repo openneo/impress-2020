@@ -383,9 +383,14 @@ const buildItemAllOccupiedZonesLoader = (db) =>
 
     const entities = rows.map(normalizeRow);
 
-    return itemIds.map((itemId) =>
-      entities.find((e) => e.id === itemId).zoneIds.split(",")
-    );
+    return itemIds.map((itemId) => {
+      const item = entities.find((e) => e.id === itemId);
+      if (!item) {
+        return [];
+      }
+
+      return item.zoneIds.split(",");
+    });
   });
 
 const buildItemTradeCountsLoader = (db) =>
