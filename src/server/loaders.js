@@ -774,6 +774,29 @@ const buildUserByNameLoader = (db) =>
     );
   });
 
+const buildUserByEmailLoader = (db) =>
+  new DataLoader(async (emails) => {
+    const qs = emails.map((_) => "?").join(",");
+    const [rows, _] = await db.execute(
+      {
+        sql: `
+          SELECT users.*, id_users.email FROM users
+          INNER JOIN openneo_id.users id_users ON id_users.id = users.remote_id
+          WHERE id_users.email IN (${qs})
+        `,
+        nestTables: true,
+      },
+      emails
+    );
+
+    const entities = rows.map((row) => ({
+      user: normalizeRow(row.users),
+      email: row.id_users.email,
+    }));
+
+    return emails.map((email) => entities.find((e) => e.email === email).user);
+  });
+
 const buildUserClosetHangersLoader = (db) =>
   new DataLoader(async (userIds) => {
     const qs = userIds.map((_) => "?").join(",");
@@ -907,6 +930,7 @@ function buildLoaders(db) {
   loaders.speciesTranslationLoader = buildSpeciesTranslationLoader(db);
   loaders.userLoader = buildUserLoader(db);
   loaders.userByNameLoader = buildUserByNameLoader(db);
+  loaders.userByEmailLoader = buildUserByEmailLoader(db);
   loaders.userClosetHangersLoader = buildUserClosetHangersLoader(db);
   loaders.userClosetListsLoader = buildUserClosetListsLoader(db);
   loaders.zoneLoader = buildZoneLoader(db);

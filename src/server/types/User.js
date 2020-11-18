@@ -41,6 +41,7 @@ const typeDefs = gql`
   extend type Query {
     user(id: ID!): User
     userByName(name: String!): User
+    userByEmail(email: String!, supportSecret: String!): User
     currentUser: User
   }
 `;
@@ -217,6 +218,19 @@ const resolvers = {
 
     userByName: async (_, { name }, { userByNameLoader }) => {
       const user = await userByNameLoader.load(name);
+      if (!user) {
+        return null;
+      }
+
+      return { id: user.id };
+    },
+
+    userByEmail: async (_, { email, supportSecret }, { userByEmailLoader }) => {
+      if (supportSecret !== process.env["SUPPORT_SECRET"]) {
+        throw new Error(`Support secret is incorrect. Try setting up again?`);
+      }
+
+      const user = await userByEmailLoader.load(email);
       if (!user) {
         return null;
       }

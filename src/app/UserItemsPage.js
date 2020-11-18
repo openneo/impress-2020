@@ -265,10 +265,12 @@ function UserItemsPage() {
 
 function UserSearchForm() {
   const [query, setQuery] = React.useState("");
+
+  const { isSupportUser, supportSecret } = useSupport();
   const history = useHistory();
   const toast = useToast();
 
-  const [loadUserSearch, { loading }] = useLazyQuery(
+  const [loadUserSearch, { loading: loading1 }] = useLazyQuery(
     gql`
       query UserSearchForm($name: String!) {
         userByName(name: $name) {
@@ -302,11 +304,58 @@ function UserSearchForm() {
     }
   );
 
+  const [loadUserByEmail, { loading: loading2 }] = useLazyQuery(
+    gql`
+      query UserSearchFormByEmail($email: String!, $supportSecret: String!) {
+        userByEmail(email: $email, supportSecret: $supportSecret) {
+          id
+          # Consider preloading UserItemsPage fields here, too?
+        }
+      }
+    `,
+    {
+      onCompleted: (data) => {
+        const user = data.userByEmail;
+        if (!user) {
+          toast({
+            status: "warning",
+            title: "We couldn't find that email address!",
+            description: "Check the spelling and try again?",
+          });
+          return;
+        }
+
+        history.push(`/user/${user.id}/items`);
+      },
+      onError: (error) => {
+        console.error(error);
+        toast({
+          status: "error",
+          title: "Error loading user by email!",
+          description: "Check your connection and try again?",
+        });
+      },
+    }
+  );
+
   return (
     <Box
       as="form"
       onSubmit={(e) => {
-        loadUserSearch({ variables: { name: query } });
+        const isSupportOnlyEmailSearch =
+          isSupportUser && query.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/);
+
+        if (isSupportOnlyEmailSearch) {
+          toast({
+            status: "info",
+            title: "Searching by email! (💖 Support-only)",
+            description: "The email field is protected from most users.",
+          });
+          loadUserByEmail({ variables: { email: query, supportSecret } });
+        } else {
+          loadUserSearch({ variables: { name: query } });
+        }
+
         e.preventDefault();
       }}
     >
@@ -326,7 +375,7 @@ function UserSearchForm() {
             variant="ghost"
             icon={<ArrowForwardIcon />}
             aria-label="Search"
-            isLoading={loading}
+            isLoading={loading1 || loading2}
             minWidth="1.5rem"
             minHeight="1.5rem"
             width="1.5rem"
