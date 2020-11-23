@@ -135,7 +135,10 @@ function ItemTradesTableRow({ compareListHeading }) {
           Top priorities and such so yeah
         </Box>
       </ItemTradesTableCell>
-      <ItemTradesTableCell>&lt;1 week</ItemTradesTableCell>
+      <ItemTradesTableCell>
+        <Box display={{ base: "block", sm: "none" }}>&lt;1 week</Box>
+        <Box display={{ base: "none", sm: "block" }}>This week</Box>
+      </ItemTradesTableCell>
       <ItemTradesTableCell height="100%">
         <Tooltip
           placement="bottom"
