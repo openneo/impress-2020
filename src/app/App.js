@@ -18,6 +18,12 @@ import WardrobePageLayout from "./WardrobePage/WardrobePageLayout";
 
 const HomePage = loadable(() => import("./HomePage"));
 const ItemPage = loadable(() => import("./ItemPage"));
+const ItemTradesOfferingPage = loadable(() =>
+  import("./ItemTradesPage").then((m) => m.ItemTradesOfferingPage)
+);
+const ItemTradesSeekingPage = loadable(() =>
+  import("./ItemTradesPage").then((m) => m.ItemTradesSeekingPage)
+);
 const ModelingPage = loadable(() => import("./ModelingPage"));
 const UserItemsPage = loadable(() => import("./UserItemsPage"));
 const WardrobePage = loadable(() => import("./WardrobePage"), {
@@ -70,6 +76,16 @@ function App() {
           <ChakraProvider theme={theme}>
             <CSSReset />
             <Switch>
+              <Route path="/items/:itemId/trades/offering">
+                <PageLayout>
+                  <ItemTradesOfferingPage />
+                </PageLayout>
+              </Route>
+              <Route path="/items/:itemId/trades/seeking">
+                <PageLayout>
+                  <ItemTradesSeekingPage />
+                </PageLayout>
+              </Route>
               <Route path="/items/:itemId">
                 <PageLayout>
                   <ItemPage />

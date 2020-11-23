@@ -412,7 +412,7 @@ function ClosetList({ closetList, isCurrentUser, showHeading }) {
   });
 
   return (
-    <Box>
+    <Box id={`list-${closetList.id}`}>
       {showHeading && (
         <Heading3
           marginBottom="2"
