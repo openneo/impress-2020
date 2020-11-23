@@ -411,8 +411,18 @@ function ClosetList({ closetList, isCurrentUser, showHeading }) {
     return aName.localeCompare(bName);
   });
 
+  // When this mounts, scroll it into view if it matches the location hash.
+  // This works around the fact that, while the browser tries to do this
+  // natively on page load, the list might not be mounted yet!
+  const anchorId = `list-${closetList.id}`;
+  React.useEffect(() => {
+    if (document.location.hash === "#" + anchorId) {
+      document.getElementById(anchorId).scrollIntoView();
+    }
+  }, [anchorId]);
+
   return (
-    <Box id={`list-${closetList.id}`}>
+    <Box id={anchorId}>
       {showHeading && (
         <Heading3
           marginBottom="2"
