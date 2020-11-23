@@ -84,7 +84,7 @@ export function ItemPageContent({ itemId, isEmbedded }) {
         />
         <VStack spacing="4">
           {isLoggedIn && <ItemPageOwnWantButtons itemId={itemId} />}
-          <ItemPageTradeLinks itemId={itemId} />
+          <ItemPageTradeLinks itemId={itemId} isEmbedded={isEmbedded} />
         </VStack>
         {!isEmbedded && <ItemPageOutfitPreview itemId={itemId} />}
       </VStack>
@@ -358,7 +358,7 @@ function ItemPageWantButton({ itemId, isChecked }) {
   );
 }
 
-function ItemPageTradeLinks({ itemId }) {
+function ItemPageTradeLinks({ itemId, isEmbedded }) {
   const { data, loading, error } = useQuery(
     gql`
       query ItemPageTradeLinks($itemId: ID!) {
@@ -387,6 +387,7 @@ function ItemPageTradeLinks({ itemId }) {
           count={data?.item?.numUsersOfferingThis || 0}
           label="offering"
           colorScheme="green"
+          isEmbedded={isEmbedded}
         />
       </SubtleSkeleton>
       <SubtleSkeleton isLoaded={!loading}>
@@ -395,18 +396,20 @@ function ItemPageTradeLinks({ itemId }) {
           count={data?.item?.numUsersSeekingThis || 0}
           label="seeking"
           colorScheme="blue"
+          isEmbedded={isEmbedded}
         />
       </SubtleSkeleton>
     </HStack>
   );
 }
 
-function ItemPageTradeLink({ itemId, count, label, colorScheme }) {
+function ItemPageTradeLink({ itemId, count, label, colorScheme, isEmbedded }) {
   return (
     <Button
       as="a"
       // TODO: Link to a new Impress 2020 page instead!
       href={`https://impress.openneo.net/items/${itemId}`}
+      target={isEmbedded ? "_blank" : undefined}
       size="xs"
       variant="outline"
       colorScheme={colorScheme}
