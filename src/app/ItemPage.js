@@ -383,7 +383,7 @@ function ItemPageTradeLinks({ itemId, isEmbedded }) {
       </Box>
       <SubtleSkeleton isLoaded={!loading}>
         <ItemPageTradeLink
-          itemId={itemId}
+          href={`/items/${itemId}/trades/offering`}
           count={data?.item?.numUsersOfferingThis || 0}
           label="offering"
           colorScheme="green"
@@ -392,7 +392,7 @@ function ItemPageTradeLinks({ itemId, isEmbedded }) {
       </SubtleSkeleton>
       <SubtleSkeleton isLoaded={!loading}>
         <ItemPageTradeLink
-          itemId={itemId}
+          href={`/items/${itemId}/trades/seeking`}
           count={data?.item?.numUsersSeekingThis || 0}
           label="seeking"
           colorScheme="blue"
@@ -403,12 +403,11 @@ function ItemPageTradeLinks({ itemId, isEmbedded }) {
   );
 }
 
-function ItemPageTradeLink({ itemId, count, label, colorScheme, isEmbedded }) {
+function ItemPageTradeLink({ href, count, label, colorScheme, isEmbedded }) {
   return (
     <Button
       as="a"
-      // TODO: Link to a new Impress 2020 page instead!
-      href={`https://impress.openneo.net/items/${itemId}`}
+      href={href}
       target={isEmbedded ? "_blank" : undefined}
       size="xs"
       variant="outline"
