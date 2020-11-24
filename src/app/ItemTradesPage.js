@@ -277,16 +277,16 @@ function ItemTradesTableRowSkeleton() {
   return (
     <Box as="tr">
       <ItemTradesTableCell>
-        <Skeleton width="100%">Placeholder</Skeleton>
+        <Skeleton width="100%">X</Skeleton>
       </ItemTradesTableCell>
       <ItemTradesTableCell>
-        <Skeleton width="100%">Placeholder</Skeleton>
+        <Skeleton width="100%">X</Skeleton>
       </ItemTradesTableCell>
       <ItemTradesTableCell>
-        <Skeleton width="100%">Placeholder</Skeleton>
+        <Skeleton width="100%">X</Skeleton>
       </ItemTradesTableCell>
       <ItemTradesTableCell>
-        <Skeleton width="100%">Placeholder</Skeleton>
+        <Skeleton width="100%">X</Skeleton>
       </ItemTradesTableCell>
     </Box>
   );
