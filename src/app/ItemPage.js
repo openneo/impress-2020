@@ -24,7 +24,7 @@ import {
 import { MdPause, MdPlayArrow } from "react-icons/md";
 import gql from "graphql-tag";
 import { useQuery, useMutation } from "@apollo/client";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 import ItemPageLayout, { SubtleSkeleton } from "./ItemPageLayout";
 import { Delay, usePageTitle } from "./util";
@@ -406,8 +406,8 @@ function ItemPageTradeLinks({ itemId, isEmbedded }) {
 function ItemPageTradeLink({ href, count, label, colorScheme, isEmbedded }) {
   return (
     <Button
-      as="a"
-      href={href}
+      as={Link}
+      to={href}
       target={isEmbedded ? "_blank" : undefined}
       size="xs"
       variant="outline"

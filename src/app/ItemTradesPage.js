@@ -9,7 +9,7 @@ import {
 } from "@chakra-ui/core";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
-import { useHistory, useParams } from "react-router-dom";
+import { Link, useHistory, useParams } from "react-router-dom";
 
 import { Heading2, usePageTitle } from "./util";
 import ItemPageLayout from "./ItemPageLayout";
@@ -295,8 +295,8 @@ function ItemTradesTableRow({
       )}
       <ItemTradesTableCell overflowWrap="break-word" fontSize="sm">
         <Box
-          as="a"
-          href={href}
+          as={Link}
+          to={href}
           className={css`
             &:hover,
             &:focus,
