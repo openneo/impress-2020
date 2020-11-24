@@ -1,6 +1,19 @@
 const DataLoader = require("dataloader");
 const { normalizeRow } = require("./util");
 
+const buildClosetListLoader = (db) =>
+  new DataLoader(async (ids) => {
+    const qs = ids.map((_) => "?").join(",");
+    const [rows, _] = await db.execute(
+      `SELECT * FROM closet_lists WHERE id IN (${qs})`,
+      ids
+    );
+
+    const entities = rows.map(normalizeRow);
+
+    return ids.map((id) => entities.find((e) => e.id === id));
+  });
+
 const buildColorLoader = (db) => {
   const colorLoader = new DataLoader(async (colorIds) => {
     const qs = colorIds.map((_) => "?").join(",");
@@ -442,6 +455,71 @@ const buildItemTradeCountsLoader = (db) =>
     { cacheKeyFn: ({ itemId, isOwned }) => `${itemId}-${isOwned}` }
   );
 
+const buildItemTradesLoader = (db, loaders) =>
+  new DataLoader(
+    async (itemIdOwnedPairs) => {
+      const qs = itemIdOwnedPairs
+        .map((_) => "(closet_hangers.item_id = ? AND closet_hangers.owned = ?)")
+        .join(" OR ");
+      const values = itemIdOwnedPairs
+        .map(({ itemId, isOwned }) => [itemId, isOwned])
+        .flat();
+      const [rows, _] = await db.execute(
+        {
+          sql: `
+            SELECT
+              closet_hangers.*, closet_lists.*, users.*
+              FROM closet_hangers
+              INNER JOIN users ON users.id = closet_hangers.user_id
+              LEFT JOIN closet_lists ON closet_lists.id = closet_hangers.list_id
+              WHERE (
+                (${qs})
+                AND (
+                  (closet_hangers.list_id IS NOT NULL AND closet_lists.visibility >= 2)
+                  OR (
+                    closet_hangers.list_id IS NULL AND closet_hangers.owned = 1
+                    AND users.owned_closet_hangers_visibility >= 2
+                  )
+                  OR (
+                    closet_hangers.list_id IS NULL AND closet_hangers.owned = 0
+                    AND users.wanted_closet_hangers_visibility >= 2
+                  )
+                )
+              );
+          `,
+          nestTables: true,
+        },
+        values
+      );
+
+      const entities = rows.map((row) => ({
+        closetHanger: normalizeRow(row.closet_hangers),
+        closetList: normalizeRow(row.closet_lists),
+        user: normalizeRow(row.users),
+      }));
+
+      for (const entity of entities) {
+        loaders.userLoader.prime(entity.user.id, entity.user);
+        loaders.closetListLoader.prime(entity.closetList.id, entity.closetList);
+      }
+
+      return itemIdOwnedPairs.map(({ itemId, isOwned }) =>
+        entities
+          .filter(
+            (e) =>
+              e.closetHanger.itemId === itemId &&
+              Boolean(e.closetHanger.owned) === isOwned
+          )
+          .map((e) => ({
+            id: e.closetHanger.id,
+            closetList: e.closetList.id ? e.closetList : null,
+            user: e.user,
+          }))
+      );
+    },
+    { cacheKeyFn: ({ itemId, isOwned }) => `${itemId}-${isOwned}` }
+  );
+
 const buildPetTypeLoader = (db, loaders) =>
   new DataLoader(async (petTypeIds) => {
     const qs = petTypeIds.map((_) => "?").join(",");
@@ -821,7 +899,7 @@ const buildUserClosetHangersLoader = (db) =>
     );
   });
 
-const buildUserClosetListsLoader = (db) =>
+const buildUserClosetListsLoader = (db, loaders) =>
   new DataLoader(async (userIds) => {
     const qs = userIds.map((_) => "?").join(",");
     const [rows, _] = await db.execute(
@@ -830,7 +908,11 @@ const buildUserClosetListsLoader = (db) =>
        ORDER BY name`,
       userIds
     );
+
     const entities = rows.map(normalizeRow);
+    for (const entity of entities) {
+      loaders.closetListLoader.prime(entity.id, entity);
+    }
 
     return userIds.map((userId) =>
       entities.filter((e) => e.userId === String(userId))
@@ -891,6 +973,7 @@ function buildLoaders(db) {
   const loaders = {};
   loaders.loadAllPetTypes = loadAllPetTypes(db);
 
+  loaders.closetListLoader = buildClosetListLoader(db);
   loaders.colorLoader = buildColorLoader(db);
   loaders.colorTranslationLoader = buildColorTranslationLoader(db);
   loaders.itemLoader = buildItemLoader(db);
@@ -904,6 +987,7 @@ function buildLoaders(db) {
   );
   loaders.itemAllOccupiedZonesLoader = buildItemAllOccupiedZonesLoader(db);
   loaders.itemTradeCountsLoader = buildItemTradeCountsLoader(db);
+  loaders.itemTradesLoader = buildItemTradesLoader(db, loaders);
   loaders.petTypeLoader = buildPetTypeLoader(db, loaders);
   loaders.petTypeBySpeciesAndColorLoader = buildPetTypeBySpeciesAndColorLoader(
     db,
@@ -937,7 +1021,7 @@ function buildLoaders(db) {
   loaders.userByNameLoader = buildUserByNameLoader(db);
   loaders.userByEmailLoader = buildUserByEmailLoader(db);
   loaders.userClosetHangersLoader = buildUserClosetHangersLoader(db);
-  loaders.userClosetListsLoader = buildUserClosetListsLoader(db);
+  loaders.userClosetListsLoader = buildUserClosetListsLoader(db, loaders);
   loaders.zoneLoader = buildZoneLoader(db);
   loaders.zoneTranslationLoader = buildZoneTranslationLoader(db);
 

@@ -33,6 +33,7 @@ const schema = makeExecutableSchema(
   mergeTypeDefsAndResolvers([
     { typeDefs: rootTypeDefs, resolvers: {} },
     require("./types/AppearanceLayer"),
+    require("./types/ClosetList"),
     require("./types/Item"),
     require("./types/MutationsForSupport"),
     require("./types/Outfit"),

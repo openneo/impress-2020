@@ -26,6 +26,10 @@ const typeDefs = gql`
     numUsersOfferingThis: Int!
     numUsersSeekingThis: Int!
 
+    # The trades available for this item, grouped by offering vs seeking.
+    tradesOffering: [ItemTrade!]!
+    tradesSeeking: [ItemTrade!]!
+
     # How this item appears on the given species/color combo. If it does not
     # fit the pet, we'll return an empty ItemAppearance with no layers.
     appearanceOn(speciesId: ID!, colorId: ID!): ItemAppearance!
@@ -79,10 +83,19 @@ const typeDefs = gql`
     PB
   }
 
+  # TODO: I guess I didn't add the NC/NP/PB filter to this. Does that cause
+  #       bugs in comparing results on the client? (Also, should we just throw
+  #       this out for a better merge function?)
   type ItemSearchResult {
     query: String!
     zones: [Zone!]!
     items: [Item!]!
+  }
+
+  type ItemTrade {
+    id: ID!
+    user: User!
+    closetList: ClosetList!
   }
 
   extend type Query {
@@ -202,6 +215,39 @@ const resolvers = {
         isOwned: false,
       });
       return count;
+    },
+
+    tradesOffering: async ({ id }, _, { itemTradesLoader }) => {
+      const trades = await itemTradesLoader.load({ itemId: id, isOwned: true });
+      return trades.map((trade) => ({
+        id: trade.id,
+        closetList: trade.closetList
+          ? { id: trade.closetList.id }
+          : {
+              isDefaultList: true,
+              userId: trade.user.id,
+              ownsOrWantsItems: "OWNS",
+            },
+        user: { id: trade.user.id },
+      }));
+    },
+
+    tradesSeeking: async ({ id }, _, { itemTradesLoader }) => {
+      const trades = await itemTradesLoader.load({
+        itemId: id,
+        isOwned: false,
+      });
+      return trades.map((trade) => ({
+        id: trade.id,
+        closetList: trade.closetList
+          ? { id: trade.closetList.id }
+          : {
+              isDefaultList: true,
+              userId: trade.user.id,
+              ownsOrWantsItems: "WANTS",
+            },
+        user: { id: trade.user.id },
+      }));
     },
 
     appearanceOn: async (

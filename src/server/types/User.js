@@ -1,11 +1,6 @@
 const { gql } = require("apollo-server");
 
 const typeDefs = gql`
-  enum OwnsOrWants {
-    OWNS
-    WANTS
-  }
-
   type User {
     id: ID!
     username: String!
@@ -15,27 +10,6 @@ const typeDefs = gql`
 
     itemsTheyOwn: [Item!]!
     itemsTheyWant: [Item!]!
-  }
-
-  type ClosetList {
-    id: ID!
-    name: String
-
-    # A user-customized description. May contain Markdown and limited HTML.
-    description: String
-
-    # Whether this is a list of items they own, or items they want.
-    ownsOrWantsItems: OwnsOrWants!
-
-    # Each user has a "default list" of items they own/want. When users click
-    # the Own/Want button on the item page, items go here automatically. (On
-    # the backend, this is managed as the hangers having a null list ID.)
-    #
-    # This field is true if the list is the default list, so we can style it
-    # differently and change certain behaviors (e.g. can't be deleted).
-    isDefaultList: Boolean!
-
-    items: [Item!]!
   }
 
   extend type Query {
@@ -162,10 +136,6 @@ const resolvers = {
         .filter((closetList) => isCurrentUser || closetList.visibility >= 1)
         .map((closetList) => ({
           id: closetList.id,
-          name: closetList.name,
-          description: closetList.description,
-          ownsOrWantsItems: closetList.hangersOwned ? "OWNS" : "WANTS",
-          isDefaultList: false,
           items: allClosetHangers
             .filter((h) => h.listId === closetList.id)
             .map((h) => ({ id: h.itemId })),
@@ -173,11 +143,9 @@ const resolvers = {
 
       if (isCurrentUser || user.ownedClosetHangersVisibility >= 1) {
         closetListNodes.push({
-          id: `user-${id}-default-list-OWNS`,
-          name: "Not in a list",
-          description: null,
-          ownsOrWantsItems: "OWNS",
           isDefaultList: true,
+          userId: id,
+          ownsOrWantsItems: "OWNS",
           items: allClosetHangers
             .filter((h) => h.listId == null && h.owned)
             .map((h) => ({ id: h.itemId })),
@@ -186,9 +154,8 @@ const resolvers = {
 
       if (isCurrentUser || user.wantedClosetHangersVisibility >= 1) {
         closetListNodes.push({
-          id: `user-${id}-default-list-WANTS`,
-          name: "Not in a list",
-          description: null,
+          isDefaultList: true,
+          userId: id,
           ownsOrWantsItems: "WANTS",
           isDefaultList: true,
           items: allClosetHangers

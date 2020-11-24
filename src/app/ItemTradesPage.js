@@ -1,6 +1,12 @@
 import React from "react";
 import { css } from "emotion";
-import { Box, Tooltip, useColorModeValue, useToken } from "@chakra-ui/core";
+import {
+  Box,
+  Skeleton,
+  Tooltip,
+  useColorModeValue,
+  useToken,
+} from "@chakra-ui/core";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
 import { useHistory, useParams } from "react-router-dom";
@@ -14,6 +20,25 @@ export function ItemTradesOfferingPage() {
       title="Trades: Offering"
       userHeading="Owner"
       compareListHeading="They're seeking"
+      tradesQuery={gql`
+        query ItemTradesTableOffering($itemId: ID!) {
+          item(id: $itemId) {
+            id
+            trades: tradesOffering {
+              id
+              user {
+                id
+                username
+                # lastUpdatedAnyTrade
+              }
+              closetList {
+                id
+                name
+              }
+            }
+          }
+        }
+      `}
     />
   );
 }
@@ -24,14 +49,38 @@ export function ItemTradesSeekingPage() {
       title="Trades: Seeking"
       userHeading="Seeker"
       compareListHeading="They're offering"
+      tradesQuery={gql`
+        query ItemTradesTableSeeking($itemId: ID!) {
+          item(id: $itemId) {
+            id
+            trades: tradesSeeking {
+              id
+              user {
+                id
+                username
+                # lastUpdatedAnyTrade
+              }
+              closetList {
+                id
+                name
+              }
+            }
+          }
+        }
+      `}
     />
   );
 }
 
-function ItemTradesPage({ title, userHeading, compareListHeading }) {
+function ItemTradesPage({
+  title,
+  userHeading,
+  compareListHeading,
+  tradesQuery,
+}) {
   const { itemId } = useParams();
 
-  const { loading, error, data } = useQuery(
+  const { error, data } = useQuery(
     gql`
       query ItemTradesPage($itemId: ID!) {
         item(id: $itemId) {
@@ -48,7 +97,7 @@ function ItemTradesPage({ title, userHeading, compareListHeading }) {
     { variables: { itemId }, returnPartialData: true }
   );
 
-  usePageTitle(`${data?.item?.name} | ${title}`, { skip: loading });
+  usePageTitle(`${data?.item?.name} | ${title}`, { skip: !data?.item?.name });
 
   if (error) {
     return <Box color="red.400">{error.message}</Box>;
@@ -63,12 +112,26 @@ function ItemTradesPage({ title, userHeading, compareListHeading }) {
         itemId={itemId}
         userHeading={userHeading}
         compareListHeading={compareListHeading}
+        tradesQuery={tradesQuery}
       />
     </ItemPageLayout>
   );
 }
 
-function ItemTradesTable({ itemId, userHeading, compareListHeading }) {
+function ItemTradesTable({
+  itemId,
+  userHeading,
+  compareListHeading,
+  tradesQuery,
+}) {
+  const { loading, error, data } = useQuery(tradesQuery, {
+    variables: { itemId },
+  });
+
+  if (error) {
+    return <Box color="red.400">{error.message}</Box>;
+  }
+
   return (
     <Box
       as="table"
@@ -78,34 +141,65 @@ function ItemTradesTable({ itemId, userHeading, compareListHeading }) {
         /* Chakra doesn't have props for these! */
         border-collapse: separate;
         border-spacing: 0;
+        table-layout: fixed;
       `}
     >
-      <Box as="thead">
+      <Box as="thead" fontSize={{ base: "xs", sm: "sm" }}>
         <Box as="tr">
-          <ItemTradesTableCell as="th">{userHeading}</ItemTradesTableCell>
-          <ItemTradesTableCell as="th">List</ItemTradesTableCell>
-          <ItemTradesTableCell as="th">
+          <ItemTradesTableCell as="th" width={{ base: "30%", md: "auto" }}>
+            List
+          </ItemTradesTableCell>
+          <ItemTradesTableCell as="th" width={{ base: "23%", md: "18ex" }}>
+            {userHeading}
+          </ItemTradesTableCell>
+          <ItemTradesTableCell as="th" width={{ base: "23%", md: "18ex" }}>
             {/* A small wording tweak to fit better on the xsmall screens! */}
-            <Box display={{ base: "none", sm: "block" }}>Last updated</Box>
+            <Box display={{ base: "none", sm: "block" }}>Last active</Box>
             <Box display={{ base: "block", sm: "none" }}>Updated</Box>
           </ItemTradesTableCell>
-          <ItemTradesTableCell as="th">Compare</ItemTradesTableCell>
+          <ItemTradesTableCell as="th" width={{ base: "23%", md: "18ex" }}>
+            Compare
+          </ItemTradesTableCell>
         </Box>
       </Box>
       <Box as="tbody">
-        <ItemTradesTableRow compareListHeading={compareListHeading} />
-        <ItemTradesTableRow compareListHeading={compareListHeading} />
-        <ItemTradesTableRow compareListHeading={compareListHeading} />
-        <ItemTradesTableRow compareListHeading={compareListHeading} />
-        <ItemTradesTableRow compareListHeading={compareListHeading} />
+        {loading && (
+          <>
+            <ItemTradesTableRowSkeleton />
+            <ItemTradesTableRowSkeleton />
+            <ItemTradesTableRowSkeleton />
+            <ItemTradesTableRowSkeleton />
+            <ItemTradesTableRowSkeleton />
+          </>
+        )}
+        {!loading &&
+          data.item.trades.length > 0 &&
+          data.item.trades.map((trade) => (
+            <ItemTradesTableRow
+              key={trade.id}
+              compareListHeading={compareListHeading}
+              href={`/user/${trade.user.id}/items#list-${trade.closetList.id}`}
+              username={trade.user.username}
+              listName={trade.closetList.name}
+            />
+          ))}
+        {!loading && data.item.trades.length === 0 && (
+          <Box as="tr">
+            <ItemTradesTableCell
+              colSpan="4"
+              textAlign="center"
+              fontStyle="italic"
+            >
+              No trades yet!
+            </ItemTradesTableCell>
+          </Box>
+        )}
       </Box>
     </Box>
   );
 }
 
-function ItemTradesTableRow({ compareListHeading }) {
-  const href = "/user/6/items#list-1";
-
+function ItemTradesTableRow({ compareListHeading, href, username, listName }) {
   const history = useHistory();
   const onClick = React.useCallback(() => history.push(href), [history, href]);
   const focusBackground = useColorModeValue("gray.100", "gray.600");
@@ -113,16 +207,15 @@ function ItemTradesTableRow({ compareListHeading }) {
   return (
     <Box
       as="tr"
-      cursor={"pointer"}
+      cursor="pointer"
       _hover={{ background: focusBackground }}
       _focusWithin={{ background: focusBackground }}
       onClick={onClick}
     >
-      <ItemTradesTableCell>Matchu</ItemTradesTableCell>
-      <ItemTradesTableCell>
+      <ItemTradesTableCell overflowWrap="break-word" fontSize="sm">
         <Box
           as="a"
-          href="/user/6/items#list-1"
+          href={href}
           className={css`
             &:hover,
             &:focus,
@@ -132,14 +225,17 @@ function ItemTradesTableRow({ compareListHeading }) {
             }
           `}
         >
-          Top priorities and such so yeah
+          {listName}
         </Box>
       </ItemTradesTableCell>
-      <ItemTradesTableCell>
+      <ItemTradesTableCell overflowWrap="break-word" fontSize="xs">
+        {username}
+      </ItemTradesTableCell>
+      <ItemTradesTableCell fontSize="xs">
         <Box display={{ base: "block", sm: "none" }}>&lt;1 week</Box>
         <Box display={{ base: "none", sm: "block" }}>This week</Box>
       </ItemTradesTableCell>
-      <ItemTradesTableCell height="100%">
+      <ItemTradesTableCell fontSize="xs">
         <Tooltip
           placement="bottom"
           label={
@@ -177,6 +273,25 @@ function ItemTradesTableRow({ compareListHeading }) {
   );
 }
 
+function ItemTradesTableRowSkeleton() {
+  return (
+    <Box as="tr">
+      <ItemTradesTableCell>
+        <Skeleton width="100%">Placeholder</Skeleton>
+      </ItemTradesTableCell>
+      <ItemTradesTableCell>
+        <Skeleton width="100%">Placeholder</Skeleton>
+      </ItemTradesTableCell>
+      <ItemTradesTableCell>
+        <Skeleton width="100%">Placeholder</Skeleton>
+      </ItemTradesTableCell>
+      <ItemTradesTableCell>
+        <Skeleton width="100%">Placeholder</Skeleton>
+      </ItemTradesTableCell>
+    </Box>
+  );
+}
+
 function ItemTradesTableCell({ children, as = "td", ...props }) {
   const borderColor = useColorModeValue("gray.300", "gray.400");
   const borderColorCss = useToken("colors", borderColor);
@@ -188,7 +303,6 @@ function ItemTradesTableCell({ children, as = "td", ...props }) {
       paddingX="4"
       paddingY="2"
       textAlign="left"
-      fontSize={{ base: "xs", sm: "sm" }}
       className={css`
         /* Lol sigh, getting this right is way more involved than I wish it
          * were. What I really want is border-collapse and a simple 1px border,
