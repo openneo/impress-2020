@@ -143,6 +143,11 @@ function ItemTradesTable({
     md: "18ex",
   };
 
+  const trades = [...(data?.item?.trades || [])].sort(
+    (a, b) =>
+      new Date(b.user.lastTradeActivity) - new Date(a.user.lastTradeActivity)
+  );
+
   return (
     <Box
       as="table"
@@ -157,35 +162,45 @@ function ItemTradesTable({
     >
       <Box as="thead" fontSize={{ base: "xs", sm: "sm" }}>
         <Box as="tr">
-          <ItemTradesTableCell as="th">List</ItemTradesTableCell>
-          <ItemTradesTableCell as="th" width={minorColumnWidth}>
-            {userHeading}
-          </ItemTradesTableCell>
           <ItemTradesTableCell as="th" width={minorColumnWidth}>
             {/* A small wording tweak to fit better on the xsmall screens! */}
             <Box display={{ base: "none", sm: "block" }}>Last active</Box>
             <Box display={{ base: "block", sm: "none" }}>Active at</Box>
+          </ItemTradesTableCell>
+          <ItemTradesTableCell as="th" width={minorColumnWidth}>
+            {userHeading}
           </ItemTradesTableCell>
           {shouldShowCompareColumn && (
             <ItemTradesTableCell as="th" width={minorColumnWidth}>
               Compare
             </ItemTradesTableCell>
           )}
+          <ItemTradesTableCell as="th">List</ItemTradesTableCell>
         </Box>
       </Box>
       <Box as="tbody">
         {loading && (
           <>
-            <ItemTradesTableRowSkeleton />
-            <ItemTradesTableRowSkeleton />
-            <ItemTradesTableRowSkeleton />
-            <ItemTradesTableRowSkeleton />
-            <ItemTradesTableRowSkeleton />
+            <ItemTradesTableRowSkeleton
+              shouldShowCompareColumn={shouldShowCompareColumn}
+            />
+            <ItemTradesTableRowSkeleton
+              shouldShowCompareColumn={shouldShowCompareColumn}
+            />
+            <ItemTradesTableRowSkeleton
+              shouldShowCompareColumn={shouldShowCompareColumn}
+            />
+            <ItemTradesTableRowSkeleton
+              shouldShowCompareColumn={shouldShowCompareColumn}
+            />
+            <ItemTradesTableRowSkeleton
+              shouldShowCompareColumn={shouldShowCompareColumn}
+            />
           </>
         )}
         {!loading &&
-          data.item.trades.length > 0 &&
-          data.item.trades.map((trade) => (
+          trades.length > 0 &&
+          trades.map((trade) => (
             <ItemTradesTableRow
               key={trade.id}
               compareListHeading={compareListHeading}
@@ -196,7 +211,7 @@ function ItemTradesTable({
               shouldShowCompareColumn={shouldShowCompareColumn}
             />
           ))}
-        {!loading && data.item.trades.length === 0 && (
+        {!loading && trades.length === 0 && (
           <Box as="tr">
             <ItemTradesTableCell
               colSpan="4"
@@ -232,30 +247,14 @@ function ItemTradesTableRow({
       _focusWithin={{ background: focusBackground }}
       onClick={onClick}
     >
-      <ItemTradesTableCell overflowWrap="break-word" fontSize="sm">
-        <Box
-          as="a"
-          href={href}
-          className={css`
-            &:hover,
-            &:focus,
-            tr:hover &,
-            tr:focus-within & {
-              text-decoration: underline;
-            }
-          `}
-        >
-          {listName}
-        </Box>
-      </ItemTradesTableCell>
-      <ItemTradesTableCell overflowWrap="break-word" fontSize="xs">
-        {username}
-      </ItemTradesTableCell>
       <ItemTradesTableCell fontSize="xs">
         {new Intl.DateTimeFormat("en", {
           month: "short",
           year: "numeric",
         }).format(new Date(lastTradeActivity))}
+      </ItemTradesTableCell>
+      <ItemTradesTableCell overflowWrap="break-word" fontSize="xs">
+        {username}
       </ItemTradesTableCell>
       {shouldShowCompareColumn && (
         <ItemTradesTableCell fontSize="xs">
@@ -294,11 +293,27 @@ function ItemTradesTableRow({
           </Tooltip>
         </ItemTradesTableCell>
       )}
+      <ItemTradesTableCell overflowWrap="break-word" fontSize="sm">
+        <Box
+          as="a"
+          href={href}
+          className={css`
+            &:hover,
+            &:focus,
+            tr:hover &,
+            tr:focus-within & {
+              text-decoration: underline;
+            }
+          `}
+        >
+          {listName}
+        </Box>
+      </ItemTradesTableCell>
     </Box>
   );
 }
 
-function ItemTradesTableRowSkeleton() {
+function ItemTradesTableRowSkeleton({ shouldShowCompareColumn }) {
   return (
     <Box as="tr">
       <ItemTradesTableCell>
@@ -310,9 +325,11 @@ function ItemTradesTableRowSkeleton() {
       <ItemTradesTableCell>
         <Skeleton width="100%">X</Skeleton>
       </ItemTradesTableCell>
-      <ItemTradesTableCell>
-        <Skeleton width="100%">X</Skeleton>
-      </ItemTradesTableCell>
+      {shouldShowCompareColumn && (
+        <ItemTradesTableCell>
+          <Skeleton width="100%">X</Skeleton>
+        </ItemTradesTableCell>
+      )}
     </Box>
   );
 }
