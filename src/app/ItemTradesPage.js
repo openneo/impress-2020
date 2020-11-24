@@ -214,7 +214,7 @@ function ItemTradesTable({
         {!loading && trades.length === 0 && (
           <Box as="tr">
             <ItemTradesTableCell
-              colSpan="4"
+              colSpan={shouldShowCompareColumn ? 4 : 3}
               textAlign="center"
               fontStyle="italic"
             >
