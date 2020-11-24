@@ -132,6 +132,17 @@ function ItemTradesTable({
     return <Box color="red.400">{error.message}</Box>;
   }
 
+  // HACK: I'm pretty much hiding this for now, because it's not ready. But
+  ///      it's visible at #show-compare-column!
+  const shouldShowCompareColumn = window.location.href.includes(
+    "show-compare-column"
+  );
+
+  const minorColumnWidth = {
+    base: shouldShowCompareColumn ? "23%" : "30%",
+    md: "18ex",
+  };
+
   return (
     <Box
       as="table"
@@ -146,20 +157,20 @@ function ItemTradesTable({
     >
       <Box as="thead" fontSize={{ base: "xs", sm: "sm" }}>
         <Box as="tr">
-          <ItemTradesTableCell as="th" width={{ base: "30%", md: "auto" }}>
-            List
-          </ItemTradesTableCell>
-          <ItemTradesTableCell as="th" width={{ base: "23%", md: "18ex" }}>
+          <ItemTradesTableCell as="th">List</ItemTradesTableCell>
+          <ItemTradesTableCell as="th" width={minorColumnWidth}>
             {userHeading}
           </ItemTradesTableCell>
-          <ItemTradesTableCell as="th" width={{ base: "23%", md: "18ex" }}>
+          <ItemTradesTableCell as="th" width={minorColumnWidth}>
             {/* A small wording tweak to fit better on the xsmall screens! */}
             <Box display={{ base: "none", sm: "block" }}>Last active</Box>
             <Box display={{ base: "block", sm: "none" }}>Active at</Box>
           </ItemTradesTableCell>
-          <ItemTradesTableCell as="th" width={{ base: "23%", md: "18ex" }}>
-            Compare
-          </ItemTradesTableCell>
+          {shouldShowCompareColumn && (
+            <ItemTradesTableCell as="th" width={minorColumnWidth}>
+              Compare
+            </ItemTradesTableCell>
+          )}
         </Box>
       </Box>
       <Box as="tbody">
@@ -182,6 +193,7 @@ function ItemTradesTable({
               username={trade.user.username}
               listName={trade.closetList.name}
               lastTradeActivity={trade.user.lastTradeActivity}
+              shouldShowCompareColumn={shouldShowCompareColumn}
             />
           ))}
         {!loading && data.item.trades.length === 0 && (
@@ -206,6 +218,7 @@ function ItemTradesTableRow({
   username,
   listName,
   lastTradeActivity,
+  shouldShowCompareColumn,
 }) {
   const history = useHistory();
   const onClick = React.useCallback(() => history.push(href), [history, href]);
@@ -244,41 +257,43 @@ function ItemTradesTableRow({
           year: "numeric",
         }).format(new Date(lastTradeActivity))}
       </ItemTradesTableCell>
-      <ItemTradesTableCell fontSize="xs">
-        <Tooltip
-          placement="bottom"
-          label={
-            <Box>
-              {compareListHeading}:
-              <Box as="ul" listStyle="disc">
-                <Box as="li" marginLeft="1em">
-                  Adorable Freckles
+      {shouldShowCompareColumn && (
+        <ItemTradesTableCell fontSize="xs">
+          <Tooltip
+            placement="bottom"
+            label={
+              <Box>
+                {compareListHeading}:
+                <Box as="ul" listStyle="disc">
+                  <Box as="li" marginLeft="1em">
+                    Adorable Freckles
+                  </Box>
+                  <Box as="li" marginLeft="1em">
+                    Constellation Dress
+                  </Box>
                 </Box>
-                <Box as="li" marginLeft="1em">
-                  Constellation Dress
-                </Box>
+                <Box>(WIP: This is placeholder data!)</Box>
               </Box>
-              <Box>(WIP: This is placeholder data!)</Box>
-            </Box>
-          }
-        >
-          <Box
-            tabIndex="0"
-            width="100%"
-            className={css`
-              &:hover,
-              &:focus,
-              tr:hover &,
-              tr:focus-within & {
-                text-decoration: underline dashed;
-              }
-            `}
+            }
           >
-            <Box display={{ base: "block", md: "none" }}>2 match</Box>
-            <Box display={{ base: "none", md: "block" }}>2 matches</Box>
-          </Box>
-        </Tooltip>
-      </ItemTradesTableCell>
+            <Box
+              tabIndex="0"
+              width="100%"
+              className={css`
+                &:hover,
+                &:focus,
+                tr:hover &,
+                tr:focus-within & {
+                  text-decoration: underline dashed;
+                }
+              `}
+            >
+              <Box display={{ base: "block", md: "none" }}>2 match</Box>
+              <Box display={{ base: "none", md: "block" }}>2 matches</Box>
+            </Box>
+          </Tooltip>
+        </ItemTradesTableCell>
+      )}
     </Box>
   );
 }
