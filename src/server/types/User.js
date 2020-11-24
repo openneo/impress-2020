@@ -10,6 +10,10 @@ const typeDefs = gql`
 
     itemsTheyOwn: [Item!]!
     itemsTheyWant: [Item!]!
+
+    # When this user last updated any of their trade lists, as an ISO 8601
+    # timestamp.
+    lastTradeActivity: String!
   }
 
   extend type Query {
@@ -165,6 +169,11 @@ const resolvers = {
       }
 
       return closetListNodes;
+    },
+
+    lastTradeActivity: async ({ id }, _, { userLastTradeActivityLoader }) => {
+      const lastTradeActivity = await userLastTradeActivityLoader.load(id);
+      return lastTradeActivity.toISOString();
     },
   },
 

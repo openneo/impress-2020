@@ -919,6 +919,44 @@ const buildUserClosetListsLoader = (db, loaders) =>
     );
   });
 
+const buildUserLastTradeActivityLoader = (db) =>
+  new DataLoader(async (userIds) => {
+    const qs = userIds.map((_) => "?").join(",");
+    const [rows, _] = await db.execute(
+      `
+        SELECT
+          closet_hangers.user_id AS user_id,
+            MAX(closet_hangers.updated_at) AS last_trade_activity
+          FROM closet_hangers
+          INNER JOIN users ON users.id = closet_hangers.user_id
+          LEFT JOIN closet_lists ON closet_lists.id = closet_hangers.list_id
+          WHERE (
+            closet_hangers.user_id IN (${qs})
+            AND (
+              (closet_hangers.list_id IS NOT NULL AND closet_lists.visibility >= 2)
+              OR (
+                closet_hangers.list_id IS NULL AND closet_hangers.owned = 1
+                AND users.owned_closet_hangers_visibility >= 2
+              )
+              OR (
+                closet_hangers.list_id IS NULL AND closet_hangers.owned = 0
+                AND users.wanted_closet_hangers_visibility >= 2
+              )
+            )
+          )
+          GROUP BY closet_hangers.user_id
+      `,
+      userIds
+    );
+
+    const entities = rows.map(normalizeRow);
+
+    return userIds.map((userId) => {
+      const entity = entities.find((e) => e.userId === String(userId));
+      return entity ? entity.lastTradeActivity : null;
+    });
+  });
+
 const buildZoneLoader = (db) => {
   const zoneLoader = new DataLoader(async (ids) => {
     const qs = ids.map((_) => "?").join(",");
@@ -1022,6 +1060,7 @@ function buildLoaders(db) {
   loaders.userByEmailLoader = buildUserByEmailLoader(db);
   loaders.userClosetHangersLoader = buildUserClosetHangersLoader(db);
   loaders.userClosetListsLoader = buildUserClosetListsLoader(db, loaders);
+  loaders.userLastTradeActivityLoader = buildUserLastTradeActivityLoader(db);
   loaders.zoneLoader = buildZoneLoader(db);
   loaders.zoneTranslationLoader = buildZoneTranslationLoader(db);
 

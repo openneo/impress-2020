@@ -29,7 +29,7 @@ export function ItemTradesOfferingPage() {
               user {
                 id
                 username
-                # lastUpdatedAnyTrade
+                lastTradeActivity
               }
               closetList {
                 id
@@ -58,7 +58,7 @@ export function ItemTradesSeekingPage() {
               user {
                 id
                 username
-                # lastUpdatedAnyTrade
+                lastTradeActivity
               }
               closetList {
                 id
@@ -155,7 +155,7 @@ function ItemTradesTable({
           <ItemTradesTableCell as="th" width={{ base: "23%", md: "18ex" }}>
             {/* A small wording tweak to fit better on the xsmall screens! */}
             <Box display={{ base: "none", sm: "block" }}>Last active</Box>
-            <Box display={{ base: "block", sm: "none" }}>Updated</Box>
+            <Box display={{ base: "block", sm: "none" }}>Active at</Box>
           </ItemTradesTableCell>
           <ItemTradesTableCell as="th" width={{ base: "23%", md: "18ex" }}>
             Compare
@@ -181,6 +181,7 @@ function ItemTradesTable({
               href={`/user/${trade.user.id}/items#list-${trade.closetList.id}`}
               username={trade.user.username}
               listName={trade.closetList.name}
+              lastTradeActivity={trade.user.lastTradeActivity}
             />
           ))}
         {!loading && data.item.trades.length === 0 && (
@@ -199,7 +200,13 @@ function ItemTradesTable({
   );
 }
 
-function ItemTradesTableRow({ compareListHeading, href, username, listName }) {
+function ItemTradesTableRow({
+  compareListHeading,
+  href,
+  username,
+  listName,
+  lastTradeActivity,
+}) {
   const history = useHistory();
   const onClick = React.useCallback(() => history.push(href), [history, href]);
   const focusBackground = useColorModeValue("gray.100", "gray.600");
@@ -232,8 +239,10 @@ function ItemTradesTableRow({ compareListHeading, href, username, listName }) {
         {username}
       </ItemTradesTableCell>
       <ItemTradesTableCell fontSize="xs">
-        <Box display={{ base: "block", sm: "none" }}>&lt;1 week</Box>
-        <Box display={{ base: "none", sm: "block" }}>This week</Box>
+        {new Intl.DateTimeFormat("en", {
+          month: "short",
+          year: "numeric",
+        }).format(new Date(lastTradeActivity))}
       </ItemTradesTableCell>
       <ItemTradesTableCell fontSize="xs">
         <Tooltip
@@ -249,6 +258,7 @@ function ItemTradesTableRow({ compareListHeading, href, username, listName }) {
                   Constellation Dress
                 </Box>
               </Box>
+              <Box>(WIP: This is placeholder data!)</Box>
             </Box>
           }
         >
