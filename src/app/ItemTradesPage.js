@@ -128,10 +128,6 @@ function ItemTradesTable({
     variables: { itemId },
   });
 
-  if (error) {
-    return <Box color="red.400">{error.message}</Box>;
-  }
-
   // HACK: I'm pretty much hiding this for now, because it's not ready. But
   ///      it's visible at #show-compare-column!
   const shouldShowCompareColumn = window.location.href.includes(
@@ -143,10 +139,27 @@ function ItemTradesTable({
     md: "18ex",
   };
 
-  const trades = [...(data?.item?.trades || [])].sort(
-    (a, b) =>
-      new Date(b.user.lastTradeActivity) - new Date(a.user.lastTradeActivity)
-  );
+  // We partially randomize trade sorting, but we want it to stay stable across
+  // re-renders. To do this, we can use `getTradeSortKey`, which will either
+  // build a new sort key for the trade, or return the cached one from the
+  // `tradeSortKeys` map.
+  const tradeSortKeys = React.useMemo(() => new Map(), []);
+  const getTradeSortKey = (trade) => {
+    if (!tradeSortKeys.has(trade.id)) {
+      tradeSortKeys.set(
+        trade.id,
+        getVaguelyRandomizedSortKeyForDate(trade.user.lastTradeActivity)
+      );
+    }
+    return tradeSortKeys.get(trade.id);
+  };
+
+  const trades = [...(data?.item?.trades || [])];
+  trades.sort((a, b) => getTradeSortKey(b).localeCompare(getTradeSortKey(a)));
+
+  if (error) {
+    return <Box color="red.400">{error.message}</Box>;
+  }
 
   return (
     <Box
@@ -248,10 +261,7 @@ function ItemTradesTableRow({
       onClick={onClick}
     >
       <ItemTradesTableCell fontSize="xs">
-        {new Intl.DateTimeFormat("en", {
-          month: "short",
-          year: "numeric",
-        }).format(new Date(lastTradeActivity))}
+        {formatVagueDate(lastTradeActivity)}
       </ItemTradesTableCell>
       <ItemTradesTableCell overflowWrap="break-word" fontSize="xs">
         {username}
@@ -382,4 +392,40 @@ function ItemTradesTableCell({ children, as = "td", ...props }) {
       {children}
     </Box>
   );
+}
+
+function isThisWeek(date) {
+  const startOfThisWeek = new Date();
+  startOfThisWeek.setDate(startOfThisWeek.getDate() - 7);
+  return date > startOfThisWeek;
+}
+
+const shortMonthYearFormatter = new Intl.DateTimeFormat("en", {
+  month: "short",
+  year: "numeric",
+});
+
+function formatVagueDate(dateString) {
+  const date = new Date(dateString);
+
+  if (isThisWeek(date)) {
+    return "This week";
+  }
+
+  return shortMonthYearFormatter.format(date);
+}
+
+function getVaguelyRandomizedSortKeyForDate(dateString) {
+  const date = new Date(dateString);
+
+  // "This week" sorts after all other dates, but with a random factor! I don't
+  // want people worrying about gaming themselves up to the very top, just be
+  // active and trust the system 😅 (I figure that, if you care enough to "game"
+  // the system by faking activity every week, you probably also care enough to
+  // be... making real trades every week lmao)
+  if (isThisWeek(date)) {
+    return `ZZZthisweekZZZ-${Math.random()}`;
+  }
+
+  return dateString;
 }
