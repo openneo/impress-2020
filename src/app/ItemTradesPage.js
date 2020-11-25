@@ -14,7 +14,7 @@ export function ItemTradesOfferingPage() {
     <ItemTradesPage
       title="Trades: Offering"
       userHeading="Owner"
-      compareListHeading="They're seeking"
+      compareColumnLabel="Trade for your…"
       tradesQuery={gql`
         query ItemTradesTableOffering($itemId: ID!) {
           item(id: $itemId) {
@@ -47,7 +47,7 @@ export function ItemTradesSeekingPage() {
     <ItemTradesPage
       title="Trades: Seeking"
       userHeading="Seeker"
-      compareListHeading="They're offering"
+      compareColumnLabel="Trade for their…"
       tradesQuery={gql`
         query ItemTradesTableSeeking($itemId: ID!) {
           item(id: $itemId) {
@@ -78,7 +78,7 @@ export function ItemTradesSeekingPage() {
 function ItemTradesPage({
   title,
   userHeading,
-  compareListHeading,
+  compareColumnLabel,
   tradesQuery,
 }) {
   const { itemId } = useParams();
@@ -114,7 +114,7 @@ function ItemTradesPage({
       <ItemTradesTable
         itemId={itemId}
         userHeading={userHeading}
-        compareListHeading={compareListHeading}
+        compareColumnLabel={compareColumnLabel}
         tradesQuery={tradesQuery}
       />
     </ItemPageLayout>
@@ -124,7 +124,7 @@ function ItemTradesPage({
 function ItemTradesTable({
   itemId,
   userHeading,
-  compareListHeading,
+  compareColumnLabel,
   tradesQuery,
 }) {
   const { isLoggedIn } = useCurrentUser();
@@ -186,7 +186,7 @@ function ItemTradesTable({
           {shouldShowCompareColumn && (
             <ItemTradesTableCell as="th" width={minorColumnWidth}>
               <Box display={{ base: "none", sm: "block" }}>
-                Potential trades
+                {compareColumnLabel}
               </Box>
               <Box display={{ base: "block", sm: "none" }}>Matches</Box>
             </ItemTradesTableCell>
@@ -222,7 +222,6 @@ function ItemTradesTable({
           trades.map((trade) => (
             <ItemTradesTableRow
               key={trade.id}
-              compareListHeading={compareListHeading}
               href={`/user/${trade.user.id}/items#list-${trade.closetList.id}`}
               username={trade.user.username}
               listName={trade.closetList.name}
@@ -248,7 +247,6 @@ function ItemTradesTable({
 }
 
 function ItemTradesTableRow({
-  compareListHeading,
   href,
   username,
   listName,
