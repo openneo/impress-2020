@@ -165,7 +165,7 @@ function ItemTradesTable({
           <ItemTradesTableCell as="th" width={minorColumnWidth}>
             {/* A small wording tweak to fit better on the xsmall screens! */}
             <Box display={{ base: "none", sm: "block" }}>Last active</Box>
-            <Box display={{ base: "block", sm: "none" }}>Active at</Box>
+            <Box display={{ base: "block", sm: "none" }}>Last edit</Box>
           </ItemTradesTableCell>
           <ItemTradesTableCell as="th" width={minorColumnWidth}>
             {userHeading}
