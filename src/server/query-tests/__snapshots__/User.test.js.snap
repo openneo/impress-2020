@@ -69,7 +69,7 @@ Object {
             "name": "Blue Jelly Tiara",
           },
         ],
-        "name": "(Not in a list)",
+        "name": "Not in a list",
         "ownsOrWantsItems": "OWNS",
       },
       Object {
@@ -81,7 +81,7 @@ Object {
             "name": "Altador Cup Background - Kreludor",
           },
         ],
-        "name": "(Not in a list)",
+        "name": "Not in a list",
         "ownsOrWantsItems": "WANTS",
       },
     ],

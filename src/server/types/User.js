@@ -136,12 +136,25 @@ const resolvers = {
         userLoader.load(id),
       ]);
 
+      const hangersByList = new Map(closetLists.map((l) => [l.id, []]));
+      const defaultListOwnedHangers = [];
+      const defaultListWantedHangers = [];
+      for (const hanger of allClosetHangers) {
+        if (hanger.listId) {
+          hangersByList.get(hanger.listId).push(hanger);
+        } else if (hanger.owned) {
+          defaultListOwnedHangers.push(hanger);
+        } else {
+          defaultListWantedHangers.push(hanger);
+        }
+      }
+
       const closetListNodes = closetLists
         .filter((closetList) => isCurrentUser || closetList.visibility >= 1)
         .map((closetList) => ({
           id: closetList.id,
-          items: allClosetHangers
-            .filter((h) => h.listId === closetList.id)
+          items: hangersByList
+            .get(closetList.id)
             .map((h) => ({ id: h.itemId })),
         }));
 
@@ -150,9 +163,7 @@ const resolvers = {
           isDefaultList: true,
           userId: id,
           ownsOrWantsItems: "OWNS",
-          items: allClosetHangers
-            .filter((h) => h.listId == null && h.owned)
-            .map((h) => ({ id: h.itemId })),
+          items: defaultListOwnedHangers.map((h) => ({ id: h.itemId })),
         });
       }
 
@@ -162,9 +173,7 @@ const resolvers = {
           userId: id,
           ownsOrWantsItems: "WANTS",
           isDefaultList: true,
-          items: allClosetHangers
-            .filter((h) => h.listId == null && !h.owned)
-            .map((h) => ({ id: h.itemId })),
+          items: defaultListWantedHangers.map((h) => ({ id: h.itemId })),
         });
       }
 
