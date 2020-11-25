@@ -126,8 +126,8 @@ const resolvers = {
 
     itemsTheyOwnThatCurrentUserWants: async (
       { id: publicUserId },
-      { currentUserId },
-      { tradeMatchesLoader }
+      _,
+      { currentUserId, tradeMatchesLoader }
     ) => {
       if (!currentUserId) {
         return [];
