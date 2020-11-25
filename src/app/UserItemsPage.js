@@ -366,7 +366,7 @@ function UserSearchForm() {
         <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search for another user…"
+          placeholder="Find another user…"
           borderRadius="full"
         />
         <InputRightElement>
