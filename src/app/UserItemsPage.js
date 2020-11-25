@@ -59,7 +59,7 @@ function UserItemsPage() {
 
   const { loading, error, data } = useQuery(
     gql`
-      query ItemsPage($userId: ID!) {
+      query UserItemsPage($userId: ID!) {
         user(id: $userId) {
           id
           username
