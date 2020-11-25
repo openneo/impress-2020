@@ -11,6 +11,11 @@ const typeDefs = gql`
     itemsTheyOwn: [Item!]!
     itemsTheyWant: [Item!]!
 
+    # These items represent potential trade matches. We use this as a preview
+    # in the trade list table.
+    itemsTheyOwnThatCurrentUserWants: [Item!]!
+    itemsTheyWantThatCurrentUserOwns: [Item!]!
+
     # When this user last updated any of their trade lists, as an ISO 8601
     # timestamp.
     lastTradeActivity: String!
@@ -117,6 +122,39 @@ const resolvers = {
         name: h.itemName,
       }));
       return items;
+    },
+
+    itemsTheyOwnThatCurrentUserWants: async (
+      { id: publicUserId },
+      { currentUserId },
+      { tradeMatchesLoader }
+    ) => {
+      if (!currentUserId) {
+        return [];
+      }
+
+      const itemIds = await tradeMatchesLoader.load({
+        publicUserId,
+        currentUserId,
+        direction: "public-owns-current-wants",
+      });
+      return itemIds.map((id) => ({ id }));
+    },
+    itemsTheyWantThatCurrentUserOwns: async (
+      { id: publicUserId },
+      _,
+      { currentUserId, tradeMatchesLoader }
+    ) => {
+      if (!currentUserId) {
+        return [];
+      }
+
+      const itemIds = await tradeMatchesLoader.load({
+        publicUserId,
+        currentUserId,
+        direction: "public-wants-current-owns",
+      });
+      return itemIds.map((id) => ({ id }));
     },
 
     closetLists: async (

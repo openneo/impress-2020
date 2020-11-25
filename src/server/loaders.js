@@ -116,6 +116,85 @@ const buildSpeciesTranslationLoader = (db) =>
     );
   });
 
+const buildTradeMatchesLoader = (db) =>
+  new DataLoader(
+    async (userPairs) => {
+      const conditions = userPairs
+        .map(
+          (_) =>
+            `(public_user_hangers.user_id = ? AND current_user_hangers.user_id = ? AND public_user_hangers.owned = ? AND current_user_hangers.owned = ?)`
+        )
+        .join(" OR ");
+      const conditionValues = userPairs
+        .map(({ publicUserId, currentUserId, direction }) => {
+          if (direction === "public-owns-current-wants") {
+            return [publicUserId, currentUserId, true, false];
+          } else if (direction === "public-wants-current-owns") {
+            return [publicUserId, currentUserId, false, true];
+          } else {
+            throw new Error(
+              `unexpected user pair direction: ${JSON.stringify(direction)}`
+            );
+          }
+        })
+        .flat();
+
+      const [rows, _] = await db.execute(
+        `
+          SELECT
+            public_user_hangers.user_id AS public_user_id,
+            current_user_hangers.user_id AS current_user_id,
+            IF(
+              public_user_hangers.owned,
+              "public-owns-current-wants",
+              "public-wants-current-owns"
+            ) AS direction,
+            GROUP_CONCAT(public_user_hangers.item_id) AS item_ids
+          FROM closet_hangers AS public_user_hangers
+          INNER JOIN users AS public_users ON public_users.id = public_user_hangers.user_id
+          LEFT JOIN closet_lists AS public_user_lists
+            ON public_user_lists.id = public_user_hangers.list_id
+          INNER JOIN closet_hangers AS current_user_hangers
+            ON public_user_hangers.item_id = current_user_hangers.item_id
+          WHERE (
+            (${conditions})
+            AND (
+              -- For the public user (but not the current), the hanger must be
+              -- marked Trading.
+              (public_user_hangers.list_id IS NOT NULL AND public_user_lists.visibility >= 2)
+                OR (
+                  public_user_hangers.list_id IS NULL AND public_user_hangers.owned = 1
+                  AND public_users.owned_closet_hangers_visibility >= 2
+                )
+                OR (
+                  public_user_hangers.list_id IS NULL AND public_user_hangers.owned = 0
+                  AND public_users.wanted_closet_hangers_visibility >= 2
+                )
+            )
+          )
+          GROUP BY public_user_id, current_user_id;
+      `,
+        conditionValues
+      );
+
+      const entities = rows.map(normalizeRow);
+
+      return userPairs.map(({ publicUserId, currentUserId, direction }) => {
+        const entity = entities.find(
+          (e) =>
+            e.publicUserId === publicUserId &&
+            e.currentUserId === currentUserId &&
+            e.direction === direction
+        );
+        return entity ? entity.itemIds.split(",") : [];
+      });
+    },
+    {
+      cacheKeyFn: ({ publicUserId, currentUserId, direction }) =>
+        `${publicUserId}-${currentUserId}-${direction}`,
+    }
+  );
+
 const loadAllPetTypes = (db) => async () => {
   const [rows, _] = await db.execute(
     `SELECT species_id, color_id FROM pet_types`
@@ -1071,6 +1150,7 @@ function buildLoaders(db) {
   );
   loaders.speciesLoader = buildSpeciesLoader(db);
   loaders.speciesTranslationLoader = buildSpeciesTranslationLoader(db);
+  loaders.tradeMatchesLoader = buildTradeMatchesLoader(db);
   loaders.userLoader = buildUserLoader(db);
   loaders.userByNameLoader = buildUserByNameLoader(db);
   loaders.userByEmailLoader = buildUserByEmailLoader(db);

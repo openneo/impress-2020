@@ -1,18 +1,13 @@
 import React from "react";
 import { css } from "emotion";
-import {
-  Box,
-  Skeleton,
-  Tooltip,
-  useColorModeValue,
-  useToken,
-} from "@chakra-ui/core";
+import { Box, Skeleton, useColorModeValue, useToken } from "@chakra-ui/core";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
 import { Link, useHistory, useParams } from "react-router-dom";
 
 import { Heading2, usePageTitle } from "./util";
 import ItemPageLayout from "./ItemPageLayout";
+import useCurrentUser from "./components/useCurrentUser";
 
 export function ItemTradesOfferingPage() {
   return (
@@ -30,6 +25,10 @@ export function ItemTradesOfferingPage() {
                 id
                 username
                 lastTradeActivity
+                matchingItems: itemsTheyWantThatCurrentUserOwns {
+                  id
+                  name
+                }
               }
               closetList {
                 id
@@ -59,6 +58,10 @@ export function ItemTradesSeekingPage() {
                 id
                 username
                 lastTradeActivity
+                matchingItems: itemsTheyOwnThatCurrentUserWants {
+                  id
+                  name
+                }
               }
               closetList {
                 id
@@ -124,20 +127,12 @@ function ItemTradesTable({
   compareListHeading,
   tradesQuery,
 }) {
+  const { isLoggedIn } = useCurrentUser();
   const { loading, error, data } = useQuery(tradesQuery, {
     variables: { itemId },
   });
 
-  // HACK: I'm pretty much hiding this for now, because it's not ready. But
-  ///      it's visible at #show-compare-column!
-  const shouldShowCompareColumn = window.location.href.includes(
-    "show-compare-column"
-  );
-
-  const minorColumnWidth = {
-    base: shouldShowCompareColumn ? "23%" : "30%",
-    md: "18ex",
-  };
+  const shouldShowCompareColumn = isLoggedIn;
 
   // We partially randomize trade sorting, but we want it to stay stable across
   // re-renders. To do this, we can use `getTradeSortKey`, which will either
@@ -148,7 +143,10 @@ function ItemTradesTable({
     if (!tradeSortKeys.has(trade.id)) {
       tradeSortKeys.set(
         trade.id,
-        getVaguelyRandomizedSortKeyForDate(trade.user.lastTradeActivity)
+        getVaguelyRandomizedTradeSortKey(
+          trade.user.lastTradeActivity,
+          trade.user.matchingItems.length
+        )
       );
     }
     return tradeSortKeys.get(trade.id);
@@ -160,6 +158,11 @@ function ItemTradesTable({
   if (error) {
     return <Box color="red.400">{error.message}</Box>;
   }
+
+  const minorColumnWidth = {
+    base: shouldShowCompareColumn ? "23%" : "30%",
+    md: "20ex",
+  };
 
   return (
     <Box
@@ -180,14 +183,17 @@ function ItemTradesTable({
             <Box display={{ base: "none", sm: "block" }}>Last active</Box>
             <Box display={{ base: "block", sm: "none" }}>Last edit</Box>
           </ItemTradesTableCell>
+          {shouldShowCompareColumn && (
+            <ItemTradesTableCell as="th" width={minorColumnWidth}>
+              <Box display={{ base: "none", sm: "block" }}>
+                Potential trades
+              </Box>
+              <Box display={{ base: "block", sm: "none" }}>Matches</Box>
+            </ItemTradesTableCell>
+          )}
           <ItemTradesTableCell as="th" width={minorColumnWidth}>
             {userHeading}
           </ItemTradesTableCell>
-          {shouldShowCompareColumn && (
-            <ItemTradesTableCell as="th" width={minorColumnWidth}>
-              Compare
-            </ItemTradesTableCell>
-          )}
           <ItemTradesTableCell as="th">List</ItemTradesTableCell>
         </Box>
       </Box>
@@ -221,6 +227,7 @@ function ItemTradesTable({
               username={trade.user.username}
               listName={trade.closetList.name}
               lastTradeActivity={trade.user.lastTradeActivity}
+              matchingItems={trade.user.matchingItems}
               shouldShowCompareColumn={shouldShowCompareColumn}
             />
           ))}
@@ -246,11 +253,16 @@ function ItemTradesTableRow({
   username,
   listName,
   lastTradeActivity,
+  matchingItems,
   shouldShowCompareColumn,
 }) {
   const history = useHistory();
   const onClick = React.useCallback(() => history.push(href), [history, href]);
   const focusBackground = useColorModeValue("gray.100", "gray.600");
+
+  const sortedMatchingItems = [...matchingItems].sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
 
   return (
     <Box
@@ -263,47 +275,37 @@ function ItemTradesTableRow({
       <ItemTradesTableCell fontSize="xs">
         {formatVagueDate(lastTradeActivity)}
       </ItemTradesTableCell>
-      <ItemTradesTableCell overflowWrap="break-word" fontSize="xs">
-        {username}
-      </ItemTradesTableCell>
       {shouldShowCompareColumn && (
         <ItemTradesTableCell fontSize="xs">
-          <Tooltip
-            placement="bottom"
-            label={
-              <Box>
-                {compareListHeading}:
-                <Box as="ul" listStyle="disc">
-                  <Box as="li" marginLeft="1em">
-                    Adorable Freckles
-                  </Box>
-                  <Box as="li" marginLeft="1em">
-                    Constellation Dress
+          {matchingItems.length > 0 ? (
+            <Box as="ul">
+              {sortedMatchingItems.slice(0, 4).map((item) => (
+                <Box key={item.id} as="li">
+                  <Box
+                    lineHeight="1.5"
+                    maxHeight="1.5em"
+                    overflow="hidden"
+                    textOverflow="ellipsis"
+                    whiteSpace="nowrap"
+                  >
+                    {item.name}
                   </Box>
                 </Box>
-                <Box>(WIP: This is placeholder data!)</Box>
-              </Box>
-            }
-          >
-            <Box
-              tabIndex="0"
-              width="100%"
-              className={css`
-                &:hover,
-                &:focus,
-                tr:hover &,
-                tr:focus-within & {
-                  text-decoration: underline dashed;
-                }
-              `}
-            >
-              <Box display={{ base: "block", md: "none" }}>2 match</Box>
-              <Box display={{ base: "none", md: "block" }}>2 matches</Box>
+              ))}
+              {matchingItems.length > 4 && (
+                <Box as="li">+ {matchingItems.length - 4} more</Box>
+              )}
             </Box>
-          </Tooltip>
+          ) : (
+            <>
+              <Box display={{ base: "none", sm: "block" }}>No matches</Box>
+              <Box display={{ base: "block", sm: "none" }}>None</Box>
+            </>
+          )}
         </ItemTradesTableCell>
       )}
-      <ItemTradesTableCell overflowWrap="break-word" fontSize="sm">
+      <ItemTradesTableCell fontSize="xs">{username}</ItemTradesTableCell>
+      <ItemTradesTableCell fontSize="sm">
         <Box
           as={Link}
           to={href}
@@ -415,16 +417,24 @@ function formatVagueDate(dateString) {
   return shortMonthYearFormatter.format(date);
 }
 
-function getVaguelyRandomizedSortKeyForDate(dateString) {
+function getVaguelyRandomizedTradeSortKey(dateString, numMatchingItems) {
   const date = new Date(dateString);
+  const hasMatchingItems = numMatchingItems >= 1;
 
   // "This week" sorts after all other dates, but with a random factor! I don't
   // want people worrying about gaming themselves up to the very top, just be
   // active and trust the system 😅 (I figure that, if you care enough to "game"
   // the system by faking activity every week, you probably also care enough to
   // be... making real trades every week lmao)
+  //
+  // We also prioritize having matches, but we don't bother to sort _how many_
+  // matches, to decrease the power of gaming with large honeypot lists, and
+  // because it's hard to judge how good matches are anyway.
   if (isThisWeek(date)) {
-    return `ZZZthisweekZZZ-${Math.random()}`;
+    const matchingItemsKey = hasMatchingItems
+      ? "ZZmatchingZZ"
+      : "AAnotmatchingAA";
+    return `ZZZthisweekZZZ-${matchingItemsKey}-${Math.random()}`;
   }
 
   return dateString;
