@@ -923,6 +923,22 @@ const buildUserLastTradeActivityLoader = (db) =>
   new DataLoader(async (userIds) => {
     const qs = userIds.map((_) => "?").join(",");
     const [rows, _] = await db.execute(
+      // This query has a custom index: index_closet_hangers_for_last_trade_activity.
+      // It's on (user_id, owned, list_id, updated_at). The intent is that this
+      // will enable the query planner to find the max updated_at for each
+      // user/owned/list_id tuple, and then use the filter conditions later to
+      // remove non-Trading lists and choose the overall _Trading_ max for the
+      // user.
+      //
+      // I'm not 100% sure that this is exactly what the query planner does,
+      // but it seems _very_ happy when it has this index: the Butterfly Shower
+      // item had ~850 users offering it, and this brought the query from
+      // 10-15sec to 1-2sec. An earlier version of the index, without the
+      // `owned` field, and forced with `USE INDEX`, was more like 4-5 sec - so
+      // I'm guessing what happened there is that forcing the index forced a
+      // better query plan, but that it still held all the hangers, instead of
+      // deriving intermediate maxes. (With this better index, the query
+      // planner jumps at it without a hint!)
       `
         SELECT
           closet_hangers.user_id AS user_id,
