@@ -58,47 +58,7 @@ function SpeciesColorPicker({
   const allSpecies = (meta && [...meta.allSpecies]) || [];
   allSpecies.sort((a, b) => a.name.localeCompare(b.name));
 
-  const backgroundColor = useColorModeValue("white", "gray.600");
-  const borderColor = useColorModeValue("green.600", "transparent");
   const textColor = useColorModeValue("inherit", "green.50");
-
-  const SpeciesColorSelect = ({ isDisabled, isLoading, ...props }) => {
-    const loadingProps = isLoading
-      ? {
-          // Visually the disabled state is the same as the normal state, but
-          // with a wait cursor. We don't expect this to take long, and the flash
-          // of content is rough!
-          opacity: "1 !important",
-          cursor: "wait !important",
-        }
-      : {};
-
-    return (
-      <Select
-        backgroundColor={backgroundColor}
-        color={textColor}
-        size={size}
-        border="1px"
-        borderColor={borderColor}
-        boxShadow="md"
-        width="auto"
-        transition="all 0.25s"
-        _hover={{
-          borderColor: "green.400",
-        }}
-        isInvalid={
-          valids &&
-          speciesId &&
-          colorId &&
-          !pairIsValid(valids, speciesId, colorId)
-        }
-        isDisabled={isDisabled || isLoading}
-        errorBorderColor="red.300"
-        {...props}
-        {...loadingProps}
-      />
-    );
-  };
 
   if ((loadingMeta || loadingValids) && !showPlaceholders) {
     return (
@@ -191,6 +151,10 @@ function SpeciesColorPicker({
         isLoading={allColors.length === 0}
         isDisabled={isDisabled}
         onChange={onChangeColor}
+        size={size}
+        valids={valids}
+        speciesId={speciesId}
+        colorId={colorId}
       >
         {
           // If the selected color isn't in the set we have here, show the
@@ -218,6 +182,10 @@ function SpeciesColorPicker({
         isLoading={allSpecies.length === 0}
         isDisabled={isDisabled}
         onChange={onChangeSpecies}
+        size={size}
+        valids={valids}
+        speciesId={speciesId}
+        colorId={colorId}
       >
         {
           // If the selected species isn't in the set we have here, show the
@@ -242,6 +210,56 @@ function SpeciesColorPicker({
     </Flex>
   );
 }
+
+const SpeciesColorSelect = ({
+  size,
+  valids,
+  speciesId,
+  colorId,
+  isDisabled,
+  isLoading,
+  ...props
+}) => {
+  const backgroundColor = useColorModeValue("white", "gray.600");
+  const borderColor = useColorModeValue("green.600", "transparent");
+  const textColor = useColorModeValue("inherit", "green.50");
+
+  const loadingProps = isLoading
+    ? {
+        // Visually the disabled state is the same as the normal state, but
+        // with a wait cursor. We don't expect this to take long, and the flash
+        // of content is rough!
+        opacity: "1 !important",
+        cursor: "wait !important",
+      }
+    : {};
+
+  return (
+    <Select
+      backgroundColor={backgroundColor}
+      color={textColor}
+      size={size}
+      border="1px"
+      borderColor={borderColor}
+      boxShadow="md"
+      width="auto"
+      transition="all 0.25s"
+      _hover={{
+        borderColor: "green.400",
+      }}
+      isInvalid={
+        valids &&
+        speciesId &&
+        colorId &&
+        !pairIsValid(valids, speciesId, colorId)
+      }
+      isDisabled={isDisabled || isLoading}
+      errorBorderColor="red.300"
+      {...props}
+      {...loadingProps}
+    />
+  );
+};
 
 function getPairByte(valids, speciesId, colorId) {
   // Reading a bit table, owo!
