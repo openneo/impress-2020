@@ -27,7 +27,7 @@ function GlobalFooter() {
             Terms of Use
           </ChakraLink>
           <ChakraLink as={RouterLink} to="/privacy">
-            Hey
+            Privacy Policy
           </ChakraLink>
           <ChakraLink href={classicDTIUrl}>Classic DTI</ChakraLink>
         </HStack>
