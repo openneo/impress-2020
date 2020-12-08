@@ -22,6 +22,7 @@ function ItemCard({ item, badges, ...props }) {
     <Box
       as={Link}
       to={`/items/${item.id}`}
+      display="block"
       p="2"
       boxShadow="lg"
       borderRadius="lg"

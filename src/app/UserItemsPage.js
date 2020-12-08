@@ -17,6 +17,7 @@ import {
   Portal,
   Wrap,
   VStack,
+  useBreakpointValue,
   useToast,
 } from "@chakra-ui/core";
 import {
@@ -30,6 +31,7 @@ import {
 import gql from "graphql-tag";
 import { useHistory, useParams } from "react-router-dom";
 import { useQuery, useLazyQuery, useMutation } from "@apollo/client";
+import { AutoSizer, Grid, WindowScroller } from "react-virtualized";
 import SimpleMarkdown from "simple-markdown";
 import DOMPurify from "dompurify";
 
@@ -37,7 +39,6 @@ import HangerSpinner from "./components/HangerSpinner";
 import { Heading1, Heading2, Heading3 } from "./util";
 import ItemCard, {
   ItemBadgeList,
-  ItemCardList,
   ItemKindBadge,
   YouOwnThisBadge,
   YouWantThisBadge,
@@ -234,7 +235,13 @@ function UserItemsPage() {
         <Heading2 id="owned-items" marginBottom="2">
           {isCurrentUser ? "Items you own" : `Items ${data.user.username} owns`}
         </Heading2>
-        <VStack spacing="8" alignItems="stretch">
+        <VStack
+          spacing="8"
+          alignItems="stretch"
+          className={css`
+            clear: both;
+          `}
+        >
           {listsOfOwnedItems.map((closetList) => (
             <ClosetList
               key={closetList.id}
@@ -437,7 +444,7 @@ function ClosetList({ closetList, isCurrentUser, showHeading }) {
         </Box>
       )}
       {sortedItems.length > 0 ? (
-        <ItemCardList>
+        <VirtualizedItemCardList>
           {sortedItems.map((item) => (
             <ItemCard
               key={item.id}
@@ -454,11 +461,56 @@ function ClosetList({ closetList, isCurrentUser, showHeading }) {
               }
             />
           ))}
-        </ItemCardList>
+        </VirtualizedItemCardList>
       ) : (
         <Box fontStyle="italic">This list is empty!</Box>
       )}
     </Box>
+  );
+}
+
+function VirtualizedItemCardList({ children }) {
+  const columnCount = useBreakpointValue({ base: 1, md: 2, lg: 3 });
+  const rowCount = Math.ceil(children.length / columnCount);
+
+  return (
+    <AutoSizer disableHeight>
+      {({ width }) => (
+        <WindowScroller>
+          {({
+            height,
+            isScrolling,
+            onChildScroll,
+            scrollTop,
+            registerChild,
+          }) => (
+            <Box ref={registerChild}>
+              <Grid
+                cellRenderer={({ key, rowIndex, columnIndex, style }) => (
+                  <Box
+                    key={key}
+                    style={style}
+                    paddingLeft={columnIndex > 0 ? "6" : "0"}
+                  >
+                    {children[rowIndex * columnCount + columnIndex]}
+                  </Box>
+                )}
+                columnCount={columnCount}
+                columnWidth={width / columnCount}
+                rowCount={rowCount}
+                rowHeight={100}
+                width={width}
+                height={height}
+                autoHeight
+                isScrolling={isScrolling}
+                onScroll={onChildScroll}
+                scrollTop={scrollTop}
+              />
+            </Box>
+          )}
+        </WindowScroller>
+      )}
+    </AutoSizer>
   );
 }
 
