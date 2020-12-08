@@ -25,6 +25,7 @@ const ItemTradesSeekingPage = loadable(() =>
   import("./ItemTradesPage").then((m) => m.ItemTradesSeekingPage)
 );
 const ModelingPage = loadable(() => import("./ModelingPage"));
+const PrivacyPolicyPage = loadable(() => import("./PrivacyPolicyPage"));
 const UserItemsPage = loadable(() => import("./UserItemsPage"));
 const WardrobePage = loadable(() => import("./WardrobePage"), {
   fallback: <WardrobePageLayout />,
@@ -102,6 +103,11 @@ function App() {
               <Route path="/modeling">
                 <PageLayout>
                   <ModelingPage />
+                </PageLayout>
+              </Route>
+              <Route path="/privacy">
+                <PageLayout>
+                  <PrivacyPolicyPage />
                 </PageLayout>
               </Route>
               <Route path="/">

@@ -9,7 +9,7 @@ import {
 } from "@chakra-ui/core";
 import { EmailIcon, MoonIcon, SunIcon } from "@chakra-ui/icons";
 import { SiGithub } from "react-icons/si";
-import { useRouteMatch } from "react-router-dom";
+import { Link as RouterLink, useRouteMatch } from "react-router-dom";
 
 function GlobalFooter() {
   const classicDTIUrl = useClassicDTIUrl();
@@ -25,6 +25,9 @@ function GlobalFooter() {
         <HStack spacing="4" justifyContent="center">
           <ChakraLink href="https://impress.openneo.net/terms">
             Terms of Use
+          </ChakraLink>
+          <ChakraLink as={RouterLink} to="/privacy">
+            Hey
           </ChakraLink>
           <ChakraLink href={classicDTIUrl}>Classic DTI</ChakraLink>
         </HStack>
