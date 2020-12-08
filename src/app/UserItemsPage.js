@@ -484,7 +484,13 @@ function VirtualizedItemCardList({ children }) {
             scrollTop,
             registerChild,
           }) => (
-            <Box ref={registerChild}>
+            <Box
+              // HACK: A mysterious invocation to force internal re-measuring!
+              //       Without this, most lists are very broken until the first
+              //       window resize event.
+              //       https://github.com/bvaughn/react-virtualized/issues/1324
+              ref={(el) => registerChild(el)}
+            >
               <Grid
                 cellRenderer={({ key, rowIndex, columnIndex, style }) => (
                   <Box
