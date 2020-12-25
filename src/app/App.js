@@ -1,8 +1,8 @@
 import React from "react";
 import { ApolloProvider } from "@apollo/client";
 import { Auth0Provider } from "@auth0/auth0-react";
-import { CSSReset, ChakraProvider } from "@chakra-ui/react";
-import defaultTheme from "@chakra-ui/theme";
+import { CSSReset, ChakraProvider, extendTheme } from "@chakra-ui/react";
+import { mode } from "@chakra-ui/theme-tools";
 import {
   BrowserRouter as Router,
   Switch,
@@ -31,30 +31,22 @@ const WardrobePage = loadable(() => import("./WardrobePage"), {
   fallback: <WardrobePageLayout />,
 });
 
-const theme = {
-  ...defaultTheme,
+const theme = extendTheme({
   styles: {
-    ...defaultTheme.styles,
-    global: ({ colorMode, ...rest }) => {
-      const defaultGlobals = defaultTheme.styles.global({ colorMode, ...rest });
-      return {
-        ...defaultGlobals,
-        html: {
-          ...defaultGlobals.html,
-          // HACK: Chakra sets body as the relative position element, which is
-          //       fine, except its `min-height: 100%` doesn't actually work
-          //       unless paired with height on the root element too!
-          height: "100%",
-        },
-        body: {
-          ...defaultGlobals.body,
-          color: colorMode === "light" ? "green.800" : "green.50",
-          transition: "all 0.25s",
-        },
-      };
-    },
+    global: (props) => ({
+      html: {
+        // HACK: Chakra sets body as the relative position element, which is
+        //       fine, except its `min-height: 100%` doesn't actually work
+        //       unless paired with height on the root element too!
+        height: "100%",
+      },
+      body: {
+        color: mode("green.800", "green.50")(props),
+        transition: "all 0.25s",
+      },
+    }),
   },
-};
+});
 
 /**
  * App is the entry point of our application. There's not a ton of exciting
