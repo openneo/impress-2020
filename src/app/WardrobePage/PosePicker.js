@@ -1,7 +1,7 @@
 import React from "react";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
-import { css, cx } from "emotion";
+import { css, cx } from "@emotion/css";
 import {
   Box,
   Button,

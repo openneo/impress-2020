@@ -12,7 +12,7 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react";
 import { CloseIcon, SearchIcon } from "@chakra-ui/icons";
-import { css, cx } from "emotion";
+import { css, cx } from "@emotion/css";
 import Autosuggest from "react-autosuggest";
 
 /**

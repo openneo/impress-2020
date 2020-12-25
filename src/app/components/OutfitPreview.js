@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, DarkMode, Flex, Text } from "@chakra-ui/react";
 import { WarningIcon } from "@chakra-ui/icons";
-import { css } from "emotion";
+import { css } from "@emotion/css";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 
 import OutfitMovieLayer, {

@@ -1,5 +1,5 @@
 import React from "react";
-import { css } from "emotion";
+import { css } from "@emotion/css";
 import { VStack } from "@chakra-ui/react";
 
 import { Heading1, Heading2, Heading3 } from "./util";
