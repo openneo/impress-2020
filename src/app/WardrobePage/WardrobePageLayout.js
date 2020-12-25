@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Grid } from "@chakra-ui/core";
+import { Box, Grid } from "@chakra-ui/react";
 
 function WardrobePageLayout({ preview, controls, itemsAndSearch }) {
   return (

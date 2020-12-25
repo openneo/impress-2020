@@ -19,7 +19,7 @@ import {
   VStack,
   useBreakpointValue,
   useToast,
-} from "@chakra-ui/core";
+} from "@chakra-ui/react";
 import {
   ArrowForwardIcon,
   CheckIcon,

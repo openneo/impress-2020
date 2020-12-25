@@ -1,7 +1,7 @@
 import React from "react";
 import gql from "graphql-tag";
 import { useMutation, useQuery } from "@apollo/client";
-import { Box, IconButton, Select, Spinner, Switch } from "@chakra-ui/core";
+import { Box, IconButton, Select, Spinner, Switch } from "@chakra-ui/react";
 import {
   ArrowBackIcon,
   ArrowForwardIcon,

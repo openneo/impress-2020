@@ -10,7 +10,7 @@ import {
   Skeleton,
   Tooltip,
   VisuallyHidden,
-} from "@chakra-ui/core";
+} from "@chakra-ui/react";
 import { EditIcon, QuestionIcon } from "@chakra-ui/icons";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 

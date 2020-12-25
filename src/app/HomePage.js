@@ -11,7 +11,7 @@ import {
   useTheme,
   useToast,
   VStack,
-} from "@chakra-ui/core";
+} from "@chakra-ui/react";
 import { useHistory, useLocation } from "react-router-dom";
 import { useLazyQuery } from "@apollo/client";
 

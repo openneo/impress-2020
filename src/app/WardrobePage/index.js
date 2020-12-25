@@ -1,5 +1,5 @@
 import React from "react";
-import { useToast } from "@chakra-ui/core";
+import { useToast } from "@chakra-ui/react";
 import loadable from "@loadable/component";
 
 import ItemsAndSearchPanels from "./ItemsAndSearchPanels";

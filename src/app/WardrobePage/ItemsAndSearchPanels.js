@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Flex } from "@chakra-ui/core";
+import { Box, Flex } from "@chakra-ui/react";
 
 import ItemsPanel from "./ItemsPanel";
 import SearchToolbar from "./SearchToolbar";

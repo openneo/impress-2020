@@ -6,7 +6,7 @@ import {
   DrawerCloseButton,
   DrawerOverlay,
   useBreakpointValue,
-} from "@chakra-ui/core";
+} from "@chakra-ui/react";
 
 import { ItemPageContent } from "./ItemPage";
 

@@ -20,7 +20,7 @@
     "prefix": "componentfile",
     "body": [
       "import React from \"react\";",
-      "import { Box } from \"@chakra-ui/core\";",
+      "import { Box } from \"@chakra-ui/react\";",
       "",
       "function $TM_FILENAME_BASE() {",
       "  return <Box>$1</Box>;",

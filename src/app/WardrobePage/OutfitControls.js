@@ -11,7 +11,7 @@ import {
   Tooltip,
   useClipboard,
   useToast,
-} from "@chakra-ui/core";
+} from "@chakra-ui/react";
 import {
   ArrowBackIcon,
   CheckIcon,

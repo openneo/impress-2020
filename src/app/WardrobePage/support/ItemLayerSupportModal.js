@@ -21,7 +21,7 @@ import {
   Spinner,
   useDisclosure,
   useToast,
-} from "@chakra-ui/core";
+} from "@chakra-ui/react";
 import { ChevronRightIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 
 import ItemLayerSupportUploadModal from "./ItemLayerSupportUploadModal";

@@ -8,7 +8,7 @@ import {
   Wrap,
   useColorModeValue,
   useTheme,
-} from "@chakra-ui/core";
+} from "@chakra-ui/react";
 import { CheckIcon, NotAllowedIcon, StarIcon } from "@chakra-ui/icons";
 import { HiSparkles } from "react-icons/hi";
 import { Link } from "react-router-dom";

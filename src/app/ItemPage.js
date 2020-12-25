@@ -14,7 +14,7 @@ import {
   useColorModeValue,
   useTheme,
   useToast,
-} from "@chakra-ui/core";
+} from "@chakra-ui/react";
 import {
   CheckIcon,
   ChevronRightIcon,

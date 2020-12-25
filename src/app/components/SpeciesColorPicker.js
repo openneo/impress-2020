@@ -1,7 +1,7 @@
 import React from "react";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
-import { Box, Flex, Select, Text, useColorModeValue } from "@chakra-ui/core";
+import { Box, Flex, Select, Text, useColorModeValue } from "@chakra-ui/react";
 
 import { Delay, useFetch } from "../util";
 

@@ -8,7 +8,7 @@ import {
   Tooltip,
   useColorModeValue,
   useTheme,
-} from "@chakra-ui/core";
+} from "@chakra-ui/react";
 import { EditIcon, DeleteIcon, InfoIcon } from "@chakra-ui/icons";
 import { Link } from "react-router-dom";
 import loadable from "@loadable/component";

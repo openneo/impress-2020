@@ -24,7 +24,7 @@ import {
   useBreakpointValue,
   useColorModeValue,
   useDisclosure,
-} from "@chakra-ui/core";
+} from "@chakra-ui/react";
 import { CheckCircleIcon, EditIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 
 import ItemLayerSupportModal from "./ItemLayerSupportModal";

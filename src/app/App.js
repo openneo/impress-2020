@@ -1,7 +1,7 @@
 import React from "react";
 import { ApolloProvider } from "@apollo/client";
 import { Auth0Provider } from "@auth0/auth0-react";
-import { CSSReset, ChakraProvider } from "@chakra-ui/core";
+import { CSSReset, ChakraProvider } from "@chakra-ui/react";
 import defaultTheme from "@chakra-ui/theme";
 import {
   BrowserRouter as Router,

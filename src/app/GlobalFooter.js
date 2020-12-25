@@ -6,7 +6,7 @@ import {
   Link as ChakraLink,
   Tooltip,
   useColorMode,
-} from "@chakra-ui/core";
+} from "@chakra-ui/react";
 import { EmailIcon, MoonIcon, SunIcon } from "@chakra-ui/icons";
 import { SiGithub } from "react-icons/si";
 import { Link as RouterLink, useRouteMatch } from "react-router-dom";

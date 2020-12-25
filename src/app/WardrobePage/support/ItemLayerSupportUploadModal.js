@@ -12,7 +12,7 @@ import {
   ModalOverlay,
   Select,
   useToast,
-} from "@chakra-ui/core";
+} from "@chakra-ui/react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 
 import { safeImageUrl } from "../../util";

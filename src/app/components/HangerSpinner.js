@@ -1,6 +1,6 @@
 import * as React from "react";
 import { css } from "emotion";
-import { Box, useColorModeValue } from "@chakra-ui/core";
+import { Box, useColorModeValue } from "@chakra-ui/react";
 import { createIcon } from "@chakra-ui/icons";
 
 const HangerIcon = createIcon({

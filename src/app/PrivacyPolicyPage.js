@@ -1,6 +1,6 @@
 import React from "react";
 import { css } from "emotion";
-import { VStack } from "@chakra-ui/core";
+import { VStack } from "@chakra-ui/react";
 
 import { Heading1, Heading2, Heading3 } from "./util";
 

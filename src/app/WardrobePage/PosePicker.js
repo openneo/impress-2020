@@ -14,7 +14,7 @@ import {
   VisuallyHidden,
   useColorModeValue,
   useTheme,
-} from "@chakra-ui/core";
+} from "@chakra-ui/react";
 import loadable from "@loadable/component";
 
 import {

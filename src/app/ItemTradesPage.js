@@ -1,6 +1,6 @@
 import React from "react";
 import { css } from "emotion";
-import { Box, Skeleton, useColorModeValue, useToken } from "@chakra-ui/core";
+import { Box, Skeleton, useColorModeValue, useToken } from "@chakra-ui/react";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
 import { Link, useHistory, useParams } from "react-router-dom";

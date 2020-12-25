@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Heading } from "@chakra-ui/core";
+import { Box, Heading } from "@chakra-ui/react";
 
 /**
  * Delay hides its content and first, then shows it after the given delay.

@@ -1,5 +1,5 @@
 import React from "react";
-import { Badge, Box, Skeleton, Tooltip } from "@chakra-ui/core";
+import { Badge, Box, Skeleton, Tooltip } from "@chakra-ui/react";
 import { ExternalLinkIcon, ChevronRightIcon } from "@chakra-ui/icons";
 
 import {

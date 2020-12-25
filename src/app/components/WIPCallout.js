@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Flex, Tooltip } from "@chakra-ui/core";
+import { Box, Flex, Tooltip } from "@chakra-ui/react";
 
 import WIPXweeImg from "../../images/wip-xwee.png";
 import WIPXweeImg2x from "../../images/wip-xwee@2x.png";

@@ -1,5 +1,5 @@
 import React from "react";
-import { Badge, Box, Tooltip } from "@chakra-ui/core";
+import { Badge, Box, Tooltip } from "@chakra-ui/react";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
 

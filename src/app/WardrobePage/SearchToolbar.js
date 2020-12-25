@@ -10,7 +10,7 @@ import {
   InputLeftElement,
   InputRightElement,
   useColorModeValue,
-} from "@chakra-ui/core";
+} from "@chakra-ui/react";
 import { CloseIcon, SearchIcon } from "@chakra-ui/icons";
 import { css, cx } from "emotion";
 import Autosuggest from "react-autosuggest";
