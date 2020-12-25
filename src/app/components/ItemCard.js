@@ -6,6 +6,7 @@ import {
   SimpleGrid,
   Tooltip,
   Wrap,
+  WrapItem,
   useColorModeValue,
   useTheme,
 } from "@chakra-ui/react";
@@ -203,7 +204,10 @@ export function ItemCardList({ children }) {
 export function ItemBadgeList({ children, ...props }) {
   return (
     <Wrap spacing="2" opacity="0.7" {...props}>
-      {children}
+      {React.Children.map(
+        children,
+        (badge) => badge && <WrapItem>{badge}</WrapItem>
+      )}
     </Wrap>
   );
 }
