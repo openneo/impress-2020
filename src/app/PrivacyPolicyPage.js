@@ -49,7 +49,10 @@ function PrivacyPolicyPage() {
             We made this decision because authentication is difficult to write
             and maintain securely. We felt that Auth0 was the smoothest and most
             secure experience we could offer, especially as a small team of
-            volunteers 😅
+            volunteers{" "}
+            <span role="img" aria-label="Sweat smile emoji">
+              😅
+            </span>
           </p>
           <p>
             <a href="https://auth0.com/legal/ss-tos">
