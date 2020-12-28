@@ -16,10 +16,9 @@ const connectToDb = require("../src/server/db");
 const neopetsAssets = require("../src/server/neopets-assets");
 
 async function cacheAssetManifests(db) {
-  const [
-    rows,
-  ] = await db.execute(
-    `SELECT id, url FROM swf_assets WHERE manifest IS NULL AND id >= ? ` +
+  const [rows] = await db.execute(
+    `SELECT id, url FROM swf_assets ` +
+      `WHERE manifest IS NULL OR manifest = "" AND id >= ? ` +
       `ORDER BY id`,
     [argv.start || 0]
   );
