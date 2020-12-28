@@ -58,9 +58,7 @@
     "setup-mysql-dev": "yarn mysql-dev < scripts/setup-mysql-dev-constants.sql && yarn mysql-dev < scripts/setup-mysql-dev-schema.sql",
     "build-cached-data": "node -r dotenv/config scripts/build-cached-data.js",
     "cache-asset-manifests": "node -r dotenv/config scripts/cache-asset-manifests.js",
-    "export-users-to-auth0": "node -r dotenv/config scripts/export-users-to-auth0.js",
-    "storybook": "start-storybook -p 6006 -s public",
-    "build-storybook": "build-storybook -s public"
+    "export-users-to-auth0": "node -r dotenv/config scripts/export-users-to-auth0.js"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -78,12 +76,6 @@
     ]
   },
   "devDependencies": {
-    "@storybook/addon-actions": "^6.0.21",
-    "@storybook/addon-essentials": "^6.0.21",
-    "@storybook/addon-links": "^6.0.21",
-    "@storybook/node-logger": "^6.0.21",
-    "@storybook/preset-create-react-app": "^3.1.4",
-    "@storybook/react": "^6.0.21",
     "apollo-server-testing": "^2.12.0",
     "auth0": "^2.28.0",
     "dotenv-cli": "^3.1.0",
