@@ -13,7 +13,7 @@ const { argv } = require("yargs");
 const PromisePool = require("es6-promise-pool");
 
 const connectToDb = require("../src/server/db");
-const neopets = require("../src/server/neopets");
+const neopetsAssets = require("../src/server/neopets-assets");
 
 async function cacheAssetManifests(db) {
   const [
@@ -30,7 +30,7 @@ async function cacheAssetManifests(db) {
 
   async function cacheAssetManifest(row) {
     try {
-      let manifest = await neopets.loadAssetManifest(row.url);
+      let manifest = await neopetsAssets.loadAssetManifest(row.url);
 
       // After loading, write the new manifest. We make sure to write an empty
       // string if there was no manifest, to signify that it doesn't exist, so
