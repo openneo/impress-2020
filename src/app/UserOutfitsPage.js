@@ -102,8 +102,17 @@ function OutfitCard({ outfit }) {
       borderRadius="md"
       padding="3"
       width="calc(150px + 2em)"
+      backgroundColor="white"
     >
-      <Box as="img" src={thumbnailUrl} width={150} height={150} />
+      <Box
+        as="img"
+        src={thumbnailUrl}
+        width={150}
+        height={150}
+        marginBottom="2"
+        borderRadius="md"
+        background="gray.700"
+      />
       <Box>{outfit.name}</Box>
     </Flex>
   );
