@@ -132,6 +132,9 @@ function UserNavBarSection() {
               Items
             </NavLinkItem>
           )}
+          <NavLinkItem as={Link} to={`/your-outfits`}>
+            Outfits
+          </NavLinkItem>
           <NavLinkItem as={Link} to="/modeling">
             Modeling
           </NavLinkItem>
