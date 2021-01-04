@@ -83,7 +83,7 @@ function UserOutfitsPageContent() {
   }
 
   return (
-    <Wrap spacing="4">
+    <Wrap spacing="4" justify="space-around">
       {outfits.map((outfit) => (
         <WrapItem key={outfit.id}>
           <OutfitCard outfit={outfit} />
