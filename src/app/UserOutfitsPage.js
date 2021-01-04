@@ -83,6 +83,12 @@ function UserOutfitsPageContent() {
 
   const outfits = data.currentUser.outfits;
 
+  if (outfits.length === 0) {
+    return (
+      <Box>You don't have any outfits yet. Maybe you can create some!</Box>
+    );
+  }
+
   return (
     <Wrap spacing="4">
       {outfits.map((outfit) => (
