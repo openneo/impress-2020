@@ -10,11 +10,15 @@ import {
 } from "./components/useOutfitAppearance";
 import HangerSpinner from "./components/HangerSpinner";
 import useRequireLogin from "./components/useRequireLogin";
+import WIPCallout from "./components/WIPCallout";
 
 function UserOutfitsPage() {
   return (
     <Box>
-      <Heading1 marginBottom="4">Your outfits</Heading1>
+      <Flex justifyContent="space-between" marginBottom="4">
+        <Heading1>Your outfits</Heading1>
+        <WIPCallout />
+      </Flex>
       <UserOutfitsPageContent />
     </Box>
   );
