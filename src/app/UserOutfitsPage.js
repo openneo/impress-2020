@@ -1,16 +1,9 @@
 import React from "react";
-import {
-  Box,
-  Center,
-  Flex,
-  Wrap,
-  WrapItem,
-  useColorModeValue,
-} from "@chakra-ui/react";
+import { Box, Center, Flex, Wrap, WrapItem } from "@chakra-ui/react";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
 
-import { ErrorMessage, Heading1 } from "./util";
+import { ErrorMessage, Heading1, useCommonStyles } from "./util";
 import {
   getVisibleLayers,
   petAppearanceFragmentForGetVisibleLayers,
@@ -106,8 +99,7 @@ function OutfitCard({ outfit }) {
     outfit.itemAppearances
   );
 
-  const cardBackground = useColorModeValue("white", "gray.700");
-  const thumbnailBackground = useColorModeValue("gray.600", "gray.600");
+  const { brightBackground } = useCommonStyles();
 
   return (
     <Flex
@@ -118,7 +110,7 @@ function OutfitCard({ outfit }) {
       borderRadius="md"
       padding="3"
       width="calc(150px + 2em)"
-      background={cardBackground}
+      backgroundColor={brightBackground}
       transition="all 0.2s"
     >
       <Box
@@ -128,7 +120,7 @@ function OutfitCard({ outfit }) {
         height={150}
         marginBottom="2"
         borderRadius="md"
-        background={thumbnailBackground}
+        background="gray.600"
         transition="all 0.2s"
       />
       <Box>{outfit.name}</Box>

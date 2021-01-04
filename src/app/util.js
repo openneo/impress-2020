@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Heading } from "@chakra-ui/react";
+import { Box, Heading, useColorModeValue } from "@chakra-ui/react";
 
 /**
  * Delay hides its content and first, then shows it after the given delay.
@@ -86,6 +86,12 @@ export function Heading3({ children, ...props }) {
  */
 export function ErrorMessage({ children }) {
   return <Box color="red.400">{children}</Box>;
+}
+
+export function useCommonStyles() {
+  return {
+    brightBackground: useColorModeValue("white", "gray.700"),
+  };
 }
 
 /**

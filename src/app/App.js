@@ -42,6 +42,7 @@ const theme = extendTheme({
         height: "100%",
       },
       body: {
+        background: mode("gray.50", "gray.800")(props),
         color: mode("green.800", "green.50")(props),
         transition: "all 0.25s",
       },

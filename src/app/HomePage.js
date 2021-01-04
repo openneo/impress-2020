@@ -15,7 +15,12 @@ import {
 import { useHistory, useLocation } from "react-router-dom";
 import { useLazyQuery } from "@apollo/client";
 
-import { Heading1, useLocalStorage, usePageTitle } from "./util";
+import {
+  Heading1,
+  useCommonStyles,
+  useLocalStorage,
+  usePageTitle,
+} from "./util";
 import OutfitPreview from "./components/OutfitPreview";
 import SpeciesColorPicker from "./components/SpeciesColorPicker";
 
@@ -207,6 +212,7 @@ function SubmitPetForm() {
     import("./WardrobePage");
   };
 
+  const { brightBackground } = useCommonStyles();
   const inputBorderColor = useColorModeValue("green.600", "green.500");
   const inputBorderColorHover = useColorModeValue("green.400", "green.300");
   const buttonBgColor = useColorModeValue("green.600", "green.300");
@@ -225,6 +231,7 @@ function SubmitPetForm() {
               aria-label="Enter a pet's name"
               borderColor={inputBorderColor}
               _hover={{ borderColor: inputBorderColorHover }}
+              background={brightBackground}
               boxShadow="md"
               width="14em"
               className={css`
@@ -252,12 +259,16 @@ function SubmitPetForm() {
 }
 
 function FeedbackFormSection() {
+  const { brightBackground } = useCommonStyles();
   const pitchBorderColor = useColorModeValue("gray.300", "green.400");
   const formBorderColor = useColorModeValue("gray.300", "blue.400");
 
   return (
     <VStack spacing="4" alignItems="stretch">
-      <FeedbackFormContainer borderColor={pitchBorderColor}>
+      <FeedbackFormContainer
+        background={brightBackground}
+        borderColor={pitchBorderColor}
+      >
         <Flex position="relative" alignItems="center">
           <Box padding="2" borderRadius="lg" overflow="hidden" flex="0 0 auto">
             <Box
@@ -293,10 +304,11 @@ function FeedbackFormSection() {
   );
 }
 
-function FeedbackFormContainer({ borderColor, children }) {
+function FeedbackFormContainer({ background, borderColor, children }) {
   return (
     <Box
       as="section"
+      background={background}
       border="1px solid"
       borderColor={borderColor}
       borderRadius="lg"
@@ -305,6 +317,7 @@ function FeedbackFormContainer({ borderColor, children }) {
       paddingLeft="2"
       paddingRight="4"
       paddingY="2"
+      transition="all 0.2s"
     >
       {children}
     </Box>
@@ -379,6 +392,8 @@ function FeedbackForm() {
     [content, email, toast]
   );
 
+  const { brightBackground } = useCommonStyles();
+
   return (
     <Box
       as="form"
@@ -397,6 +412,7 @@ function FeedbackForm() {
         gridArea="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
+        background={brightBackground}
       />
       <Textarea
         size="sm"
@@ -404,6 +420,7 @@ function FeedbackForm() {
         gridArea="content"
         value={content}
         onChange={(e) => setContent(e.target.value)}
+        background={brightBackground}
       />
       <Button
         type="submit"

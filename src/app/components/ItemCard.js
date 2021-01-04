@@ -14,10 +14,10 @@ import { CheckIcon, NotAllowedIcon, StarIcon } from "@chakra-ui/icons";
 import { HiSparkles } from "react-icons/hi";
 import { Link } from "react-router-dom";
 
-import { safeImageUrl } from "../util";
+import { safeImageUrl, useCommonStyles } from "../util";
 
 function ItemCard({ item, badges, ...props }) {
-  const borderColor = useColorModeValue("gray.100", "green.500");
+  const { brightBackground } = useCommonStyles();
 
   return (
     <Box
@@ -27,8 +27,8 @@ function ItemCard({ item, badges, ...props }) {
       p="2"
       boxShadow="lg"
       borderRadius="lg"
-      border="1px"
-      borderColor={borderColor}
+      background={brightBackground}
+      transition="all 0.2s"
       className="item-card"
       width="100%"
       minWidth="0"
