@@ -47,6 +47,7 @@
   "scripts": {
     "start": "yarn build-cached-data && react-scripts start",
     "build": "yarn build-cached-data && react-scripts build",
+    "vercel-build": "yum install libuuid-devel libmount-devel && cp /lib64/{libuuid,libmount,libblkid}.so.1 node_modules/canvas/build/Release/",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "mysql": "mysql --host=impress.openneo.net --user=$(dotenv -p IMPRESS_MYSQL_USER) --password=$(dotenv -p IMPRESS_MYSQL_PASSWORD) --database=openneo_impress",
