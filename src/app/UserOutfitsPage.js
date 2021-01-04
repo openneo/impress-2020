@@ -7,6 +7,7 @@ import { ErrorMessage, Heading1 } from "./util";
 import {
   getVisibleLayers,
   petAppearanceFragmentForGetVisibleLayers,
+  itemAppearanceFragmentForGetVisibleLayers,
 } from "./components/useOutfitAppearance";
 import HangerSpinner from "./components/HangerSpinner";
 import useRequireLogin from "./components/useRequireLogin";
@@ -43,10 +44,20 @@ function UserOutfitsPageContent() {
               }
               ...PetAppearanceForGetVisibleLayers
             }
+            itemAppearances {
+              id
+              layers {
+                id
+                svgUrl
+                imageUrl(size: $size)
+              }
+              ...ItemAppearanceForGetVisibleLayers
+            }
           }
         }
       }
       ${petAppearanceFragmentForGetVisibleLayers}
+      ${itemAppearanceFragmentForGetVisibleLayers}
     `,
     { variables: { size: "SIZE_" + getBestImageSize() }, skip: userLoading }
   );
@@ -77,7 +88,10 @@ function UserOutfitsPageContent() {
 }
 
 function OutfitCard({ outfit }) {
-  const thumbnailUrl = buildOutfitThumbnailUrl(outfit.petAppearance, []);
+  const thumbnailUrl = buildOutfitThumbnailUrl(
+    outfit.petAppearance,
+    outfit.itemAppearances
+  );
 
   return (
     <Flex
@@ -105,6 +119,14 @@ function buildOutfitThumbnailUrl(petAppearance, itemAppearances) {
   return `/api/outfitImage?size=${size}&layerUrls=${layerUrls.join(",")}`;
 }
 
+/**
+ * getBestImageSize returns the right image size to render at 150x150, for the
+ * current device.
+ *
+ * On high-DPI devices, we'll download a 300x300 image to render at 150x150
+ * scale. On standard-DPI devices, we'll download a 150x150 image, to save
+ * bandwidth.
+ */
 function getBestImageSize() {
   if (window.devicePixelRatio > 1) {
     return 300;

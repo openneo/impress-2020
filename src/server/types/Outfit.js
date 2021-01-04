@@ -7,6 +7,10 @@ const typeDefs = gql`
     petAppearance: PetAppearance!
     wornItems: [Item!]!
     closetedItems: [Item!]!
+
+    # This is a convenience field: you could query this from the combination of
+    # petAppearance and wornItems, but this gets you it in one shot!
+    itemAppearances: [ItemAppearance!]!
   }
 
   extend type Query {
@@ -23,6 +27,33 @@ const resolvers = {
     petAppearance: async ({ id }, _, { outfitLoader }) => {
       const outfit = await outfitLoader.load(id);
       return { id: outfit.petStateId };
+    },
+    itemAppearances: async (
+      { id },
+      _,
+      {
+        outfitLoader,
+        petStateLoader,
+        petTypeLoader,
+        itemOutfitRelationshipsLoader,
+      }
+    ) => {
+      const [petType, relationships] = await Promise.all([
+        outfitLoader
+          .load(id)
+          .then((outfit) => petStateLoader.load(outfit.petStateId))
+          .then((petState) => petTypeLoader.load(petState.petTypeId)),
+        itemOutfitRelationshipsLoader.load(id),
+      ]);
+
+      const wornItemIds = relationships
+        .filter((oir) => oir.isWorn)
+        .map((oir) => oir.itemId);
+
+      return wornItemIds.map((itemId) => ({
+        item: { id: itemId },
+        bodyId: petType.bodyId,
+      }));
     },
     wornItems: async ({ id }, _, { itemOutfitRelationshipsLoader }) => {
       const relationships = await itemOutfitRelationshipsLoader.load(id);

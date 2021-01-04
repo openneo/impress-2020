@@ -137,6 +137,22 @@ export function getVisibleLayers(petAppearance, itemAppearances) {
   return visibleLayers;
 }
 
+export const itemAppearanceFragmentForGetVisibleLayers = gql`
+  fragment ItemAppearanceForGetVisibleLayers on ItemAppearance {
+    id
+    layers {
+      id
+      zone {
+        id
+        depth @client
+      }
+    }
+    restrictedZones {
+      id
+    }
+  }
+`;
+
 export const itemAppearanceFragment = gql`
   fragment ItemAppearanceForOutfitPreview on ItemAppearance {
     id
@@ -149,15 +165,13 @@ export const itemAppearanceFragment = gql`
       swfUrl # HACK: This is for Support tools, but other views don't need it
       bodyId
       zone {
-        id
-        depth @client
         label @client # HACK: This is for Support tools, but other views don't need it
       }
     }
-    restrictedZones {
-      id
-    }
+    ...ItemAppearanceForGetVisibleLayers
   }
+
+  ${itemAppearanceFragmentForGetVisibleLayers}
 `;
 
 export const petAppearanceFragmentForGetVisibleLayers = gql`
