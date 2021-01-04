@@ -1,5 +1,12 @@
 import React from "react";
-import { Box, Center, Flex, Wrap, WrapItem } from "@chakra-ui/react";
+import {
+  Box,
+  Center,
+  Flex,
+  Wrap,
+  WrapItem,
+  useColorModeValue,
+} from "@chakra-ui/react";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
 
@@ -93,6 +100,9 @@ function OutfitCard({ outfit }) {
     outfit.itemAppearances
   );
 
+  const cardBackground = useColorModeValue("white", "gray.700");
+  const thumbnailBackground = useColorModeValue("gray.600", "gray.600");
+
   return (
     <Flex
       direction="column"
@@ -102,7 +112,8 @@ function OutfitCard({ outfit }) {
       borderRadius="md"
       padding="3"
       width="calc(150px + 2em)"
-      backgroundColor="white"
+      background={cardBackground}
+      transition="all 0.2s"
     >
       <Box
         as="img"
@@ -111,7 +122,8 @@ function OutfitCard({ outfit }) {
         height={150}
         marginBottom="2"
         borderRadius="md"
-        background="gray.700"
+        background={thumbnailBackground}
+        transition="all 0.2s"
       />
       <Box>{outfit.name}</Box>
     </Flex>
