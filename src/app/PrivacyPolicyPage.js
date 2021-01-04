@@ -1,5 +1,5 @@
 import React from "react";
-import { css } from "@emotion/css";
+import { css } from "@emotion/react";
 import { VStack } from "@chakra-ui/react";
 
 import { Heading1, Heading2, Heading3 } from "./util";
@@ -11,7 +11,7 @@ function PrivacyPolicyPage() {
       <VStack
         spacing="4"
         alignItems="flex-start"
-        className={css`
+        css={css`
           max-width: 800px;
 
           p {

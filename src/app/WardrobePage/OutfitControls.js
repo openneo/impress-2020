@@ -1,5 +1,5 @@
 import React from "react";
-import { css, cx } from "@emotion/css";
+import { ClassNames } from "@emotion/react";
 import {
   Box,
   Button,
@@ -84,120 +84,126 @@ function OutfitControls({
   };
 
   return (
-    <Box
-      role="group"
-      pos="absolute"
-      left="0"
-      right="0"
-      top="0"
-      bottom="0"
-      height="100%" // Required for Safari to size the grid correctly
-      padding={{ base: 2, lg: 6 }}
-      display="grid"
-      overflow="auto"
-      gridTemplateAreas={`"back play-pause sharing"
+    <ClassNames>
+      {({ css, cx }) => (
+        <Box
+          role="group"
+          pos="absolute"
+          left="0"
+          right="0"
+          top="0"
+          bottom="0"
+          height="100%" // Required for Safari to size the grid correctly
+          padding={{ base: 2, lg: 6 }}
+          display="grid"
+          overflow="auto"
+          gridTemplateAreas={`"back play-pause sharing"
                           "space space space"
                           "picker picker picker"`}
-      gridTemplateRows="auto minmax(1rem, 1fr) auto"
-      className={cx(
-        css`
-          opacity: 0;
-          transition: opacity 0.2s;
+          gridTemplateRows="auto minmax(1rem, 1fr) auto"
+          className={cx(
+            css`
+              opacity: 0;
+              transition: opacity 0.2s;
 
-          &:focus-within,
-          &.focus-is-locked {
-            opacity: 1;
-          }
+              &:focus-within,
+              &.focus-is-locked {
+                opacity: 1;
+              }
 
-          /* Ignore simulated hovers, only reveal for _real_ hovers. This helps
+              /* Ignore simulated hovers, only reveal for _real_ hovers. This helps
            * us avoid state conflicts with the focus-lock from clicks. */
-          @media (hover: hover) {
-            &:hover {
-              opacity: 1;
-            }
-          }
-        `,
-        focusIsLocked && "focus-is-locked"
-      )}
-      onClickCapture={(e) => {
-        const opacity = parseFloat(getComputedStyle(e.currentTarget).opacity);
-        if (opacity < 0.5) {
-          // If the controls aren't visible right now, then clicks on them are
-          // probably accidental. Ignore them! (We prevent default to block
-          // built-in behaviors like link nav, and we stop propagation to block
-          // our own custom click handlers. I don't know if I can prevent the
-          // select clicks though?)
-          e.preventDefault();
-          e.stopPropagation();
+              @media (hover: hover) {
+                &:hover {
+                  opacity: 1;
+                }
+              }
+            `,
+            focusIsLocked && "focus-is-locked"
+          )}
+          onClickCapture={(e) => {
+            const opacity = parseFloat(
+              getComputedStyle(e.currentTarget).opacity
+            );
+            if (opacity < 0.5) {
+              // If the controls aren't visible right now, then clicks on them are
+              // probably accidental. Ignore them! (We prevent default to block
+              // built-in behaviors like link nav, and we stop propagation to block
+              // our own custom click handlers. I don't know if I can prevent the
+              // select clicks though?)
+              e.preventDefault();
+              e.stopPropagation();
 
-          // We also show the controls, by locking focus. We'll undo this when
-          // the user taps elsewhere (because it will trigger a blur event from
-          // our child components), in `maybeUnlockFocus`.
-          setFocusIsLocked(true);
-        }
-      }}
-    >
-      <Box gridArea="back" onClick={maybeUnlockFocus}>
-        <ControlButton
-          as={Link}
-          to="/"
-          icon={<ArrowBackIcon />}
-          aria-label="Leave this outfit"
-          d="inline-flex" // Not sure why <a> requires this to style right! ^^`
-        />
-      </Box>
-      {showAnimationControls && (
-        <Box gridArea="play-pause" display="flex" justifyContent="center">
-          <DarkMode>
-            <PlayPauseButton />
-          </DarkMode>
+              // We also show the controls, by locking focus. We'll undo this when
+              // the user taps elsewhere (because it will trigger a blur event from
+              // our child components), in `maybeUnlockFocus`.
+              setFocusIsLocked(true);
+            }
+          }}
+        >
+          <Box gridArea="back" onClick={maybeUnlockFocus}>
+            <ControlButton
+              as={Link}
+              to="/"
+              icon={<ArrowBackIcon />}
+              aria-label="Leave this outfit"
+              d="inline-flex" // Not sure why <a> requires this to style right! ^^`
+            />
+          </Box>
+          {showAnimationControls && (
+            <Box gridArea="play-pause" display="flex" justifyContent="center">
+              <DarkMode>
+                <PlayPauseButton />
+              </DarkMode>
+            </Box>
+          )}
+          <Stack
+            gridArea="sharing"
+            alignSelf="flex-end"
+            spacing={{ base: "2", lg: "4" }}
+            align="flex-end"
+            onClick={maybeUnlockFocus}
+          >
+            <Box>
+              <DownloadButton outfitState={outfitState} />
+            </Box>
+            <Box>
+              <CopyLinkButton outfitState={outfitState} />
+            </Box>
+          </Stack>
+          <Box gridArea="space" onClick={maybeUnlockFocus} />
+          <Flex gridArea="picker" justify="center" onClick={maybeUnlockFocus}>
+            {/**
+             * We try to center the species/color picker, but the left spacer will
+             * shrink more than the pose picker container if we run out of space!
+             */}
+            <Box flex="1 1 0" />
+            <Box flex="0 0 auto">
+              <DarkMode>
+                <SpeciesColorPicker
+                  speciesId={outfitState.speciesId}
+                  colorId={outfitState.colorId}
+                  idealPose={outfitState.pose}
+                  onChange={onSpeciesColorChange}
+                  stateMustAlwaysBeValid
+                />
+              </DarkMode>
+            </Box>
+            <Flex flex="1 1 0" align="center" pl="4">
+              <PosePicker
+                speciesId={outfitState.speciesId}
+                colorId={outfitState.colorId}
+                pose={outfitState.pose}
+                appearanceId={outfitState.appearanceId}
+                dispatchToOutfit={dispatchToOutfit}
+                onLockFocus={onLockFocus}
+                onUnlockFocus={onUnlockFocus}
+              />
+            </Flex>
+          </Flex>
         </Box>
       )}
-      <Stack
-        gridArea="sharing"
-        alignSelf="flex-end"
-        spacing={{ base: "2", lg: "4" }}
-        align="flex-end"
-        onClick={maybeUnlockFocus}
-      >
-        <Box>
-          <DownloadButton outfitState={outfitState} />
-        </Box>
-        <Box>
-          <CopyLinkButton outfitState={outfitState} />
-        </Box>
-      </Stack>
-      <Box gridArea="space" onClick={maybeUnlockFocus} />
-      <Flex gridArea="picker" justify="center" onClick={maybeUnlockFocus}>
-        {/**
-         * We try to center the species/color picker, but the left spacer will
-         * shrink more than the pose picker container if we run out of space!
-         */}
-        <Box flex="1 1 0" />
-        <Box flex="0 0 auto">
-          <DarkMode>
-            <SpeciesColorPicker
-              speciesId={outfitState.speciesId}
-              colorId={outfitState.colorId}
-              idealPose={outfitState.pose}
-              onChange={onSpeciesColorChange}
-              stateMustAlwaysBeValid
-            />
-          </DarkMode>
-        </Box>
-        <Flex flex="1 1 0" align="center" pl="4">
-          <PosePicker
-            speciesId={outfitState.speciesId}
-            colorId={outfitState.colorId}
-            pose={outfitState.pose}
-            appearanceId={outfitState.appearanceId}
-            dispatchToOutfit={dispatchToOutfit}
-            onLockFocus={onLockFocus}
-            onUnlockFocus={onUnlockFocus}
-          />
-        </Flex>
-      </Flex>
-    </Box>
+    </ClassNames>
   );
 }
 
@@ -277,55 +283,59 @@ function PlayPauseButton() {
   }, [blinkInState, setBlinkInState]);
 
   return (
-    <>
-      <PlayPauseButtonContent
-        isPaused={isPaused}
-        setIsPaused={setIsPaused}
-        marginTop="0.3rem" // to center-align with buttons (not sure on amt?)
-        ref={buttonRef}
-      />
-      {blinkInState.type === "started" && (
-        <Portal>
+    <ClassNames>
+      {({ css }) => (
+        <>
           <PlayPauseButtonContent
             isPaused={isPaused}
             setIsPaused={setIsPaused}
-            position="absolute"
-            left={blinkInState.position.left}
-            top={blinkInState.position.top}
-            backgroundColor="gray.600"
-            borderColor="gray.50"
-            color="gray.50"
-            onAnimationEnd={() => setBlinkInState({ type: "done" })}
-            // Don't disrupt the hover state of the controls! (And the button
-            // doesn't seem to click correctly, not sure why, but instead of
-            // debugging I'm adding this :p)
-            pointerEvents="none"
-            className={css`
-              @keyframes fade-in-out {
-                0% {
-                  opacity: 0;
-                }
-
-                10% {
-                  opacity: 1;
-                }
-
-                90% {
-                  opacity: 1;
-                }
-
-                100% {
-                  opacity: 0;
-                }
-              }
-
-              opacity: 0;
-              animation: fade-in-out 2s;
-            `}
+            marginTop="0.3rem" // to center-align with buttons (not sure on amt?)
+            ref={buttonRef}
           />
-        </Portal>
+          {blinkInState.type === "started" && (
+            <Portal>
+              <PlayPauseButtonContent
+                isPaused={isPaused}
+                setIsPaused={setIsPaused}
+                position="absolute"
+                left={blinkInState.position.left}
+                top={blinkInState.position.top}
+                backgroundColor="gray.600"
+                borderColor="gray.50"
+                color="gray.50"
+                onAnimationEnd={() => setBlinkInState({ type: "done" })}
+                // Don't disrupt the hover state of the controls! (And the button
+                // doesn't seem to click correctly, not sure why, but instead of
+                // debugging I'm adding this :p)
+                pointerEvents="none"
+                className={css`
+                  @keyframes fade-in-out {
+                    0% {
+                      opacity: 0;
+                    }
+
+                    10% {
+                      opacity: 1;
+                    }
+
+                    90% {
+                      opacity: 1;
+                    }
+
+                    100% {
+                      opacity: 0;
+                    }
+                  }
+
+                  opacity: 0;
+                  animation: fade-in-out 2s;
+                `}
+              />
+            </Portal>
+          )}
+        </>
       )}
-    </>
+    </ClassNames>
   );
 }
 

@@ -1,7 +1,7 @@
 import * as React from "react";
 import gql from "graphql-tag";
 import { useQuery, useMutation } from "@apollo/client";
-import { css } from "@emotion/css";
+import { ClassNames } from "@emotion/react";
 import {
   Badge,
   Box,
@@ -454,71 +454,75 @@ function ItemSupportAppearanceLayer({
   const iconButtonColor = useColorModeValue("green.800", "gray.900");
 
   return (
-    <Box
-      as="button"
-      width="150px"
-      textAlign="center"
-      fontSize="xs"
-      onClick={onOpen}
-    >
-      <Box
-        width="150px"
-        height="150px"
-        marginBottom="1"
-        boxShadow="md"
-        borderRadius="md"
-        position="relative"
-      >
-        <OutfitLayers visibleLayers={[...biologyLayers, itemLayer]} />
+    <ClassNames>
+      {({ css }) => (
         <Box
-          className={css`
-            opacity: 0;
-            transition: opacity 0.2s;
+          as="button"
+          width="150px"
+          textAlign="center"
+          fontSize="xs"
+          onClick={onOpen}
+        >
+          <Box
+            width="150px"
+            height="150px"
+            marginBottom="1"
+            boxShadow="md"
+            borderRadius="md"
+            position="relative"
+          >
+            <OutfitLayers visibleLayers={[...biologyLayers, itemLayer]} />
+            <Box
+              className={css`
+                opacity: 0;
+                transition: opacity 0.2s;
 
-            button:hover &,
-            button:focus & {
-              opacity: 1;
-            }
+                button:hover &,
+                button:focus & {
+                  opacity: 1;
+                }
 
-            /* On touch devices, always show the icon, to clarify that this is
+                /* On touch devices, always show the icon, to clarify that this is
              * an interactable object! (Whereas I expect other devices to
              * discover things by exploratory hover or focus!) */
-            @media (hover: none) {
-              opacity: 1;
-            }
-          `}
-          background={iconButtonBgColor}
-          color={iconButtonColor}
-          borderRadius="full"
-          boxShadow="sm"
-          position="absolute"
-          bottom="2"
-          right="2"
-          padding="2"
-          alignItems="center"
-          justifyContent="center"
-          width="32px"
-          height="32px"
-        >
-          <EditIcon
-            boxSize="16px"
-            position="relative"
-            top="-2px"
-            right="-1px"
+                @media (hover: none) {
+                  opacity: 1;
+                }
+              `}
+              background={iconButtonBgColor}
+              color={iconButtonColor}
+              borderRadius="full"
+              boxShadow="sm"
+              position="absolute"
+              bottom="2"
+              right="2"
+              padding="2"
+              alignItems="center"
+              justifyContent="center"
+              width="32px"
+              height="32px"
+            >
+              <EditIcon
+                boxSize="16px"
+                position="relative"
+                top="-2px"
+                right="-1px"
+              />
+            </Box>
+          </Box>
+          <Box fontWeight="bold">{itemLayer.zone.label}</Box>
+          <Box>Zone ID: {itemLayer.zone.id}</Box>
+          <Box>DTI ID: {itemLayer.id}</Box>
+          <ItemLayerSupportModal
+            item={item}
+            itemLayer={itemLayer}
+            outfitState={outfitState}
+            isOpen={isOpen}
+            onClose={onClose}
           />
         </Box>
-      </Box>
-      <Box fontWeight="bold">{itemLayer.zone.label}</Box>
-      <Box>Zone ID: {itemLayer.zone.id}</Box>
-      <Box>DTI ID: {itemLayer.id}</Box>
-      <ItemLayerSupportModal
-        item={item}
-        itemLayer={itemLayer}
-        outfitState={outfitState}
-        isOpen={isOpen}
-        onClose={onClose}
-      />
-    </Box>
+      )}
+    </ClassNames>
   );
 }
 

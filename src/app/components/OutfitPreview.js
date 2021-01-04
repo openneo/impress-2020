@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, DarkMode, Flex, Text } from "@chakra-ui/react";
 import { WarningIcon } from "@chakra-ui/icons";
-import { css } from "@emotion/css";
+import { ClassNames } from "@emotion/react";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 
 import OutfitMovieLayer, {
@@ -149,104 +149,113 @@ export function OutfitLayers({
   }, [setCanvasSize]);
 
   return (
-    <Box
-      pos="relative"
-      height="100%"
-      width="100%"
-      // Create a stacking context, so the z-indexed layers don't escape!
-      zIndex="0"
-      ref={containerRef}
-    >
-      {placeholder && (
-        <FullScreenCenter>
-          <Box
-            // We show the placeholder until there are visible layers, at which
-            // point we fade it out.
-            opacity={visibleLayers.length === 0 ? 1 : 0}
+    <ClassNames>
+      {({ css }) => (
+        <Box
+          pos="relative"
+          height="100%"
+          width="100%"
+          // Create a stacking context, so the z-indexed layers don't escape!
+          zIndex="0"
+          ref={containerRef}
+        >
+          {placeholder && (
+            <FullScreenCenter>
+              <Box
+                // We show the placeholder until there are visible layers, at which
+                // point we fade it out.
+                opacity={visibleLayers.length === 0 ? 1 : 0}
+                transition="opacity 0.2s"
+              >
+                {placeholder}
+              </Box>
+            </FullScreenCenter>
+          )}
+          <TransitionGroup enter={false} exit={doTransitions}>
+            {visibleLayers.map((layer) => (
+              <CSSTransition
+                // We manage the fade-in and fade-out separately! The fade-out
+                // happens here, when the layer exits the DOM.
+                key={layer.id}
+                classNames={css`
+                  &-exit {
+                    opacity: 1;
+                  }
+
+                  &-exit-active {
+                    opacity: 0;
+                    transition: opacity 0.2s;
+                  }
+                `}
+                timeout={200}
+              >
+                <FadeInOnLoad as={FullScreenCenter} zIndex={layer.zone.depth}>
+                  {layer.canvasMovieLibraryUrl ? (
+                    <OutfitMovieLayer
+                      libraryUrl={layer.canvasMovieLibraryUrl}
+                      width={canvasSize}
+                      height={canvasSize}
+                      isPaused={isPaused}
+                    />
+                  ) : (
+                    <Box
+                      as="img"
+                      src={getBestImageUrlForLayer(layer).src}
+                      // The crossOrigin prop isn't strictly necessary for loading
+                      // here (<img> tags are always allowed through CORS), but
+                      // this means we make the same request that the Download
+                      // button makes, so it can use the cached version of this
+                      // image instead of requesting it again with crossOrigin!
+                      crossOrigin={getBestImageUrlForLayer(layer).crossOrigin}
+                      alt=""
+                      objectFit="contain"
+                      maxWidth="100%"
+                      maxHeight="100%"
+                    />
+                  )}
+                </FadeInOnLoad>
+              </CSSTransition>
+            ))}
+          </TransitionGroup>
+          <FullScreenCenter
+            zIndex="9000"
+            // This is similar to our Delay util component, but Delay disappears
+            // immediately on load, whereas we want this to fade out smoothly. We
+            // also use a timeout to delay the fade-in by 0.5s, but don't delay the
+            // fade-out at all. (The timeout was an awkward choice, it was hard to
+            // find a good CSS way to specify this delay well!)
+            opacity={loadingAnything && loadingDelayHasPassed ? 1 : 0}
             transition="opacity 0.2s"
           >
-            {placeholder}
-          </Box>
-        </FullScreenCenter>
-      )}
-      <TransitionGroup enter={false} exit={doTransitions}>
-        {visibleLayers.map((layer) => (
-          <CSSTransition
-            // We manage the fade-in and fade-out separately! The fade-out
-            // happens here, when the layer exits the DOM.
-            key={layer.id}
-            classNames={css`
-              &-exit {
-                opacity: 1;
-              }
-
-              &-exit-active {
-                opacity: 0;
-                transition: opacity 0.2s;
-              }
-            `}
-            timeout={200}
-          >
-            <FadeInOnLoad as={FullScreenCenter} zIndex={layer.zone.depth}>
-              {layer.canvasMovieLibraryUrl ? (
-                <OutfitMovieLayer
-                  libraryUrl={layer.canvasMovieLibraryUrl}
-                  width={canvasSize}
-                  height={canvasSize}
-                  isPaused={isPaused}
-                />
-              ) : (
+            {spinnerVariant === "overlay" && (
+              <>
                 <Box
-                  as="img"
-                  src={getBestImageUrlForLayer(layer).src}
-                  // The crossOrigin prop isn't strictly necessary for loading
-                  // here (<img> tags are always allowed through CORS), but
-                  // this means we make the same request that the Download
-                  // button makes, so it can use the cached version of this
-                  // image instead of requesting it again with crossOrigin!
-                  crossOrigin={getBestImageUrlForLayer(layer).crossOrigin}
-                  alt=""
-                  objectFit="contain"
-                  maxWidth="100%"
-                  maxHeight="100%"
+                  position="absolute"
+                  top="0"
+                  left="0"
+                  right="0"
+                  bottom="0"
+                  backgroundColor="gray.900"
+                  opacity="0.7"
                 />
-              )}
-            </FadeInOnLoad>
-          </CSSTransition>
-        ))}
-      </TransitionGroup>
-      <FullScreenCenter
-        zIndex="9000"
-        // This is similar to our Delay util component, but Delay disappears
-        // immediately on load, whereas we want this to fade out smoothly. We
-        // also use a timeout to delay the fade-in by 0.5s, but don't delay the
-        // fade-out at all. (The timeout was an awkward choice, it was hard to
-        // find a good CSS way to specify this delay well!)
-        opacity={loadingAnything && loadingDelayHasPassed ? 1 : 0}
-        transition="opacity 0.2s"
-      >
-        {spinnerVariant === "overlay" && (
-          <>
-            <Box
-              position="absolute"
-              top="0"
-              left="0"
-              right="0"
-              bottom="0"
-              backgroundColor="gray.900"
-              opacity="0.7"
-            />
-            {/* Against the dark overlay, use the Dark Mode spinner. */}
-            <DarkMode>
-              <HangerSpinner />
-            </DarkMode>
-          </>
-        )}
-        {spinnerVariant === "corner" && (
-          <HangerSpinner size="sm" position="absolute" bottom="2" right="2" />
-        )}
-      </FullScreenCenter>
-    </Box>
+                {/* Against the dark overlay, use the Dark Mode spinner. */}
+                <DarkMode>
+                  <HangerSpinner />
+                </DarkMode>
+              </>
+            )}
+            {spinnerVariant === "corner" && (
+              <HangerSpinner
+                size="sm"
+                position="absolute"
+                bottom="2"
+                right="2"
+              />
+            )}
+          </FullScreenCenter>
+        </Box>
+      )}
+    </ClassNames>
   );
 }
 

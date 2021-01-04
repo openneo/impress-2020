@@ -12,7 +12,7 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react";
 import { CloseIcon, SearchIcon } from "@chakra-ui/icons";
-import { css, cx } from "@emotion/css";
+import { ClassNames } from "@emotion/react";
 import Autosuggest from "react-autosuggest";
 
 /**
@@ -79,23 +79,27 @@ function SearchToolbar({
     ({ containerProps, children }) => {
       const { className, ...otherContainerProps } = containerProps;
       return (
-        <Box
-          {...otherContainerProps}
-          borderBottomRadius="md"
-          boxShadow="md"
-          overflow="hidden"
-          transition="all 0.4s"
-          className={cx(
-            className,
-            css`
-              li {
-                list-style: none;
-              }
-            `
+        <ClassNames>
+          {({ css, cx }) => (
+            <Box
+              {...otherContainerProps}
+              borderBottomRadius="md"
+              boxShadow="md"
+              overflow="hidden"
+              transition="all 0.4s"
+              className={cx(
+                className,
+                css`
+                  li {
+                    list-style: none;
+                  }
+                `
+              )}
+            >
+              {children}
+            </Box>
           )}
-        >
-          {children}
-        </Box>
+        </ClassNames>
       );
     },
     []
@@ -111,108 +115,116 @@ function SearchToolbar({
   const focusBorderColor = useColorModeValue("green.600", "green.400");
 
   return (
-    <Autosuggest
-      suggestions={suggestions}
-      onSuggestionsFetchRequested={({ value }) =>
-        setSuggestions(getSuggestions(value, query, zoneLabels))
-      }
-      onSuggestionsClearRequested={() => setSuggestions([])}
-      onSuggestionSelected={(e, { suggestion }) => {
-        const valueWithoutLastWord = query.value.match(/^(.*?)\s*\S+$/)[1];
-        onChange({
-          ...query,
-          value: valueWithoutLastWord,
-          filterToZoneLabel: suggestion.zoneLabel || query.filterToZoneLabel,
-          filterToItemKind: suggestion.itemKind || query.filterToItemKind,
-        });
-      }}
-      getSuggestionValue={(zl) => zl}
-      highlightFirstSuggestion={true}
-      renderSuggestion={renderSuggestion}
-      renderSuggestionsContainer={renderSuggestionsContainer}
-      renderInputComponent={(props) => (
-        <InputGroup>
-          {queryFilterText ? (
-            <InputLeftAddon>
-              <SearchIcon color="gray.400" marginRight="3" />
-              <Box fontSize="sm">{queryFilterText}</Box>
-            </InputLeftAddon>
-          ) : (
-            <InputLeftElement>
-              <SearchIcon color="gray.400" />
-            </InputLeftElement>
-          )}
-          <Input {...props} />
-          {(query.value || queryFilterText) && (
-            <InputRightElement>
-              <IconButton
-                icon={<CloseIcon />}
-                color="gray.400"
-                variant="ghost"
-                colorScheme="green"
-                aria-label="Clear search"
-                onClick={() => {
-                  onChange(null);
-                }}
-                // Big style hacks here!
-                height="calc(100% - 2px)"
-                marginRight="2px"
-              />
-            </InputRightElement>
-          )}
-        </InputGroup>
-      )}
-      inputProps={{
-        // placeholder: "Search for items to add…",
-        "aria-label": "Search for items to add…",
-        focusBorderColor: focusBorderColor,
-        value: query.value || "",
-        ref: searchQueryRef,
-        minWidth: 0,
-        borderBottomRadius: suggestions.length > 0 ? "0" : "md",
-        // HACK: Chakra isn't noticing the InputLeftElement swapping out
-        //       for the InputLeftAddon, so the styles aren't updating...
-        //       Hard override!
-        className: css`
-          padding-left: ${queryFilterText ? "1rem" : "2.5rem"} !important;
-          border-bottom-left-radius: ${queryFilterText
-            ? "0"
-            : "0.25rem"} !important;
-          border-top-left-radius: ${queryFilterText
-            ? "0"
-            : "0.25rem"} !important;
-        `,
-        onChange: (e, { newValue, method }) => {
-          // The Autosuggest tries to change the _entire_ value of the element
-          // when navigating suggestions, which isn't actually what we want.
-          // Only accept value changes that are typed by the user!
-          if (method === "type") {
-            onChange({ ...query, value: newValue });
+    <ClassNames>
+      {({ css }) => (
+        <Autosuggest
+          suggestions={suggestions}
+          onSuggestionsFetchRequested={({ value }) =>
+            setSuggestions(getSuggestions(value, query, zoneLabels))
           }
-        },
-        onKeyDown: (e) => {
-          if (e.key === "Escape") {
-            if (suggestions.length > 0) {
-              setSuggestions([]);
-              return;
-            }
-            onChange(null);
-            e.target.blur();
-          } else if (e.key === "ArrowDown") {
-            if (suggestions.length > 0) {
-              return;
-            }
-            onMoveFocusDownToResults(e);
-          } else if (e.key === "Backspace" && e.target.selectionStart === 0) {
+          onSuggestionsClearRequested={() => setSuggestions([])}
+          onSuggestionSelected={(e, { suggestion }) => {
+            const valueWithoutLastWord = query.value.match(/^(.*?)\s*\S+$/)[1];
             onChange({
               ...query,
-              filterToItemKind: null,
-              filterToZoneLabel: null,
+              value: valueWithoutLastWord,
+              filterToZoneLabel:
+                suggestion.zoneLabel || query.filterToZoneLabel,
+              filterToItemKind: suggestion.itemKind || query.filterToItemKind,
             });
-          }
-        },
-      }}
-    />
+          }}
+          getSuggestionValue={(zl) => zl}
+          highlightFirstSuggestion={true}
+          renderSuggestion={renderSuggestion}
+          renderSuggestionsContainer={renderSuggestionsContainer}
+          renderInputComponent={(props) => (
+            <InputGroup>
+              {queryFilterText ? (
+                <InputLeftAddon>
+                  <SearchIcon color="gray.400" marginRight="3" />
+                  <Box fontSize="sm">{queryFilterText}</Box>
+                </InputLeftAddon>
+              ) : (
+                <InputLeftElement>
+                  <SearchIcon color="gray.400" />
+                </InputLeftElement>
+              )}
+              <Input {...props} />
+              {(query.value || queryFilterText) && (
+                <InputRightElement>
+                  <IconButton
+                    icon={<CloseIcon />}
+                    color="gray.400"
+                    variant="ghost"
+                    colorScheme="green"
+                    aria-label="Clear search"
+                    onClick={() => {
+                      onChange(null);
+                    }}
+                    // Big style hacks here!
+                    height="calc(100% - 2px)"
+                    marginRight="2px"
+                  />
+                </InputRightElement>
+              )}
+            </InputGroup>
+          )}
+          inputProps={{
+            // placeholder: "Search for items to add…",
+            "aria-label": "Search for items to add…",
+            focusBorderColor: focusBorderColor,
+            value: query.value || "",
+            ref: searchQueryRef,
+            minWidth: 0,
+            borderBottomRadius: suggestions.length > 0 ? "0" : "md",
+            // HACK: Chakra isn't noticing the InputLeftElement swapping out
+            //       for the InputLeftAddon, so the styles aren't updating...
+            //       Hard override!
+            className: css`
+              padding-left: ${queryFilterText ? "1rem" : "2.5rem"} !important;
+              border-bottom-left-radius: ${queryFilterText
+                ? "0"
+                : "0.25rem"} !important;
+              border-top-left-radius: ${queryFilterText
+                ? "0"
+                : "0.25rem"} !important;
+            `,
+            onChange: (e, { newValue, method }) => {
+              // The Autosuggest tries to change the _entire_ value of the element
+              // when navigating suggestions, which isn't actually what we want.
+              // Only accept value changes that are typed by the user!
+              if (method === "type") {
+                onChange({ ...query, value: newValue });
+              }
+            },
+            onKeyDown: (e) => {
+              if (e.key === "Escape") {
+                if (suggestions.length > 0) {
+                  setSuggestions([]);
+                  return;
+                }
+                onChange(null);
+                e.target.blur();
+              } else if (e.key === "ArrowDown") {
+                if (suggestions.length > 0) {
+                  return;
+                }
+                onMoveFocusDownToResults(e);
+              } else if (
+                e.key === "Backspace" &&
+                e.target.selectionStart === 0
+              ) {
+                onChange({
+                  ...query,
+                  filterToItemKind: null,
+                  filterToZoneLabel: null,
+                });
+              }
+            },
+          }}
+        />
+      )}
+    </ClassNames>
   );
 }
 

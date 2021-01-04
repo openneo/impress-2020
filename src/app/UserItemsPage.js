@@ -1,5 +1,5 @@
 import React from "react";
-import { css } from "@emotion/css";
+import { ClassNames } from "@emotion/react";
 import {
   Badge,
   Box,
@@ -149,139 +149,147 @@ function UserItemsPage() {
   ).size;
 
   return (
-    <Box>
-      <Flex align="center" wrap="wrap-reverse">
+    <ClassNames>
+      {({ css }) => (
         <Box>
-          <Heading1>
-            {isCurrentUser ? "Your items" : `${data.user.username}'s items`}
-          </Heading1>
-          <Wrap spacing="2" opacity="0.7">
-            {data.user.contactNeopetsUsername && (
-              <WrapItem>
-                <Badge
-                  as="a"
-                  href={`http://www.neopets.com/userlookup.phtml?user=${data.user.contactNeopetsUsername}`}
-                  display="flex"
-                  alignItems="center"
-                >
-                  <NeopetsStarIcon marginRight="1" />
-                  {data.user.contactNeopetsUsername}
-                </Badge>
-              </WrapItem>
-            )}
-            {data.user.contactNeopetsUsername && (
-              <WrapItem>
-                <Badge
-                  as="a"
-                  href={`http://www.neopets.com/neomessages.phtml?type=send&recipient=${data.user.contactNeopetsUsername}`}
-                  display="flex"
-                  alignItems="center"
-                >
-                  <EmailIcon marginRight="1" />
-                  Neomail
-                </Badge>
-              </WrapItem>
-            )}
-            <SupportOnly>
-              <WrapItem>
-                <UserSupportMenu user={data.user}>
-                  <MenuButton
-                    as={BadgeButton}
-                    display="flex"
-                    alignItems="center"
-                  >
-                    <EditIcon marginRight="1" />
-                    Support
-                  </MenuButton>
-                </UserSupportMenu>
-              </WrapItem>
-            </SupportOnly>
-            {/* Usually I put "Own" before "Want", but this matches the natural
-             * order on the page: the _matches_ for things you want are things
-             * _this user_ owns, so they come first. I think it's also probably a
-             * more natural train of thought: you come to someone's list _wanting_
-             * something, and _then_ thinking about what you can offer. */}
-            {!isCurrentUser && numItemsTheyOwnThatYouWant > 0 && (
-              <WrapItem>
-                <Badge
-                  as="a"
-                  href="#owned-items"
-                  colorScheme="blue"
-                  display="flex"
-                  alignItems="center"
-                >
-                  <StarIcon marginRight="1" />
-                  {numItemsTheyOwnThatYouWant > 1
-                    ? `${numItemsTheyOwnThatYouWant} items you want`
-                    : "1 item you want"}
-                </Badge>
-              </WrapItem>
-            )}
-            {!isCurrentUser && numItemsTheyWantThatYouOwn > 0 && (
-              <WrapItem>
-                <Badge
-                  as="a"
-                  href="#wanted-items"
-                  colorScheme="green"
-                  display="flex"
-                  alignItems="center"
-                >
-                  <CheckIcon marginRight="1" />
-                  {numItemsTheyWantThatYouOwn > 1
-                    ? `${numItemsTheyWantThatYouOwn} items you own`
-                    : "1 item you own"}
-                </Badge>
-              </WrapItem>
-            )}
-          </Wrap>
-        </Box>
-        <Box flex="1 0 auto" width="2" />
-        <Box marginBottom="1">
-          <UserSearchForm />
-        </Box>
-      </Flex>
+          <Flex align="center" wrap="wrap-reverse">
+            <Box>
+              <Heading1>
+                {isCurrentUser ? "Your items" : `${data.user.username}'s items`}
+              </Heading1>
+              <Wrap spacing="2" opacity="0.7">
+                {data.user.contactNeopetsUsername && (
+                  <WrapItem>
+                    <Badge
+                      as="a"
+                      href={`http://www.neopets.com/userlookup.phtml?user=${data.user.contactNeopetsUsername}`}
+                      display="flex"
+                      alignItems="center"
+                    >
+                      <NeopetsStarIcon marginRight="1" />
+                      {data.user.contactNeopetsUsername}
+                    </Badge>
+                  </WrapItem>
+                )}
+                {data.user.contactNeopetsUsername && (
+                  <WrapItem>
+                    <Badge
+                      as="a"
+                      href={`http://www.neopets.com/neomessages.phtml?type=send&recipient=${data.user.contactNeopetsUsername}`}
+                      display="flex"
+                      alignItems="center"
+                    >
+                      <EmailIcon marginRight="1" />
+                      Neomail
+                    </Badge>
+                  </WrapItem>
+                )}
+                <SupportOnly>
+                  <WrapItem>
+                    <UserSupportMenu user={data.user}>
+                      <MenuButton
+                        as={BadgeButton}
+                        display="flex"
+                        alignItems="center"
+                      >
+                        <EditIcon marginRight="1" />
+                        Support
+                      </MenuButton>
+                    </UserSupportMenu>
+                  </WrapItem>
+                </SupportOnly>
+                {/* Usually I put "Own" before "Want", but this matches the natural
+                 * order on the page: the _matches_ for things you want are things
+                 * _this user_ owns, so they come first. I think it's also probably a
+                 * more natural train of thought: you come to someone's list _wanting_
+                 * something, and _then_ thinking about what you can offer. */}
+                {!isCurrentUser && numItemsTheyOwnThatYouWant > 0 && (
+                  <WrapItem>
+                    <Badge
+                      as="a"
+                      href="#owned-items"
+                      colorScheme="blue"
+                      display="flex"
+                      alignItems="center"
+                    >
+                      <StarIcon marginRight="1" />
+                      {numItemsTheyOwnThatYouWant > 1
+                        ? `${numItemsTheyOwnThatYouWant} items you want`
+                        : "1 item you want"}
+                    </Badge>
+                  </WrapItem>
+                )}
+                {!isCurrentUser && numItemsTheyWantThatYouOwn > 0 && (
+                  <WrapItem>
+                    <Badge
+                      as="a"
+                      href="#wanted-items"
+                      colorScheme="green"
+                      display="flex"
+                      alignItems="center"
+                    >
+                      <CheckIcon marginRight="1" />
+                      {numItemsTheyWantThatYouOwn > 1
+                        ? `${numItemsTheyWantThatYouOwn} items you own`
+                        : "1 item you own"}
+                    </Badge>
+                  </WrapItem>
+                )}
+              </Wrap>
+            </Box>
+            <Box flex="1 0 auto" width="2" />
+            <Box marginBottom="1">
+              <UserSearchForm />
+            </Box>
+          </Flex>
 
-      <Box marginTop="4">
-        {isCurrentUser && (
-          <Box float="right">
-            <WIPCallout details="These lists are read-only for now. To edit, head back to Classic DTI!" />
+          <Box marginTop="4">
+            {isCurrentUser && (
+              <Box float="right">
+                <WIPCallout details="These lists are read-only for now. To edit, head back to Classic DTI!" />
+              </Box>
+            )}
+            <Heading2 id="owned-items" marginBottom="2">
+              {isCurrentUser
+                ? "Items you own"
+                : `Items ${data.user.username} owns`}
+            </Heading2>
+            <VStack
+              spacing="8"
+              alignItems="stretch"
+              className={css`
+                clear: both;
+              `}
+            >
+              {listsOfOwnedItems.map((closetList) => (
+                <ClosetList
+                  key={closetList.id}
+                  closetList={closetList}
+                  isCurrentUser={isCurrentUser}
+                  showHeading={listsOfOwnedItems.length > 1}
+                />
+              ))}
+            </VStack>
           </Box>
-        )}
-        <Heading2 id="owned-items" marginBottom="2">
-          {isCurrentUser ? "Items you own" : `Items ${data.user.username} owns`}
-        </Heading2>
-        <VStack
-          spacing="8"
-          alignItems="stretch"
-          className={css`
-            clear: both;
-          `}
-        >
-          {listsOfOwnedItems.map((closetList) => (
-            <ClosetList
-              key={closetList.id}
-              closetList={closetList}
-              isCurrentUser={isCurrentUser}
-              showHeading={listsOfOwnedItems.length > 1}
-            />
-          ))}
-        </VStack>
-      </Box>
 
-      <Heading2 id="wanted-items" marginTop="10" marginBottom="2">
-        {isCurrentUser ? "Items you want" : `Items ${data.user.username} wants`}
-      </Heading2>
-      <VStack spacing="4" alignItems="stretch">
-        {listsOfWantedItems.map((closetList) => (
-          <ClosetList
-            key={closetList.id}
-            closetList={closetList}
-            isCurrentUser={isCurrentUser}
-            showHeading={listsOfWantedItems.length > 1}
-          />
-        ))}
-      </VStack>
-    </Box>
+          <Heading2 id="wanted-items" marginTop="10" marginBottom="2">
+            {isCurrentUser
+              ? "Items you want"
+              : `Items ${data.user.username} wants`}
+          </Heading2>
+          <VStack spacing="4" alignItems="stretch">
+            {listsOfWantedItems.map((closetList) => (
+              <ClosetList
+                key={closetList.id}
+                closetList={closetList}
+                isCurrentUser={isCurrentUser}
+                showHeading={listsOfWantedItems.length > 1}
+              />
+            ))}
+          </VStack>
+        </Box>
+      )}
+    </ClassNames>
   );
 }
 
@@ -588,21 +596,25 @@ function MarkdownAndSafeHTML({ children }) {
   });
 
   return (
-    <Box
-      dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
-      className={css`
-        .paragraph,
-        ol,
-        ul {
-          margin-bottom: 1em;
-        }
+    <ClassNames>
+      {({ css }) => (
+        <Box
+          dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+          className={css`
+            .paragraph,
+            ol,
+            ul {
+              margin-bottom: 1em;
+            }
 
-        ol,
-        ul {
-          margin-left: 2em;
-        }
-      `}
-    ></Box>
+            ol,
+            ul {
+              margin-left: 2em;
+            }
+          `}
+        />
+      )}
+    </ClassNames>
   );
 }
 

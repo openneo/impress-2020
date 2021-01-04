@@ -1,5 +1,5 @@
 import React from "react";
-import { css } from "@emotion/css";
+import { ClassNames } from "@emotion/react";
 import { Box, Skeleton, useColorModeValue, useToken } from "@chakra-ui/react";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
@@ -165,84 +165,88 @@ function ItemTradesTable({
   };
 
   return (
-    <Box
-      as="table"
-      width="100%"
-      boxShadow="md"
-      className={css`
-        /* Chakra doesn't have props for these! */
-        border-collapse: separate;
-        border-spacing: 0;
-        table-layout: fixed;
-      `}
-    >
-      <Box as="thead" fontSize={{ base: "xs", sm: "sm" }}>
-        <Box as="tr">
-          <ItemTradesTableCell as="th" width={minorColumnWidth}>
-            {/* A small wording tweak to fit better on the xsmall screens! */}
-            <Box display={{ base: "none", sm: "block" }}>Last active</Box>
-            <Box display={{ base: "block", sm: "none" }}>Last edit</Box>
-          </ItemTradesTableCell>
-          {shouldShowCompareColumn && (
-            <ItemTradesTableCell as="th" width={minorColumnWidth}>
-              <Box display={{ base: "none", sm: "block" }}>
-                {compareColumnLabel}
-              </Box>
-              <Box display={{ base: "block", sm: "none" }}>Matches</Box>
-            </ItemTradesTableCell>
-          )}
-          <ItemTradesTableCell as="th" width={minorColumnWidth}>
-            {userHeading}
-          </ItemTradesTableCell>
-          <ItemTradesTableCell as="th">List</ItemTradesTableCell>
-        </Box>
-      </Box>
-      <Box as="tbody">
-        {loading && (
-          <>
-            <ItemTradesTableRowSkeleton
-              shouldShowCompareColumn={shouldShowCompareColumn}
-            />
-            <ItemTradesTableRowSkeleton
-              shouldShowCompareColumn={shouldShowCompareColumn}
-            />
-            <ItemTradesTableRowSkeleton
-              shouldShowCompareColumn={shouldShowCompareColumn}
-            />
-            <ItemTradesTableRowSkeleton
-              shouldShowCompareColumn={shouldShowCompareColumn}
-            />
-            <ItemTradesTableRowSkeleton
-              shouldShowCompareColumn={shouldShowCompareColumn}
-            />
-          </>
-        )}
-        {!loading &&
-          trades.length > 0 &&
-          trades.map((trade) => (
-            <ItemTradesTableRow
-              key={trade.id}
-              href={`/user/${trade.user.id}/items#list-${trade.closetList.id}`}
-              username={trade.user.username}
-              listName={trade.closetList.name}
-              lastTradeActivity={trade.user.lastTradeActivity}
-              matchingItems={trade.user.matchingItems}
-              shouldShowCompareColumn={shouldShowCompareColumn}
-            />
-          ))}
-        {!loading && trades.length === 0 && (
-          <Box as="tr">
-            <ItemTradesTableCell
-              colSpan={shouldShowCompareColumn ? 4 : 3}
-              textAlign="center"
-              fontStyle="italic"
-            >
-              No trades yet!
-            </ItemTradesTableCell>
+    <ClassNames>
+      {({ css }) => (
+        <Box
+          as="table"
+          width="100%"
+          boxShadow="md"
+          className={css`
+            /* Chakra doesn't have props for these! */
+            border-collapse: separate;
+            border-spacing: 0;
+            table-layout: fixed;
+          `}
+        >
+          <Box as="thead" fontSize={{ base: "xs", sm: "sm" }}>
+            <Box as="tr">
+              <ItemTradesTableCell as="th" width={minorColumnWidth}>
+                {/* A small wording tweak to fit better on the xsmall screens! */}
+                <Box display={{ base: "none", sm: "block" }}>Last active</Box>
+                <Box display={{ base: "block", sm: "none" }}>Last edit</Box>
+              </ItemTradesTableCell>
+              {shouldShowCompareColumn && (
+                <ItemTradesTableCell as="th" width={minorColumnWidth}>
+                  <Box display={{ base: "none", sm: "block" }}>
+                    {compareColumnLabel}
+                  </Box>
+                  <Box display={{ base: "block", sm: "none" }}>Matches</Box>
+                </ItemTradesTableCell>
+              )}
+              <ItemTradesTableCell as="th" width={minorColumnWidth}>
+                {userHeading}
+              </ItemTradesTableCell>
+              <ItemTradesTableCell as="th">List</ItemTradesTableCell>
+            </Box>
           </Box>
-        )}
-      </Box>
-    </Box>
+          <Box as="tbody">
+            {loading && (
+              <>
+                <ItemTradesTableRowSkeleton
+                  shouldShowCompareColumn={shouldShowCompareColumn}
+                />
+                <ItemTradesTableRowSkeleton
+                  shouldShowCompareColumn={shouldShowCompareColumn}
+                />
+                <ItemTradesTableRowSkeleton
+                  shouldShowCompareColumn={shouldShowCompareColumn}
+                />
+                <ItemTradesTableRowSkeleton
+                  shouldShowCompareColumn={shouldShowCompareColumn}
+                />
+                <ItemTradesTableRowSkeleton
+                  shouldShowCompareColumn={shouldShowCompareColumn}
+                />
+              </>
+            )}
+            {!loading &&
+              trades.length > 0 &&
+              trades.map((trade) => (
+                <ItemTradesTableRow
+                  key={trade.id}
+                  href={`/user/${trade.user.id}/items#list-${trade.closetList.id}`}
+                  username={trade.user.username}
+                  listName={trade.closetList.name}
+                  lastTradeActivity={trade.user.lastTradeActivity}
+                  matchingItems={trade.user.matchingItems}
+                  shouldShowCompareColumn={shouldShowCompareColumn}
+                />
+              ))}
+            {!loading && trades.length === 0 && (
+              <Box as="tr">
+                <ItemTradesTableCell
+                  colSpan={shouldShowCompareColumn ? 4 : 3}
+                  textAlign="center"
+                  fontStyle="italic"
+                >
+                  No trades yet!
+                </ItemTradesTableCell>
+              </Box>
+            )}
+          </Box>
+        </Box>
+      )}
+    </ClassNames>
   );
 }
 
@@ -263,63 +267,67 @@ function ItemTradesTableRow({
   );
 
   return (
-    <Box
-      as="tr"
-      cursor="pointer"
-      _hover={{ background: focusBackground }}
-      _focusWithin={{ background: focusBackground }}
-      onClick={onClick}
-    >
-      <ItemTradesTableCell fontSize="xs">
-        {formatVagueDate(lastTradeActivity)}
-      </ItemTradesTableCell>
-      {shouldShowCompareColumn && (
-        <ItemTradesTableCell fontSize="xs">
-          {matchingItems.length > 0 ? (
-            <Box as="ul">
-              {sortedMatchingItems.slice(0, 4).map((item) => (
-                <Box key={item.id} as="li">
-                  <Box
-                    lineHeight="1.5"
-                    maxHeight="1.5em"
-                    overflow="hidden"
-                    textOverflow="ellipsis"
-                    whiteSpace="nowrap"
-                  >
-                    {item.name}
-                  </Box>
-                </Box>
-              ))}
-              {matchingItems.length > 4 && (
-                <Box as="li">+ {matchingItems.length - 4} more</Box>
-              )}
-            </Box>
-          ) : (
-            <>
-              <Box display={{ base: "none", sm: "block" }}>No matches</Box>
-              <Box display={{ base: "block", sm: "none" }}>None</Box>
-            </>
-          )}
-        </ItemTradesTableCell>
-      )}
-      <ItemTradesTableCell fontSize="xs">{username}</ItemTradesTableCell>
-      <ItemTradesTableCell fontSize="sm">
+    <ClassNames>
+      {({ css }) => (
         <Box
-          as={Link}
-          to={href}
-          className={css`
-            &:hover,
-            &:focus,
-            tr:hover &,
-            tr:focus-within & {
-              text-decoration: underline;
-            }
-          `}
+          as="tr"
+          cursor="pointer"
+          _hover={{ background: focusBackground }}
+          _focusWithin={{ background: focusBackground }}
+          onClick={onClick}
         >
-          {listName}
+          <ItemTradesTableCell fontSize="xs">
+            {formatVagueDate(lastTradeActivity)}
+          </ItemTradesTableCell>
+          {shouldShowCompareColumn && (
+            <ItemTradesTableCell fontSize="xs">
+              {matchingItems.length > 0 ? (
+                <Box as="ul">
+                  {sortedMatchingItems.slice(0, 4).map((item) => (
+                    <Box key={item.id} as="li">
+                      <Box
+                        lineHeight="1.5"
+                        maxHeight="1.5em"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                        whiteSpace="nowrap"
+                      >
+                        {item.name}
+                      </Box>
+                    </Box>
+                  ))}
+                  {matchingItems.length > 4 && (
+                    <Box as="li">+ {matchingItems.length - 4} more</Box>
+                  )}
+                </Box>
+              ) : (
+                <>
+                  <Box display={{ base: "none", sm: "block" }}>No matches</Box>
+                  <Box display={{ base: "block", sm: "none" }}>None</Box>
+                </>
+              )}
+            </ItemTradesTableCell>
+          )}
+          <ItemTradesTableCell fontSize="xs">{username}</ItemTradesTableCell>
+          <ItemTradesTableCell fontSize="sm">
+            <Box
+              as={Link}
+              to={href}
+              className={css`
+                &:hover,
+                &:focus,
+                tr:hover &,
+                tr:focus-within & {
+                  text-decoration: underline;
+                }
+              `}
+            >
+              {listName}
+            </Box>
+          </ItemTradesTableCell>
         </Box>
-      </ItemTradesTableCell>
-    </Box>
+      )}
+    </ClassNames>
   );
 }
 
@@ -350,47 +358,51 @@ function ItemTradesTableCell({ children, as = "td", ...props }) {
   const borderRadiusCss = useToken("radii", "md");
 
   return (
-    <Box
-      as={as}
-      paddingX="4"
-      paddingY="2"
-      textAlign="left"
-      className={css`
-        /* Lol sigh, getting this right is way more involved than I wish it
+    <ClassNames>
+      {({ css }) => (
+        <Box
+          as={as}
+          paddingX="4"
+          paddingY="2"
+          textAlign="left"
+          className={css`
+            /* Lol sigh, getting this right is way more involved than I wish it
          * were. What I really want is border-collapse and a simple 1px border,
          * but that disables border-radius. So, we homebrew it by giving all
          * cells bottom and right borders, but only the cells on the edges a
          * top or left border; and then target the exact 4 corner cells to
          * round them. Pretty old-school tbh 🙃 */
 
-        border-bottom: 1px solid ${borderColorCss};
-        border-right: 1px solid ${borderColorCss};
+            border-bottom: 1px solid ${borderColorCss};
+            border-right: 1px solid ${borderColorCss};
 
-        thead tr:first-of-type & {
-          border-top: 1px solid ${borderColorCss};
-        }
+            thead tr:first-of-type & {
+              border-top: 1px solid ${borderColorCss};
+            }
 
-        &:first-of-type {
-          border-left: 1px solid ${borderColorCss};
-        }
+            &:first-of-type {
+              border-left: 1px solid ${borderColorCss};
+            }
 
-        thead tr:first-of-type &:first-of-type {
-          border-top-left-radius: ${borderRadiusCss};
-        }
-        thead tr:first-of-type &:last-of-type {
-          border-top-right-radius: ${borderRadiusCss};
-        }
-        tbody tr:last-of-type &:first-of-type {
-          border-bottom-left-radius: ${borderRadiusCss};
-        }
-        tbody tr:last-of-type &:last-of-type {
-          border-bottom-right-radius: ${borderRadiusCss};
-        }
-      `}
-      {...props}
-    >
-      {children}
-    </Box>
+            thead tr:first-of-type &:first-of-type {
+              border-top-left-radius: ${borderRadiusCss};
+            }
+            thead tr:first-of-type &:last-of-type {
+              border-top-right-radius: ${borderRadiusCss};
+            }
+            tbody tr:last-of-type &:first-of-type {
+              border-bottom-left-radius: ${borderRadiusCss};
+            }
+            tbody tr:last-of-type &:last-of-type {
+              border-bottom-right-radius: ${borderRadiusCss};
+            }
+          `}
+          {...props}
+        >
+          {children}
+        </Box>
+      )}
+    </ClassNames>
   );
 }
 

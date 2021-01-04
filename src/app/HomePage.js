@@ -1,5 +1,5 @@
 import React from "react";
-import { css } from "@emotion/css";
+import { ClassNames } from "@emotion/react";
 import gql from "graphql-tag";
 import {
   Box,
@@ -213,37 +213,41 @@ function SubmitPetForm() {
   const buttonBgColorHover = useColorModeValue("green.700", "green.200");
 
   return (
-    <form onSubmit={onSubmit}>
-      <Flex>
-        <Input
-          value={petName}
-          onChange={(e) => setPetName(e.target.value)}
-          isDisabled={loading}
-          placeholder="Enter a pet's name"
-          aria-label="Enter a pet's name"
-          borderColor={inputBorderColor}
-          _hover={{ borderColor: inputBorderColorHover }}
-          boxShadow="md"
-          width="14em"
-          className={css`
-            &::placeholder {
-              color: ${theme.colors.gray["500"]};
-            }
-          `}
-        />
-        <Box width="4" />
-        <Button
-          type="submit"
-          colorScheme="green"
-          isDisabled={!petName}
-          isLoading={loading}
-          backgroundColor={buttonBgColor} // for AA contrast
-          _hover={{ backgroundColor: buttonBgColorHover }}
-        >
-          Start
-        </Button>
-      </Flex>
-    </form>
+    <ClassNames>
+      {({ css }) => (
+        <form onSubmit={onSubmit}>
+          <Flex>
+            <Input
+              value={petName}
+              onChange={(e) => setPetName(e.target.value)}
+              isDisabled={loading}
+              placeholder="Enter a pet's name"
+              aria-label="Enter a pet's name"
+              borderColor={inputBorderColor}
+              _hover={{ borderColor: inputBorderColorHover }}
+              boxShadow="md"
+              width="14em"
+              className={css`
+                &::placeholder {
+                  color: ${theme.colors.gray["500"]};
+                }
+              `}
+            />
+            <Box width="4" />
+            <Button
+              type="submit"
+              colorScheme="green"
+              isDisabled={!petName}
+              isLoading={loading}
+              backgroundColor={buttonBgColor} // for AA contrast
+              _hover={{ backgroundColor: buttonBgColorHover }}
+            >
+              Start
+            </Button>
+          </Flex>
+        </form>
+      )}
+    </ClassNames>
   );
 }
 

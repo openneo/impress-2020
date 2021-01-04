@@ -1,5 +1,5 @@
 import React from "react";
-import { css } from "@emotion/css";
+import { ClassNames } from "@emotion/react";
 import {
   AspectRatio,
   Button,
@@ -205,55 +205,62 @@ function ItemPageOwnButton({ itemId, isChecked }) {
   );
 
   return (
-    <Box as="label">
-      <VisuallyHidden
-        as="input"
-        type="checkbox"
-        checked={isChecked}
-        onChange={(e) => {
-          if (e.target.checked) {
-            sendAddMutation().catch((e) => {
-              console.error(e);
-              toast({
-                title: "We had trouble adding this to the items you own.",
-                description: "Check your internet connection, and try again.",
-                status: "error",
-                duration: 5000,
-              });
-            });
-          } else {
-            sendRemoveMutation().catch((e) => {
-              console.error(e);
-              toast({
-                title: "We had trouble removing this from the items you own.",
-                description: "Check your internet connection, and try again.",
-                status: "error",
-                duration: 5000,
-              });
-            });
-          }
-        }}
-      />
-      <Button
-        as="div"
-        colorScheme={isChecked ? "green" : "gray"}
-        size="lg"
-        cursor="pointer"
-        transitionDuration="0.4s"
-        className={css`
-          input:focus + & {
-            box-shadow: ${theme.shadows.outline};
-          }
-        `}
-      >
-        <IconCheckbox
-          icon={<CheckIcon />}
-          isChecked={isChecked}
-          marginRight="0.5em"
-        />
-        I own this
-      </Button>
-    </Box>
+    <ClassNames>
+      {({ css }) => (
+        <Box as="label">
+          <VisuallyHidden
+            as="input"
+            type="checkbox"
+            checked={isChecked}
+            onChange={(e) => {
+              if (e.target.checked) {
+                sendAddMutation().catch((e) => {
+                  console.error(e);
+                  toast({
+                    title: "We had trouble adding this to the items you own.",
+                    description:
+                      "Check your internet connection, and try again.",
+                    status: "error",
+                    duration: 5000,
+                  });
+                });
+              } else {
+                sendRemoveMutation().catch((e) => {
+                  console.error(e);
+                  toast({
+                    title:
+                      "We had trouble removing this from the items you own.",
+                    description:
+                      "Check your internet connection, and try again.",
+                    status: "error",
+                    duration: 5000,
+                  });
+                });
+              }
+            }}
+          />
+          <Button
+            as="div"
+            colorScheme={isChecked ? "green" : "gray"}
+            size="lg"
+            cursor="pointer"
+            transitionDuration="0.4s"
+            className={css`
+              input:focus + & {
+                box-shadow: ${theme.shadows.outline};
+              }
+            `}
+          >
+            <IconCheckbox
+              icon={<CheckIcon />}
+              isChecked={isChecked}
+              marginRight="0.5em"
+            />
+            I own this
+          </Button>
+        </Box>
+      )}
+    </ClassNames>
   );
 }
 
@@ -306,55 +313,62 @@ function ItemPageWantButton({ itemId, isChecked }) {
   );
 
   return (
-    <Box as="label">
-      <VisuallyHidden
-        as="input"
-        type="checkbox"
-        isChecked={isChecked}
-        onChange={(e) => {
-          if (e.target.checked) {
-            sendAddMutation().catch((e) => {
-              console.error(e);
-              toast({
-                title: "We had trouble adding this to the items you want.",
-                description: "Check your internet connection, and try again.",
-                status: "error",
-                duration: 5000,
-              });
-            });
-          } else {
-            sendRemoveMutation().catch((e) => {
-              console.error(e);
-              toast({
-                title: "We had trouble removing this from the items you want.",
-                description: "Check your internet connection, and try again.",
-                status: "error",
-                duration: 5000,
-              });
-            });
-          }
-        }}
-      />
-      <Button
-        as="div"
-        colorScheme={isChecked ? "blue" : "gray"}
-        size="lg"
-        cursor="pointer"
-        transitionDuration="0.4s"
-        className={css`
-          input:focus + & {
-            box-shadow: ${theme.shadows.outline};
-          }
-        `}
-      >
-        <IconCheckbox
-          icon={<StarIcon />}
-          isChecked={isChecked}
-          marginRight="0.5em"
-        />
-        I want this
-      </Button>
-    </Box>
+    <ClassNames>
+      {({ css }) => (
+        <Box as="label">
+          <VisuallyHidden
+            as="input"
+            type="checkbox"
+            isChecked={isChecked}
+            onChange={(e) => {
+              if (e.target.checked) {
+                sendAddMutation().catch((e) => {
+                  console.error(e);
+                  toast({
+                    title: "We had trouble adding this to the items you want.",
+                    description:
+                      "Check your internet connection, and try again.",
+                    status: "error",
+                    duration: 5000,
+                  });
+                });
+              } else {
+                sendRemoveMutation().catch((e) => {
+                  console.error(e);
+                  toast({
+                    title:
+                      "We had trouble removing this from the items you want.",
+                    description:
+                      "Check your internet connection, and try again.",
+                    status: "error",
+                    duration: 5000,
+                  });
+                });
+              }
+            }}
+          />
+          <Button
+            as="div"
+            colorScheme={isChecked ? "blue" : "gray"}
+            size="lg"
+            cursor="pointer"
+            transitionDuration="0.4s"
+            className={css`
+              input:focus + & {
+                box-shadow: ${theme.shadows.outline};
+              }
+            `}
+          >
+            <IconCheckbox
+              icon={<StarIcon />}
+              isChecked={isChecked}
+              marginRight="0.5em"
+            />
+            I want this
+          </Button>
+        </Box>
+      )}
+    </ClassNames>
   );
 }
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { css } from "@emotion/css";
+import { ClassNames } from "@emotion/react";
 import {
   Box,
   Editable,
@@ -34,50 +34,59 @@ function ItemsPanel({ outfitState, loading, dispatchToOutfit }) {
   const { zonesAndItems, incompatibleItems } = outfitState;
 
   return (
-    <Box>
-      <Box px="1">
-        <OutfitHeading
-          outfitState={outfitState}
-          dispatchToOutfit={dispatchToOutfit}
-        />
-      </Box>
-      <Flex direction="column">
-        {loading ? (
-          <ItemZoneGroupsSkeleton itemCount={outfitState.allItemIds.length} />
-        ) : (
-          <TransitionGroup component={null}>
-            {zonesAndItems.map(({ zoneLabel, items }) => (
-              <CSSTransition key={zoneLabel} {...fadeOutAndRollUpTransition}>
-                <ItemZoneGroup
-                  zoneLabel={zoneLabel}
-                  items={items}
-                  outfitState={outfitState}
-                  dispatchToOutfit={dispatchToOutfit}
-                />
-              </CSSTransition>
-            ))}
-            {incompatibleItems.length > 0 && (
-              <ItemZoneGroup
-                zoneLabel="Incompatible"
-                afterHeader={
-                  <Tooltip
-                    label="These items don't fit this pet"
-                    placement="top"
-                    openDelay={100}
-                  >
-                    <QuestionIcon fontSize="sm" />
-                  </Tooltip>
-                }
-                items={incompatibleItems}
-                outfitState={outfitState}
-                dispatchToOutfit={dispatchToOutfit}
-                isDisabled
+    <ClassNames>
+      {({ css }) => (
+        <Box>
+          <Box px="1">
+            <OutfitHeading
+              outfitState={outfitState}
+              dispatchToOutfit={dispatchToOutfit}
+            />
+          </Box>
+          <Flex direction="column">
+            {loading ? (
+              <ItemZoneGroupsSkeleton
+                itemCount={outfitState.allItemIds.length}
               />
+            ) : (
+              <TransitionGroup component={null}>
+                {zonesAndItems.map(({ zoneLabel, items }) => (
+                  <CSSTransition
+                    key={zoneLabel}
+                    {...fadeOutAndRollUpTransition(css)}
+                  >
+                    <ItemZoneGroup
+                      zoneLabel={zoneLabel}
+                      items={items}
+                      outfitState={outfitState}
+                      dispatchToOutfit={dispatchToOutfit}
+                    />
+                  </CSSTransition>
+                ))}
+                {incompatibleItems.length > 0 && (
+                  <ItemZoneGroup
+                    zoneLabel="Incompatible"
+                    afterHeader={
+                      <Tooltip
+                        label="These items don't fit this pet"
+                        placement="top"
+                        openDelay={100}
+                      >
+                        <QuestionIcon fontSize="sm" />
+                      </Tooltip>
+                    }
+                    items={incompatibleItems}
+                    outfitState={outfitState}
+                    dispatchToOutfit={dispatchToOutfit}
+                    isDisabled
+                  />
+                )}
+              </TransitionGroup>
             )}
-          </TransitionGroup>
-        )}
-      </Flex>
-    </Box>
+          </Flex>
+        </Box>
+      )}
+    </ClassNames>
   );
 }
 
@@ -125,59 +134,66 @@ function ItemZoneGroup({
   );
 
   return (
-    <Box mb="10">
-      <Heading2 display="flex" alignItems="center" mx="1">
-        {zoneLabel}
-        {afterHeader && <Box marginLeft="2">{afterHeader}</Box>}
-      </Heading2>
-      <ItemListContainer>
-        <TransitionGroup component={null}>
-          {items.map((item) => {
-            const itemNameId =
-              zoneLabel.replace(/ /g, "-") + `-item-${item.id}-name`;
-            const itemNode = (
-              <Item
-                item={item}
-                itemNameId={itemNameId}
-                isWorn={
-                  !isDisabled && outfitState.wornItemIds.includes(item.id)
-                }
-                isInOutfit={outfitState.allItemIds.includes(item.id)}
-                onRemove={onRemove}
-                isDisabled={isDisabled}
-              />
-            );
+    <ClassNames>
+      {({ css }) => (
+        <Box mb="10">
+          <Heading2 display="flex" alignItems="center" mx="1">
+            {zoneLabel}
+            {afterHeader && <Box marginLeft="2">{afterHeader}</Box>}
+          </Heading2>
+          <ItemListContainer>
+            <TransitionGroup component={null}>
+              {items.map((item) => {
+                const itemNameId =
+                  zoneLabel.replace(/ /g, "-") + `-item-${item.id}-name`;
+                const itemNode = (
+                  <Item
+                    item={item}
+                    itemNameId={itemNameId}
+                    isWorn={
+                      !isDisabled && outfitState.wornItemIds.includes(item.id)
+                    }
+                    isInOutfit={outfitState.allItemIds.includes(item.id)}
+                    onRemove={onRemove}
+                    isDisabled={isDisabled}
+                  />
+                );
 
-            return (
-              <CSSTransition key={item.id} {...fadeOutAndRollUpTransition}>
-                {isDisabled ? (
-                  itemNode
-                ) : (
-                  <label>
-                    <VisuallyHidden
-                      as="input"
-                      type="radio"
-                      aria-labelledby={itemNameId}
-                      name={zoneLabel}
-                      value={item.id}
-                      checked={outfitState.wornItemIds.includes(item.id)}
-                      onChange={onChange}
-                      onClick={onClick}
-                      onKeyUp={(e) => {
-                        if (e.key === " ") {
-                          onClick(e);
-                        }
-                      }}
-                    />
-                    {itemNode}
-                  </label>
-                )}
-              </CSSTransition>
-            );
-          })}
-        </TransitionGroup>
-      </ItemListContainer>
-    </Box>
+                return (
+                  <CSSTransition
+                    key={item.id}
+                    {...fadeOutAndRollUpTransition(css)}
+                  >
+                    {isDisabled ? (
+                      itemNode
+                    ) : (
+                      <label>
+                        <VisuallyHidden
+                          as="input"
+                          type="radio"
+                          aria-labelledby={itemNameId}
+                          name={zoneLabel}
+                          value={item.id}
+                          checked={outfitState.wornItemIds.includes(item.id)}
+                          onChange={onChange}
+                          onClick={onClick}
+                          onKeyUp={(e) => {
+                            if (e.key === " ") {
+                              onClick(e);
+                            }
+                          }}
+                        />
+                        {itemNode}
+                      </label>
+                    )}
+                  </CSSTransition>
+                );
+              })}
+            </TransitionGroup>
+          </ItemListContainer>
+        </Box>
+      )}
+    </ClassNames>
   );
 }
 
@@ -273,7 +289,7 @@ function OutfitHeading({ outfitState, dispatchToOutfit }) {
  *
  * See react-transition-group docs for more info!
  */
-const fadeOutAndRollUpTransition = {
+const fadeOutAndRollUpTransition = (css) => ({
   classNames: css`
     &-exit {
       opacity: 1;
@@ -292,6 +308,6 @@ const fadeOutAndRollUpTransition = {
   onExit: (e) => {
     e.style.height = e.offsetHeight + "px";
   },
-};
+});
 
 export default ItemsPanel;

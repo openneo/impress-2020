@@ -1,7 +1,7 @@
 import React from "react";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
-import { css, cx } from "@emotion/css";
+import { ClassNames } from "@emotion/react";
 import {
   Box,
   Button,
@@ -107,97 +107,101 @@ function PosePicker({
   };
 
   return (
-    <Popover
-      placement="bottom-end"
-      returnFocusOnClose
-      onOpen={onLockFocus}
-      onClose={onUnlockFocus}
-      initialFocusRef={initialFocusRef}
-    >
-      {({ isOpen }) => (
-        <>
-          <PopoverTrigger>
-            <Button
-              variant="unstyled"
-              boxShadow="md"
-              d="flex"
-              alignItems="center"
-              justifyContent="center"
-              _focus={{ borderColor: "gray.50" }}
-              _hover={{ borderColor: "gray.50" }}
-              outline="initial"
-              className={cx(
-                css`
-                  border: 1px solid transparent !important;
-                  transition: border-color 0.2s !important;
+    <ClassNames>
+      {({ css, cx }) => (
+        <Popover
+          placement="bottom-end"
+          returnFocusOnClose
+          onOpen={onLockFocus}
+          onClose={onUnlockFocus}
+          initialFocusRef={initialFocusRef}
+        >
+          {({ isOpen }) => (
+            <>
+              <PopoverTrigger>
+                <Button
+                  variant="unstyled"
+                  boxShadow="md"
+                  d="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  _focus={{ borderColor: "gray.50" }}
+                  _hover={{ borderColor: "gray.50" }}
+                  outline="initial"
+                  className={cx(
+                    css`
+                      border: 1px solid transparent !important;
+                      transition: border-color 0.2s !important;
 
-                  &:focus,
-                  &:hover,
-                  &.is-open {
-                    border-color: ${theme.colors.gray["50"]} !important;
-                  }
+                      &:focus,
+                      &:hover,
+                      &.is-open {
+                        border-color: ${theme.colors.gray["50"]} !important;
+                      }
 
-                  &.is-open {
-                    border-width: 2px !important;
-                  }
-                `,
-                isOpen && "is-open"
-              )}
-            >
-              <EmojiImage src={getIcon(pose)} alt="Choose a pose" />
-            </Button>
-          </PopoverTrigger>
-          <Portal>
-            <PopoverContent>
-              <Box p="4" position="relative">
-                {isInSupportMode ? (
-                  <PosePickerSupport
-                    speciesId={speciesId}
-                    colorId={colorId}
-                    pose={pose}
-                    appearanceId={appearanceId}
-                    initialFocusRef={initialFocusRef}
-                    dispatchToOutfit={dispatchToOutfit}
-                  />
-                ) : (
-                  <>
-                    <PosePickerTable
-                      poseInfos={poseInfos}
-                      onChange={onChange}
-                      initialFocusRef={initialFocusRef}
-                    />
-                    {numAvailablePoses <= 1 && (
-                      <SupportOnly>
-                        <Box
-                          fontSize="xs"
-                          fontStyle="italic"
-                          textAlign="center"
-                          opacity="0.7"
-                          marginTop="2"
-                        >
-                          The empty picker is hidden for most users!
-                          <br />
-                          You can see it because you're a Support user.
-                        </Box>
-                      </SupportOnly>
+                      &.is-open {
+                        border-width: 2px !important;
+                      }
+                    `,
+                    isOpen && "is-open"
+                  )}
+                >
+                  <EmojiImage src={getIcon(pose)} alt="Choose a pose" />
+                </Button>
+              </PopoverTrigger>
+              <Portal>
+                <PopoverContent>
+                  <Box p="4" position="relative">
+                    {isInSupportMode ? (
+                      <PosePickerSupport
+                        speciesId={speciesId}
+                        colorId={colorId}
+                        pose={pose}
+                        appearanceId={appearanceId}
+                        initialFocusRef={initialFocusRef}
+                        dispatchToOutfit={dispatchToOutfit}
+                      />
+                    ) : (
+                      <>
+                        <PosePickerTable
+                          poseInfos={poseInfos}
+                          onChange={onChange}
+                          initialFocusRef={initialFocusRef}
+                        />
+                        {numAvailablePoses <= 1 && (
+                          <SupportOnly>
+                            <Box
+                              fontSize="xs"
+                              fontStyle="italic"
+                              textAlign="center"
+                              opacity="0.7"
+                              marginTop="2"
+                            >
+                              The empty picker is hidden for most users!
+                              <br />
+                              You can see it because you're a Support user.
+                            </Box>
+                          </SupportOnly>
+                        )}
+                      </>
                     )}
-                  </>
-                )}
-                <SupportOnly>
-                  <Box position="absolute" top="5" left="3">
-                    <PosePickerSupportSwitch
-                      isChecked={isInSupportMode}
-                      onChange={(e) => setIsInSupportMode(e.target.checked)}
-                    />
+                    <SupportOnly>
+                      <Box position="absolute" top="5" left="3">
+                        <PosePickerSupportSwitch
+                          isChecked={isInSupportMode}
+                          onChange={(e) => setIsInSupportMode(e.target.checked)}
+                        />
+                      </Box>
+                    </SupportOnly>
                   </Box>
-                </SupportOnly>
-              </Box>
-              <PopoverArrow />
-            </PopoverContent>
-          </Portal>
-        </>
+                  <PopoverArrow />
+                </PopoverContent>
+              </Portal>
+            </>
+          )}
+        </Popover>
       )}
-    </Popover>
+    </ClassNames>
   );
 }
 
@@ -343,110 +347,118 @@ function PoseOption({
   );
 
   return (
-    <Box
-      as="label"
-      cursor="pointer"
-      display="flex"
-      alignItems="center"
-      borderColor={poseInfo.isSelected ? borderColor : "gray.400"}
-      boxShadow={label ? "md" : "none"}
-      borderWidth={label ? "1px" : "0"}
-      borderRadius={label ? "full" : "0"}
-      paddingRight={label ? "3" : "0"}
-      onClick={(e) => {
-        // HACK: We need the timeout to beat the popover's focus stealing!
-        const input = e.currentTarget.querySelector("input");
-        setTimeout(() => input.focus(), 0);
-      }}
-      {...otherProps}
-    >
-      <VisuallyHidden
-        as="input"
-        type="radio"
-        aria-label={poseName}
-        name="pose"
-        value={poseInfo.pose}
-        checked={poseInfo.isSelected}
-        disabled={!poseInfo.isAvailable}
-        onChange={onChange}
-        ref={inputRef || null}
-      />
-      <Box
-        aria-hidden
-        borderRadius="full"
-        boxShadow="md"
-        overflow="hidden"
-        width={size === "sm" ? "30px" : "50px"}
-        height={size === "sm" ? "30px" : "50px"}
-        title={
-          poseInfo.isAvailable
-            ? // A lil debug output, so that we can quickly identify glitched
-              // PetStates and manually mark them as glitched!
-              window.location.hostname.includes("localhost") &&
-              `#${poseInfo.id}`
-            : "Not modeled yet"
-        }
-        position="relative"
-        className={css`
-          transform: scale(0.8);
-          opacity: 0.8;
-          transition: all 0.2s;
-
-          input:checked + & {
-            transform: scale(1);
-            opacity: 1;
-          }
-        `}
-      >
+    <ClassNames>
+      {({ css, cx }) => (
         <Box
-          borderRadius="full"
-          position="absolute"
-          top="0"
-          bottom="0"
-          left="0"
-          right="0"
-          zIndex="2"
-          className={cx(
-            css`
-              border: 0px solid ${borderColor};
-              transition: border-width 0.2s;
-
-              &.not-available {
-                border-color: ${theme.colors.gray["500"]};
-                border-width: 1px;
-              }
-
-              input:checked + * & {
-                border-width: 1px;
-              }
-
-              input:focus + * & {
-                border-width: 3px;
-              }
-            `,
-            !poseInfo.isAvailable && "not-available"
-          )}
-        />
-        {poseInfo.isAvailable ? (
-          <Box width="100%" height="100%" transform={getTransform(poseInfo)}>
-            <OutfitLayers visibleLayers={getVisibleLayers(poseInfo, [])} />
-          </Box>
-        ) : (
-          <Flex align="center" justify="center" width="100%" height="100%">
-            <EmojiImage src={twemojiQuestion} boxSize="24px" />
-          </Flex>
-        )}
-      </Box>
-      {label && (
-        <Box
-          marginLeft="2"
-          fontSize="xs"
-          fontWeight={poseInfo.isSelected ? "bold" : "normal"}
+          as="label"
+          cursor="pointer"
+          display="flex"
+          alignItems="center"
+          borderColor={poseInfo.isSelected ? borderColor : "gray.400"}
+          boxShadow={label ? "md" : "none"}
+          borderWidth={label ? "1px" : "0"}
+          borderRadius={label ? "full" : "0"}
+          paddingRight={label ? "3" : "0"}
+          onClick={(e) => {
+            // HACK: We need the timeout to beat the popover's focus stealing!
+            const input = e.currentTarget.querySelector("input");
+            setTimeout(() => input.focus(), 0);
+          }}
+          {...otherProps}
         >
-          {label}
+          <VisuallyHidden
+            as="input"
+            type="radio"
+            aria-label={poseName}
+            name="pose"
+            value={poseInfo.pose}
+            checked={poseInfo.isSelected}
+            disabled={!poseInfo.isAvailable}
+            onChange={onChange}
+            ref={inputRef || null}
+          />
+          <Box
+            aria-hidden
+            borderRadius="full"
+            boxShadow="md"
+            overflow="hidden"
+            width={size === "sm" ? "30px" : "50px"}
+            height={size === "sm" ? "30px" : "50px"}
+            title={
+              poseInfo.isAvailable
+                ? // A lil debug output, so that we can quickly identify glitched
+                  // PetStates and manually mark them as glitched!
+                  window.location.hostname.includes("localhost") &&
+                  `#${poseInfo.id}`
+                : "Not modeled yet"
+            }
+            position="relative"
+            className={css`
+              transform: scale(0.8);
+              opacity: 0.8;
+              transition: all 0.2s;
+
+              input:checked + & {
+                transform: scale(1);
+                opacity: 1;
+              }
+            `}
+          >
+            <Box
+              borderRadius="full"
+              position="absolute"
+              top="0"
+              bottom="0"
+              left="0"
+              right="0"
+              zIndex="2"
+              className={cx(
+                css`
+                  border: 0px solid ${borderColor};
+                  transition: border-width 0.2s;
+
+                  &.not-available {
+                    border-color: ${theme.colors.gray["500"]};
+                    border-width: 1px;
+                  }
+
+                  input:checked + * & {
+                    border-width: 1px;
+                  }
+
+                  input:focus + * & {
+                    border-width: 3px;
+                  }
+                `,
+                !poseInfo.isAvailable && "not-available"
+              )}
+            />
+            {poseInfo.isAvailable ? (
+              <Box
+                width="100%"
+                height="100%"
+                transform={getTransform(poseInfo)}
+              >
+                <OutfitLayers visibleLayers={getVisibleLayers(poseInfo, [])} />
+              </Box>
+            ) : (
+              <Flex align="center" justify="center" width="100%" height="100%">
+                <EmojiImage src={twemojiQuestion} boxSize="24px" />
+              </Flex>
+            )}
+          </Box>
+          {label && (
+            <Box
+              marginLeft="2"
+              fontSize="xs"
+              fontWeight={poseInfo.isSelected ? "bold" : "normal"}
+            >
+              {label}
+            </Box>
+          )}
         </Box>
       )}
-    </Box>
+    </ClassNames>
   );
 }
 

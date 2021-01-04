@@ -1,5 +1,5 @@
 import React from "react";
-import { css, cx } from "@emotion/css";
+import { ClassNames } from "@emotion/react";
 import {
   Box,
   Flex,
@@ -166,35 +166,39 @@ function ItemContainer({ children, isDisabled = false }) {
   );
 
   return (
-    <Box
-      p="1"
-      my="1"
-      borderRadius="lg"
-      d="flex"
-      cursor={isDisabled ? undefined : "pointer"}
-      border="1px"
-      borderColor="transparent"
-      className={cx([
-        "item-container",
-        !isDisabled &&
-          css`
-            &:hover,
-            input:focus + & {
-              background-color: ${focusBackgroundColor};
-            }
+    <ClassNames>
+      {({ css, cx }) => (
+        <Box
+          p="1"
+          my="1"
+          borderRadius="lg"
+          d="flex"
+          cursor={isDisabled ? undefined : "pointer"}
+          border="1px"
+          borderColor="transparent"
+          className={cx([
+            "item-container",
+            !isDisabled &&
+              css`
+                &:hover,
+                input:focus + & {
+                  background-color: ${focusBackgroundColor};
+                }
 
-            input:active + & {
-              border-color: ${activeBorderColor};
-            }
+                input:active + & {
+                  border-color: ${activeBorderColor};
+                }
 
-            input:checked:focus + & {
-              border-color: ${focusCheckedBorderColor};
-            }
-          `,
-      ])}
-    >
-      {children}
-    </Box>
+                input:checked:focus + & {
+                  border-color: ${focusCheckedBorderColor};
+                }
+              `,
+          ])}
+        >
+          {children}
+        </Box>
+      )}
+    </ClassNames>
   );
 }
 
@@ -242,39 +246,43 @@ function ItemActionButton({ icon, label, to, onClick }) {
   );
 
   return (
-    <Tooltip label={label} placement="top">
-      <IconButton
-        as={to ? Link : "button"}
-        icon={icon}
-        aria-label={label}
-        variant="ghost"
-        color="gray.400"
-        to={to}
-        onClick={onClick}
-        className={css`
-          opacity: 0;
-          transition: all 0.2s;
+    <ClassNames>
+      {({ css }) => (
+        <Tooltip label={label} placement="top">
+          <IconButton
+            as={to ? Link : "button"}
+            icon={icon}
+            aria-label={label}
+            variant="ghost"
+            color="gray.400"
+            to={to}
+            onClick={onClick}
+            className={css`
+              opacity: 0;
+              transition: all 0.2s;
 
-          ${containerHasFocus} {
-            opacity: 1;
-          }
+              ${containerHasFocus} {
+                opacity: 1;
+              }
 
-          &:focus,
-          &:hover {
-            opacity: 1;
-            background-color: ${focusBackgroundColor};
-            color: ${focusColor};
-          }
+              &:focus,
+              &:hover {
+                opacity: 1;
+                background-color: ${focusBackgroundColor};
+                color: ${focusColor};
+              }
 
-          /* On touch devices, always show the buttons! This avoids having to
+              /* On touch devices, always show the buttons! This avoids having to
            * tap to reveal them (which toggles the item), or worse,
            * accidentally tapping a hidden button without realizing! */
-          @media (hover: none) {
-            opacity: 1;
-          }
-        `}
-      />
-    </Tooltip>
+              @media (hover: none) {
+                opacity: 1;
+              }
+            `}
+          />
+        </Tooltip>
+      )}
+    </ClassNames>
   );
 }
 

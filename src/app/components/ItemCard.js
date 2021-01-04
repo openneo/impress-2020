@@ -1,5 +1,5 @@
 import React from "react";
-import { css } from "@emotion/css";
+import { ClassNames } from "@emotion/react";
 import {
   Badge,
   Box,
@@ -102,59 +102,63 @@ export function ItemThumbnail({
   );
 
   return (
-    <Box
-      width={size === "lg" ? "80px" : "50px"}
-      height={size === "lg" ? "80px" : "50px"}
-      transition="all 0.15s"
-      transformOrigin="center"
-      position="relative"
-      className={css([
-        {
-          transform: "scale(0.8)",
-        },
-        !isDisabled &&
-          !isActive && {
-            [focusSelector]: {
-              opacity: "0.9",
-              transform: "scale(0.9)",
-            },
-          },
-        !isDisabled &&
-          isActive && {
-            opacity: 1,
-            transform: "none",
-          },
-      ])}
-      {...props}
-    >
-      <Box
-        borderRadius="lg"
-        boxShadow="md"
-        border="1px"
-        overflow="hidden"
-        width="100%"
-        height="100%"
-        className={css([
-          {
-            borderColor: `${borderColor} !important`,
-          },
-          !isDisabled &&
-            !isActive && {
-              [focusSelector]: {
-                borderColor: `${focusBorderColor} !important`,
-              },
-            },
-        ])}
-      >
+    <ClassNames>
+      {({ css }) => (
         <Box
-          as="img"
-          width="100%"
-          height="100%"
-          src={safeImageUrl(item.thumbnailUrl)}
-          alt={`Thumbnail art for ${item.name}`}
-        />
-      </Box>
-    </Box>
+          width={size === "lg" ? "80px" : "50px"}
+          height={size === "lg" ? "80px" : "50px"}
+          transition="all 0.15s"
+          transformOrigin="center"
+          position="relative"
+          className={css([
+            {
+              transform: "scale(0.8)",
+            },
+            !isDisabled &&
+              !isActive && {
+                [focusSelector]: {
+                  opacity: "0.9",
+                  transform: "scale(0.9)",
+                },
+              },
+            !isDisabled &&
+              isActive && {
+                opacity: 1,
+                transform: "none",
+              },
+          ])}
+          {...props}
+        >
+          <Box
+            borderRadius="lg"
+            boxShadow="md"
+            border="1px"
+            overflow="hidden"
+            width="100%"
+            height="100%"
+            className={css([
+              {
+                borderColor: `${borderColor} !important`,
+              },
+              !isDisabled &&
+                !isActive && {
+                  [focusSelector]: {
+                    borderColor: `${focusBorderColor} !important`,
+                  },
+                },
+            ])}
+          >
+            <Box
+              as="img"
+              width="100%"
+              height="100%"
+              src={safeImageUrl(item.thumbnailUrl)}
+              alt={`Thumbnail art for ${item.name}`}
+            />
+          </Box>
+        </Box>
+      )}
+    </ClassNames>
   );
 }
 
@@ -166,30 +170,34 @@ function ItemName({ children, isDisabled, focusSelector, ...props }) {
   const theme = useTheme();
 
   return (
-    <Box
-      fontSize="md"
-      transition="all 0.15s"
-      overflow="hidden"
-      whiteSpace="nowrap"
-      textOverflow="ellipsis"
-      className={
-        !isDisabled &&
-        css`
-          ${focusSelector} {
-            opacity: 0.9;
-            font-weight: ${theme.fontWeights.medium};
-          }
+    <ClassNames>
+      {({ css }) => (
+        <Box
+          fontSize="md"
+          transition="all 0.15s"
+          overflow="hidden"
+          whiteSpace="nowrap"
+          textOverflow="ellipsis"
+          className={
+            !isDisabled &&
+            css`
+              ${focusSelector} {
+                opacity: 0.9;
+                font-weight: ${theme.fontWeights.medium};
+              }
 
-          input:checked + .item-container & {
-            opacity: 1;
-            font-weight: ${theme.fontWeights.bold};
+              input:checked + .item-container & {
+                opacity: 1;
+                font-weight: ${theme.fontWeights.bold};
+              }
+            `
           }
-        `
-      }
-      {...props}
-    >
-      {children}
-    </Box>
+          {...props}
+        >
+          {children}
+        </Box>
+      )}
+    </ClassNames>
   );
 }
 

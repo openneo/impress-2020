@@ -1,5 +1,5 @@
 import * as React from "react";
-import { css } from "@emotion/css";
+import { ClassNames } from "@emotion/react";
 import { Box, useColorModeValue } from "@chakra-ui/react";
 import { createIcon } from "@chakra-ui/icons";
 
@@ -21,74 +21,76 @@ function HangerSpinner({ size = "md", ...props }) {
   const color = useColorModeValue("green.500", "green.300");
 
   return (
-    <>
-      <Box
-        className={css`
-          /*
-            Adapted from animate.css "swing". We spend 75% of the time swinging,
-            then 25% of the time pausing before the next loop.
+    <ClassNames>
+      {({ css }) => (
+        <Box
+          className={css`
+            /*
+              Adapted from animate.css "swing". We spend 75% of the time swinging,
+              then 25% of the time pausing before the next loop.
 
-            We use this animation for folks who are okay with dizzy-ish motion.
-            For reduced motion, we use a pulse-fade instead.
-          */
-          @keyframes swing {
-            15% {
-              transform: rotate3d(0, 0, 1, 15deg);
+              We use this animation for folks who are okay with dizzy-ish motion.
+              For reduced motion, we use a pulse-fade instead.
+            */
+            @keyframes swing {
+              15% {
+                transform: rotate3d(0, 0, 1, 15deg);
+              }
+
+              30% {
+                transform: rotate3d(0, 0, 1, -10deg);
+              }
+
+              45% {
+                transform: rotate3d(0, 0, 1, 5deg);
+              }
+
+              60% {
+                transform: rotate3d(0, 0, 1, -5deg);
+              }
+
+              75% {
+                transform: rotate3d(0, 0, 1, 0deg);
+              }
+
+              100% {
+                transform: rotate3d(0, 0, 1, 0deg);
+              }
             }
 
-            30% {
-              transform: rotate3d(0, 0, 1, -10deg);
+            /*
+              A homebrew fade-pulse animation. We use this for folks who don't
+              like motion. It's an important accessibility thing!
+            */
+            @keyframes fade-pulse {
+              0% {
+                opacity: 0.2;
+              }
+
+              50% {
+                opacity: 1;
+              }
+
+              100% {
+                opacity: 0.2;
+              }
             }
 
-            45% {
-              transform: rotate3d(0, 0, 1, 5deg);
+            @media (prefers-reduced-motion: no-preference) {
+              animation: 1.2s infinite swing;
+              transform-origin: top center;
             }
 
-            60% {
-              transform: rotate3d(0, 0, 1, -5deg);
+            @media (prefers-reduced-motion: reduce) {
+              animation: 1.6s infinite fade-pulse;
             }
-
-            75% {
-              transform: rotate3d(0, 0, 1, 0deg);
-            }
-
-            100% {
-              transform: rotate3d(0, 0, 1, 0deg);
-            }
-          }
-
-          /*
-            A homebrew fade-pulse animation. We use this for folks who don't
-            like motion. It's an important accessibility thing!
-          */
-          @keyframes fade-pulse {
-            0% {
-              opacity: 0.2;
-            }
-
-            50% {
-              opacity: 1;
-            }
-
-            100% {
-              opacity: 0.2;
-            }
-          }
-
-          @media (prefers-reduced-motion: no-preference) {
-            animation: 1.2s infinite swing;
-            transform-origin: top center;
-          }
-
-          @media (prefers-reduced-motion: reduce) {
-            animation: 1.6s infinite fade-pulse;
-          }
-        `}
-        {...props}
-      >
-        <HangerIcon boxSize={boxSize} color={color} transition="color 0.2s" />
-      </Box>
-    </>
+          `}
+          {...props}
+        >
+          <HangerIcon boxSize={boxSize} color={color} transition="color 0.2s" />
+        </Box>
+      )}
+    </ClassNames>
   );
 }
 
