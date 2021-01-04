@@ -160,15 +160,11 @@ export const itemAppearanceFragment = gql`
   }
 `;
 
-export const petAppearanceFragment = gql`
-  fragment PetAppearanceForOutfitPreview on PetAppearance {
+export const petAppearanceFragmentForGetVisibleLayers = gql`
+  fragment PetAppearanceForGetVisibleLayers on PetAppearance {
     id
-    bodyId
     layers {
       id
-      svgUrl
-      canvasMovieLibraryUrl
-      imageUrl(size: SIZE_600)
       zone {
         id
         depth @client
@@ -178,4 +174,20 @@ export const petAppearanceFragment = gql`
       id
     }
   }
+`;
+
+export const petAppearanceFragment = gql`
+  fragment PetAppearanceForOutfitPreview on PetAppearance {
+    id
+    bodyId
+    layers {
+      id
+      svgUrl
+      canvasMovieLibraryUrl
+      imageUrl(size: SIZE_600)
+    }
+    ...PetAppearanceForGetVisibleLayers
+  }
+
+  ${petAppearanceFragmentForGetVisibleLayers}
 `;

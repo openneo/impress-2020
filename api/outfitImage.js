@@ -10,8 +10,8 @@ const beeline = require("honeycomb-beeline")({
 const { renderOutfitImage } = require("../src/server/outfit-images");
 
 const VALID_LAYER_URLS = [
-  /^https:\/\/impress-asset-images\.s3\.amazonaws\.com\/(biology|object)\/[0-9]{3}\/[0-9]{3}\/[0-9]{3}\/[0-9]+\/150x150\.png$/,
-  /^http:\/\/images\.neopets\.com\/cp\/(biology|object)\/data\/[0-9]{3}\/[0-9]{3}\/[0-9]{3}\/[a-zA-Z0-9_]+\/[a-zA-Z0-9_]+\.svg$/,
+  /^https:\/\/impress-asset-images\.s3\.amazonaws\.com\/(biology|object)\/[0-9]{3}\/[0-9]{3}\/[0-9]{3}\/[0-9]+\/(150|300)x(150|300)\.png(\?[a-zA-Z0-9_-]+)?$/,
+  /^http:\/\/images\.neopets\.com\/cp\/(bio|object)\/data\/[0-9]{3}\/[0-9]{3}\/[0-9]{3}\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+\.svg$/,
 ];
 
 async function handle(req, res) {
@@ -19,8 +19,13 @@ async function handle(req, res) {
     res.setHeader("Content-Type", "text/plain");
     return res.status(400).send(`Missing required parameter: layerUrls`);
   }
-
   const layerUrls = req.query.layerUrls.split(",");
+
+  const size = parseInt(req.query.size);
+  if (size !== 150 && size !== 300) {
+    res.setHeader("Content-Type", "text/plain");
+    return res.status(400).send(`Size must be 150 or 300`);
+  }
 
   for (const layerUrl of layerUrls) {
     if (!VALID_LAYER_URLS.some((pattern) => layerUrl.match(pattern))) {
@@ -30,7 +35,7 @@ async function handle(req, res) {
 
   let imageResult;
   try {
-    imageResult = await renderOutfitImage(layerUrls, 150);
+    imageResult = await renderOutfitImage(layerUrls, size);
   } catch (e) {
     console.error(e);
     res.setHeader("Content-Type", "text/plain");

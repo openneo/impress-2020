@@ -91,7 +91,7 @@ const resolvers = {
       const layer = await swfAssetLoader.load(id);
       return layer.url;
     },
-    imageUrl: async ({ id }, { size }, { swfAssetLoader }) => {
+    imageUrl: async ({ id }, { size = "SIZE_150" }, { swfAssetLoader }) => {
       const layer = await swfAssetLoader.load(id);
 
       // If there's no image, return null. (In the development db, which isn't
