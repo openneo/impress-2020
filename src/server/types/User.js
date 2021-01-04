@@ -19,6 +19,10 @@ const typeDefs = gql`
     # When this user last updated any of their trade lists, as an ISO 8601
     # timestamp.
     lastTradeActivity: String!
+
+    # This user's outfits. Returns an empty list if the current user is not
+    # authorized to see them.
+    outfits: [Outfit!]!
   }
 
   extend type Query {
@@ -221,6 +225,15 @@ const resolvers = {
     lastTradeActivity: async ({ id }, _, { userLastTradeActivityLoader }) => {
       const lastTradeActivity = await userLastTradeActivityLoader.load(id);
       return lastTradeActivity.toISOString();
+    },
+
+    outfits: async ({ id }, _, { currentUserId, userOutfitsLoader }) => {
+      if (currentUserId !== id) {
+        return [];
+      }
+
+      const outfits = await userOutfitsLoader.load(id);
+      return outfits.map((outfit) => ({ id: outfit.id }));
     },
   },
 

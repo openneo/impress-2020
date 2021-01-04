@@ -25,6 +25,13 @@ function UserOutfitsPageContent() {
         currentUser {
           outfits {
             id
+            name
+            petAppearance {
+              id
+            }
+            wornItems {
+              id
+            }
           }
         }
       }
@@ -46,7 +53,7 @@ function UserOutfitsPageContent() {
 
   return (
     <code>
-      <pre>Data: {JSON.stringify(data)}</pre>
+      <pre>Data: {JSON.stringify(data, null, 4)}</pre>
     </code>
   );
 }

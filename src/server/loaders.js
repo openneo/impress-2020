@@ -998,6 +998,26 @@ const buildUserClosetListsLoader = (db, loaders) =>
     );
   });
 
+const buildUserOutfitsLoader = (db, loaders) =>
+  new DataLoader(async (userIds) => {
+    const qs = userIds.map((_) => "?").join(",");
+    const [rows, _] = await db.execute(
+      `SELECT * FROM outfits
+       WHERE user_id IN (${qs})
+       ORDER BY name`,
+      userIds
+    );
+
+    const entities = rows.map(normalizeRow);
+    for (const entity of entities) {
+      loaders.outfitLoader.prime(entity.id, entity);
+    }
+
+    return userIds.map((userId) =>
+      entities.filter((e) => e.userId === String(userId))
+    );
+  });
+
 const buildUserLastTradeActivityLoader = (db) =>
   new DataLoader(async (userIds) => {
     const qs = userIds.map((_) => "?").join(",");
@@ -1156,6 +1176,7 @@ function buildLoaders(db) {
   loaders.userByEmailLoader = buildUserByEmailLoader(db);
   loaders.userClosetHangersLoader = buildUserClosetHangersLoader(db);
   loaders.userClosetListsLoader = buildUserClosetListsLoader(db, loaders);
+  loaders.userOutfitsLoader = buildUserOutfitsLoader(db, loaders);
   loaders.userLastTradeActivityLoader = buildUserLastTradeActivityLoader(db);
   loaders.zoneLoader = buildZoneLoader(db);
   loaders.zoneTranslationLoader = buildZoneTranslationLoader(db);
