@@ -46,7 +46,7 @@
   "scripts": {
     "start": "yarn build-cached-data && react-scripts start",
     "build": "yarn build-cached-data && react-scripts build",
-    "test": "react-app-rewired test --env=jsdom",
+    "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "mysql": "mysql --host=impress.openneo.net --user=$(dotenv -p IMPRESS_MYSQL_USER) --password=$(dotenv -p IMPRESS_MYSQL_PASSWORD) --database=openneo_impress",
     "mysql-dev": "mysql --host=localhost --user=impress_2020_dev --password=impress_2020_dev --database=impress_2020_dev",
@@ -80,6 +80,7 @@
     "dotenv-cli": "^3.1.0",
     "es6-promise-pool": "^2.5.0",
     "inquirer": "^7.3.3",
+    "jest-image-snapshot": "^4.3.0",
     "prettier": "^2.0.5",
     "react-is": "^16.13.1"
   }
