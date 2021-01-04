@@ -1,8 +1,8 @@
 import React from "react";
 import { Box, Flex, Tooltip } from "@chakra-ui/react";
 
-import WIPXweeImg from "../../images/wip-xwee.png";
-import WIPXweeImg2x from "../../images/wip-xwee@2x.png";
+import WIPXweeImg from "../images/wip-xwee.png";
+import WIPXweeImg2x from "../images/wip-xwee@2x.png";
 
 function WIPCallout({ children, details }) {
   let content = (

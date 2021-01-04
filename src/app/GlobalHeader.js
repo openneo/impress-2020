@@ -16,8 +16,8 @@ import { ChevronLeftIcon } from "@chakra-ui/icons";
 
 import useCurrentUser from "./components/useCurrentUser";
 
-import HomeLinkIcon from "../images/home-link-icon.png";
-import HomeLinkIcon2x from "../images/home-link-icon@2x.png";
+import HomeLinkIcon from "./images/home-link-icon.png";
+import HomeLinkIcon2x from "./images/home-link-icon@2x.png";
 
 function GlobalHeader() {
   return (

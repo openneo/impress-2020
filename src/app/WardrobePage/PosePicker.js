@@ -27,13 +27,13 @@ import useSupport from "./support/useSupport";
 import { useLocalStorage } from "../util";
 
 // From https://twemoji.twitter.com/, thank you!
-import twemojiSmile from "../../images/twemoji/smile.svg";
-import twemojiCry from "../../images/twemoji/cry.svg";
-import twemojiSick from "../../images/twemoji/sick.svg";
-import twemojiSunglasses from "../../images/twemoji/sunglasses.svg";
-import twemojiQuestion from "../../images/twemoji/question.svg";
-import twemojiMasc from "../../images/twemoji/masc.svg";
-import twemojiFem from "../../images/twemoji/fem.svg";
+import twemojiSmile from "../images/twemoji/smile.svg";
+import twemojiCry from "../images/twemoji/cry.svg";
+import twemojiSick from "../images/twemoji/sick.svg";
+import twemojiSunglasses from "../images/twemoji/sunglasses.svg";
+import twemojiQuestion from "../images/twemoji/question.svg";
+import twemojiMasc from "../images/twemoji/masc.svg";
+import twemojiFem from "../images/twemoji/fem.svg";
 
 const PosePickerSupport = loadable(() => import("./support/PosePickerSupport"));
 

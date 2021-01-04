@@ -19,10 +19,10 @@ import { Heading1, useLocalStorage, usePageTitle } from "./util";
 import OutfitPreview from "./components/OutfitPreview";
 import SpeciesColorPicker from "./components/SpeciesColorPicker";
 
-import HomepageSplashImg from "../images/homepage-splash.png";
-import HomepageSplashImg2x from "../images/homepage-splash@2x.png";
-import FeedbackXweeImg from "../images/feedback-xwee.png";
-import FeedbackXweeImg2x from "../images/feedback-xwee@2x.png";
+import HomepageSplashImg from "./images/homepage-splash.png";
+import HomepageSplashImg2x from "./images/homepage-splash@2x.png";
+import FeedbackXweeImg from "./images/feedback-xwee.png";
+import FeedbackXweeImg2x from "./images/feedback-xwee@2x.png";
 
 function HomePage() {
   usePageTitle(null);
