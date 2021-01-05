@@ -39,6 +39,7 @@ function useOutfitState() {
           id
           name
           petAppearance {
+            id
             species {
               id
             }
@@ -64,6 +65,7 @@ function useOutfitState() {
       skip: id == null,
       returnPartialData: true,
       onCompleted: (outfitData) => {
+        console.log(outfitData);
         // This is only called once the _entire_ query loads, regardless of
         // `returnPartialData`. We just use that for some early UI!
         const outfit = outfitData.outfit;
