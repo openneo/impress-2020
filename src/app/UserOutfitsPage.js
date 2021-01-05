@@ -112,6 +112,14 @@ function OutfitCard({ outfit }) {
       width="calc(150px + 2em)"
       backgroundColor={brightBackground}
       transition="all 0.2s"
+      as="a"
+      href={`https://impress.openneo.net/outfits/${outfit.id}`}
+      _hover={{ transform: `scale(1.05)` }}
+      _focus={{
+        transform: `scale(1.05)`,
+        boxShadow: "outline",
+        outline: "none",
+      }}
     >
       <Box
         as="img"
