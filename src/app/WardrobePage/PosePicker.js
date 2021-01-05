@@ -107,16 +107,16 @@ function PosePicker({
   };
 
   return (
-    <ClassNames>
-      {({ css, cx }) => (
-        <Popover
-          placement="bottom-end"
-          returnFocusOnClose
-          onOpen={onLockFocus}
-          onClose={onUnlockFocus}
-          initialFocusRef={initialFocusRef}
-        >
-          {({ isOpen }) => (
+    <Popover
+      placement="bottom-end"
+      returnFocusOnClose
+      onOpen={onLockFocus}
+      onClose={onUnlockFocus}
+      initialFocusRef={initialFocusRef}
+    >
+      {({ isOpen }) => (
+        <ClassNames>
+          {({ css, cx }) => (
             <>
               <PopoverTrigger>
                 <Button
@@ -199,9 +199,9 @@ function PosePicker({
               </Portal>
             </>
           )}
-        </Popover>
+        </ClassNames>
       )}
-    </ClassNames>
+    </Popover>
   );
 }
 
