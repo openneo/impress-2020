@@ -16,6 +16,7 @@ import { CSSTransition, TransitionGroup } from "react-transition-group";
 
 import { Delay, Heading1, Heading2 } from "../util";
 import Item, { ItemListContainer, ItemListSkeleton } from "./Item";
+import WIPCallout from "../components/WIPCallout";
 
 /**
  * ItemsPanel shows the items in the current outfit, and lets the user toggle
@@ -241,41 +242,52 @@ function ItemZoneGroupSkeleton({ itemCount }) {
  */
 function OutfitHeading({ outfitState, dispatchToOutfit }) {
   return (
-    <Box>
-      <Box role="group" d="inline-block" position="relative" width="100%">
-        <Heading1 mb="6">
-          <Editable
-            value={outfitState.name}
-            placeholder="Untitled outfit"
-            onChange={(value) =>
-              dispatchToOutfit({ type: "rename", outfitName: value })
-            }
-          >
-            {({ isEditing, onEdit }) => (
-              <Flex align="flex-top">
-                <EditablePreview />
-                <EditableInput />
-                {!isEditing && (
-                  <Box
-                    opacity="0"
-                    transition="opacity 0.5s"
-                    _groupHover={{ opacity: "1" }}
-                    onClick={onEdit}
-                  >
-                    <IconButton
-                      icon={<EditIcon />}
-                      variant="link"
-                      aria-label="Edit outfit name"
-                      title="Edit outfit name"
-                    />
-                  </Box>
-                )}
-              </Flex>
-            )}
-          </Editable>
-        </Heading1>
+    <Flex align="flex-start" justify="space-between">
+      <Box marginRight="4">
+        <Box role="group" d="inline-block" position="relative" width="100%">
+          <Heading1 mb="6">
+            <Editable
+              value={outfitState.name}
+              placeholder="Untitled outfit"
+              onChange={(value) =>
+                dispatchToOutfit({ type: "rename", outfitName: value })
+              }
+            >
+              {({ isEditing, onEdit }) => (
+                <Flex align="flex-top">
+                  <EditablePreview />
+                  <EditableInput />
+                  {!isEditing && (
+                    <Box
+                      opacity="0"
+                      transition="opacity 0.5s"
+                      _groupHover={{ opacity: "1" }}
+                      onClick={onEdit}
+                    >
+                      <IconButton
+                        icon={<EditIcon />}
+                        variant="link"
+                        aria-label="Edit outfit name"
+                        title="Edit outfit name"
+                      />
+                    </Box>
+                  )}
+                </Flex>
+              )}
+            </Editable>
+          </Heading1>
+        </Box>
       </Box>
-    </Box>
+      {outfitState.id && (
+        <WIPCallout
+          details={`To save a new version of this outfit, use Classic DTI. But you can still play around in here for now!`}
+          marginTop="1"
+          placement="bottom-end"
+        >
+          Saved outfits are WIP!
+        </WIPCallout>
+      )}
+    </Flex>
   );
 }
 

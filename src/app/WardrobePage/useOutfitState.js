@@ -2,6 +2,7 @@ import React from "react";
 import gql from "graphql-tag";
 import produce, { enableMapSet } from "immer";
 import { useQuery, useApolloClient } from "@apollo/client";
+import { useParams } from "react-router-dom";
 
 import { itemAppearanceFragment } from "../components/useOutfitAppearance";
 
@@ -11,21 +12,72 @@ export const OutfitStateContext = React.createContext(null);
 
 function useOutfitState() {
   const apolloClient = useApolloClient();
-  const initialState = parseOutfitUrl();
+  const initialState = useParseOutfitUrl();
   const [state, dispatchToOutfit] = React.useReducer(
     outfitStateReducer(apolloClient),
     initialState
   );
 
-  const { name, speciesId, colorId, pose, appearanceId } = state;
+  const { id, name, speciesId, colorId, pose, appearanceId } = state;
 
   // It's more convenient to manage these as a Set in state, but most callers
   // will find it more convenient to access them as arrays! e.g. for `.map()`
   const wornItemIds = Array.from(state.wornItemIds);
   const closetedItemIds = Array.from(state.closetedItemIds);
-
   const allItemIds = [...state.wornItemIds, ...state.closetedItemIds];
-  const { loading, error, data } = useQuery(
+
+  // If there's an outfit ID (i.e. we're on /outfits/:id), load basic data
+  // about the outfit. We'll use it to initialize the local state.
+  const { loading: outfitLoading, error: outfitError } = useQuery(
+    gql`
+      query OutfitStateSavedOutfit($id: ID!) {
+        outfit(id: $id) {
+          id
+          name
+          petAppearance {
+            species {
+              id
+            }
+            color {
+              id
+            }
+            pose
+          }
+          wornItems {
+            id
+          }
+          closetedItems {
+            id
+          }
+
+          # TODO: Consider pre-loading some fields, instead of doing them in
+          #       follow-up queries?
+        }
+      }
+    `,
+    {
+      variables: { id },
+      skip: id == null,
+      onCompleted: (outfitData) => {
+        const outfit = outfitData.outfit;
+        dispatchToOutfit({
+          type: "reset",
+          name: outfit.name,
+          speciesId: outfit.petAppearance.species.id,
+          colorId: outfit.petAppearance.color.id,
+          pose: outfit.petAppearance.pose,
+          wornItemIds: outfit.wornItems.map((item) => item.id),
+          closetedItemIds: outfit.closetedItems.map((item) => item.id),
+        });
+      },
+    }
+  );
+
+  const {
+    loading: itemsLoading,
+    error: itemsError,
+    data: itemsData,
+  } = useQuery(
     gql`
       query OutfitStateItems(
         $allItemIds: [ID!]!
@@ -69,11 +121,14 @@ function useOutfitState() {
     `,
     {
       variables: { allItemIds, speciesId, colorId },
-      skip: allItemIds.length === 0,
+      // Skip if this outfit has no items, as an optimization; or if we don't
+      // have the species/color ID loaded yet because we're waiting on the
+      // saved outfit to load.
+      skip: allItemIds.length === 0 || speciesId == null || colorId == null,
     }
   );
 
-  const resultItems = data?.items || [];
+  const resultItems = itemsData?.items || [];
 
   // Okay, time for some big perf hacks! Lower down in the app, we use
   // React.memo to avoid re-rendering Item components if the items haven't
@@ -123,6 +178,7 @@ function useOutfitState() {
   const url = buildOutfitUrl(state);
 
   const outfitState = {
+    id,
     zonesAndItems,
     incompatibleItems,
     name,
@@ -141,7 +197,12 @@ function useOutfitState() {
     window.history.replaceState(null, "", url);
   }, [url]);
 
-  return { loading, error, outfitState, dispatchToOutfit };
+  return {
+    loading: outfitLoading || itemsLoading,
+    error: outfitError || itemsError,
+    outfitState,
+    dispatchToOutfit,
+  };
 }
 
 const outfitStateReducer = (apolloClient) => (baseState, action) => {
@@ -249,9 +310,12 @@ const outfitStateReducer = (apolloClient) => (baseState, action) => {
   }
 };
 
-function parseOutfitUrl() {
+function useParseOutfitUrl() {
+  const { id } = useParams();
   const urlParams = new URLSearchParams(window.location.search);
+
   return {
+    id: id,
     name: urlParams.get("name"),
     speciesId: urlParams.get("species"),
     colorId: urlParams.get("color"),
@@ -440,6 +504,7 @@ function getZonesAndItems(itemsById, wornItemIds, closetedItemIds) {
 
 function buildOutfitUrl(state) {
   const {
+    id,
     name,
     speciesId,
     colorId,
@@ -448,6 +513,12 @@ function buildOutfitUrl(state) {
     wornItemIds,
     closetedItemIds,
   } = state;
+
+  const { origin, pathname } = window.location;
+
+  if (id) {
+    return origin + `/outfits/${id}`;
+  }
 
   const params = new URLSearchParams({
     name: name || "",
@@ -467,9 +538,7 @@ function buildOutfitUrl(state) {
     params.append("state", appearanceId);
   }
 
-  const { origin, pathname } = window.location;
-  const url = origin + pathname + "?" + params.toString();
-  return url;
+  return origin + pathname + "?" + params.toString();
 }
 
 export default useOutfitState;

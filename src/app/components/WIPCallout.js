@@ -6,7 +6,7 @@ import { useCommonStyles } from "../util";
 import WIPXweeImg from "../images/wip-xwee.png";
 import WIPXweeImg2x from "../images/wip-xwee@2x.png";
 
-function WIPCallout({ children, details }) {
+function WIPCallout({ children, details, placement = "bottom", ...props }) {
   const { brightBackground } = useCommonStyles();
 
   let content = (
@@ -22,6 +22,7 @@ function WIPCallout({ children, details }) {
       paddingRight="4"
       paddingY="1"
       fontSize="sm"
+      {...props}
     >
       <Box
         as="img"
@@ -47,10 +48,10 @@ function WIPCallout({ children, details }) {
     content = (
       <Tooltip
         label={<Box textAlign="center">{details}</Box>}
-        placement="bottom"
+        placement={placement}
         shouldWrapChildren
       >
-        {content}
+        <Box cursor="help">{content}</Box>
       </Tooltip>
     );
   }

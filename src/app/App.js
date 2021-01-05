@@ -89,6 +89,9 @@ function App() {
               <Route path="/outfits/new">
                 <WardrobePage />
               </Route>
+              <Route path="/outfits/:id">
+                <WardrobePage />
+              </Route>
               <Route path="/user/:userId/items">
                 <PageLayout>
                   <UserItemsPage />

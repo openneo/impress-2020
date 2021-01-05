@@ -2,6 +2,7 @@ import React from "react";
 import { Box, Center, Flex, Wrap, WrapItem } from "@chakra-ui/react";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
+import { Link } from "react-router-dom";
 
 import { ErrorMessage, Heading1, useCommonStyles } from "./util";
 import {
@@ -112,8 +113,8 @@ function OutfitCard({ outfit }) {
       width="calc(150px + 2em)"
       backgroundColor={brightBackground}
       transition="all 0.2s"
-      as="a"
-      href={`https://impress.openneo.net/outfits/${outfit.id}`}
+      as={Link}
+      to={`/outfits/${outfit.id}`}
       _hover={{ transform: `scale(1.05)` }}
       _focus={{
         transform: `scale(1.05)`,
