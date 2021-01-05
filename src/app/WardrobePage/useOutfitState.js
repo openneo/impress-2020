@@ -18,7 +18,7 @@ function useOutfitState() {
     initialState
   );
 
-  const { id, name, speciesId, colorId, pose, appearanceId } = state;
+  const { id, speciesId, colorId, pose, appearanceId } = state;
 
   // It's more convenient to manage these as a Set in state, but most callers
   // will find it more convenient to access them as arrays! e.g. for `.map()`
@@ -28,7 +28,11 @@ function useOutfitState() {
 
   // If there's an outfit ID (i.e. we're on /outfits/:id), load basic data
   // about the outfit. We'll use it to initialize the local state.
-  const { loading: outfitLoading, error: outfitError } = useQuery(
+  const {
+    loading: outfitLoading,
+    error: outfitError,
+    data: outfitData,
+  } = useQuery(
     gql`
       query OutfitStateSavedOutfit($id: ID!) {
         outfit(id: $id) {
@@ -58,7 +62,10 @@ function useOutfitState() {
     {
       variables: { id },
       skip: id == null,
+      returnPartialData: true,
       onCompleted: (outfitData) => {
+        // This is only called once the _entire_ query loads, regardless of
+        // `returnPartialData`. We just use that for some early UI!
         const outfit = outfitData.outfit;
         dispatchToOutfit({
           type: "reset",
@@ -72,6 +79,10 @@ function useOutfitState() {
       },
     }
   );
+
+  // Let the outfit name appear early, from partial data, even if the full
+  // outfit state isn't initialized yet.
+  const name = state.name || outfitData?.outfit?.name;
 
   const {
     loading: itemsLoading,
