@@ -62,6 +62,7 @@ function WardrobePage() {
       <WardrobePageLayout
         preview={
           <OutfitPreview
+            isLoading={loading}
             speciesId={outfitState.speciesId}
             colorId={outfitState.colorId}
             pose={outfitState.pose}
