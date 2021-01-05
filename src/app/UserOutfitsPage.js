@@ -33,6 +33,7 @@ function UserOutfitsPageContent() {
     gql`
       query UserOutfitsPageContent($size: LayerImageSize) {
         currentUser {
+          id
           outfits {
             id
             name
