@@ -187,9 +187,6 @@ const buildTradeMatchesLoader = (db) =>
             e.currentUserId === currentUserId &&
             e.direction === direction
         );
-        if (entity && entity.publicUserId == "26378") {
-          console.log(entity);
-        }
         return entity ? entity.itemIds.split(",") : [];
       });
     },
