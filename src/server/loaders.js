@@ -139,8 +139,9 @@ const buildTradeMatchesLoader = (db) =>
         })
         .flat();
 
-      const [rows, _] = await db.execute(
+      const [rows, _] = await db.query(
         `
+          SET SESSION group_concat_max_len = 4096;
           SELECT
             public_user_hangers.user_id AS public_user_id,
             current_user_hangers.user_id AS current_user_id,
@@ -186,6 +187,9 @@ const buildTradeMatchesLoader = (db) =>
             e.currentUserId === currentUserId &&
             e.direction === direction
         );
+        if (entity && entity.publicUserId == "26378") {
+          console.log(entity);
+        }
         return entity ? entity.itemIds.split(",") : [];
       });
     },
