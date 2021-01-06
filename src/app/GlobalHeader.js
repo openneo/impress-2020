@@ -111,14 +111,14 @@ function HomeLink(props) {
 }
 
 function UserNavBarSection() {
-  const { isLoading, isAuthenticated, loginWithRedirect, logout } = useAuth0();
-  const { id, username } = useCurrentUser();
+  const { loginWithRedirect, logout } = useAuth0();
+  const { isLoading, isLoggedIn, id, username } = useCurrentUser();
 
   if (isLoading) {
     return null;
   }
 
-  if (isAuthenticated) {
+  if (isLoggedIn) {
     return (
       <HStack align="center" spacing="2">
         {username && (

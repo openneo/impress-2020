@@ -18,6 +18,18 @@ async function getJwtKey(header, callback) {
 }
 
 async function getUserIdFromToken(token) {
+  // In development, you can start the server with
+  // `IMPRESS_LOG_IN_AS=12345 vc dev` to simulate logging in as user 12345.
+  //
+  // This flag shouldn't be present in prod anyway, but the dev check is an
+  // extra safety precaution!
+  if (
+    process.env["NODE_ENV"] === "development" &&
+    process.env["IMPRESS_LOG_IN_AS"]
+  ) {
+    return process.env["IMPRESS_LOG_IN_AS"];
+  }
+
   if (!token) {
     return null;
   }

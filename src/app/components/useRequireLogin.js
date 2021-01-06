@@ -1,6 +1,8 @@
 import React from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 
+import useCurrentUser from "./useCurrentUser";
+
 /**
  * useRequireLogin redirects to a login page, if the user is not already logged
  * in.
@@ -9,9 +11,10 @@ import { useAuth0 } from "@auth0/auth0-react";
  * redirecting, or false if the user is logged in and we can proceed.
  */
 function useRequireLogin() {
-  const { isLoading, isAuthenticated, loginWithRedirect } = useAuth0();
+  const { isLoading, isLoggedIn } = useCurrentUser();
+  const { loginWithRedirect } = useAuth0();
 
-  const isRedirecting = !isLoading && !isAuthenticated;
+  const isRedirecting = !isLoading && !isLoggedIn;
 
   React.useEffect(() => {
     if (isRedirecting) {
