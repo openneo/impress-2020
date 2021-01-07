@@ -100,7 +100,6 @@ export function OutfitLayers({
   loadingDelayMs = 500,
   spinnerVariant = "overlay",
   doTransitions = false,
-  onChangeHasAnimations = null,
   isPaused = true,
 }) {
   const containerRef = React.useRef(null);
@@ -177,19 +176,22 @@ export function OutfitLayers({
                 // We manage the fade-in and fade-out separately! The fade-out
                 // happens here, when the layer exits the DOM.
                 key={layer.id}
-                classNames={css`
-                  &-exit {
-                    opacity: 1;
-                  }
-
-                  &-exit-active {
-                    opacity: 0;
-                    transition: opacity 0.2s;
-                  }
-                `}
                 timeout={200}
               >
-                <FadeInOnLoad as={FullScreenCenter} zIndex={layer.zone.depth}>
+                <FadeInOnLoad
+                  as={FullScreenCenter}
+                  zIndex={layer.zone.depth}
+                  className={css`
+                    &.exit {
+                      opacity: 1;
+                    }
+
+                    &.exit-active {
+                      opacity: 0;
+                      transition: opacity 0.2s;
+                    }
+                  `}
+                >
                   {layer.canvasMovieLibraryUrl ? (
                     <OutfitMovieLayer
                       libraryUrl={layer.canvasMovieLibraryUrl}
