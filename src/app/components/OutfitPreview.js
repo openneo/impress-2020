@@ -35,7 +35,8 @@ function OutfitPreview({
   wornItemIds,
   appearanceId = null,
   isLoading = false,
-  placeholder,
+  placeholder = null,
+  backdrop = null,
   loadingDelayMs,
   spinnerVariant,
   onChangeHasAnimations = null,
@@ -80,6 +81,7 @@ function OutfitPreview({
       loading={isLoading || loading || loading2}
       visibleLayers={loadedLayers}
       placeholder={placeholder}
+      backdrop={backdrop}
       loadingDelayMs={loadingDelayMs}
       spinnerVariant={spinnerVariant}
       onChangeHasAnimations={onChangeHasAnimations}
@@ -96,7 +98,8 @@ function OutfitPreview({
 export function OutfitLayers({
   loading,
   visibleLayers,
-  placeholder,
+  placeholder = null,
+  backdrop = null,
   loadingDelayMs = 500,
   spinnerVariant = "overlay",
   doTransitions = false,
@@ -158,6 +161,18 @@ export function OutfitLayers({
           zIndex="0"
           ref={containerRef}
         >
+          {backdrop && (
+            <FullScreenCenter>
+              <Box
+                width="100%"
+                height="100%"
+                maxWidth="600px"
+                maxHeight="600px"
+              >
+                {backdrop}
+              </Box>
+            </FullScreenCenter>
+          )}
           {placeholder && (
             <FullScreenCenter>
               <Box
