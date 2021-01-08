@@ -18,14 +18,6 @@ function useOutfitState() {
     initialState
   );
 
-  const { id, speciesId, colorId, pose, appearanceId } = state;
-
-  // It's more convenient to manage these as a Set in state, but most callers
-  // will find it more convenient to access them as arrays! e.g. for `.map()`
-  const wornItemIds = Array.from(state.wornItemIds);
-  const closetedItemIds = Array.from(state.closetedItemIds);
-  const allItemIds = [...state.wornItemIds, ...state.closetedItemIds];
-
   // If there's an outfit ID (i.e. we're on /outfits/:id), load basic data
   // about the outfit. We'll use it to initialize the local state.
   const {
@@ -61,13 +53,16 @@ function useOutfitState() {
       }
     `,
     {
-      variables: { id },
-      skip: id == null,
+      variables: { id: state.id },
+      skip: state.id == null,
       returnPartialData: true,
       onCompleted: (outfitData) => {
-        console.log(outfitData);
         // This is only called once the _entire_ query loads, regardless of
         // `returnPartialData`. We just use that for some early UI!
+        //
+        // Even though we do a HACK to make these values visible early, we
+        // still want to write them to state, so that reducers can see them and
+        // edit them!
         const outfit = outfitData.outfit;
         dispatchToOutfit({
           type: "reset",
@@ -82,9 +77,29 @@ function useOutfitState() {
     }
   );
 
-  // Let the outfit name appear early, from partial data, even if the full
-  // outfit state isn't initialized yet.
-  const name = state.name || outfitData?.outfit?.name;
+  // HACK: We fall back to outfit data here, to help the loading states go
+  // smoother. (Otherwise, there's a flicker where `outfitLoading` is false,
+  // but the `reset` action hasn't fired yet.) This also enables partial outfit
+  // data to show early, like the name, if we're navigating from Your Outfits.
+  //
+  // We also call `Array.from` on our item IDs. It's more convenient to manage
+  // them as a Set in state, but most callers will find it more convenient to
+  // access them as arrays! e.g. for `.map()`.
+  const outfit = outfitData?.outfit;
+  const id = state.id;
+  const name = state.name || outfit?.name;
+  const speciesId = state.speciesId || outfit?.petAppearance?.species?.id;
+  const colorId = state.colorId || outfit?.petAppearance?.color?.id;
+  const pose = state.pose || outfit?.petAppearance?.pose;
+  const appearanceId = state?.appearanceId;
+  const wornItemIds = Array.from(
+    state.wornItemIds || outfit?.wornItems?.map((i) => i.id)
+  );
+  const closetedItemIds = Array.from(
+    state.closetedItemIds || outfit?.closetedItems?.map((i) => i.id)
+  );
+
+  const allItemIds = [...state.wornItemIds, ...state.closetedItemIds];
 
   const {
     loading: itemsLoading,
