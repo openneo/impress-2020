@@ -1,5 +1,6 @@
 import React from "react";
 import { Box, Center, Flex, Wrap, WrapItem } from "@chakra-ui/react";
+import { ClassNames } from "@emotion/react";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
 import { Link } from "react-router-dom";
@@ -109,16 +110,33 @@ function UserOutfitsPageContent() {
 
 function OutfitCard({ outfit }) {
   const image = (
-    <Box
-      as="img"
-      src={buildOutfitThumbnailUrl(
-        outfit.petAppearance,
-        outfit.itemAppearances
+    <ClassNames>
+      {({ css }) => (
+        <Box
+          as="img"
+          src={buildOutfitThumbnailUrl(
+            outfit.petAppearance,
+            outfit.itemAppearances
+          )}
+          width={150}
+          height={150}
+          alt={buildOutfitAltText(outfit)}
+          // Firefox shows alt text as a fallback for images it can't show yet.
+          // Show our alt text clearly if the image failed to load... but hide
+          // it if it's still loading. It's normal for these to take a second
+          // to load on a new device, and the flash of text is unhelpful.
+          color="white"
+          fontSize="xs"
+          padding="2"
+          overflow="auto"
+          className={css`
+            &:-moz-loading {
+              visibility: hidden;
+            }
+          `}
+        />
       )}
-      width={150}
-      height={150}
-      alt="Outfit thumbnail"
-    />
+    </ClassNames>
   );
 
   return (
@@ -176,6 +194,26 @@ function buildOutfitThumbnailUrl(petAppearance, itemAppearances) {
   );
 
   return `/api/outfitImage?size=${size}&layerUrls=${layerUrls.join(",")}`;
+}
+
+function buildOutfitAltText(outfit) {
+  const { petAppearance, wornItems } = outfit;
+  const { species, color } = petAppearance;
+
+  let altText = "";
+
+  const petDescription = `${color.name} ${species.name}`;
+  altText += petDescription;
+
+  if (wornItems.length > 0) {
+    const itemNames = wornItems
+      .map((item) => item.name)
+      .sort()
+      .join(", ");
+    altText += ` wearing ${itemNames}`;
+  }
+
+  return altText;
 }
 
 /**
