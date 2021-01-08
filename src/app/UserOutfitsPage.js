@@ -114,11 +114,16 @@ function OutfitCard({ outfit }) {
           // to load on a new device, and the flash of text is unhelpful.
           color="white"
           fontSize="xs"
-          padding="2"
+          width={150}
+          height={150}
           overflow="auto"
           className={css`
             &:-moz-loading {
               visibility: hidden;
+            }
+
+            &:-moz-broken {
+              padding: 0.5rem;
             }
           `}
         />
@@ -165,6 +170,7 @@ function OutfitCardLayout({ image, caption }) {
         marginBottom="2"
         borderRadius="md"
         background="gray.600"
+        overflow="hidden"
       >
         {image}
       </Box>
