@@ -44,6 +44,14 @@ function UserOutfitsPageContent() {
                 svgUrl
                 imageUrl(size: $size)
               }
+              species {
+                id
+                name
+              }
+              color {
+                id
+                name
+              }
               ...PetAppearanceForGetVisibleLayers
             }
             itemAppearances {
@@ -54,6 +62,10 @@ function UserOutfitsPageContent() {
                 imageUrl(size: $size)
               }
               ...ItemAppearanceForGetVisibleLayers
+            }
+            wornItems {
+              id
+              name
             }
           }
         }
@@ -96,11 +108,38 @@ function UserOutfitsPageContent() {
 }
 
 function OutfitCard({ outfit }) {
-  const thumbnailUrl = buildOutfitThumbnailUrl(
-    outfit.petAppearance,
-    outfit.itemAppearances
+  const image = (
+    <Box
+      as="img"
+      src={buildOutfitThumbnailUrl(
+        outfit.petAppearance,
+        outfit.itemAppearances
+      )}
+      width={150}
+      height={150}
+      alt="Outfit thumbnail"
+    />
   );
 
+  return (
+    <Box
+      as={Link}
+      to={`/outfits/${outfit.id}`}
+      display="block"
+      transition="all 0.2s"
+      _hover={{ transform: `scale(1.05)` }}
+      _focus={{
+        transform: `scale(1.05)`,
+        boxShadow: "outline",
+        outline: "none",
+      }}
+    >
+      <OutfitCardLayout image={image} caption={outfit.name} />
+    </Box>
+  );
+}
+
+function OutfitCardLayout({ image, caption }) {
   const { brightBackground } = useCommonStyles();
 
   return (
@@ -114,26 +153,17 @@ function OutfitCard({ outfit }) {
       width="calc(150px + 2em)"
       backgroundColor={brightBackground}
       transition="all 0.2s"
-      as={Link}
-      to={`/outfits/${outfit.id}`}
-      _hover={{ transform: `scale(1.05)` }}
-      _focus={{
-        transform: `scale(1.05)`,
-        boxShadow: "outline",
-        outline: "none",
-      }}
     >
       <Box
-        as="img"
-        src={thumbnailUrl}
         width={150}
         height={150}
         marginBottom="2"
         borderRadius="md"
         background="gray.600"
-        transition="all 0.2s"
-      />
-      <Box>{outfit.name}</Box>
+      >
+        {image}
+      </Box>
+      <Box>{caption}</Box>
     </Flex>
   );
 }
