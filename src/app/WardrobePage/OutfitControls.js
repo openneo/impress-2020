@@ -189,17 +189,19 @@ function OutfitControls({
                 />
               </DarkMode>
             </Box>
-            <Flex flex="1 1 0" align="center" pl="4">
-              <PosePicker
-                speciesId={outfitState.speciesId}
-                colorId={outfitState.colorId}
-                pose={outfitState.pose}
-                appearanceId={outfitState.appearanceId}
-                dispatchToOutfit={dispatchToOutfit}
-                onLockFocus={onLockFocus}
-                onUnlockFocus={onUnlockFocus}
-              />
-            </Flex>
+            {outfitState.speciesId && outfitState.colorId && (
+              <Flex flex="1 1 0" align="center" pl="4">
+                <PosePicker
+                  speciesId={outfitState.speciesId}
+                  colorId={outfitState.colorId}
+                  pose={outfitState.pose}
+                  appearanceId={outfitState.appearanceId}
+                  dispatchToOutfit={dispatchToOutfit}
+                  onLockFocus={onLockFocus}
+                  onUnlockFocus={onUnlockFocus}
+                />
+              </Flex>
+            )}
           </Flex>
         </Box>
       )}
