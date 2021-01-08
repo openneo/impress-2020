@@ -3,11 +3,11 @@ import { useToast } from "@chakra-ui/react";
 import loadable from "@loadable/component";
 
 import ItemsAndSearchPanels from "./ItemsAndSearchPanels";
-import OutfitPreview from "../components/OutfitPreview";
 import SupportOnly from "./support/SupportOnly";
 import useOutfitState, { OutfitStateContext } from "./useOutfitState";
 import { usePageTitle } from "../util";
 import WardrobePageLayout from "./WardrobePageLayout";
+import WardrobeOutfitPreview from "./WardrobeOutfitPreview";
 
 const OutfitControls = loadable(() =>
   import(/* webpackPreload: true */ "./OutfitControls")
@@ -61,13 +61,9 @@ function WardrobePage() {
       </SupportOnly>
       <WardrobePageLayout
         preview={
-          <OutfitPreview
+          <WardrobeOutfitPreview
             isLoading={loading}
-            speciesId={outfitState.speciesId}
-            colorId={outfitState.colorId}
-            pose={outfitState.pose}
-            appearanceId={outfitState.appearanceId}
-            wornItemIds={outfitState.wornItemIds}
+            outfitState={outfitState}
             onChangeHasAnimations={setHasAnimations}
           />
         }

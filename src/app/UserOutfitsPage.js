@@ -6,12 +6,11 @@ import { useQuery } from "@apollo/client";
 import { Link } from "react-router-dom";
 
 import { ErrorMessage, Heading1, useCommonStyles } from "./util";
-import {
-  getVisibleLayers,
-  petAppearanceFragmentForGetVisibleLayers,
-  itemAppearanceFragmentForGetVisibleLayers,
-} from "./components/useOutfitAppearance";
 import HangerSpinner from "./components/HangerSpinner";
+import OutfitThumbnail, {
+  outfitThumbnailFragment,
+  getOutfitThumbnailRenderSize,
+} from "./components/OutfitThumbnail";
 import useRequireLogin from "./components/useRequireLogin";
 import WIPCallout from "./components/WIPCallout";
 
@@ -38,13 +37,11 @@ function UserOutfitsPageContent() {
           outfits {
             id
             name
+
+            ...OutfitThumbnailFragment
+
+            # For alt text
             petAppearance {
-              id
-              layers {
-                id
-                svgUrl
-                imageUrl(size: $size)
-              }
               species {
                 id
                 name
@@ -53,16 +50,6 @@ function UserOutfitsPageContent() {
                 id
                 name
               }
-              ...PetAppearanceForGetVisibleLayers
-            }
-            itemAppearances {
-              id
-              layers {
-                id
-                svgUrl
-                imageUrl(size: $size)
-              }
-              ...ItemAppearanceForGetVisibleLayers
             }
             wornItems {
               id
@@ -71,10 +58,15 @@ function UserOutfitsPageContent() {
           }
         }
       }
-      ${petAppearanceFragmentForGetVisibleLayers}
-      ${itemAppearanceFragmentForGetVisibleLayers}
+      ${outfitThumbnailFragment}
     `,
-    { variables: { size: "SIZE_" + getBestImageSize() }, skip: userLoading }
+    {
+      variables: {
+        // NOTE: This parameter is used inside `OutfitThumbnailFragment`!
+        size: "SIZE_" + getOutfitThumbnailRenderSize(),
+      },
+      skip: userLoading,
+    }
   );
 
   if (userLoading || queryLoading) {
@@ -112,14 +104,9 @@ function OutfitCard({ outfit }) {
   const image = (
     <ClassNames>
       {({ css }) => (
-        <Box
-          as="img"
-          src={buildOutfitThumbnailUrl(
-            outfit.petAppearance,
-            outfit.itemAppearances
-          )}
-          width={150}
-          height={150}
+        <OutfitThumbnail
+          petAppearance={outfit.petAppearance}
+          itemAppearances={outfit.itemAppearances}
           alt={buildOutfitAltText(outfit)}
           // Firefox shows alt text as a fallback for images it can't show yet.
           // Show our alt text clearly if the image failed to load... but hide
@@ -186,16 +173,6 @@ function OutfitCardLayout({ image, caption }) {
   );
 }
 
-function buildOutfitThumbnailUrl(petAppearance, itemAppearances) {
-  const size = getBestImageSize();
-  const visibleLayers = getVisibleLayers(petAppearance, itemAppearances);
-  const layerUrls = visibleLayers.map(
-    (layer) => layer.svgUrl || layer.imageUrl
-  );
-
-  return `/api/outfitImage?size=${size}&layerUrls=${layerUrls.join(",")}`;
-}
-
 function buildOutfitAltText(outfit) {
   const { petAppearance, wornItems } = outfit;
   const { species, color } = petAppearance;
@@ -214,22 +191,6 @@ function buildOutfitAltText(outfit) {
   }
 
   return altText;
-}
-
-/**
- * getBestImageSize returns the right image size to render at 150x150, for the
- * current device.
- *
- * On high-DPI devices, we'll download a 300x300 image to render at 150x150
- * scale. On standard-DPI devices, we'll download a 150x150 image, to save
- * bandwidth.
- */
-function getBestImageSize() {
-  if (window.devicePixelRatio > 1) {
-    return 300;
-  } else {
-    return 150;
-  }
 }
 
 export default UserOutfitsPage;

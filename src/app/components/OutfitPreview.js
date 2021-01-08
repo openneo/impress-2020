@@ -165,6 +165,10 @@ export function OutfitLayers({
                 // point we fade it out.
                 opacity={visibleLayers.length === 0 ? 1 : 0}
                 transition="opacity 0.2s"
+                width="100%"
+                height="100%"
+                maxWidth="600px"
+                maxHeight="600px"
               >
                 {placeholder}
               </Box>
