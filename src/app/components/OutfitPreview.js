@@ -299,7 +299,7 @@ export function FullScreenCenter({ children, ...otherProps }) {
 
 export function getBestImageUrlForLayer(layer) {
   if (layer.svgUrl) {
-    return { src: safeImageUrl(layer.svgUrl) };
+    return { src: safeImageUrl(layer.svgUrl), crossOrigin: "anonymous" };
   } else {
     return { src: layer.imageUrl, crossOrigin: "anonymous" };
   }
