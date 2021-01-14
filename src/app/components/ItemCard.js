@@ -9,6 +9,7 @@ import {
   WrapItem,
   useColorModeValue,
   useTheme,
+  useToken,
 } from "@chakra-ui/react";
 import { CheckIcon, NotAllowedIcon, StarIcon } from "@chakra-ui/icons";
 import { HiSparkles } from "react-icons/hi";
@@ -18,6 +19,7 @@ import { safeImageUrl, useCommonStyles } from "../util";
 
 function ItemCard({ item, badges, variant = "list", ...props }) {
   const { brightBackground } = useCommonStyles();
+  const brightBackgroundValue = useToken("colors", brightBackground);
   const theme = useTheme();
 
   switch (variant) {
@@ -28,7 +30,6 @@ function ItemCard({ item, badges, variant = "list", ...props }) {
         <ClassNames>
           {({ css }) => (
             <Link
-              as={Link}
               to={`/items/${item.id}`}
               className={css`
                 transition: all 0.2s;
@@ -52,7 +53,7 @@ function ItemCard({ item, badges, variant = "list", ...props }) {
                   border-radius: ${theme.radii.md};
                   padding: ${theme.space["3"]};
                   width: calc(80px + 2em);
-                  background: ${brightBackground};
+                  background: ${brightBackgroundValue};
                 `}
               >
                 <img
