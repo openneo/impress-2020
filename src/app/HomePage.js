@@ -23,6 +23,7 @@ import {
 } from "./util";
 import OutfitPreview from "./components/OutfitPreview";
 import SpeciesColorPicker from "./components/SpeciesColorPicker";
+import WIPCallout from "./components/WIPCallout";
 
 import HomepageSplashImg from "./images/homepage-splash.png";
 import HomepageSplashImg2x from "./images/homepage-splash@2x.png";
@@ -75,6 +76,10 @@ function HomePage() {
       <SubmitPetForm />
       <Box height="16" />
       <FeedbackFormSection />
+      <Box height="16" />
+      <WIPCallout details="We started building this last year, but, well… what a year 😅 Anyway, this will eventually become the main site, at impress.openneo.net!">
+        Maybe we'll rename it to Impress 2021… or maybe not! 🤔
+      </WIPCallout>
     </Flex>
   );
 }
