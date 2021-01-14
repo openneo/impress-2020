@@ -16,31 +16,99 @@ import { Link } from "react-router-dom";
 
 import { safeImageUrl, useCommonStyles } from "../util";
 
-function ItemCard({ item, badges, ...props }) {
+function ItemCard({ item, badges, variant = "list", ...props }) {
   const { brightBackground } = useCommonStyles();
+  const theme = useTheme();
 
-  return (
-    <Box
-      as={Link}
-      to={`/items/${item.id}`}
-      display="block"
-      p="2"
-      boxShadow="lg"
-      borderRadius="lg"
-      background={brightBackground}
-      transition="all 0.2s"
-      className="item-card"
-      width="100%"
-      minWidth="0"
-      {...props}
-    >
-      <ItemCardContent
-        item={item}
-        badges={badges}
-        focusSelector=".item-card:hover &, .item-card:focus &"
-      />
-    </Box>
-  );
+  switch (variant) {
+    case "grid":
+      return (
+        // ItemCard renders in large lists of 1k+ items, so we get a big perf
+        // win by using Emotion directly instead of Chakra's styled-system Box.
+        <ClassNames>
+          {({ css }) => (
+            <Link
+              as={Link}
+              to={`/items/${item.id}`}
+              className={css`
+                transition: all 0.2s;
+                &:hover,
+                &:focus {
+                  transform: scale(1.05);
+                }
+                &:focus {
+                  box-shadow: ${theme.shadows.outline};
+                  outline: none;
+                }
+              `}
+            >
+              <div
+                className={css`
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  text-align: center;
+                  box-shadow: ${theme.shadows.md};
+                  border-radius: ${theme.radii.md};
+                  padding: ${theme.space["3"]};
+                  width: calc(80px + 2em);
+                  background: ${brightBackground};
+                `}
+              >
+                <img
+                  src={safeImageUrl(item.thumbnailUrl)}
+                  alt={`Thumbnail art for ${item.name}`}
+                  width={80}
+                  height={80}
+                />
+                <div
+                  className={css`
+                    /* Set min height to match a 2-line item name, so the cards
+                     * in a row aren't toooo differently sized... */
+                    margin-top: ${theme.space["1"]};
+                    font-size: ${theme.fontSizes.sm};
+                    min-height: 2.5em;
+                    -webkit-line-clamp: 3;
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                  `}
+                  // HACK: Emotion turns this into -webkit-display: -webkit-box?
+                  style={{ display: "-webkit-box" }}
+                >
+                  {item.name}
+                </div>
+              </div>
+            </Link>
+          )}
+        </ClassNames>
+      );
+    case "list":
+      return (
+        <Box
+          as={Link}
+          to={`/items/${item.id}`}
+          display="block"
+          p="2"
+          boxShadow="lg"
+          borderRadius="lg"
+          background={brightBackground}
+          transition="all 0.2s"
+          className="item-card"
+          width="100%"
+          minWidth="0"
+          {...props}
+        >
+          <ItemCardContent
+            item={item}
+            badges={badges}
+            focusSelector=".item-card:hover &, .item-card:focus &"
+          />
+        </Box>
+      );
+    default:
+      throw new Error(`Unexpected ItemCard variant: ${variant}`);
+  }
 }
 
 export function ItemCardContent({
@@ -53,13 +121,15 @@ export function ItemCardContent({
 }) {
   return (
     <Box display="flex">
-      <Box flex="0 0 auto" marginRight="3">
-        <ItemThumbnail
-          item={item}
-          isActive={isWorn}
-          isDisabled={isDisabled}
-          focusSelector={focusSelector}
-        />
+      <Box>
+        <Box flex="0 0 auto" marginRight="3">
+          <ItemThumbnail
+            item={item}
+            isActive={isWorn}
+            isDisabled={isDisabled}
+            focusSelector={focusSelector}
+          />
+        </Box>
       </Box>
       <Box flex="1 1 0" minWidth="0" marginTop="1px">
         <ItemName

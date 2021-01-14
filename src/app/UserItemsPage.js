@@ -18,7 +18,6 @@ import {
   Wrap,
   WrapItem,
   VStack,
-  useBreakpointValue,
   useToast,
 } from "@chakra-ui/react";
 import {
@@ -32,19 +31,12 @@ import {
 import gql from "graphql-tag";
 import { useHistory, useParams } from "react-router-dom";
 import { useQuery, useLazyQuery, useMutation } from "@apollo/client";
-import { AutoSizer, Grid, WindowScroller } from "react-virtualized";
 import SimpleMarkdown from "simple-markdown";
 import DOMPurify from "dompurify";
 
 import HangerSpinner from "./components/HangerSpinner";
 import { Heading1, Heading2, Heading3 } from "./util";
-import ItemCard, {
-  ItemBadgeList,
-  ItemKindBadge,
-  YouOwnThisBadge,
-  YouWantThisBadge,
-  getZoneBadges,
-} from "./components/ItemCard";
+import ItemCard from "./components/ItemCard";
 import SupportOnly from "./WardrobePage/support/SupportOnly";
 import useSupport from "./WardrobePage/support/useSupport";
 import useCurrentUser from "./components/useCurrentUser";
@@ -467,79 +459,17 @@ function ClosetList({ closetList, isCurrentUser, showHeading }) {
         </Box>
       )}
       {sortedItems.length > 0 ? (
-        <VirtualizedItemCardList>
+        <Wrap spacing="4" justify="center">
           {sortedItems.map((item) => (
-            <ItemCard
-              key={item.id}
-              item={item}
-              badges={
-                <ItemBadgeList>
-                  <ItemKindBadge isNc={item.isNc} isPb={item.isPb} />
-                  {hasYouOwnThisBadge(item) && <YouOwnThisBadge />}
-                  {hasYouWantThisBadge(item) && <YouWantThisBadge />}
-                  {getZoneBadges(item.allOccupiedZones, {
-                    variant: "occupies",
-                  })}
-                </ItemBadgeList>
-              }
-            />
+            <WrapItem key={item.id}>
+              <ItemCard item={item} variant="grid" />
+            </WrapItem>
           ))}
-        </VirtualizedItemCardList>
+        </Wrap>
       ) : (
         <Box fontStyle="italic">This list is empty!</Box>
       )}
     </Box>
-  );
-}
-
-function VirtualizedItemCardList({ children }) {
-  const columnCount = useBreakpointValue({ base: 1, md: 2, lg: 3 });
-  const rowCount = Math.ceil(children.length / columnCount);
-
-  return (
-    <AutoSizer disableHeight>
-      {({ width }) => (
-        <WindowScroller>
-          {({
-            height,
-            isScrolling,
-            onChildScroll,
-            scrollTop,
-            registerChild,
-          }) => (
-            <Box
-              // HACK: A mysterious invocation to force internal re-measuring!
-              //       Without this, most lists are very broken until the first
-              //       window resize event.
-              //       https://github.com/bvaughn/react-virtualized/issues/1324
-              ref={(el) => registerChild(el)}
-            >
-              <Grid
-                cellRenderer={({ key, rowIndex, columnIndex, style }) => (
-                  <Box
-                    key={key}
-                    style={style}
-                    paddingLeft={columnIndex > 0 ? "6" : "0"}
-                  >
-                    {children[rowIndex * columnCount + columnIndex]}
-                  </Box>
-                )}
-                columnCount={columnCount}
-                columnWidth={width / columnCount}
-                rowCount={rowCount}
-                rowHeight={100}
-                width={width}
-                height={height}
-                autoHeight
-                isScrolling={isScrolling}
-                onScroll={onChildScroll}
-                scrollTop={scrollTop}
-              />
-            </Box>
-          )}
-        </WindowScroller>
-      )}
-    </AutoSizer>
   );
 }
 
