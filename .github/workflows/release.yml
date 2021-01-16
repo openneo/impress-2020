@@ -6,7 +6,7 @@ on:
 
 jobs:
   sentry:
-    - name: Create Sentry release
+    - name: Checkout latest, and create Sentry release
       runs-on: ubuntu-latest
       steps:
         - name: Checkout code
