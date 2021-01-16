@@ -1,0 +1,15 @@
+name: Release
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  - name: Create Sentry release
+    uses: getsentry/action-release@v1.1.5
+    env:
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+      SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+    with:
+      environment: production
