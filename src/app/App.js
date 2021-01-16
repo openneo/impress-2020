@@ -10,6 +10,8 @@ import {
   useLocation,
 } from "react-router-dom";
 import loadable from "@loadable/component";
+import * as Sentry from "@sentry/react";
+import { Integrations } from "@sentry/tracing";
 import { useAuth0 } from "@auth0/auth0-react";
 
 import buildApolloClient from "./apolloClient";
@@ -48,6 +50,17 @@ const theme = extendTheme({
       },
     }),
   },
+});
+
+Sentry.init({
+  dsn:
+    "https://c55875c3b0904264a1a99e5b741a221e@o506079.ingest.sentry.io/5595379",
+  autoSessionTracking: true,
+  integrations: [new Integrations.BrowserTracing()],
+
+  // I'm figuring our traffic is low enough that 100% sample rate is fine.
+  // Let's see if we hit any usage limits!
+  tracesSampleRate: 1.0,
 });
 
 /**

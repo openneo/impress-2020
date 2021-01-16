@@ -94,6 +94,16 @@ function PrivacyPolicyPage() {
             </a>
           </p>
           <p>
+            We also use a service called <a href="https://sentry.io/">Sentry</a>{" "}
+            to track errors. When you encounter an error on our site, we send a
+            copy of it to our Sentry account, to help us debug it later. This
+            might sometimes include personal data, but Sentry will only share it
+            with us.{" "}
+            <a href="https://sentry.io/legal/dpa/2.0.0/">
+              Here's their data policy.
+            </a>
+          </p>
+          <p>
             We also use <a href="https://vercel.com/">Vercel</a> and{" "}
             <a href="https://www.fastly.com/">Fastly</a> for web hosting. They
             store aggregate usage logs for us, but not any
