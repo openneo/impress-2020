@@ -36,6 +36,12 @@ function HomePage() {
 
   const [previewState, setPreviewState] = React.useState(null);
 
+  React.useEffect(() => {
+    if (window.location.href.includes("send-test-error-for-sentry")) {
+      throw new Error("Test error for Sentry");
+    }
+  });
+
   return (
     <Flex direction="column" align="center" textAlign="center" marginTop="8">
       <Box
