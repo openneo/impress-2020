@@ -1,4 +1,8 @@
-// This generates a JSON file to export our users into Auth0.
+// This exports users from the MySQL database to Auth0.
+//
+// If you use the --since flag, we'll only include users whose OpenNeo ID
+// records were updated (or created) since then. Otherwise, we'll include all
+// users.
 //
 // This sorta creates a second copy of everyone's account, copied onto Auth0.
 // We should be thoughtful about how we do the actual migration process!
@@ -6,8 +10,7 @@
 // For now, we can run this whenever we want to make it _possible_ to log in
 // with Auth0, even if things will be potentially out of sync, because traffic
 // to Impress 2020 is just testers now anyway!
-const fs = require("fs").promises;
-
+const { argv } = require("yargs");
 const { ManagementClient } = require("auth0");
 const inquirer = require("inquirer");
 const PromisePool = require("es6-promise-pool");
@@ -25,7 +28,7 @@ const auth0 = new ManagementClient({
 async function main() {
   const connectionsPromise = auth0.getConnections();
 
-  const { user, password, outputPath } = await inquirer.prompt([
+  const { user, password } = await inquirer.prompt([
     { name: "user", message: "MySQL admin user:" },
     { name: "password", type: "password" },
   ]);
@@ -47,7 +50,9 @@ async function main() {
       `SELECT dti.id, oid.name, email, encrypted_password, password_salt
        FROM openneo_id.users oid
        INNER JOIN openneo_impress.users dti ON dti.remote_id = oid.id
-       ORDER BY dti.id`
+       WHERE oid.created_at >= ?
+       ORDER BY dti.id`,
+      [argv.since || ""]
     );
     users = rows.map(normalizeRow);
   } finally {
