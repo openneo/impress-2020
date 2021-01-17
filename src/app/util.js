@@ -277,7 +277,8 @@ export function loadImage({ src, crossOrigin = null }) {
   const image = new Image();
   const promise = new Promise((resolve, reject) => {
     image.onload = () => resolve(image);
-    image.onerror = (e) => reject(e);
+    image.onerror = () =>
+      reject(new Error(`Failed to load image: ${JSON.stringify(src)}`));
     if (crossOrigin) {
       image.crossOrigin = crossOrigin;
     }

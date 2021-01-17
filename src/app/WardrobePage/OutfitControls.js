@@ -407,6 +407,7 @@ function ControlButton({ icon, "aria-label": ariaLabel, ...props }) {
 function useDownloadableImage(visibleLayers) {
   const [downloadImageUrl, setDownloadImageUrl] = React.useState(null);
   const [preparedForLayerIds, setPreparedForLayerIds] = React.useState([]);
+  const toast = useToast();
 
   const prepareDownload = React.useCallback(async () => {
     // Skip if the current image URL is already correct for these layers.
@@ -426,7 +427,19 @@ function useDownloadableImage(visibleLayers) {
       loadImage(getBestImageUrlForLayer(layer))
     );
 
-    const images = await Promise.all(imagePromises);
+    let images;
+    try {
+      images = await Promise.all(imagePromises);
+    } catch (e) {
+      console.error("Error building downloadable image", e);
+      toast({
+        status: "error",
+        title: "Oops, sorry, we couldn't download the image!",
+        description:
+          "Check your connection, then reload the page and try again.",
+      });
+      return;
+    }
 
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
@@ -444,7 +457,7 @@ function useDownloadableImage(visibleLayers) {
     );
     setDownloadImageUrl(canvas.toDataURL("image/png"));
     setPreparedForLayerIds(layerIds);
-  }, [preparedForLayerIds, visibleLayers]);
+  }, [preparedForLayerIds, visibleLayers, toast]);
 
   return [downloadImageUrl, prepareDownload];
 }
