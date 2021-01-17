@@ -331,6 +331,9 @@ function useSearchResults(query, outfitState) {
           setIsEndOfResults(true);
         }
       },
+      onError: (e) => {
+        console.error("Error loading search results", e);
+      },
     }
   );
 
