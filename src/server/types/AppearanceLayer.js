@@ -203,7 +203,16 @@ const resolvers = {
 };
 
 async function loadAndCacheAssetManifest(db, layer) {
-  let manifest = await loadAssetManifest(layer.url);
+  let manifest;
+  try {
+    manifest = await loadAssetManifest(layer.url);
+  } catch (e) {
+    console.error(
+      new Error("Error loading asset manifest, caused by the error below")
+    );
+    console.error(e);
+    return null;
+  }
 
   // Then, write the new manifest. We make sure to write an empty string
   // if there was no manifest, to signify that it doesn't exist, so we
