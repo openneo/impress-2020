@@ -25,6 +25,7 @@ import { getBestImageUrlForLayer } from "../components/OutfitPreview";
 import PosePicker from "./PosePicker";
 import SpeciesColorPicker from "../components/SpeciesColorPicker";
 import { loadImage, useLocalStorage } from "../util";
+import useCurrentUser from "../components/useCurrentUser";
 import useOutfitAppearance from "../components/useOutfitAppearance";
 
 /**
@@ -142,13 +143,7 @@ function OutfitControls({
           }}
         >
           <Box gridArea="back" onClick={maybeUnlockFocus}>
-            <ControlButton
-              as={Link}
-              to="/"
-              icon={<ArrowBackIcon />}
-              aria-label="Leave this outfit"
-              d="inline-flex" // Not sure why <a> requires this to style right! ^^`
-            />
+            <BackButton outfitState={outfitState} />
           </Box>
           {showAnimationControls && (
             <Box gridArea="play-pause" display="flex" justifyContent="center">
@@ -208,6 +203,25 @@ function OutfitControls({
         </Box>
       )}
     </ClassNames>
+  );
+}
+
+/**
+ * BackButton takes you back home, or to Your Outfits if this outfit is yours.
+ */
+function BackButton({ outfitState }) {
+  const currentUser = useCurrentUser();
+  const outfitBelongsToCurrentUser =
+    outfitState.creator && outfitState.creator.id === currentUser.id;
+
+  return (
+    <ControlButton
+      as={Link}
+      to={outfitBelongsToCurrentUser ? "/your-outfits" : "/"}
+      icon={<ArrowBackIcon />}
+      aria-label="Leave this outfit"
+      d="inline-flex" // Not sure why <a> requires this to style right! ^^`
+    />
   );
 }
 

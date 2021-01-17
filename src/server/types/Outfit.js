@@ -7,6 +7,7 @@ const typeDefs = gql`
     petAppearance: PetAppearance!
     wornItems: [Item!]!
     closetedItems: [Item!]!
+    creator: User
 
     # This is a convenience field: you could query this from the combination of
     # petAppearance and wornItems, but this gets you it in one shot!
@@ -66,6 +67,10 @@ const resolvers = {
       return relationships
         .filter((oir) => !oir.isWorn)
         .map((oir) => ({ id: oir.itemId }));
+    },
+    creator: async ({ id }, _, { outfitLoader }) => {
+      const outfit = await outfitLoader.load(id);
+      return { id: outfit.userId };
     },
   },
   Query: {

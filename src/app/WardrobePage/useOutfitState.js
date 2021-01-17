@@ -30,6 +30,9 @@ function useOutfitState() {
         outfit(id: $id) {
           id
           name
+          creator {
+            id
+          }
           petAppearance {
             id
             species {
@@ -87,6 +90,7 @@ function useOutfitState() {
   // access them as arrays! e.g. for `.map()`.
   const outfit = outfitData?.outfit;
   const id = state.id;
+  const creator = outfit?.creator;
   const name = state.name || outfit?.name;
   const speciesId = state.speciesId || outfit?.petAppearance?.species?.id;
   const colorId = state.colorId || outfit?.petAppearance?.color?.id;
@@ -207,6 +211,7 @@ function useOutfitState() {
 
   const outfitState = {
     id,
+    creator,
     zonesAndItems,
     incompatibleItems,
     name,
