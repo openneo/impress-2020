@@ -172,24 +172,26 @@ function OutfitControls({
             </Box>
           </Stack>
           <Box gridArea="space" onClick={maybeUnlockFocus} />
-          <Flex gridArea="picker" justify="center" onClick={maybeUnlockFocus}>
-            {/**
-             * We try to center the species/color picker, but the left spacer will
-             * shrink more than the pose picker container if we run out of space!
-             */}
-            <Box flex="1 1 0" />
-            <Box flex="0 0 auto">
-              <DarkMode>
-                <SpeciesColorPicker
-                  speciesId={outfitState.speciesId}
-                  colorId={outfitState.colorId}
-                  idealPose={outfitState.pose}
-                  onChange={onSpeciesColorChange}
-                  stateMustAlwaysBeValid
-                />
-              </DarkMode>
-            </Box>
-            {outfitState.speciesId && outfitState.colorId && (
+          {outfitState.speciesId && outfitState.colorId && (
+            <Flex gridArea="picker" justify="center" onClick={maybeUnlockFocus}>
+              {/**
+               * We try to center the species/color picker, but the left spacer will
+               * shrink more than the pose picker container if we run out of space!
+               */}
+              <Box flex="1 1 0" />
+              <Box flex="0 0 auto">
+                <DarkMode>
+                  {
+                    <SpeciesColorPicker
+                      speciesId={outfitState.speciesId}
+                      colorId={outfitState.colorId}
+                      idealPose={outfitState.pose}
+                      onChange={onSpeciesColorChange}
+                      stateMustAlwaysBeValid
+                    />
+                  }
+                </DarkMode>
+              </Box>
               <Flex flex="1 1 0" align="center" pl="4">
                 <PosePicker
                   speciesId={outfitState.speciesId}
@@ -201,8 +203,8 @@ function OutfitControls({
                   onUnlockFocus={onUnlockFocus}
                 />
               </Flex>
-            )}
-          </Flex>
+            </Flex>
+          )}
         </Box>
       )}
     </ClassNames>
