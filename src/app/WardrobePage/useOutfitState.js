@@ -88,14 +88,15 @@ function useOutfitState() {
   // We also call `Array.from` on our item IDs. It's more convenient to manage
   // them as a Set in state, but most callers will find it more convenient to
   // access them as arrays! e.g. for `.map()`.
-  const outfit = outfitData?.outfit;
+  const outfit = outfitData?.outfit || null;
   const id = state.id;
-  const creator = outfit?.creator;
-  const name = state.name || outfit?.name;
-  const speciesId = state.speciesId || outfit?.petAppearance?.species?.id;
-  const colorId = state.colorId || outfit?.petAppearance?.color?.id;
-  const pose = state.pose || outfit?.petAppearance?.pose;
-  const appearanceId = state?.appearanceId;
+  const creator = outfit?.creator || null;
+  const name = state.name || outfit?.name || null;
+  const speciesId =
+    state.speciesId || outfit?.petAppearance?.species?.id || null;
+  const colorId = state.colorId || outfit?.petAppearance?.color?.id || null;
+  const pose = state.pose || outfit?.petAppearance?.pose || null;
+  const appearanceId = state.appearanceId || null;
   const wornItemIds = Array.from(
     state.wornItemIds || outfit?.wornItems?.map((i) => i.id)
   );

@@ -247,7 +247,10 @@ function OutfitHeading({ outfitState, dispatchToOutfit }) {
         <Box role="group" d="inline-block" position="relative" width="100%">
           <Heading1 mb="6">
             <Editable
-              value={outfitState.name}
+              // Make sure not to ever pass `undefined` into here, or else the
+              // component enters uncontrolled mode, and changing the value
+              // later won't fix it!
+              value={outfitState.name || ""}
               placeholder="Untitled outfit"
               onChange={(value) =>
                 dispatchToOutfit({ type: "rename", outfitName: value })
