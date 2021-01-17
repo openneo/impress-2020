@@ -19,7 +19,7 @@ function UserOutfitsPage() {
     <Box>
       <Flex justifyContent="space-between" marginBottom="4">
         <Heading1>Your outfits</Heading1>
-        <WIPCallout details="This list doesn't work well with a lot of outfits yet. We'll paginate it soon!" />
+        <WIPCallout details="This list doesn't work well with a lot of outfits yet. We'll paginate it soon! And starred outfits are coming, too!" />
       </Flex>
       <UserOutfitsPageContent />
     </Box>
