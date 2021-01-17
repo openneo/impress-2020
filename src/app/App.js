@@ -56,7 +56,20 @@ Sentry.init({
   dsn:
     "https://c55875c3b0904264a1a99e5b741a221e@o506079.ingest.sentry.io/5595379",
   autoSessionTracking: true,
-  integrations: [new Integrations.BrowserTracing()],
+  integrations: [
+    new Integrations.BrowserTracing({
+      beforeNavigate: (context) => ({
+        ...context,
+        // Assume any path segment starting with a digit is an ID, and replace
+        // it with `:id`. This will help group related routes in Sentry stats.
+        // NOTE: I'm a bit uncertain about the timing on this? This seems to
+        //       work on initial pageload, but I feel like this won't help for
+        //       describing the page we're navigating _to_... but maybe that's
+        //       okay in practice? I'm just following the Sentry docs.
+        name: window.location.pathname.replaceAll(/\/[0-9][^/]*/g, "/:id"),
+      }),
+    }),
+  ],
 
   // I'm figuring our traffic is low enough that 100% sample rate is fine.
   // Let's see if we hit any usage limits!
