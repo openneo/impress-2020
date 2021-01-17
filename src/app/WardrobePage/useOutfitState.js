@@ -340,13 +340,30 @@ const outfitStateReducer = (apolloClient) => (baseState, action) => {
 
 function useParseOutfitUrl() {
   const { id } = useParams();
-  const urlParams = new URLSearchParams(window.location.search);
 
+  // For the /outfits/:id page, ignore the query string, and just wait for the
+  // outfit data to load in!
+  if (id != null) {
+    return {
+      id,
+      name: null,
+      speciesId: null,
+      colorId: null,
+      pose: null,
+      appearanceId: null,
+      wornItemIds: [],
+      closetedItemIds: [],
+    };
+  }
+
+  // Otherwise, parse the query string, and fill in default values for anything
+  // not specified.
+  const urlParams = new URLSearchParams(window.location.search);
   return {
     id: id,
     name: urlParams.get("name"),
-    speciesId: urlParams.get("species"),
-    colorId: urlParams.get("color"),
+    speciesId: urlParams.get("species") || "1",
+    colorId: urlParams.get("color") || "8",
     pose: urlParams.get("pose") || "HAPPY_FEM",
     appearanceId: urlParams.get("state") || null,
     wornItemIds: new Set(urlParams.getAll("objects[]")),
