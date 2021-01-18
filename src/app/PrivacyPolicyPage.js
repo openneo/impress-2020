@@ -34,7 +34,8 @@ function PrivacyPolicyPage() {
           <p>
             First off, we'll <em>never</em> sell your private data, ever. It'll
             only be available to you and our small trusted staff—and we'll only
-            use it to serve you, or to operate the site.
+            use it to serve you directly, debug site issues, and help you share
+            your creations with others.
           </p>
         </section>
         <section>
