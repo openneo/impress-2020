@@ -18,19 +18,29 @@ import buildApolloClient from "./apolloClient";
 import PageLayout from "./PageLayout";
 import WardrobePageLayout from "./WardrobePage/WardrobePageLayout";
 
-const HomePage = loadable(() => import("./HomePage"));
-const ItemPage = loadable(() => import("./ItemPage"));
-const ItemTradesOfferingPage = loadable(() =>
+// Loading the page will often fail after a deploy, because Vercel doesn't keep
+// old JS chunks on the CDN. Recover by reloading!
+const tryLoadable = (load) =>
+  loadable(() =>
+    load().catch((e) => {
+      console.error("Error loading page, reloading", e);
+      window.location.reload();
+    })
+  );
+
+const HomePage = tryLoadable(() => import("./HomePage"));
+const ItemPage = tryLoadable(() => import("./ItemPage"));
+const ItemTradesOfferingPage = tryLoadable(() =>
   import("./ItemTradesPage").then((m) => m.ItemTradesOfferingPage)
 );
-const ItemTradesSeekingPage = loadable(() =>
+const ItemTradesSeekingPage = tryLoadable(() =>
   import("./ItemTradesPage").then((m) => m.ItemTradesSeekingPage)
 );
-const ModelingPage = loadable(() => import("./ModelingPage"));
-const PrivacyPolicyPage = loadable(() => import("./PrivacyPolicyPage"));
-const UserItemsPage = loadable(() => import("./UserItemsPage"));
-const UserOutfitsPage = loadable(() => import("./UserOutfitsPage"));
-const WardrobePage = loadable(() => import("./WardrobePage"), {
+const ModelingPage = tryLoadable(() => import("./ModelingPage"));
+const PrivacyPolicyPage = tryLoadable(() => import("./PrivacyPolicyPage"));
+const UserItemsPage = tryLoadable(() => import("./UserItemsPage"));
+const UserOutfitsPage = tryLoadable(() => import("./UserOutfitsPage"));
+const WardrobePage = tryLoadable(() => import("./WardrobePage"), {
   fallback: <WardrobePageLayout />,
 });
 
