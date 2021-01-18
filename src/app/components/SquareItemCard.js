@@ -39,6 +39,11 @@ function SquareItemCard({ item, ...props }) {
                 height={80}
                 className={css`
                   border-radius: ${theme.radii.md};
+
+                  /* Don't let alt text flash in while loading */
+                  &:-moz-loading {
+                    visibility: hidden;
+                  }
                 `}
                 loading="lazy"
               />
