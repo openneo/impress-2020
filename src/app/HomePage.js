@@ -6,13 +6,18 @@ import {
   Button,
   Flex,
   HStack,
+  IconButton,
   Input,
+  InputGroup,
+  InputLeftElement,
+  InputRightElement,
   Textarea,
   useColorModeValue,
   useTheme,
   useToast,
   VStack,
 } from "@chakra-ui/react";
+import { ArrowForwardIcon, SearchIcon } from "@chakra-ui/icons";
 import { useHistory, useLocation } from "react-router-dom";
 import { useLazyQuery, useQuery } from "@apollo/client";
 
@@ -281,9 +286,64 @@ function SubmitPetForm() {
 function NewItemsSection() {
   return (
     <Box width="100%">
-      <Heading2 textAlign="left">Latest items</Heading2>
+      <Flex align="center" wrap="wrap">
+        <Heading2 flex="0 0 auto" marginRight="2" textAlign="left">
+          Latest items
+        </Heading2>
+        <Box flex="0 0 auto" marginLeft="auto" width="48">
+          <ItemsSearchField />
+        </Box>
+      </Flex>
       <NewItemsSectionContent />
     </Box>
+  );
+}
+
+function ItemsSearchField() {
+  const [query, setQuery] = React.useState("");
+  const { brightBackground } = useCommonStyles();
+  const history = useHistory();
+
+  return (
+    <form
+      onSubmit={() => {
+        if (query) {
+          history.push(`/items/search/${encodeURIComponent(query)}`);
+        }
+      }}
+    >
+      <InputGroup
+        size="sm"
+        backgroundColor={query ? brightBackground : "transparent"}
+        _focusWithin={{ backgroundColor: brightBackground }}
+      >
+        <InputLeftElement pointerEvents="none">
+          <SearchIcon color="gray.400" />
+        </InputLeftElement>
+        <Input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search all items…"
+          borderRadius="full"
+        />
+        <InputRightElement>
+          <IconButton
+            type="submit"
+            variant="ghost"
+            icon={<ArrowForwardIcon />}
+            aria-label="Search"
+            minWidth="1.5rem"
+            minHeight="1.5rem"
+            width="1.5rem"
+            height="1.5rem"
+            borderRadius="full"
+            opacity={query ? 1 : 0}
+            transition="opacity 0.2s"
+            aria-hidden={query ? "false" : "true"}
+          />
+        </InputRightElement>
+      </InputGroup>
+    </form>
   );
 }
 

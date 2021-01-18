@@ -15,6 +15,16 @@ import { CloseIcon, SearchIcon } from "@chakra-ui/icons";
 import { ClassNames } from "@emotion/react";
 import Autosuggest from "react-autosuggest";
 
+export const emptySearchQuery = {
+  value: "",
+  filterToZoneLabel: null,
+  filterToItemKind: null,
+};
+
+export function searchQueryIsEmpty(query) {
+  return Object.values(query).every((value) => !value);
+}
+
 /**
  * SearchToolbar is rendered above both the ItemsPanel and the SearchPanel,
  * and contains the search field where the user types their query.
@@ -29,6 +39,9 @@ function SearchToolbar({
   searchQueryRef,
   firstSearchResultRef,
   onChange,
+  showItemsLabel = false,
+  background = null,
+  boxShadow = null,
 }) {
   const [suggestions, setSuggestions] = React.useState([]);
 
@@ -110,7 +123,21 @@ function SearchToolbar({
     setSuggestions([]);
   }, [query.filterToItemKind, query.filterToZoneLabel]);
 
-  const queryFilterText = getQueryFilterText(query);
+  let queryFilterText = getQueryFilterText(query);
+  if (showItemsLabel) {
+    queryFilterText = queryFilterText ? (
+      <>
+        <Box as="span" fontWeight="600">
+          Items:
+        </Box>{" "}
+        {queryFilterText}
+      </>
+    ) : (
+      <Box as="span" fontWeight="600">
+        Items
+      </Box>
+    );
+  }
 
   const focusBorderColor = useColorModeValue("green.600", "green.400");
 
@@ -137,8 +164,8 @@ function SearchToolbar({
           highlightFirstSuggestion={true}
           renderSuggestion={renderSuggestion}
           renderSuggestionsContainer={renderSuggestionsContainer}
-          renderInputComponent={(props) => (
-            <InputGroup>
+          renderInputComponent={(inputProps) => (
+            <InputGroup boxShadow={boxShadow} borderRadius="md">
               {queryFilterText ? (
                 <InputLeftAddon>
                   <SearchIcon color="gray.400" marginRight="3" />
@@ -149,7 +176,7 @@ function SearchToolbar({
                   <SearchIcon color="gray.400" />
                 </InputLeftElement>
               )}
-              <Input {...props} />
+              <Input background={background} {...inputProps} />
               {(query.value || queryFilterText) && (
                 <InputRightElement>
                   <IconButton
@@ -158,9 +185,7 @@ function SearchToolbar({
                     variant="ghost"
                     colorScheme="green"
                     aria-label="Clear search"
-                    onClick={() => {
-                      onChange(null);
-                    }}
+                    onClick={() => onChange(emptySearchQuery)}
                     // Big style hacks here!
                     height="calc(100% - 2px)"
                     marginRight="2px"
@@ -176,19 +201,6 @@ function SearchToolbar({
             value: query.value || "",
             ref: searchQueryRef,
             minWidth: 0,
-            borderBottomRadius: suggestions.length > 0 ? "0" : "md",
-            // HACK: Chakra isn't noticing the InputLeftElement swapping out
-            //       for the InputLeftAddon, so the styles aren't updating...
-            //       Hard override!
-            className: css`
-              padding-left: ${queryFilterText ? "1rem" : "2.5rem"} !important;
-              border-bottom-left-radius: ${queryFilterText
-                ? "0"
-                : "0.25rem"} !important;
-              border-top-left-radius: ${queryFilterText
-                ? "0"
-                : "0.25rem"} !important;
-            `,
             onChange: (e, { newValue, method }) => {
               // The Autosuggest tries to change the _entire_ value of the element
               // when navigating suggestions, which isn't actually what we want.

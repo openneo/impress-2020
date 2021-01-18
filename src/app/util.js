@@ -2,7 +2,7 @@ import React from "react";
 import { Box, Heading, useColorModeValue } from "@chakra-ui/react";
 
 /**
- * Delay hides its content and first, then shows it after the given delay.
+ * Delay hides its content at first, then shows it after the given delay.
  *
  * This is useful for loading states: it can be disruptive to see a spinner or
  * skeleton element for only a brief flash, we'd rather just show them if

@@ -275,43 +275,6 @@ const buildItemByNameLoader = (db, loaders) =>
     { cacheKeyFn: (name) => name.trim().toLowerCase() }
   );
 
-const buildItemSearchLoader = (db, loaders) =>
-  new DataLoader(async (queries) => {
-    // This isn't actually optimized as a batch query, we're just using a
-    // DataLoader API consistency with our other loaders!
-    const queryPromises = queries.map(async (query) => {
-      // Split the query into words, and search for each word as a substring
-      // of the name.
-      const words = query.split(/\s+/);
-      const wordMatchersForMysql = words.map(
-        (word) => "%" + word.replace(/_%/g, "\\$0") + "%"
-      );
-      const matcherPlaceholders = words
-        .map((_) => "t.name LIKE ?")
-        .join(" AND ");
-      const [rows, _] = await db.execute(
-        `SELECT items.*, t.name FROM items
-         INNER JOIN item_translations t ON t.item_id = items.id
-         WHERE ${matcherPlaceholders} AND t.locale="en"
-         ORDER BY t.name
-         LIMIT 30`,
-        [...wordMatchersForMysql]
-      );
-
-      const entities = rows.map(normalizeRow);
-
-      for (const item of entities) {
-        loaders.itemLoader.prime(item.id, item);
-      }
-
-      return entities;
-    });
-
-    const responses = await Promise.all(queryPromises);
-
-    return responses;
-  });
-
 const itemSearchKindConditions = {
   // NOTE: We assume that items cannot have NC rarity and the PB description,
   //       so we don't bother to filter out PB items in the NC filter, for perf.
@@ -319,6 +282,58 @@ const itemSearchKindConditions = {
   NP: `rarity_index NOT IN (0, 500) AND description NOT LIKE "%This item is part of a deluxe paint brush set!%"`,
   PB: `description LIKE "%This item is part of a deluxe paint brush set!%"`,
 };
+
+const buildItemSearchLoader = (db, loaders) =>
+  new DataLoader(async (queries) => {
+    // This isn't actually optimized as a batch query, we're just using a
+    // DataLoader API consistency with our other loaders!
+    const queryPromises = queries.map(
+      async ({ query, itemKind, zoneIds = [], offset, limit }) => {
+        const actualOffset = offset || 0;
+        const actualLimit = Math.min(limit || 30, 30);
+
+        // Split the query into words, and search for each word as a substring
+        // of the name.
+        const words = query.split(/\s+/);
+        const wordMatchersForMysql = words.map(
+          (word) => "%" + word.replace(/_%/g, "\\$0") + "%"
+        );
+        const matcherPlaceholders = words
+          .map((_) => "t.name LIKE ?")
+          .join(" AND ");
+
+        const itemKindCondition = itemSearchKindConditions[itemKind] || "1";
+        const zoneIdsPlaceholder =
+          zoneIds.length > 0
+            ? `swf_assets.zone_id IN (${zoneIds.map((_) => "?").join(", ")})`
+            : "1";
+        const [rows, _] = await db.execute(
+          `SELECT DISTINCT items.*, t.name FROM items
+           INNER JOIN item_translations t ON t.item_id = items.id
+           INNER JOIN parents_swf_assets rel
+               ON rel.parent_type = "Item" AND rel.parent_id = items.id
+           INNER JOIN swf_assets ON rel.swf_asset_id = swf_assets.id
+           WHERE ${matcherPlaceholders} AND t.locale = "en" AND
+               ${zoneIdsPlaceholder} AND ${itemKindCondition}
+           ORDER BY t.name
+           LIMIT ? OFFSET ?`,
+          [...wordMatchersForMysql, ...zoneIds, actualLimit, actualOffset]
+        );
+
+        const entities = rows.map(normalizeRow);
+
+        for (const item of entities) {
+          loaders.itemLoader.prime(item.id, item);
+        }
+
+        return entities;
+      }
+    );
+
+    const responses = await Promise.all(queryPromises);
+
+    return responses;
+  });
 
 const buildItemSearchToFitLoader = (db, loaders) =>
   new DataLoader(async (queryAndBodyIdPairs) => {
@@ -329,6 +344,8 @@ const buildItemSearchToFitLoader = (db, loaders) =>
         const actualOffset = offset || 0;
         const actualLimit = Math.min(limit || 30, 30);
 
+        // Split the query into words, and search for each word as a substring
+        // of the name.
         const words = query.split(/\s+/);
         const wordMatchersForMysql = words.map(
           (word) => "%" + word.replace(/_%/g, "\\$0") + "%"
@@ -336,6 +353,7 @@ const buildItemSearchToFitLoader = (db, loaders) =>
         const matcherPlaceholders = words
           .map((_) => "t.name LIKE ?")
           .join(" AND ");
+
         const itemKindCondition = itemSearchKindConditions[itemKind] || "1";
         const zoneIdsPlaceholder =
           zoneIds.length > 0

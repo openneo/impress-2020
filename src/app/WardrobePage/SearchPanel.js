@@ -4,6 +4,7 @@ import { Box, Text, VisuallyHidden } from "@chakra-ui/react";
 import { useQuery } from "@apollo/client";
 
 import { Delay, useDebounce } from "../util";
+import { emptySearchQuery } from "./SearchToolbar";
 import Item, { ItemListContainer, ItemListSkeleton } from "./Item";
 import { itemAppearanceFragment } from "../components/useOutfitAppearance";
 
@@ -217,11 +218,7 @@ function useSearchResults(query, outfitState) {
   // the user types anything.
   const debouncedQuery = useDebounce(query, 300, {
     waitForFirstPause: true,
-    initialValue: {
-      value: "",
-      filterToItemKind: null,
-      filterToZoneLabel: null,
-    },
+    initialValue: emptySearchQuery,
   });
 
   // When the query changes, we should update our impression of whether we've

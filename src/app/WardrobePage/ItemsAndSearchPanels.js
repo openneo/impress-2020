@@ -2,10 +2,8 @@ import React from "react";
 import { Box, Flex } from "@chakra-ui/react";
 
 import ItemsPanel from "./ItemsPanel";
-import SearchToolbar from "./SearchToolbar";
+import SearchToolbar, { emptySearchQuery } from "./SearchToolbar";
 import SearchPanel from "./SearchPanel";
-
-const emptyQuery = { value: "", filterToZoneLabel: null };
 
 /**
  * ItemsAndSearchPanels manages the shared layout and state for:
@@ -21,15 +19,10 @@ const emptyQuery = { value: "", filterToZoneLabel: null };
  * state and refs.
  */
 function ItemsAndSearchPanels({ loading, outfitState, dispatchToOutfit }) {
-  const [searchQuery, setSearchQuery] = React.useState(emptyQuery);
+  const [searchQuery, setSearchQuery] = React.useState(emptySearchQuery);
   const scrollContainerRef = React.useRef();
   const searchQueryRef = React.useRef();
   const firstSearchResultRef = React.useRef();
-
-  const onChange = React.useCallback(
-    (newQuery) => setSearchQuery(newQuery || emptyQuery),
-    [setSearchQuery]
-  );
 
   return (
     <Flex direction="column" height="100%">
@@ -38,7 +31,7 @@ function ItemsAndSearchPanels({ loading, outfitState, dispatchToOutfit }) {
           query={searchQuery}
           searchQueryRef={searchQueryRef}
           firstSearchResultRef={firstSearchResultRef}
-          onChange={onChange}
+          onChange={setSearchQuery}
         />
       </Box>
       {searchQuery.value ||

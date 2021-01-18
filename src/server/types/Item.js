@@ -111,7 +111,13 @@ const typeDefs = gql`
     itemsByName(names: [String!]!): [Item]!
 
     # Search for items with fuzzy matching.
-    itemSearch(query: String!): ItemSearchResult!
+    itemSearch(
+      query: String!
+      itemKind: ItemKindSearchFilter
+      zoneIds: [ID!]
+      offset: Int
+      limit: Int
+    ): ItemSearchResult!
     itemSearchToFit(
       query: String!
       itemKind: ItemKindSearchFilter
@@ -364,9 +370,20 @@ const resolvers = {
       const items = await itemByNameLoader.loadMany(names);
       return items.map(({ item }) => (item ? { id: item.id } : null));
     },
-    itemSearch: async (_, { query }, { itemSearchLoader }) => {
-      const items = await itemSearchLoader.load(query.trim());
-      return { query, items };
+    itemSearch: async (
+      _,
+      { query, itemKind, zoneIds = [], offset, limit },
+      { itemSearchLoader }
+    ) => {
+      const items = await itemSearchLoader.load({
+        query: query.trim(),
+        itemKind,
+        zoneIds,
+        offset,
+        limit,
+      });
+      const zones = zoneIds.map((id) => ({ id }));
+      return { query, zones, items };
     },
     itemSearchToFit: async (
       _,

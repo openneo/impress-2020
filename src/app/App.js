@@ -20,15 +20,18 @@ import WardrobePageLayout from "./WardrobePage/WardrobePageLayout";
 
 // Loading the page will often fail after a deploy, because Vercel doesn't keep
 // old JS chunks on the CDN. Recover by reloading!
-const tryLoadable = (load) =>
-  loadable(() =>
-    load().catch((e) => {
-      console.error("Error loading page, reloading", e);
-      window.location.reload();
-    })
+const tryLoadable = (load, options) =>
+  loadable(
+    () =>
+      load().catch((e) => {
+        console.error("Error loading page, reloading", e);
+        window.location.reload();
+      }),
+    options
   );
 
 const HomePage = tryLoadable(() => import("./HomePage"));
+const ItemSearchPage = tryLoadable(() => import("./ItemSearchPage"));
 const ItemPage = tryLoadable(() => import("./ItemPage"));
 const ItemTradesOfferingPage = tryLoadable(() =>
   import("./ItemTradesPage").then((m) => m.ItemTradesOfferingPage)
@@ -107,6 +110,11 @@ function App() {
           <ChakraProvider theme={theme}>
             <CSSReset />
             <Switch>
+              <Route path="/items/search/:query?">
+                <PageLayout>
+                  <ItemSearchPage />
+                </PageLayout>
+              </Route>
               <Route path="/items/:itemId/trades/offering">
                 <PageLayout>
                   <ItemTradesOfferingPage />
