@@ -21,7 +21,11 @@ async function handle(req, res) {
     contentSummary = contentSummary.slice(0, 40) + "…";
   }
 
-  console.info(`Sending from ${email || "<anonymous>"}:\n${content}`);
+  const senderText = email || "<anonymous>";
+
+  console.info(`Sending from ${senderText}:\n${content}`);
+
+  const body = `${content}\n\nSent by ${senderText}`;
 
   try {
     await sendgridMail.send({
@@ -29,7 +33,7 @@ async function handle(req, res) {
       from: "impress-2020-feedback@openneo.net",
       subject: `DTI feedback: ${contentSummary}`,
       replyTo: email || undefined,
-      text: content,
+      text: body,
     });
   } catch (e) {
     console.error(e);
