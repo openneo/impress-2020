@@ -288,15 +288,17 @@ function NewItemsSection() {
 }
 
 function NewItemsSectionContent() {
-  const { loading, error, data } = useQuery(gql`
-    query NewItemsSection {
-      newestItems {
-        id
-        name
-        thumbnailUrl
+  const { loading, error, data } = useQuery(
+    gql`
+      query NewItemsSection_NoAuthRequired {
+        newestItems {
+          id
+          name
+          thumbnailUrl
+        }
       }
-    }
-  `);
+    `
+  );
 
   if (loading) {
     return (

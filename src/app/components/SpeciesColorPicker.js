@@ -29,7 +29,7 @@ function SpeciesColorPicker({
   onChange,
 }) {
   const { loading: loadingMeta, error: errorMeta, data: meta } = useQuery(gql`
-    query SpeciesColorPicker {
+    query SpeciesColorPicker_NoAuthRequired {
       allSpecies {
         id
         name
