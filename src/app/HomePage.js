@@ -17,6 +17,7 @@ import { useHistory, useLocation } from "react-router-dom";
 import { useLazyQuery, useQuery } from "@apollo/client";
 
 import {
+  Delay,
   ErrorMessage,
   Heading1,
   Heading2,
@@ -299,28 +300,30 @@ function NewItemsSectionContent() {
 
   if (loading) {
     return (
-      <ItemCardHStack>
-        <SquareItemCardSkeleton />
-        <SquareItemCardSkeleton minHeightNumLines={3} />
-        <SquareItemCardSkeleton />
-        <SquareItemCardSkeleton />
-        <SquareItemCardSkeleton minHeightNumLines={3} />
-        <SquareItemCardSkeleton />
-        <SquareItemCardSkeleton minHeightNumLines={3} />
-        <SquareItemCardSkeleton />
-        <SquareItemCardSkeleton />
-        <SquareItemCardSkeleton />
-        <SquareItemCardSkeleton />
-        <SquareItemCardSkeleton minHeightNumLines={3} />
-        <SquareItemCardSkeleton />
-        <SquareItemCardSkeleton />
-        <SquareItemCardSkeleton minHeightNumLines={3} />
-        <SquareItemCardSkeleton />
-        <SquareItemCardSkeleton minHeightNumLines={3} />
-        <SquareItemCardSkeleton />
-        <SquareItemCardSkeleton />
-        <SquareItemCardSkeleton />
-      </ItemCardHStack>
+      <Delay>
+        <ItemCardHStack>
+          <SquareItemCardSkeleton />
+          <SquareItemCardSkeleton minHeightNumLines={3} />
+          <SquareItemCardSkeleton />
+          <SquareItemCardSkeleton />
+          <SquareItemCardSkeleton minHeightNumLines={3} />
+          <SquareItemCardSkeleton />
+          <SquareItemCardSkeleton minHeightNumLines={3} />
+          <SquareItemCardSkeleton />
+          <SquareItemCardSkeleton />
+          <SquareItemCardSkeleton />
+          <SquareItemCardSkeleton />
+          <SquareItemCardSkeleton minHeightNumLines={3} />
+          <SquareItemCardSkeleton />
+          <SquareItemCardSkeleton />
+          <SquareItemCardSkeleton minHeightNumLines={3} />
+          <SquareItemCardSkeleton />
+          <SquareItemCardSkeleton minHeightNumLines={3} />
+          <SquareItemCardSkeleton />
+          <SquareItemCardSkeleton />
+          <SquareItemCardSkeleton />
+        </ItemCardHStack>
+      </Delay>
     );
   }
 
