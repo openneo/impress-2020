@@ -122,6 +122,9 @@ const typeDefs = gql`
       limit: Int
     ): ItemSearchResult!
 
+    # Get the 20 items most recently added to our database. Cache for 1 hour.
+    newestItems: [Item!]! @cacheControl(maxAge: 3600)
+
     # Get items that need models for the given color.
     #
     # NOTE: Most color IDs won't be accepted here. Either pass the ID of a
@@ -385,6 +388,10 @@ const resolvers = {
       });
       const zones = zoneIds.map((id) => ({ id }));
       return { query, zones, items };
+    },
+    newestItems: async (_, __, { newestItemsLoader }) => {
+      const items = await newestItemsLoader.load("all-newest");
+      return items.map((item) => ({ id: item.id }));
     },
     itemsThatNeedModels: async (
       _,

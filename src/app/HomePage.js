@@ -5,6 +5,7 @@ import {
   Box,
   Button,
   Flex,
+  HStack,
   Input,
   Textarea,
   useColorModeValue,
@@ -13,16 +14,21 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useHistory, useLocation } from "react-router-dom";
-import { useLazyQuery } from "@apollo/client";
+import { useLazyQuery, useQuery } from "@apollo/client";
 
 import {
+  ErrorMessage,
   Heading1,
+  Heading2,
   useCommonStyles,
   useLocalStorage,
   usePageTitle,
 } from "./util";
 import OutfitPreview from "./components/OutfitPreview";
 import SpeciesColorPicker from "./components/SpeciesColorPicker";
+import SquareItemCard, {
+  SquareItemCardSkeleton,
+} from "./components/SquareItemCard";
 import WIPCallout from "./components/WIPCallout";
 
 import HomepageSplashImg from "./images/homepage-splash.png";
@@ -80,6 +86,8 @@ function HomePage() {
       </Box>
       <Box height="4" />
       <SubmitPetForm />
+      <Box height="16" />
+      <NewItemsSection />
       <Box height="16" />
       <FeedbackFormSection />
       <Box height="16" />
@@ -266,6 +274,85 @@ function SubmitPetForm() {
         </form>
       )}
     </ClassNames>
+  );
+}
+
+function NewItemsSection() {
+  return (
+    <Box width="100%">
+      <Heading2 textAlign="left">Latest items</Heading2>
+      <NewItemsSectionContent />
+    </Box>
+  );
+}
+
+function NewItemsSectionContent() {
+  const { loading, error, data } = useQuery(gql`
+    query NewItemsSection {
+      newestItems {
+        id
+        name
+        thumbnailUrl
+      }
+    }
+  `);
+
+  if (loading) {
+    return (
+      <ItemCardHStack>
+        <SquareItemCardSkeleton />
+        <SquareItemCardSkeleton minHeightNumLines={3} />
+        <SquareItemCardSkeleton />
+        <SquareItemCardSkeleton />
+        <SquareItemCardSkeleton minHeightNumLines={3} />
+        <SquareItemCardSkeleton />
+        <SquareItemCardSkeleton minHeightNumLines={3} />
+        <SquareItemCardSkeleton />
+        <SquareItemCardSkeleton />
+        <SquareItemCardSkeleton />
+        <SquareItemCardSkeleton />
+        <SquareItemCardSkeleton minHeightNumLines={3} />
+        <SquareItemCardSkeleton />
+        <SquareItemCardSkeleton />
+        <SquareItemCardSkeleton minHeightNumLines={3} />
+        <SquareItemCardSkeleton />
+        <SquareItemCardSkeleton minHeightNumLines={3} />
+        <SquareItemCardSkeleton />
+        <SquareItemCardSkeleton />
+        <SquareItemCardSkeleton />
+      </ItemCardHStack>
+    );
+  }
+
+  if (error) {
+    return (
+      <ErrorMessage>
+        Couldn't load new items. Check your connection and try again!
+      </ErrorMessage>
+    );
+  }
+
+  return (
+    <ItemCardHStack>
+      {data.newestItems.map((item) => (
+        <SquareItemCard key={item.id} item={item} />
+      ))}
+    </ItemCardHStack>
+  );
+}
+
+function ItemCardHStack({ children }) {
+  return (
+    // HACK: I wanted to just have an HStack with overflow:auto and internal
+    //       paddingX, but the right-hand-side padding didn't seem to work
+    //       during overflow. This was the best I could come up with...
+    <Flex maxWidth="100%" overflow="auto" paddingY="4">
+      <Box minWidth="2" />
+      <HStack align="flex-start" spacing="4">
+        {children}
+      </HStack>
+      <Box minWidth="2" />
+    </Flex>
   );
 }
 

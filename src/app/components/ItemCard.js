@@ -9,81 +9,20 @@ import {
   WrapItem,
   useColorModeValue,
   useTheme,
-  useToken,
 } from "@chakra-ui/react";
 import { CheckIcon, NotAllowedIcon, StarIcon } from "@chakra-ui/icons";
 import { HiSparkles } from "react-icons/hi";
 import { Link } from "react-router-dom";
 
+import SquareItemCard from "./SquareItemCard";
 import { safeImageUrl, useCommonStyles } from "../util";
 
 function ItemCard({ item, badges, variant = "list", ...props }) {
   const { brightBackground } = useCommonStyles();
-  const brightBackgroundValue = useToken("colors", brightBackground);
-  const theme = useTheme();
 
   switch (variant) {
     case "grid":
-      return (
-        // ItemCard renders in large lists of 1k+ items, so we get a big perf
-        // win by using Emotion directly instead of Chakra's styled-system Box.
-        <ClassNames>
-          {({ css }) => (
-            <Link
-              to={`/items/${item.id}`}
-              className={css`
-                transition: all 0.2s;
-                &:hover,
-                &:focus {
-                  transform: scale(1.05);
-                }
-                &:focus {
-                  box-shadow: ${theme.shadows.outline};
-                  outline: none;
-                }
-              `}
-            >
-              <div
-                className={css`
-                  display: flex;
-                  flex-direction: column;
-                  align-items: center;
-                  text-align: center;
-                  box-shadow: ${theme.shadows.md};
-                  border-radius: ${theme.radii.md};
-                  padding: ${theme.space["3"]};
-                  width: calc(80px + 2em);
-                  background: ${brightBackgroundValue};
-                `}
-              >
-                <img
-                  src={safeImageUrl(item.thumbnailUrl)}
-                  alt={`Thumbnail art for ${item.name}`}
-                  width={80}
-                  height={80}
-                />
-                <div
-                  className={css`
-                    /* Set min height to match a 2-line item name, so the cards
-                     * in a row aren't toooo differently sized... */
-                    margin-top: ${theme.space["1"]};
-                    font-size: ${theme.fontSizes.sm};
-                    min-height: 2.5em;
-                    -webkit-line-clamp: 3;
-                    -webkit-box-orient: vertical;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                  `}
-                  // HACK: Emotion turns this into -webkit-display: -webkit-box?
-                  style={{ display: "-webkit-box" }}
-                >
-                  {item.name}
-                </div>
-              </div>
-            </Link>
-          )}
-        </ClassNames>
-      );
+      return <SquareItemCard item={item} {...props} />;
     case "list":
       return (
         <Box

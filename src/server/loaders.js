@@ -376,6 +376,29 @@ const buildItemSearchToFitLoader = (db, loaders) =>
     return responses;
   });
 
+const buildNewestItemsLoader = (db, loaders) =>
+  new DataLoader(async (keys) => {
+    // Essentially, I want to provide the loader-like API, and populate other
+    // loaders, even though there's only one query to run.
+    if (keys.length !== 1 && keys[0] !== "all-newest") {
+      throw new Error(
+        `this loader can only be loaded with the key "all-newest"`
+      );
+    }
+
+    const [rows, _] = await db.execute(
+      `SELECT * FROM items ORDER BY created_at DESC LIMIT 20;`
+    );
+
+    const entities = rows.map(normalizeRow);
+
+    for (const entity of entities) {
+      loaders.itemLoader.prime(entity.id, entity);
+    }
+
+    return [entities];
+  });
+
 let lastKnownUpdate = "1970-01-01"; // start it out very old!
 let lastResult = new Map();
 const buildItemsThatNeedModelsLoader = (db) =>
@@ -1135,6 +1158,7 @@ function buildLoaders(db) {
   loaders.itemByNameLoader = buildItemByNameLoader(db, loaders);
   loaders.itemSearchLoader = buildItemSearchLoader(db, loaders);
   loaders.itemSearchToFitLoader = buildItemSearchToFitLoader(db, loaders);
+  loaders.newestItemsLoader = buildNewestItemsLoader(db, loaders);
   loaders.itemsThatNeedModelsLoader = buildItemsThatNeedModelsLoader(db);
   loaders.itemBodiesWithAppearanceDataLoader = buildItemBodiesWithAppearanceDataLoader(
     db
