@@ -129,7 +129,7 @@ function UserNavBarSection() {
         <NavLinksList>
           {id && (
             <NavLinkItem as={Link} to={`/user/${id}/items`}>
-              Items
+              Lists
             </NavLinkItem>
           )}
           <NavLinkItem as={Link} to={`/your-outfits`}>
@@ -138,10 +138,12 @@ function UserNavBarSection() {
           <NavLinkItem as={Link} to="/modeling">
             Modeling
           </NavLinkItem>
+          <NavLinkItem
+            onClick={() => logout({ returnTo: window.location.origin })}
+          >
+            Log out
+          </NavLinkItem>
         </NavLinksList>
-        <NavButton onClick={() => logout({ returnTo: window.location.origin })}>
-          Log out
-        </NavButton>
       </HStack>
     );
   } else {
