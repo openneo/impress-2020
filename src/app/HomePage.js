@@ -11,7 +11,9 @@ import {
   InputGroup,
   InputLeftElement,
   InputRightElement,
+  ListItem,
   Textarea,
+  UnorderedList,
   useColorModeValue,
   useTheme,
   useToast,
@@ -432,8 +434,14 @@ function FeedbackFormSection() {
         background={brightBackground}
         borderColor={pitchBorderColor}
       >
-        <Flex position="relative" alignItems="center">
-          <Box padding="2" borderRadius="lg" overflow="hidden" flex="0 0 auto">
+        <Flex>
+          <Box
+            padding="2"
+            borderRadius="lg"
+            overflow="hidden"
+            flex="0 0 auto"
+            marginTop="4"
+          >
             <Box
               as="img"
               src={FeedbackXweeImg}
@@ -495,6 +503,43 @@ function FeedbackFormPitch() {
         This is the new Dress to Impress! It's ready for the future, and it even
         works great on mobile! More coming soon!
       </Box>
+      <Flex direction={{ base: "column", sm: "row" }}>
+        <Box
+          as="section"
+          fontSize="sm"
+          marginY="2"
+          flex={{ base: "0 0 auto", sm: "0 1 50%" }}
+        >
+          <Box as="h3" fontWeight="600">
+            New updates
+          </Box>
+          <UnorderedList>
+            <ListItem>Latest items & search!</ListItem>
+            <ListItem>Your Outfits page!</ListItem>
+          </UnorderedList>
+        </Box>
+        <Box width="2" />
+        <Box
+          as="section"
+          fontSize="sm"
+          marginY="2"
+          flex={{ base: "0 0 auto", sm: "0 1 50%" }}
+        >
+          <Box as="h3" fontWeight="600">
+            Coming soon
+          </Box>
+          <UnorderedList>
+            <ListItem>Search by items you own</ListItem>
+            <ListItem>Better item list pages</ListItem>
+            <ListItem>
+              …a lot more things{" "}
+              <span role="img" aria-label="Sweat smile emoji">
+                😅
+              </span>
+            </ListItem>
+          </UnorderedList>
+        </Box>
+      </Flex>
       <Box fontSize="sm" marginTop="1">
         ↓ Got ideas? Send them to us, please!{" "}
         <span role="img" aria-label="Sparkle heart emoji">
