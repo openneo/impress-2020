@@ -75,17 +75,23 @@ Sentry.init({
         ...context,
         // Assume any path segment starting with a digit is an ID, and replace
         // it with `:id`. This will help group related routes in Sentry stats.
-        // NOTE: I'm a bit uncertain about the timing on this? This seems to
-        //       work on initial pageload, but I feel like this won't help for
-        //       describing the page we're navigating _to_... but maybe that's
-        //       okay in practice? I'm just following the Sentry docs.
+        // NOTE: I'm a bit uncertain about the timing on this for tracking
+        //       client-side navs... but we now only track first-time
+        //       pageloads, and it definitely works correctly for them!
         name: window.location.pathname.replaceAll(/\/[0-9][^/]*/g, "/:id"),
       }),
+
+      // We have a _lot_ of location changes that don't actually signify useful
+      // navigations, like in the wardrobe page. It could be useful to trace
+      // them with better filtering someday, but frankly we don't use the perf
+      // features besides Web Vitals right now, and those only get tracked on
+      // first-time pageloads, anyway. So, don't track client-side navs!
+      startTransactionOnLocationChange: false,
     }),
   ],
 
-  // I'm figuring our traffic is low enough that 100% sample rate is fine.
-  // Let's see if we hit any usage limits!
+  // Since we're only tracking first-page loads and not navigations, 100%
+  // sampling isn't actually so much! Tune down if it becomes a problem, tho.
   tracesSampleRate: 1.0,
 });
 
