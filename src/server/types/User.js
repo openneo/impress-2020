@@ -53,6 +53,10 @@ const resolvers = {
       const neopetsConnection = await neopetsConnectionLoader.load(
         user.contactNeopetsConnectionId
       );
+      if (!neopetsConnection) {
+        return null;
+      }
+
       return neopetsConnection.neopetsUsername;
     },
 
