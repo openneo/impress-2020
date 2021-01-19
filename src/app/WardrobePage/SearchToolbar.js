@@ -144,9 +144,14 @@ function SearchToolbar({
   return (
     <Autosuggest
       suggestions={suggestions}
-      onSuggestionsFetchRequested={({ value }) =>
-        setSuggestions(getSuggestions(value, query, zoneLabels))
-      }
+      onSuggestionsFetchRequested={({ value }) => {
+        // HACK: I'm not sure why, but apparently this gets called with value
+        //       set to the _chosen suggestion_ after choosing it? Has that
+        //       always happened? Idk? Let's just, gate around it, I guess?
+        if (typeof value === "string") {
+          setSuggestions(getSuggestions(value, query, zoneLabels));
+        }
+      }}
       onSuggestionSelected={(e, { suggestion }) => {
         const valueWithoutLastWord = query.value.match(/^(.*?)\s*\S+$/)[1];
         onChange({
@@ -236,6 +241,10 @@ function SearchToolbar({
 }
 
 function getSuggestions(value, query, zoneLabels) {
+  if (!value) {
+    return [];
+  }
+
   const words = value.split(/\s+/);
   const lastWord = words[words.length - 1];
   if (lastWord.length < 2) {
