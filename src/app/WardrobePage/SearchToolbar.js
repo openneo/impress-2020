@@ -142,101 +142,96 @@ function SearchToolbar({
   const focusBorderColor = useColorModeValue("green.600", "green.400");
 
   return (
-    <ClassNames>
-      {({ css }) => (
-        <Autosuggest
-          suggestions={suggestions}
-          onSuggestionsFetchRequested={({ value }) =>
-            setSuggestions(getSuggestions(value, query, zoneLabels))
+    <Autosuggest
+      suggestions={suggestions}
+      onSuggestionsFetchRequested={({ value }) =>
+        setSuggestions(getSuggestions(value, query, zoneLabels))
+      }
+      onSuggestionSelected={(e, { suggestion }) => {
+        const valueWithoutLastWord = query.value.match(/^(.*?)\s*\S+$/)[1];
+        onChange({
+          ...query,
+          value: valueWithoutLastWord,
+          filterToZoneLabel: suggestion.zoneLabel || query.filterToZoneLabel,
+          filterToItemKind: suggestion.itemKind || query.filterToItemKind,
+        });
+      }}
+      getSuggestionValue={(zl) => zl}
+      alwaysRenderSuggestions={true}
+      highlightFirstSuggestion={true}
+      renderSuggestion={renderSuggestion}
+      renderSuggestionsContainer={renderSuggestionsContainer}
+      renderInputComponent={(inputProps) => (
+        <InputGroup boxShadow={boxShadow} borderRadius="md">
+          {queryFilterText ? (
+            <InputLeftAddon>
+              <SearchIcon color="gray.400" marginRight="3" />
+              <Box fontSize="sm">{queryFilterText}</Box>
+            </InputLeftAddon>
+          ) : (
+            <InputLeftElement>
+              <SearchIcon color="gray.400" />
+            </InputLeftElement>
+          )}
+          <Input background={background} {...inputProps} />
+          {(query.value || queryFilterText) && (
+            <InputRightElement>
+              <IconButton
+                icon={<CloseIcon />}
+                color="gray.400"
+                variant="ghost"
+                colorScheme="green"
+                aria-label="Clear search"
+                onClick={() => {
+                  setSuggestions([]);
+                  onChange(emptySearchQuery);
+                }}
+                // Big style hacks here!
+                height="calc(100% - 2px)"
+                marginRight="2px"
+              />
+            </InputRightElement>
+          )}
+        </InputGroup>
+      )}
+      inputProps={{
+        // placeholder: "Search for items to add…",
+        "aria-label": "Search for items to add…",
+        focusBorderColor: focusBorderColor,
+        value: query.value || "",
+        ref: searchQueryRef,
+        minWidth: 0,
+        onChange: (e, { newValue, method }) => {
+          // The Autosuggest tries to change the _entire_ value of the element
+          // when navigating suggestions, which isn't actually what we want.
+          // Only accept value changes that are typed by the user!
+          if (method === "type") {
+            onChange({ ...query, value: newValue });
           }
-          onSuggestionsClearRequested={() => setSuggestions([])}
-          onSuggestionSelected={(e, { suggestion }) => {
-            const valueWithoutLastWord = query.value.match(/^(.*?)\s*\S+$/)[1];
+        },
+        onKeyDown: (e) => {
+          if (e.key === "Escape") {
+            if (suggestions.length > 0) {
+              setSuggestions([]);
+              return;
+            }
+            onChange(null);
+            e.target.blur();
+          } else if (e.key === "ArrowDown") {
+            if (suggestions.length > 0) {
+              return;
+            }
+            onMoveFocusDownToResults(e);
+          } else if (e.key === "Backspace" && e.target.selectionStart === 0) {
             onChange({
               ...query,
-              value: valueWithoutLastWord,
-              filterToZoneLabel:
-                suggestion.zoneLabel || query.filterToZoneLabel,
-              filterToItemKind: suggestion.itemKind || query.filterToItemKind,
+              filterToItemKind: null,
+              filterToZoneLabel: null,
             });
-          }}
-          getSuggestionValue={(zl) => zl}
-          highlightFirstSuggestion={true}
-          renderSuggestion={renderSuggestion}
-          renderSuggestionsContainer={renderSuggestionsContainer}
-          renderInputComponent={(inputProps) => (
-            <InputGroup boxShadow={boxShadow} borderRadius="md">
-              {queryFilterText ? (
-                <InputLeftAddon>
-                  <SearchIcon color="gray.400" marginRight="3" />
-                  <Box fontSize="sm">{queryFilterText}</Box>
-                </InputLeftAddon>
-              ) : (
-                <InputLeftElement>
-                  <SearchIcon color="gray.400" />
-                </InputLeftElement>
-              )}
-              <Input background={background} {...inputProps} />
-              {(query.value || queryFilterText) && (
-                <InputRightElement>
-                  <IconButton
-                    icon={<CloseIcon />}
-                    color="gray.400"
-                    variant="ghost"
-                    colorScheme="green"
-                    aria-label="Clear search"
-                    onClick={() => onChange(emptySearchQuery)}
-                    // Big style hacks here!
-                    height="calc(100% - 2px)"
-                    marginRight="2px"
-                  />
-                </InputRightElement>
-              )}
-            </InputGroup>
-          )}
-          inputProps={{
-            // placeholder: "Search for items to add…",
-            "aria-label": "Search for items to add…",
-            focusBorderColor: focusBorderColor,
-            value: query.value || "",
-            ref: searchQueryRef,
-            minWidth: 0,
-            onChange: (e, { newValue, method }) => {
-              // The Autosuggest tries to change the _entire_ value of the element
-              // when navigating suggestions, which isn't actually what we want.
-              // Only accept value changes that are typed by the user!
-              if (method === "type") {
-                onChange({ ...query, value: newValue });
-              }
-            },
-            onKeyDown: (e) => {
-              if (e.key === "Escape") {
-                if (suggestions.length > 0) {
-                  setSuggestions([]);
-                  return;
-                }
-                onChange(null);
-                e.target.blur();
-              } else if (e.key === "ArrowDown") {
-                if (suggestions.length > 0) {
-                  return;
-                }
-                onMoveFocusDownToResults(e);
-              } else if (
-                e.key === "Backspace" &&
-                e.target.selectionStart === 0
-              ) {
-                onChange({
-                  ...query,
-                  filterToItemKind: null,
-                  filterToZoneLabel: null,
-                });
-              }
-            },
-          }}
-        />
-      )}
-    </ClassNames>
+          }
+        },
+      }}
+    />
   );
 }
 
