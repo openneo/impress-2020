@@ -17,7 +17,7 @@ const neopetsAssets = require("../src/server/neopets-assets");
 
 async function cacheAssetManifests(db) {
   const [rows] = await db.execute(
-    `SELECT id, url FROM swf_assets ` +
+    `SELECT id, url, manifest FROM swf_assets ` +
       `WHERE manifest IS NULL OR manifest = "" AND id >= ? ` +
       `ORDER BY id`,
     [argv.start || 0]
@@ -25,6 +25,7 @@ async function cacheAssetManifests(db) {
 
   const numRowsTotal = rows.length;
   let numRowsStarted = 0;
+  let numRowsUpdated = 0;
   let numRowsDone = 0;
 
   async function cacheAssetManifest(row) {
@@ -38,26 +39,31 @@ async function cacheAssetManifests(db) {
       // TODO: Someday the manifests will all exist, right? So we'll want to
       //       reload all the missing ones at that time.
       manifest = manifest || "";
-      if (argv.mode === "dump") {
-        // Make it a JSON string, then escape the string for the query.
-        // Hacky for sure!
-        const escapedManifest = JSON.stringify(JSON.stringify(manifest));
-        console.log(
-          `UPDATE swf_assets SET manifest = ${escapedManifest} ` +
-            `WHERE id = ${row.id} LIMIT 1;`
-        );
-      } else {
-        const [
-          result,
-        ] = await db.execute(
-          `UPDATE swf_assets SET manifest = ? WHERE id = ? LIMIT 1;`,
-          [manifest, row.id]
-        );
-        if (result.affectedRows !== 1) {
-          throw new Error(
-            `Expected to affect 1 asset, but affected ${result.affectedRows}`
+      let updated = false;
+      if (row.manifest !== manifest) {
+        if (argv.mode === "dump") {
+          // Make it a JSON string, then escape the string for the query.
+          // Hacky for sure!
+          const escapedManifest = JSON.stringify(JSON.stringify(manifest));
+          console.log(
+            `UPDATE swf_assets SET manifest = ${escapedManifest} ` +
+              `WHERE id = ${row.id} LIMIT 1;`
           );
+        } else {
+          const [
+            result,
+          ] = await db.execute(
+            `UPDATE swf_assets SET manifest = ? WHERE id = ? LIMIT 1;`,
+            [manifest, row.id]
+          );
+          if (result.affectedRows !== 1) {
+            throw new Error(
+              `Expected to affect 1 asset, but affected ${result.affectedRows}`
+            );
+          }
         }
+        updated = true;
+        numRowsUpdated++;
       }
 
       numRowsDone++;
@@ -66,7 +72,8 @@ async function cacheAssetManifests(db) {
       // write to stderr, to not disrupt the dump
       console.error(
         `${percent}% ${numRowsDone}/${numRowsTotal} ` +
-          `(Exists? ${Boolean(manifest)}. Layer: ${row.id}, ${row.url}.)`
+          `(Exists? ${Boolean(manifest)}. Updated? ${updated}. ` +
+          `Layer: ${row.id}, ${row.url}.)`
       );
     } catch (e) {
       console.error(`Error loading layer ${row.id}, ${row.url}.`, e);
@@ -87,7 +94,7 @@ async function cacheAssetManifests(db) {
   await pool.start();
 
   // write to stderr, to not disrupt the dump
-  console.error("Done!");
+  console.error(`Done! Updated ${numRowsUpdated} of ${numRowsDone} rows.`);
 }
 
 async function main() {
