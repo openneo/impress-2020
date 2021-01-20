@@ -153,16 +153,28 @@ const resolvers = {
       }
 
       const asset = manifest.assets[0];
-      if (asset.format !== "vector") {
+      if (asset.format !== "vector" && asset.format !== "lod") {
         return null;
       }
 
-      if (asset.assetData.length !== 1) {
+      // In the `lod` case, if there's a JS asset, then don't treat this as an
+      // SVG asset at all. (There might be an SVG in the asset list anyway
+      // sometimes I think, for the animation, but ignore it if so!)
+      const jsAssetDatum = asset.assetData.find((ad) =>
+        ad.path.endsWith(".js")
+      );
+      if (jsAssetDatum) {
         return null;
       }
 
-      const assetDatum = asset.assetData[0];
-      const url = new URL(assetDatum.path, "http://images.neopets.com");
+      const svgAssetDatum = asset.assetData.find((ad) =>
+        ad.path.endsWith(".svg")
+      );
+      if (!svgAssetDatum) {
+        return null;
+      }
+
+      const url = new URL(svgAssetDatum.path, "http://images.neopets.com");
       return url.toString();
     },
     canvasMovieLibraryUrl: async ({ id }, _, { db, swfAssetLoader }) => {
