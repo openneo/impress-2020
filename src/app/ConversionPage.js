@@ -32,7 +32,11 @@ function ConversionPage() {
     <Box>
       <Heading1>HTML5 Conversion Hub</Heading1>
       <Box height="6" />
-      <Stack direction="row" spacing="12" align="center">
+      <Stack
+        direction={{ base: "column", sm: "row" }}
+        spacing="12"
+        align="center"
+      >
         <ConversionProgress
           label="All layers"
           color="green.500"
