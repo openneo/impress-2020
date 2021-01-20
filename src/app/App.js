@@ -30,6 +30,7 @@ const tryLoadable = (load, options) =>
     options
   );
 
+const ConversionPage = tryLoadable(() => import("./ConversionPage"));
 const HomePage = tryLoadable(() => import("./HomePage"));
 const ItemSearchPage = tryLoadable(() => import("./ItemSearchPage"));
 const ItemPage = tryLoadable(() => import("./ItemPage"));
@@ -160,6 +161,11 @@ function App() {
               <Route path="/privacy">
                 <PageLayout>
                   <PrivacyPolicyPage />
+                </PageLayout>
+              </Route>
+              <Route path="/conversion">
+                <PageLayout>
+                  <ConversionPage />
                 </PageLayout>
               </Route>
               <Route path="/">

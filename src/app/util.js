@@ -84,8 +84,12 @@ export function Heading3({ children, ...props }) {
 /**
  * ErrorMessage is a simple error message for simple errors!
  */
-export function ErrorMessage({ children }) {
-  return <Box color="red.400">{children}</Box>;
+export function ErrorMessage({ children, ...props }) {
+  return (
+    <Box color="red.400" {...props}>
+      {children}
+    </Box>
+  );
 }
 
 export function useCommonStyles() {

@@ -709,6 +709,40 @@ const buildSwfAssetLoader = (db) =>
     );
   });
 
+const buildSwfAssetCountLoader = (db) =>
+  new DataLoader(
+    async (requests) => {
+      const [rows, _] = await db.execute(
+        `
+          SELECT count(*) AS count, type,
+            (manifest IS NOT NULL AND manifest != "") AS is_converted
+          FROM swf_assets
+          GROUP BY type, is_converted;
+        `
+      );
+      const entities = rows.map(normalizeRow);
+
+      return requests.map(({ type, isConverted }) => {
+        // Find the returned rows that match this count request.
+        let matchingEntities = entities;
+        if (type != null) {
+          matchingEntities = matchingEntities.filter((e) => e.type === type);
+        }
+        if (isConverted != null) {
+          matchingEntities = matchingEntities.filter(
+            (e) => Boolean(e.isConverted) === isConverted
+          );
+        }
+
+        // Add their counts together, and return the total.
+        return matchingEntities.map((e) => e.count).reduce((a, b) => a + b, 0);
+      });
+    },
+    {
+      cacheKeyFn: ({ type, isConverted }) => `${type},${isConverted}`,
+    }
+  );
+
 const buildSwfAssetByRemoteIdLoader = (db) =>
   new DataLoader(
     async (typeAndRemoteIdPairs) => {
@@ -1190,6 +1224,7 @@ function buildLoaders(db) {
     loaders
   );
   loaders.swfAssetLoader = buildSwfAssetLoader(db);
+  loaders.swfAssetCountLoader = buildSwfAssetCountLoader(db);
   loaders.swfAssetByRemoteIdLoader = buildSwfAssetByRemoteIdLoader(db);
   loaders.itemSwfAssetLoader = buildItemSwfAssetLoader(db, loaders);
   loaders.petSwfAssetLoader = buildPetSwfAssetLoader(db, loaders);

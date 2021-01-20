@@ -8,6 +8,11 @@ const typeDefs = gql`
     SIZE_150
   }
 
+  enum LayerType {
+    PET_LAYER
+    ITEM_LAYER
+  }
+
   # Cache for 1 week (unlikely to change)
   type AppearanceLayer @cacheControl(maxAge: 604800) {
     # The DTI ID. Guaranteed unique across all layers of all types.
@@ -66,6 +71,18 @@ const typeDefs = gql`
     Deprecated, aggregated into PetAppearance for a simpler API.
     """
     restrictedZones: [Zone!]!
+  }
+
+  extend type Query {
+    # Return the number of layers that have been converted to HTML5, optionally
+    # filtered by type. Cache for 30 minutes (we re-sync with Neopets every
+    # hour).
+    numAppearanceLayersConverted(type: LayerType): Int!
+      @cacheControl(maxAge: 1800)
+
+    # Return the total number of layers, optionally filtered by type. Cache for
+    # 30 minutes (we re-sync with Neopets every hour).
+    numAppearanceLayersTotal(type: LayerType): Int! @cacheControl(maxAge: 1800)
   }
 `;
 
@@ -200,7 +217,38 @@ const resolvers = {
       return { id: String(rows[0].parent_id) };
     },
   },
+
+  Query: {
+    numAppearanceLayersConverted: async (
+      _,
+      { type },
+      { swfAssetCountLoader }
+    ) => {
+      const count = await swfAssetCountLoader.load({
+        type: convertLayerTypeToSwfAssetType(type),
+        isConverted: true,
+      });
+      return count;
+    },
+    numAppearanceLayersTotal: async (_, { type }, { swfAssetCountLoader }) => {
+      const count = await swfAssetCountLoader.load({
+        type: convertLayerTypeToSwfAssetType(type),
+      });
+      return count;
+    },
+  },
 };
+
+function convertLayerTypeToSwfAssetType(layerType) {
+  switch (layerType) {
+    case "PET_LAYER":
+      return "biology";
+    case "ITEM_LAYER":
+      return "object";
+    default:
+      return null;
+  }
+}
 
 async function loadAndCacheAssetManifest(db, layer) {
   let manifest;
