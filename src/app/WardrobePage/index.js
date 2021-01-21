@@ -1,6 +1,6 @@
 import React from "react";
 import { useToast } from "@chakra-ui/react";
-import loadable from "@loadable/component";
+import { loadable } from "../util";
 
 import ItemsAndSearchPanels from "./ItemsAndSearchPanels";
 import SupportOnly from "./support/SupportOnly";

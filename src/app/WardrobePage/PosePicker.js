@@ -15,7 +15,7 @@ import {
   useColorModeValue,
   useTheme,
 } from "@chakra-ui/react";
-import loadable from "@loadable/component";
+import { loadable } from "../util";
 
 import {
   getVisibleLayers,

@@ -11,7 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { EditIcon, DeleteIcon, InfoIcon } from "@chakra-ui/icons";
 import { Link } from "react-router-dom";
-import loadable from "@loadable/component";
+import { loadable } from "../util";
 
 import {
   ItemCardContent,

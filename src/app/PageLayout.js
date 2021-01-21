@@ -1,6 +1,6 @@
 import React from "react";
 import { Box } from "@chakra-ui/react";
-import loadable from "@loadable/component";
+import { loadable } from "./util";
 
 const GlobalHeader = loadable(() => import("./GlobalHeader"));
 const GlobalFooter = loadable(() => import("./GlobalFooter"));
