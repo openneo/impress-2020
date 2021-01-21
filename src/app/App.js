@@ -9,7 +9,6 @@ import {
   Route,
   useLocation,
 } from "react-router-dom";
-import loadable from "@loadable/component";
 import * as Sentry from "@sentry/react";
 import { Integrations } from "@sentry/tracing";
 import { useAuth0 } from "@auth0/auth0-react";
@@ -17,34 +16,23 @@ import { useAuth0 } from "@auth0/auth0-react";
 import buildApolloClient from "./apolloClient";
 import PageLayout from "./PageLayout";
 import WardrobePageLayout from "./WardrobePage/WardrobePageLayout";
+import { loadable } from "./util";
 
-// Loading the page will often fail after a deploy, because Vercel doesn't keep
-// old JS chunks on the CDN. Recover by reloading!
-const tryLoadable = (load, options) =>
-  loadable(
-    () =>
-      load().catch((e) => {
-        console.error("Error loading page, reloading", e);
-        window.location.reload();
-      }),
-    options
-  );
-
-const ConversionPage = tryLoadable(() => import("./ConversionPage"));
-const HomePage = tryLoadable(() => import("./HomePage"));
-const ItemSearchPage = tryLoadable(() => import("./ItemSearchPage"));
-const ItemPage = tryLoadable(() => import("./ItemPage"));
-const ItemTradesOfferingPage = tryLoadable(() =>
+const ConversionPage = loadable(() => import("./ConversionPage"));
+const HomePage = loadable(() => import("./HomePage"));
+const ItemSearchPage = loadable(() => import("./ItemSearchPage"));
+const ItemPage = loadable(() => import("./ItemPage"));
+const ItemTradesOfferingPage = loadable(() =>
   import("./ItemTradesPage").then((m) => m.ItemTradesOfferingPage)
 );
-const ItemTradesSeekingPage = tryLoadable(() =>
+const ItemTradesSeekingPage = loadable(() =>
   import("./ItemTradesPage").then((m) => m.ItemTradesSeekingPage)
 );
-const ModelingPage = tryLoadable(() => import("./ModelingPage"));
-const PrivacyPolicyPage = tryLoadable(() => import("./PrivacyPolicyPage"));
-const UserItemsPage = tryLoadable(() => import("./UserItemsPage"));
-const UserOutfitsPage = tryLoadable(() => import("./UserOutfitsPage"));
-const WardrobePage = tryLoadable(() => import("./WardrobePage"), {
+const ModelingPage = loadable(() => import("./ModelingPage"));
+const PrivacyPolicyPage = loadable(() => import("./PrivacyPolicyPage"));
+const UserItemsPage = loadable(() => import("./UserItemsPage"));
+const UserOutfitsPage = loadable(() => import("./UserOutfitsPage"));
+const WardrobePage = loadable(() => import("./WardrobePage"), {
   fallback: <WardrobePageLayout />,
 });
 

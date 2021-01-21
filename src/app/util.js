@@ -1,5 +1,6 @@
 import React from "react";
 import { Box, Heading, useColorModeValue } from "@chakra-ui/react";
+import loadableLibrary from "@loadable/component";
 
 /**
  * Delay hides its content at first, then shows it after the given delay.
@@ -292,4 +293,20 @@ export function loadImage({ src, crossOrigin = null }) {
     image.src = "";
   };
   return promise;
+}
+
+/**
+ * loadable is a wrapper for `@loadable/component`, with extra error handling.
+ * Loading the page will often fail if you keep a session open during a deploy,
+ * because Vercel doesn't keep old JS chunks on the CDN. Recover by reloading!
+ */
+export function loadable(load, options) {
+  return loadableLibrary(
+    () =>
+      load().catch((e) => {
+        console.error("Error loading page, reloading", e);
+        window.location.reload();
+      }),
+    options
+  );
 }
