@@ -16,9 +16,16 @@ const connectToDb = require("../src/server/db");
 const neopetsAssets = require("../src/server/neopets-assets");
 
 async function cacheAssetManifests(db) {
+  // Normally, we skip manifests that we already have. But you can run with
+  // --resync-existing to check old manifests for changes! (This might take,
+  // like, multiple minutes to even run this first query!)
+  const condition = argv.resyncExisting
+    ? `1`
+    : `manifest IS NULL OR manifest = ""`;
+
   const [rows] = await db.execute(
     `SELECT id, url, manifest FROM swf_assets ` +
-      `WHERE manifest IS NULL OR manifest = "" AND id >= ? ` +
+      `WHERE ${condition} AND id >= ? ` +
       `ORDER BY id`,
     [argv.start || 0]
   );

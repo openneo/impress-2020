@@ -160,6 +160,9 @@ const resolvers = {
       // In the `lod` case, if there's a JS asset, then don't treat this as an
       // SVG asset at all. (There might be an SVG in the asset list anyway
       // sometimes I think, for the animation, but ignore it if so!)
+      //
+      // NOTE: I thiiink the `vector` case is deprecated? I haven't verified
+      //       whether it's gone from our database yet, though.
       const jsAssetDatum = asset.assetData.find((ad) =>
         ad.path.endsWith(".js")
       );
