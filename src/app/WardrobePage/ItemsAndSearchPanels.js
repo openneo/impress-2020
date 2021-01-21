@@ -2,7 +2,10 @@ import React from "react";
 import { Box, Flex } from "@chakra-ui/react";
 
 import ItemsPanel from "./ItemsPanel";
-import SearchToolbar, { emptySearchQuery } from "./SearchToolbar";
+import SearchToolbar, {
+  emptySearchQuery,
+  searchQueryIsEmpty,
+} from "./SearchToolbar";
 import SearchPanel from "./SearchPanel";
 
 /**
@@ -34,9 +37,7 @@ function ItemsAndSearchPanels({ loading, outfitState, dispatchToOutfit }) {
           onChange={setSearchQuery}
         />
       </Box>
-      {searchQuery.value ||
-      searchQuery.filterToItemKind ||
-      searchQuery.filterToZoneLabel ? (
+      {!searchQueryIsEmpty(searchQuery) ? (
         <Box
           key="search-panel"
           gridArea="items"

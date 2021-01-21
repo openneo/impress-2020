@@ -288,7 +288,15 @@ const buildItemSearchLoader = (db, loaders) =>
     // This isn't actually optimized as a batch query, we're just using a
     // DataLoader API consistency with our other loaders!
     const queryPromises = queries.map(
-      async ({ query, itemKind, zoneIds = [], offset, limit }) => {
+      async ({
+        query,
+        itemKind,
+        currentUserOwnsOrWants,
+        currentUserId,
+        zoneIds = [],
+        offset,
+        limit,
+      }) => {
         const actualOffset = offset || 0;
         const actualLimit = Math.min(limit || 30, 30);
 
@@ -307,17 +315,35 @@ const buildItemSearchLoader = (db, loaders) =>
           zoneIds.length > 0
             ? `swf_assets.zone_id IN (${zoneIds.map((_) => "?").join(", ")})`
             : "1";
+        const currentUserJoin = currentUserOwnsOrWants
+          ? `INNER JOIN closet_hangers ch ON ch.item_id = items.id`
+          : "";
+        const currentUserCondition = currentUserOwnsOrWants
+          ? `ch.user_id = ? AND ch.owned = ?`
+          : "1";
+        const currentUserValues = currentUserOwnsOrWants
+          ? [currentUserId, currentUserOwnsOrWants === "OWNS" ? "1" : "0"]
+          : [];
+
         const [rows, _] = await db.execute(
           `SELECT DISTINCT items.*, t.name FROM items
            INNER JOIN item_translations t ON t.item_id = items.id
            INNER JOIN parents_swf_assets rel
                ON rel.parent_type = "Item" AND rel.parent_id = items.id
            INNER JOIN swf_assets ON rel.swf_asset_id = swf_assets.id
+           ${currentUserJoin}
            WHERE ${matcherPlaceholders} AND t.locale = "en" AND
-               ${zoneIdsPlaceholder} AND ${itemKindCondition}
+               ${zoneIdsPlaceholder} AND ${itemKindCondition} AND
+               ${currentUserCondition}
            ORDER BY t.name
            LIMIT ? OFFSET ?`,
-          [...wordMatchersForMysql, ...zoneIds, actualLimit, actualOffset]
+          [
+            ...wordMatchersForMysql,
+            ...zoneIds,
+            ...currentUserValues,
+            actualLimit,
+            actualOffset,
+          ]
         );
 
         const entities = rows.map(normalizeRow);
@@ -340,7 +366,16 @@ const buildItemSearchToFitLoader = (db, loaders) =>
     // This isn't actually optimized as a batch query, we're just using a
     // DataLoader API consistency with our other loaders!
     const queryPromises = queryAndBodyIdPairs.map(
-      async ({ query, bodyId, itemKind, zoneIds = [], offset, limit }) => {
+      async ({
+        query,
+        bodyId,
+        itemKind,
+        currentUserOwnsOrWants,
+        currentUserId,
+        zoneIds = [],
+        offset,
+        limit,
+      }) => {
         const actualOffset = offset || 0;
         const actualLimit = Math.min(limit || 30, 30);
 
@@ -355,25 +390,38 @@ const buildItemSearchToFitLoader = (db, loaders) =>
           .join(" AND ");
 
         const itemKindCondition = itemSearchKindConditions[itemKind] || "1";
-        const zoneIdsPlaceholder =
+        const zoneIdsCondition =
           zoneIds.length > 0
             ? `swf_assets.zone_id IN (${zoneIds.map((_) => "?").join(", ")})`
             : "1";
+        const currentUserJoin = currentUserOwnsOrWants
+          ? `INNER JOIN closet_hangers ch ON ch.item_id = items.id`
+          : "";
+        const currentUserCondition = currentUserOwnsOrWants
+          ? `ch.user_id = ? AND ch.owned = ?`
+          : "1";
+        const currentUserValues = currentUserOwnsOrWants
+          ? [currentUserId, currentUserOwnsOrWants === "OWNS" ? "1" : "0"]
+          : [];
+
         const [rows, _] = await db.execute(
           `SELECT DISTINCT items.*, t.name FROM items
            INNER JOIN item_translations t ON t.item_id = items.id
            INNER JOIN parents_swf_assets rel
                ON rel.parent_type = "Item" AND rel.parent_id = items.id
            INNER JOIN swf_assets ON rel.swf_asset_id = swf_assets.id
+           ${currentUserJoin}
            WHERE ${matcherPlaceholders} AND t.locale = "en" AND
                (swf_assets.body_id = ? OR swf_assets.body_id = 0) AND
-               ${zoneIdsPlaceholder} AND ${itemKindCondition}
+               ${zoneIdsCondition} AND ${itemKindCondition} AND
+               ${currentUserCondition}
            ORDER BY t.name
            LIMIT ? OFFSET ?`,
           [
             ...wordMatchersForMysql,
             bodyId,
             ...zoneIds,
+            ...currentUserValues,
             actualLimit,
             actualOffset,
           ]

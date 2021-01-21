@@ -253,6 +253,7 @@ function useSearchResults(query, outfitState) {
       query SearchPanel(
         $query: String!
         $itemKind: ItemKindSearchFilter
+        $currentUserOwnsOrWants: OwnsOrWants
         $zoneIds: [ID!]!
         $speciesId: ID!
         $colorId: ID!
@@ -261,6 +262,7 @@ function useSearchResults(query, outfitState) {
         itemSearchToFit(
           query: $query
           itemKind: $itemKind
+          currentUserOwnsOrWants: $currentUserOwnsOrWants
           zoneIds: $zoneIds
           speciesId: $speciesId
           colorId: $colorId
@@ -308,6 +310,7 @@ function useSearchResults(query, outfitState) {
       variables: {
         query: debouncedQuery.value,
         itemKind: debouncedQuery.filterToItemKind,
+        currentUserOwnsOrWants: debouncedQuery.filterToCurrentUserOwnsOrWants,
         zoneIds: filterToZoneIds,
         speciesId,
         colorId,
@@ -317,7 +320,8 @@ function useSearchResults(query, outfitState) {
       skip:
         !debouncedQuery.value &&
         !debouncedQuery.filterToItemKind &&
-        !debouncedQuery.filterToZoneLabel,
+        !debouncedQuery.filterToZoneLabel &&
+        !debouncedQuery.filterToCurrentUserOwnsOrWants,
       notifyOnNetworkStatusChange: true,
       onCompleted: (d) => {
         // This is called each time the query completes, including on
@@ -450,6 +454,7 @@ function serializeQuery(query) {
     query.value,
     query.filterToItemKind,
     query.filterToZoneLabel,
+    query.filterToCurrentUserOwnsOrWants,
   ])}`;
 }
 

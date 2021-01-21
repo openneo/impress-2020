@@ -114,6 +114,7 @@ const typeDefs = gql`
     itemSearch(
       query: String!
       itemKind: ItemKindSearchFilter
+      currentUserOwnsOrWants: OwnsOrWants
       zoneIds: [ID!]
       offset: Int
       limit: Int
@@ -121,6 +122,7 @@ const typeDefs = gql`
     itemSearchToFit(
       query: String!
       itemKind: ItemKindSearchFilter
+      currentUserOwnsOrWants: OwnsOrWants
       zoneIds: [ID!]
       speciesId: ID!
       colorId: ID!
@@ -372,12 +374,14 @@ const resolvers = {
     },
     itemSearch: async (
       _,
-      { query, itemKind, zoneIds = [], offset, limit },
-      { itemSearchLoader }
+      { query, itemKind, currentUserOwnsOrWants, zoneIds = [], offset, limit },
+      { itemSearchLoader, currentUserId }
     ) => {
       const items = await itemSearchLoader.load({
         query: query.trim(),
         itemKind,
+        currentUserOwnsOrWants,
+        currentUserId,
         zoneIds,
         offset,
         limit,
@@ -387,8 +391,17 @@ const resolvers = {
     },
     itemSearchToFit: async (
       _,
-      { query, speciesId, colorId, itemKind, zoneIds = [], offset, limit },
-      { petTypeBySpeciesAndColorLoader, itemSearchToFitLoader }
+      {
+        query,
+        speciesId,
+        colorId,
+        itemKind,
+        currentUserOwnsOrWants,
+        zoneIds = [],
+        offset,
+        limit,
+      },
+      { petTypeBySpeciesAndColorLoader, itemSearchToFitLoader, currentUserId }
     ) => {
       const petType = await petTypeBySpeciesAndColorLoader.load({
         speciesId,
@@ -398,6 +411,8 @@ const resolvers = {
       const items = await itemSearchToFitLoader.load({
         query: query.trim(),
         itemKind,
+        currentUserOwnsOrWants,
+        currentUserId,
         zoneIds,
         bodyId,
         offset,

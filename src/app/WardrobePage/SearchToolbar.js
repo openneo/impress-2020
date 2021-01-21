@@ -15,10 +15,13 @@ import { CloseIcon, SearchIcon } from "@chakra-ui/icons";
 import { ClassNames } from "@emotion/react";
 import Autosuggest from "react-autosuggest";
 
+import useCurrentUser from "../components/useCurrentUser";
+
 export const emptySearchQuery = {
   value: "",
   filterToZoneLabel: null,
   filterToItemKind: null,
+  filterToCurrentUserOwnsOrWants: null,
 };
 
 export function searchQueryIsEmpty(query) {
@@ -44,6 +47,7 @@ function SearchToolbar({
   boxShadow = null,
 }) {
   const [suggestions, setSuggestions] = React.useState([]);
+  const { isLoggedIn } = useCurrentUser();
 
   // NOTE: This query should always load ~instantly, from the client cache.
   const { data } = useQuery(gql`
@@ -121,7 +125,11 @@ function SearchToolbar({
   // When we change the query filters, clear out the suggestions.
   React.useEffect(() => {
     setSuggestions([]);
-  }, [query.filterToItemKind, query.filterToZoneLabel]);
+  }, [
+    query.filterToItemKind,
+    query.filterToZoneLabel,
+    query.filterToCurrentUserOwnsOrWants,
+  ]);
 
   let queryFilterText = getQueryFilterText(query);
   if (showItemsLabel) {
@@ -149,7 +157,7 @@ function SearchToolbar({
         //       set to the _chosen suggestion_ after choosing it? Has that
         //       always happened? Idk? Let's just, gate around it, I guess?
         if (typeof value === "string") {
-          setSuggestions(getSuggestions(value, query, zoneLabels));
+          setSuggestions(getSuggestions(value, query, zoneLabels, isLoggedIn));
         }
       }}
       onSuggestionSelected={(e, { suggestion }) => {
@@ -159,6 +167,8 @@ function SearchToolbar({
           value: valueWithoutLastWord,
           filterToZoneLabel: suggestion.zoneLabel || query.filterToZoneLabel,
           filterToItemKind: suggestion.itemKind || query.filterToItemKind,
+          filterToCurrentUserOwnsOrWants:
+            suggestion.userOwnsOrWants || query.filterToCurrentUserOwnsOrWants,
         });
       }}
       getSuggestionValue={(zl) => zl}
@@ -232,6 +242,7 @@ function SearchToolbar({
               ...query,
               filterToItemKind: null,
               filterToZoneLabel: null,
+              filterToCurrentUserOwnsOrWants: null,
             });
           }
         },
@@ -240,7 +251,7 @@ function SearchToolbar({
   );
 }
 
-function getSuggestions(value, query, zoneLabels) {
+function getSuggestions(value, query, zoneLabels, isLoggedIn) {
   if (!value) {
     return [];
   }
@@ -264,6 +275,16 @@ function getSuggestions(value, query, zoneLabels) {
 
     if (wordMatches("PB", lastWord) || wordMatches("Paintbrush", lastWord)) {
       suggestions.push({ itemKind: "PB", text: "Paintbrush items" });
+    }
+  }
+
+  if (isLoggedIn && query.filterToCurrentUserOwnsOrWants == null) {
+    if (wordMatches("Items you own", lastWord)) {
+      suggestions.push({ userOwnsOrWants: "OWNS", text: "Items you own" });
+    }
+
+    if (wordMatches("Items you want", lastWord)) {
+      suggestions.push({ userOwnsOrWants: "WANTS", text: "Items you want" });
     }
   }
 
@@ -291,6 +312,18 @@ function getQueryFilterText(query) {
 
   if (query.filterToZoneLabel) {
     textWords.push(query.filterToZoneLabel);
+  }
+
+  if (query.filterToCurrentUserOwnsOrWants === "OWNS") {
+    if (textWords.length === 0) {
+      textWords.push("Items");
+    }
+    textWords.push("you own");
+  } else if (query.filterToCurrentUserOwnsOrWants === "WANTS") {
+    if (textWords.length === 0) {
+      textWords.push("Items");
+    }
+    textWords.push("you want");
   }
 
   return textWords.join(" ");

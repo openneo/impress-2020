@@ -48,6 +48,7 @@ function useSearchQueryInUrl() {
     value: value || "",
     filterToZoneLabel: searchParams.get("zone") || null,
     filterToItemKind: searchParams.get("kind") || null,
+    filterToCurrentUserOwnsOrWants: searchParams.get("user") || null,
   };
   const setQuery = React.useCallback(
     (newQuery) => {
@@ -63,6 +64,9 @@ function useSearchQueryInUrl() {
       }
       if (newQuery.filterToZoneLabel) {
         newParams.append("zone", newQuery.filterToZoneLabel);
+      }
+      if (newQuery.filterToCurrentUserOwnsOrWants) {
+        newParams.append("user", newQuery.filterToCurrentUserOwnsOrWants);
       }
       const search = newParams.toString();
       if (search) {
@@ -116,11 +120,13 @@ function ItemSearchPageResults({ query: latestQuery }) {
       query ItemSearchPageResults(
         $query: String!
         $itemKind: ItemKindSearchFilter
+        $currentUserOwnsOrWants: OwnsOrWants
         $zoneIds: [ID!]!
       ) {
         itemSearch(
           query: $query
           itemKind: $itemKind
+          currentUserOwnsOrWants: $currentUserOwnsOrWants
           zoneIds: $zoneIds
           offset: 0
           limit: 30
@@ -137,8 +143,10 @@ function ItemSearchPageResults({ query: latestQuery }) {
       variables: {
         query: query.value,
         itemKind: query.filterToItemKind,
+        currentUserOwnsOrWants: query.filterToCurrentUserOwnsOrWants,
         zoneIds: filterToZoneIds,
       },
+      context: { sendAuth: true },
       skip: skipSearchResults,
     }
   );
