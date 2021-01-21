@@ -69,12 +69,15 @@ async function cacheAssetManifests(db) {
       numRowsDone++;
 
       const percent = Math.floor((numRowsDone / numRowsTotal) * 100);
-      // write to stderr, to not disrupt the dump
-      console.error(
-        `${percent}% ${numRowsDone}/${numRowsTotal} ` +
-          `(Exists? ${Boolean(manifest)}. Updated? ${updated}. ` +
-          `Layer: ${row.id}, ${row.url}.)`
-      );
+      const shouldSkipLogging = argv.skipUnchanged && !updated;
+      if (!shouldSkipLogging) {
+        // write to stderr, to not disrupt the dump
+        console.error(
+          `${percent}% ${numRowsDone}/${numRowsTotal} ` +
+            `(Exists? ${Boolean(manifest)}. Updated? ${updated}. ` +
+            `Layer: ${row.id}, ${row.url}.)`
+        );
+      }
     } catch (e) {
       console.error(`Error loading layer ${row.id}, ${row.url}.`, e);
     }
