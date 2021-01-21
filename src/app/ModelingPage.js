@@ -25,55 +25,58 @@ function ModelingPage() {
 }
 
 function ItemModelsSection() {
-  const { loading, error, data } = useQuery(gql`
-    query ModelingPage {
-      standardItems: itemsThatNeedModels {
-        ...ItemFields
-        speciesThatNeedModels {
-          id
-          name
+  const { loading, error, data } = useQuery(
+    gql`
+      query ModelingPage {
+        standardItems: itemsThatNeedModels {
+          ...ItemFields
+          speciesThatNeedModels {
+            id
+            name
+          }
+        }
+
+        babyItems: itemsThatNeedModels(colorId: "6") {
+          ...ItemFields
+          speciesThatNeedModels(colorId: "6") {
+            id
+            name
+          }
+        }
+
+        maraquanItems: itemsThatNeedModels(colorId: "44") {
+          ...ItemFields
+          speciesThatNeedModels(colorId: "44") {
+            id
+            name
+          }
+        }
+
+        mutantItems: itemsThatNeedModels(colorId: "46") {
+          ...ItemFields
+          speciesThatNeedModels(colorId: "46") {
+            id
+            name
+          }
+        }
+
+        currentUser {
+          itemsTheyOwn {
+            id
+          }
         }
       }
 
-      babyItems: itemsThatNeedModels(colorId: "6") {
-        ...ItemFields
-        speciesThatNeedModels(colorId: "6") {
-          id
-          name
-        }
+      fragment ItemFields on Item {
+        id
+        name
+        thumbnailUrl
+        isNc
+        createdAt
       }
-
-      maraquanItems: itemsThatNeedModels(colorId: "44") {
-        ...ItemFields
-        speciesThatNeedModels(colorId: "44") {
-          id
-          name
-        }
-      }
-
-      mutantItems: itemsThatNeedModels(colorId: "46") {
-        ...ItemFields
-        speciesThatNeedModels(colorId: "46") {
-          id
-          name
-        }
-      }
-
-      currentUser {
-        itemsTheyOwn {
-          id
-        }
-      }
-    }
-
-    fragment ItemFields on Item {
-      id
-      name
-      thumbnailUrl
-      isNc
-      createdAt
-    }
-  `);
+    `,
+    { context: { sendAuth: true } }
+  );
 
   if (loading) {
     return (

@@ -14,7 +14,7 @@ import { ErrorMessage, Heading1 } from "./util";
 function ConversionPage() {
   const { loading, error, data } = useQuery(
     gql`
-      query ConversionPage_NoAuthRequired {
+      query ConversionPage {
         numAppearanceLayersConverted
         numAppearanceLayersTotal
 

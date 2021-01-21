@@ -130,7 +130,7 @@ function ItemPageOwnWantButtons({ itemId }) {
         }
       }
     `,
-    { variables: { itemId } }
+    { variables: { itemId }, context: { sendAuth: true } }
   );
 
   if (error) {
@@ -171,6 +171,7 @@ function ItemPageOwnButton({ itemId, isChecked }) {
     `,
     {
       variables: { itemId },
+      context: { sendAuth: true },
       optimisticResponse: {
         __typename: "Mutation",
         addToItemsCurrentUserOwns: {
@@ -193,6 +194,7 @@ function ItemPageOwnButton({ itemId, isChecked }) {
     `,
     {
       variables: { itemId },
+      context: { sendAuth: true },
       optimisticResponse: {
         __typename: "Mutation",
         removeFromItemsCurrentUserOwns: {
@@ -279,6 +281,7 @@ function ItemPageWantButton({ itemId, isChecked }) {
     `,
     {
       variables: { itemId },
+      context: { sendAuth: true },
       optimisticResponse: {
         __typename: "Mutation",
         addToItemsCurrentUserWants: {
@@ -301,6 +304,7 @@ function ItemPageWantButton({ itemId, isChecked }) {
     `,
     {
       variables: { itemId },
+      context: { sendAuth: true },
       optimisticResponse: {
         __typename: "Mutation",
         removeFromItemsCurrentUserWants: {

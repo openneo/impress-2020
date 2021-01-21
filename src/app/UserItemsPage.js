@@ -82,7 +82,7 @@ function UserItemsPage() {
         }
       }
     `,
-    { variables: { userId } }
+    { variables: { userId }, context: { sendAuth: true } }
   );
 
   if (loading) {

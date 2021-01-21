@@ -154,6 +154,7 @@ function useOutfitState() {
     `,
     {
       variables: { allItemIds, speciesId, colorId },
+      context: { sendAuth: true },
       // Skip if this outfit has no items, as an optimization; or if we don't
       // have the species/color ID loaded yet because we're waiting on the
       // saved outfit to load.

@@ -142,12 +142,8 @@ const persistedQueryLink = createPersistedQueryLink({
 });
 const httpLink = createHttpLink({ uri: "/api/graphql" });
 const buildAuthLink = (getAuth0) =>
-  setContext(async ({ operationName }, { headers }) => {
-    // Our little hack to decorate queries that don't need auth, and can load
-    // without waiting for it!
-    // TODO: It feels like inverting this might be the better way to go?...
-    const skipAuth = operationName?.includes("_NoAuthRequired");
-    if (skipAuth) {
+  setContext(async (_, { headers = {}, sendAuth = false }) => {
+    if (!sendAuth) {
       return;
     }
 

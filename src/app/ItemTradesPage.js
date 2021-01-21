@@ -130,6 +130,7 @@ function ItemTradesTable({
   const { isLoggedIn } = useCurrentUser();
   const { loading, error, data } = useQuery(tradesQuery, {
     variables: { itemId },
+    context: { sendAuth: true },
   });
 
   const shouldShowCompareColumn = isLoggedIn;

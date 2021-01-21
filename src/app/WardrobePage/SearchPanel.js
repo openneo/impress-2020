@@ -313,6 +313,7 @@ function useSearchResults(query, outfitState) {
         colorId,
         offset: 0,
       },
+      context: { sendAuth: true },
       skip:
         !debouncedQuery.value &&
         !debouncedQuery.filterToItemKind &&

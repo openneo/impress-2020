@@ -352,7 +352,7 @@ function ItemsSearchField() {
 function NewItemsSectionContent() {
   const { loading, error, data } = useQuery(
     gql`
-      query NewItemsSection_NoAuthRequired {
+      query NewItemsSection {
         newestItems {
           id
           name

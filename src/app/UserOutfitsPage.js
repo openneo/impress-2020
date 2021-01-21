@@ -65,6 +65,7 @@ function UserOutfitsPageContent() {
         // NOTE: This parameter is used inside `OutfitThumbnailFragment`!
         size: "SIZE_" + getOutfitThumbnailRenderSize(),
       },
+      context: { sendAuth: true },
       skip: userLoading,
     }
   );
