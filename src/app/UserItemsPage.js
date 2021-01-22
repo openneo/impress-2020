@@ -97,7 +97,10 @@ function UserItemsPage() {
     return <Box color="red.400">{error.message}</Box>;
   }
 
-  if (data.user == null) {
+  // TODO: I'm not sure why, but apparently `data` is `undefined` in the user
+  //       not found case, even though the server is clearly returning
+  //       `{data: {user: null}}`? That's... weird, right? :/
+  if (data?.user == null) {
     return <Box color="red.400">User not found</Box>;
   }
 
