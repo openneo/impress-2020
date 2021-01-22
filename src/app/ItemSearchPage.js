@@ -26,6 +26,7 @@ function ItemSearchPage() {
         showItemsLabel
         background={brightBackground}
         boxShadow="md"
+        autoFocus
       />
       <Box height="6" />
       <ItemSearchPageResults query={query} />

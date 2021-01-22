@@ -42,6 +42,7 @@ function SearchToolbar({
   searchQueryRef,
   firstSearchResultRef,
   onChange,
+  autoFocus,
   showItemsLabel = false,
   background = null,
   boxShadow = null,
@@ -188,8 +189,12 @@ function SearchToolbar({
               <SearchIcon color="gray.400" />
             </InputLeftElement>
           )}
-          <Input background={background} {...inputProps} />
-          {(query.value || queryFilterText) && (
+          <Input
+            background={background}
+            autoFocus={autoFocus}
+            {...inputProps}
+          />
+          {!searchQueryIsEmpty(query) && (
             <InputRightElement>
               <IconButton
                 icon={<CloseIcon />}
