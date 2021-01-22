@@ -391,13 +391,17 @@ function getQueryFilterText(query) {
   }
 
   if (query.filterToCurrentUserOwnsOrWants === "OWNS") {
-    if (textWords.length === 0) {
+    if (!query.filterToItemKind && !query.filterToZoneLabel) {
       textWords.push("Items");
+    } else if (query.filterToItemKind && !query.filterToZoneLabel) {
+      textWords.push("items");
     }
     textWords.push("you own");
   } else if (query.filterToCurrentUserOwnsOrWants === "WANTS") {
-    if (textWords.length === 0) {
+    if (!query.filterToItemKind && !query.filterToZoneLabel) {
       textWords.push("Items");
+    } else if (query.filterToItemKind && !query.filterToZoneLabel) {
+      textWords.push("items");
     }
     textWords.push("you want");
   }
