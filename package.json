@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@apollo/client": "^3.1.1",
+    "@apollo/client": "^3.3.7",
     "@apollographql/graphql-playground-html": "^1.6.24",
     "@auth0/auth0-react": "^1.0.0",
     "@chakra-ui/icons": "^1.0.2",
