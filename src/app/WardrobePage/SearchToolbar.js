@@ -296,7 +296,7 @@ function getSuggestions(value, query, zoneLabels, isLoggedIn) {
   if (query.filterToZoneLabel == null) {
     for (const zoneLabel of zoneLabels) {
       if (wordMatches(zoneLabel, lastWord)) {
-        suggestions.push({ zoneLabel, text: zoneLabel });
+        suggestions.push({ zoneLabel, text: `Zone: ${zoneLabel}` });
       }
     }
   }
@@ -316,7 +316,7 @@ function getQueryFilterText(query) {
   }
 
   if (query.filterToZoneLabel) {
-    textWords.push(query.filterToZoneLabel);
+    textWords.push(pluralizeZoneLabel(query.filterToZoneLabel));
   }
 
   if (query.filterToCurrentUserOwnsOrWants === "OWNS") {
@@ -332,6 +332,22 @@ function getQueryFilterText(query) {
   }
 
   return textWords.join(" ");
+}
+
+/**
+ * pluralizeZoneLabel hackily tries to convert a zone name to a plural noun!
+ *
+ * HACK: It'd be more reliable and more translatable to do this by just
+ *       manually creating the plural for each zone. But, ehh! ¯\_ (ツ)_/¯
+ */
+function pluralizeZoneLabel(zoneLabel) {
+  if (zoneLabel.endsWith("ss")) {
+    return zoneLabel + "es";
+  } else if (zoneLabel.endsWith("s")) {
+    return zoneLabel;
+  } else {
+    return zoneLabel + "s";
+  }
 }
 
 export default SearchToolbar;
