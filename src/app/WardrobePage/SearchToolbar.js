@@ -22,6 +22,7 @@ import { ClassNames } from "@emotion/react";
 import Autosuggest from "react-autosuggest";
 
 import useCurrentUser from "../components/useCurrentUser";
+import { logAndCapture } from "../util";
 
 export const emptySearchQuery = {
   value: "",
@@ -192,12 +193,9 @@ function SearchToolbar({
         }
       }}
       onSuggestionSelected={(e, { suggestion }) => {
-        const valueWithoutLastWord = query.value
-          ? query.value.match(/^(.*?)\s*\S+$/)[1]
-          : query.value;
         onChange({
           ...query,
-          value: valueWithoutLastWord,
+          value: removeLastWord(query.value),
           filterToZoneLabel: suggestion.zoneLabel || query.filterToZoneLabel,
           filterToItemKind: suggestion.itemKind || query.filterToItemKind,
           filterToCurrentUserOwnsOrWants:
@@ -423,6 +421,29 @@ function pluralizeZoneLabel(zoneLabel) {
   } else {
     return zoneLabel + "s";
   }
+}
+
+/**
+ * removeLastWord returns a copy of the text, with the last word and any
+ * preceding space removed.
+ */
+function removeLastWord(text) {
+  // This regex matches the full text, and assigns the last word and any
+  // preceding text to subgroup 2, and all preceding text to subgroup 1. If
+  // there's no last word, we'll still match, and the full string will be in
+  // subgroup 1, including any space - no changes made!
+  const match = text.match(/^(.*?)(\s*\S+)?$/);
+  if (!match) {
+    logAndCapture(
+      new Error(
+        `Assertion failure: pattern should match any input text, ` +
+          `but failed to match ${JSON.stringify(text)}`
+      )
+    );
+    return text;
+  }
+
+  return match[1];
 }
 
 export default SearchToolbar;

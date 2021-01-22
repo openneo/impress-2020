@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, Heading, useColorModeValue } from "@chakra-ui/react";
 import loadableLibrary from "@loadable/component";
+import * as Sentry from "@sentry/react";
 
 /**
  * Delay hides its content at first, then shows it after the given delay.
@@ -316,4 +317,15 @@ export function loadable(load, options) {
       }),
     options
   );
+}
+
+/**
+ * logAndCapture will print an error to the console, and send it to Sentry.
+ *
+ * This is useful when there's a graceful recovery path, but it's still a
+ * genuinely unexpected error worth logging.
+ */
+export function logAndCapture(e) {
+  console.error(e);
+  Sentry.captureException(e);
 }
