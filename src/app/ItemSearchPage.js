@@ -170,6 +170,18 @@ function ItemSearchPageResults({ query: latestQuery }) {
     );
   }
 
+  if (data.itemSearch.items.length === 0) {
+    return (
+      <Box>
+        We couldn't find any matching items{" "}
+        <span role="img" aria-label="(thinking emoji)">
+          🤔
+        </span>{" "}
+        Try again?
+      </Box>
+    );
+  }
+
   return (
     <Box>
       <Wrap justify="center" spacing="4">
