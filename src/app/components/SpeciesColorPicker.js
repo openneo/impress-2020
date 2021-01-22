@@ -3,7 +3,7 @@ import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
 import { Box, Flex, Select, Text, useColorModeValue } from "@chakra-ui/react";
 
-import { Delay, useFetch } from "../util";
+import { Delay, logAndCapture, useFetch } from "../util";
 
 /**
  * SpeciesColorPicker lets the user pick the species/color of their pet.
@@ -267,7 +267,16 @@ function getPairByte(valids, speciesId, colorId) {
   const colorIndex = colorId - 1;
   const numColors = valids.getUint8(1);
   const pairByteIndex = speciesIndex * numColors + colorIndex + 2;
-  return valids.getUint8(pairByteIndex);
+  try {
+    return valids.getUint8(pairByteIndex);
+  } catch (e) {
+    logAndCapture(
+      new Error(
+        `Error loading valid poses for species=${speciesId}, color=${colorId}: ${e.message}`
+      )
+    );
+    return 0;
+  }
 }
 
 function pairIsValid(valids, speciesId, colorId) {
