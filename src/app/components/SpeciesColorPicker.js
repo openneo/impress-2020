@@ -148,7 +148,9 @@ function SpeciesColorPicker({
       <SpeciesColorSelect
         aria-label="Pet color"
         value={colorId}
-        isLoading={allColors.length === 0}
+        // We also wait for the valid pairs before enabling, so users can't
+        // trigger change events we're not ready for.
+        isLoading={allColors.length === 0 || loadingValids}
         isDisabled={isDisabled}
         onChange={onChangeColor}
         size={size}
@@ -179,7 +181,9 @@ function SpeciesColorPicker({
       <SpeciesColorSelect
         aria-label="Pet species"
         value={speciesId}
-        isLoading={allSpecies.length === 0}
+        // We also wait for the valid pairs before enabling, so users can't
+        // trigger change events we're not ready for.
+        isLoading={allSpecies.length === 0 || loadingValids}
         isDisabled={isDisabled}
         onChange={onChangeSpecies}
         size={size}
