@@ -91,14 +91,11 @@ function ItemSearchPageResults({ query: latestQuery }) {
   const query = useDebounce(latestQuery, 300, {
     waitForFirstPause: true,
     initialValue: emptySearchQuery,
-  });
 
-  // We'll skip all this if the query is empty. We also check the latest query
-  // for this, without waiting for the debounce, in order to get fast feedback
-  // when clearing the query. But we _do_ still check the debounced query too,
-  // which gives us _slow_ feedback when moving from empty to _non_-empty.
-  const skipSearchResults =
-    searchQueryIsEmpty(query) || searchQueryIsEmpty(latestQuery);
+    // When the query is empty, clear the debounced query immediately too! That
+    // will give us fast feedback when the search field clears.
+    forceReset: searchQueryIsEmpty(latestQuery),
+  });
 
   // NOTE: This query should always load ~instantly, from the client cache.
   const { data: zoneData } = useQuery(gql`
@@ -147,11 +144,11 @@ function ItemSearchPageResults({ query: latestQuery }) {
         zoneIds: filterToZoneIds,
       },
       context: { sendAuth: true },
-      skip: skipSearchResults,
+      skip: searchQueryIsEmpty(query),
     }
   );
 
-  if (skipSearchResults) {
+  if (searchQueryIsEmpty(query)) {
     return null;
   }
 
