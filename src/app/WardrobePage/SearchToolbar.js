@@ -195,7 +195,11 @@ function SearchToolbar({
       onSuggestionSelected={(e, { suggestion }) => {
         onChange({
           ...query,
-          value: removeLastWord(query.value),
+          // If the suggestion was from typing, remove the last word of the
+          // query value. Or, if it was from Advanced Search, leave it alone!
+          value: advancedSearchIsOpen
+            ? query.value
+            : removeLastWord(query.value),
           filterToZoneLabel: suggestion.zoneLabel || query.filterToZoneLabel,
           filterToItemKind: suggestion.itemKind || query.filterToItemKind,
           filterToCurrentUserOwnsOrWants:
