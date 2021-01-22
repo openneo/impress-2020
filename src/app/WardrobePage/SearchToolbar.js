@@ -192,8 +192,9 @@ function SearchToolbar({
         }
       }}
       onSuggestionSelected={(e, { suggestion }) => {
-        const valueWithoutLastWord =
-          query.value.match(/^(.*?)\s*\S+$/)?.[1] || query.value;
+        const valueWithoutLastWord = query.value
+          ? query.value.match(/^(.*?)\s*\S+$/)[1]
+          : query.value;
         onChange({
           ...query,
           value: valueWithoutLastWord,
