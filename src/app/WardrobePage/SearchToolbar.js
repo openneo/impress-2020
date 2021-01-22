@@ -9,9 +9,15 @@ import {
   InputLeftAddon,
   InputLeftElement,
   InputRightElement,
+  Tooltip,
   useColorModeValue,
 } from "@chakra-ui/react";
-import { CloseIcon, SearchIcon } from "@chakra-ui/icons";
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  CloseIcon,
+  SearchIcon,
+} from "@chakra-ui/icons";
 import { ClassNames } from "@emotion/react";
 import Autosuggest from "react-autosuggest";
 
@@ -48,6 +54,7 @@ function SearchToolbar({
   boxShadow = null,
 }) {
   const [suggestions, setSuggestions] = React.useState([]);
+  const [advancedSearchIsOpen, setAdvancedSearchIsOpen] = React.useState(false);
   const { isLoggedIn } = useCurrentUser();
 
   // NOTE: This query should always load ~instantly, from the client cache.
@@ -103,8 +110,9 @@ function SearchToolbar({
               {...otherContainerProps}
               borderBottomRadius="md"
               boxShadow="md"
-              overflow="hidden"
+              overflow="auto"
               transition="all 0.4s"
+              maxHeight="48"
               className={cx(
                 className,
                 css`
@@ -115,12 +123,22 @@ function SearchToolbar({
               )}
             >
               {children}
+              {!children && advancedSearchIsOpen && (
+                <Box
+                  padding="4"
+                  fontSize="sm"
+                  fontStyle="italic"
+                  textAlign="center"
+                >
+                  No more filters available!
+                </Box>
+              )}
             </Box>
           )}
         </ClassNames>
       );
     },
-    []
+    [advancedSearchIsOpen]
   );
 
   // When we change the query filters, clear out the suggestions.
@@ -148,11 +166,23 @@ function SearchToolbar({
     );
   }
 
+  const allSuggestions = getSuggestions(null, query, zoneLabels, isLoggedIn, {
+    showAll: true,
+  });
+
+  // Once you remove the final suggestion available, close Advanced Search. We
+  // have placeholder text available, sure, but this feels more natural!
+  React.useEffect(() => {
+    if (allSuggestions.length === 0) {
+      setAdvancedSearchIsOpen(false);
+    }
+  }, [allSuggestions.length]);
+
   const focusBorderColor = useColorModeValue("green.600", "green.400");
 
   return (
     <Autosuggest
-      suggestions={suggestions}
+      suggestions={advancedSearchIsOpen ? allSuggestions : suggestions}
       onSuggestionsFetchRequested={({ value }) => {
         // HACK: I'm not sure why, but apparently this gets called with value
         //       set to the _chosen suggestion_ after choosing it? Has that
@@ -162,7 +192,8 @@ function SearchToolbar({
         }
       }}
       onSuggestionSelected={(e, { suggestion }) => {
-        const valueWithoutLastWord = query.value.match(/^(.*?)\s*\S+$/)[1];
+        const valueWithoutLastWord =
+          query.value.match(/^(.*?)\s*\S+$/)?.[1] || query.value;
         onChange({
           ...query,
           value: valueWithoutLastWord,
@@ -194,24 +225,45 @@ function SearchToolbar({
             autoFocus={autoFocus}
             {...inputProps}
           />
-          {!searchQueryIsEmpty(query) && (
-            <InputRightElement>
+          <InputRightElement
+            width="auto"
+            justifyContent="flex-end"
+            paddingRight="2px"
+            paddingY="2px"
+          >
+            {!searchQueryIsEmpty(query) && (
+              <Tooltip label="Clear">
+                <IconButton
+                  icon={<CloseIcon fontSize="0.6em" />}
+                  color="gray.400"
+                  variant="ghost"
+                  height="100%"
+                  marginLeft="1"
+                  aria-label="Clear search"
+                  onClick={() => {
+                    setSuggestions([]);
+                    onChange(emptySearchQuery);
+                  }}
+                />
+              </Tooltip>
+            )}
+            <Tooltip label="Advanced search">
               <IconButton
-                icon={<CloseIcon />}
+                icon={
+                  advancedSearchIsOpen ? (
+                    <ChevronUpIcon fontSize="1.5em" />
+                  ) : (
+                    <ChevronDownIcon fontSize="1.5em" />
+                  )
+                }
                 color="gray.400"
                 variant="ghost"
-                colorScheme="green"
-                aria-label="Clear search"
-                onClick={() => {
-                  setSuggestions([]);
-                  onChange(emptySearchQuery);
-                }}
-                // Big style hacks here!
-                height="calc(100% - 2px)"
-                marginRight="2px"
+                height="100%"
+                aria-label="Open advanced search"
+                onClick={() => setAdvancedSearchIsOpen((isOpen) => !isOpen)}
               />
-            </InputRightElement>
-          )}
+            </Tooltip>
+          </InputRightElement>
         </InputGroup>
       )}
       inputProps={{
@@ -256,46 +308,64 @@ function SearchToolbar({
   );
 }
 
-function getSuggestions(value, query, zoneLabels, isLoggedIn) {
-  if (!value) {
+function getSuggestions(
+  value,
+  query,
+  zoneLabels,
+  isLoggedIn,
+  { showAll = false } = {}
+) {
+  if (!value && !showAll) {
     return [];
   }
 
-  const words = value.split(/\s+/);
+  const words = (value || "").split(/\s+/);
   const lastWord = words[words.length - 1];
-  if (lastWord.length < 2) {
+  if (lastWord.length < 2 && !showAll) {
     return [];
   }
 
   const suggestions = [];
 
   if (query.filterToItemKind == null) {
-    if (wordMatches("NC", lastWord) || wordMatches("Neocash", lastWord)) {
+    if (
+      wordMatches("NC", lastWord) ||
+      wordMatches("Neocash", lastWord) ||
+      showAll
+    ) {
       suggestions.push({ itemKind: "NC", text: "Neocash items" });
     }
 
-    if (wordMatches("NP", lastWord) || wordMatches("Neopoints", lastWord)) {
+    if (
+      wordMatches("NP", lastWord) ||
+      wordMatches("Neopoints", lastWord) ||
+      showAll
+    ) {
       suggestions.push({ itemKind: "NP", text: "Neopoint items" });
     }
 
-    if (wordMatches("PB", lastWord) || wordMatches("Paintbrush", lastWord)) {
+    if (
+      wordMatches("PB", lastWord) ||
+      wordMatches("Paintbrush", lastWord) ||
+      showAll
+    ) {
       suggestions.push({ itemKind: "PB", text: "Paintbrush items" });
     }
   }
 
   if (isLoggedIn && query.filterToCurrentUserOwnsOrWants == null) {
-    if (wordMatches("Items you own", lastWord)) {
+    if (wordMatches("Items you own", lastWord) || showAll) {
       suggestions.push({ userOwnsOrWants: "OWNS", text: "Items you own" });
     }
 
-    if (wordMatches("Items you want", lastWord)) {
+    if (wordMatches("Items you want", lastWord) || showAll) {
       suggestions.push({ userOwnsOrWants: "WANTS", text: "Items you want" });
     }
   }
 
   if (query.filterToZoneLabel == null) {
     for (const zoneLabel of zoneLabels) {
-      if (wordMatches(zoneLabel, lastWord)) {
+      if (wordMatches(zoneLabel, lastWord) || showAll) {
         suggestions.push({ zoneLabel, text: `Zone: ${zoneLabel}` });
       }
     }
