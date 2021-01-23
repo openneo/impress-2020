@@ -1,6 +1,7 @@
 import React from "react";
+import { useToast } from "@chakra-ui/react";
 
-import { loadImage, safeImageUrl } from "../util";
+import { loadImage, logAndCapture, safeImageUrl } from "../util";
 
 function OutfitMovieLayer({
   libraryUrl,
@@ -13,6 +14,8 @@ function OutfitMovieLayer({
   const [library, setLibrary] = React.useState(null);
   const [movieClip, setMovieClip] = React.useState(null);
   const canvasRef = React.useRef(null);
+  const hasShownErrorMessageRef = React.useRef(false);
+  const toast = useToast();
 
   const loadingDeps = useEaselDependenciesLoader();
 
@@ -20,6 +23,39 @@ function OutfitMovieLayer({
   // DPI like retina. But we'll keep the layout width/height as expected!
   const internalWidth = width * window.devicePixelRatio;
   const internalHeight = height * window.devicePixelRatio;
+
+  const updateStage = React.useCallback(() => {
+    if (!stage) {
+      return;
+    }
+
+    try {
+      stage.update();
+    } catch (e) {
+      // If rendering the frame fails, log it and proceed. If it's an
+      // animation, then maybe the next frame will work? Also alert the user,
+      // just as an FYI. (This is pretty uncommon, so I'm not worried about
+      // being noisy!)
+      if (!hasShownErrorMessageRef.current) {
+        console.error(`Error rendering movie clip ${libraryUrl}`);
+        logAndCapture(e);
+        toast({
+          status: "error",
+          title:
+            "Hmm, we're maybe having trouble playing one of these animations.",
+          description:
+            "If it looks wrong, try pausing and playing, or reloading the " +
+            "page. Sorry!",
+          duration: 10000,
+          isClosable: true,
+        });
+        // We do this via a ref, not state, because I want to guarantee that
+        // future calls see the new value. With state, React's effects might
+        // not happen in the right order for it to work!
+        hasShownErrorMessageRef.current = true;
+      }
+    }
+  }, [stage, toast, libraryUrl]);
 
   // This effect gives us a `stage` corresponding to the canvas element.
   React.useLayoutEffect(() => {
@@ -78,7 +114,7 @@ function OutfitMovieLayer({
 
     // Render the movie's first frame. If it's animated and we're not paused,
     // then another effect will perform subsequent updates.
-    stage.update();
+    updateStage();
 
     // This is when we trigger `onLoad`: once we're actually showing it!
     if (onLoad) {
@@ -86,7 +122,7 @@ function OutfitMovieLayer({
     }
 
     return () => stage.removeChild(movieClip);
-  }, [stage, movieClip, onLoad]);
+  }, [stage, updateStage, movieClip, onLoad]);
 
   // This effect updates the `stage` according to the `library`'s framerate,
   // but only if there's actual animation to do - i.e., there's more than one
@@ -101,11 +137,11 @@ function OutfitMovieLayer({
     }
 
     const intervalId = setInterval(
-      () => stage.update(),
+      () => updateStage(),
       1000 / library.properties.fps
     );
     return () => clearInterval(intervalId);
-  }, [stage, movieClip, library, isPaused]);
+  }, [stage, updateStage, movieClip, library, isPaused]);
 
   // This effect keeps the `movieClip` scaled correctly, based on the canvas
   // size and the `library`'s natural size declaration. (If the canvas size
@@ -124,9 +160,9 @@ function OutfitMovieLayer({
     // really-paused if we're paused, and avoids skipping ahead by a frame if
     // we're playing.
     stage.tickOnUpdate = false;
-    stage.update();
+    updateStage();
     stage.tickOnUpdate = true;
-  }, [stage, library, movieClip, internalWidth, internalHeight]);
+  }, [stage, updateStage, library, movieClip, internalWidth, internalHeight]);
 
   return (
     <canvas
