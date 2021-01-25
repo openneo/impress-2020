@@ -31,7 +31,7 @@ import { useQuery, useMutation } from "@apollo/client";
 import { Link, useParams } from "react-router-dom";
 
 import ItemPageLayout, { SubtleSkeleton } from "./ItemPageLayout";
-import { Delay, ErrorMessage, usePageTitle } from "./util";
+import { Delay, usePageTitle } from "./util";
 import {
   itemAppearanceFragment,
   petAppearanceFragment,
