@@ -82,6 +82,12 @@ function SpeciesColorPicker({
   // outfit if so!
   const onChangeColor = (e) => {
     const newColorId = e.target.value;
+    console.debug(`SpeciesColorPicker.onChangeColor`, {
+      // for IMPRESS-2020-1H
+      speciesId,
+      colorId,
+      newColorId,
+    });
 
     const species = allSpecies.find((s) => s.id === speciesId);
     const newColor = allColors.find((c) => c.id === newColorId);
@@ -89,10 +95,14 @@ function SpeciesColorPicker({
     const isValid = validPoses.size > 0;
     if (stateMustAlwaysBeValid && !isValid) {
       // NOTE: This shouldn't happen, because we should hide invalid colors.
-      console.error(
-        `Assertion error in SpeciesColorPicker: Entered an invalid state, ` +
-          `with prop stateMustAlwaysBeValid.`
+      logAndCapture(
+        new Error(
+          `Assertion error in SpeciesColorPicker: Entered an invalid state, ` +
+            `with prop stateMustAlwaysBeValid: speciesId=${speciesId}, ` +
+            `colorId=${newColorId}.`
+        )
       );
+      return;
     }
     const closestPose = getClosestPose(validPoses, idealPose);
     onChange(species, newColor, isValid, closestPose);
@@ -102,8 +112,28 @@ function SpeciesColorPicker({
   // outfit if so!
   const onChangeSpecies = (e) => {
     const newSpeciesId = e.target.value;
+    console.debug(`SpeciesColorPicker.onChangeSpecies`, {
+      // for IMPRESS-2020-1H
+      speciesId,
+      newSpeciesId,
+      colorId,
+    });
 
     const newSpecies = allSpecies.find((s) => s.id === newSpeciesId);
+    if (!newSpecies) {
+      // Trying to isolate Sentry issue IMPRESS-2020-1H, where an empty species
+      // ends up coming out of `onChange`!
+      console.debug({ allSpecies, loadingMeta, errorMeta, meta });
+      logAndCapture(
+        new Error(
+          `Assertion error in SpeciesColorPicker: species not found. ` +
+            `speciesId=${speciesId}, newSpeciesId=${newSpeciesId}, ` +
+            `colorId=${colorId}.`
+        )
+      );
+      return;
+    }
+
     let color = allColors.find((c) => c.id === colorId);
     let validPoses = getValidPoses(valids, newSpeciesId, colorId);
     let isValid = validPoses.size > 0;
