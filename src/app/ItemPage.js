@@ -22,6 +22,7 @@ import {
 import {
   CheckIcon,
   ChevronRightIcon,
+  EditIcon,
   StarIcon,
   WarningIcon,
 } from "@chakra-ui/icons";
@@ -631,6 +632,12 @@ function ItemPageOutfitPreview({ itemId }) {
               engine="canvas"
               onChangeHasAnimations={setHasAnimations}
             />
+            <CustomizeMoreButton
+              speciesId={petState.speciesId}
+              colorId={petState.colorId}
+              pose={petState.pose}
+              itemId={itemId}
+            />
             {hasAnimations && (
               <PlayPauseButton
                 isPaused={isPaused}
@@ -695,6 +702,36 @@ function ItemPageOutfitPreview({ itemId }) {
         />
       </Box>
     </Stack>
+  );
+}
+
+function CustomizeMoreButton({ speciesId, colorId, pose, itemId }) {
+  const url =
+    `/outfits/new?species=${speciesId}&color=${colorId}&pose=${pose}&` +
+    `objects[]=${itemId}`;
+
+  // The default background is good in light mode, but in dark mode it's a
+  // very subtle transparent white... make it a semi-transparent black, for
+  // better contrast against light-colored background items!
+  const backgroundColor = useColorModeValue(undefined, "blackAlpha.600");
+  const backgroundColorHover = useColorModeValue(undefined, "blackAlpha.700");
+
+  return (
+    <Tooltip label="Customize more" placement="left" colorScheme="white">
+      <IconButton
+        as={Link}
+        to={url}
+        icon={<EditIcon />}
+        position="absolute"
+        top="2"
+        right="2"
+        size="sm"
+        background={backgroundColor}
+        _hover={{ backgroundColor: backgroundColorHover }}
+        _focus={{ backgroundColor: backgroundColorHover }}
+        boxShadow="sm"
+      />
+    </Tooltip>
   );
 }
 
