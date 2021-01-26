@@ -326,8 +326,10 @@ export function loadable(load, options) {
   return loadableLibrary(
     () =>
       load().catch((e) => {
-        console.error("Error loading page, reloading", e);
+        console.error("Error loading page, reloading:", e);
         window.location.reload();
+        // Return a component that renders nothing, while we reload!
+        return () => null;
       }),
     options
   );

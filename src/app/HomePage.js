@@ -236,7 +236,11 @@ function SubmitPetForm() {
 
     // Start preloading the WardrobePage, too!
     // eslint-disable-next-line no-unused-expressions
-    import("./WardrobePage");
+    import("./WardrobePage").catch((e) => {
+      // Let's just let this slide, because it's a preload error. Critical
+      // failures will happen elsewhere, and trigger reloads!
+      console.error(e);
+    });
   };
 
   const { brightBackground } = useCommonStyles();

@@ -1,0 +1,11 @@
+{
+  "routes": [
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/static/js/[^.]*\\.[^.]*\\.chunk.js",
+      "status": 404
+    }
+  ]
+}
