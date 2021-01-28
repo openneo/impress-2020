@@ -399,10 +399,10 @@ export function PosePickerSupportSwitch({ isChecked, onChange }) {
 
 const POSE_NAMES = {
   HAPPY_MASC: "Happy Masc",
-  SAD_MASC: "Sad Masc",
-  SICK_MASC: "Sick Masc",
   HAPPY_FEM: "Happy Fem",
+  SAD_MASC: "Sad Masc",
   SAD_FEM: "Sad Fem",
+  SICK_MASC: "Sick Masc",
   SICK_FEM: "Sick Fem",
   UNCONVERTED: "Unconverted",
   UNKNOWN: "Unknown",
