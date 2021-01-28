@@ -14,6 +14,7 @@ import {
   VisuallyHidden,
   useColorModeValue,
   useTheme,
+  useToast,
 } from "@chakra-ui/react";
 import { loadable } from "../util";
 
@@ -71,6 +72,7 @@ function PosePicker({
     false
   );
   const { isSupportUser } = useSupport();
+  const toast = useToast();
 
   // Resize the Popover when we toggle support mode, because it probably will
   // affect the content size.
@@ -81,6 +83,52 @@ function PosePicker({
     //       https://github.com/chakra-ui/chakra-ui/issues/1853
     window.dispatchEvent(new Event("resize"));
   }, [isInSupportMode]);
+
+  // Generally, the app tries to never put us in an invalid pose state. But it
+  // can happen with direct URL navigation, or pet loading when modeling isn't
+  // updated! Let's do some recovery.
+  const selectedPoseIsAvailable = Object.values(poseInfos).some(
+    (pi) => pi.isSelected && pi.isAvailable
+  );
+  const firstAvailablePose = Object.values(poseInfos).find(
+    (pi) => pi.isAvailable
+  )?.pose;
+  React.useEffect(() => {
+    if (loading) {
+      return;
+    }
+
+    if (!selectedPoseIsAvailable) {
+      if (!firstAvailablePose) {
+        // TODO: I suppose this error would fit better in SpeciesColorPicker!
+        toast({
+          status: "error",
+          title: "Oops, we don't have data for this pet color!",
+          description:
+            "If it's new, this might be a modeling issue—try modeling it on " +
+            "Classic DTI first. Sorry!",
+          duration: null,
+          isClosable: true,
+        });
+        return;
+      }
+
+      console.warn(
+        `Pose ${pose} not found for speciesId=${speciesId}, ` +
+          `colorId=${colorId}. Redirecting to pose ${firstAvailablePose}.`
+      );
+      dispatchToOutfit({ type: "setPose", pose: firstAvailablePose });
+    }
+  }, [
+    loading,
+    selectedPoseIsAvailable,
+    firstAvailablePose,
+    speciesId,
+    colorId,
+    pose,
+    toast,
+    dispatchToOutfit,
+  ]);
 
   if (loading) {
     return null;
@@ -519,6 +567,13 @@ function usePoses(speciesId, colorId, selectedPose) {
         ) {
           ...PetAppearanceForPosePicker
         }
+        unknown: petAppearance(
+          speciesId: $speciesId
+          colorId: $colorId
+          pose: UNKNOWN
+        ) {
+          ...PetAppearanceForPosePicker
+        }
       }
 
       fragment PetAppearanceForPosePicker on PetAppearance {
@@ -529,7 +584,7 @@ function usePoses(speciesId, colorId, selectedPose) {
       }
       ${petAppearanceFragment}
     `,
-    { variables: { speciesId, colorId } }
+    { variables: { speciesId, colorId }, onError: (e) => console.error(e) }
   );
 
   const poseInfos = {
@@ -574,6 +629,12 @@ function usePoses(speciesId, colorId, selectedPose) {
       pose: "UNCONVERTED",
       isAvailable: Boolean(data?.unconverted),
       isSelected: selectedPose === "UNCONVERTED",
+    },
+    unknown: {
+      ...data?.unknown,
+      pose: "UNKNOWN",
+      isAvailable: Boolean(data?.unknown),
+      isSelected: selectedPose === "UNKNOWN",
     },
   };
 
