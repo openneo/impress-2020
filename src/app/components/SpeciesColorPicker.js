@@ -179,8 +179,11 @@ function SpeciesColorPicker({
         aria-label="Pet color"
         value={colorId}
         // We also wait for the valid pairs before enabling, so users can't
-        // trigger change events we're not ready for.
-        isLoading={allColors.length === 0 || loadingValids}
+        // trigger change events we're not ready for. Also, if the caller
+        // hasn't provided species and color yet, assume it's still loading.
+        isLoading={
+          allColors.length === 0 || loadingValids || !speciesId || !colorId
+        }
         isDisabled={isDisabled}
         onChange={onChangeColor}
         size={size}
