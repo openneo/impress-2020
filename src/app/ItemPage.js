@@ -754,12 +754,7 @@ function PlayPauseButton({ isPaused, onClick }) {
   );
 }
 
-function SpeciesFacesPicker({
-  itemId,
-  selectedSpeciesId,
-  onChange,
-  isLoading,
-}) {
+function SpeciesFacesPicker({ selectedSpeciesId, onChange, isLoading }) {
   const selectedBorderColor = useColorModeValue("green.600", "green.400");
   const selectedBackgroundColor = useColorModeValue("green.200", "green.600");
   const [
@@ -783,55 +778,61 @@ function SpeciesFacesPicker({
           overflow={{ base: "auto", md: "visible" }}
           padding={{ base: "8px", md: "0" }}
         >
-          {allSpeciesFaces.map(({ speciesId, speciesName, colorId, src }) => (
-            <WrapItem
-              key={speciesId}
-              as="label"
-              cursor={isLoading ? "wait" : "pointer"}
-              position="relative"
-            >
-              <VisuallyHidden
-                as="input"
-                type="radio"
-                aria-label={speciesName}
-                name="species-faces-picker"
-                value={speciesId}
-                checked={speciesId === selectedSpeciesId}
-                disabled={isLoading}
-                onChange={() => onChange({ speciesId, colorId })}
-              />
-              <Box
-                overflow="hidden"
-                transition="all 0.2s"
-                className={css`
-                  input:checked + & {
-                    background: ${selectedBackgroundColorValue};
-                    border-radius: 6px;
-                    box-shadow: ${selectedBorderColorValue} 0 0 0 3px;
-                    transform: scale(1.2);
-                    z-index: 1;
-                  }
-                `}
+          {allSpeciesFaces.map(
+            ({ speciesId, speciesName, colorId, neopetsImageHash }) => (
+              <WrapItem
+                key={speciesId}
+                as="label"
+                cursor={isLoading ? "wait" : "pointer"}
+                position="relative"
               >
+                <VisuallyHidden
+                  as="input"
+                  type="radio"
+                  aria-label={speciesName}
+                  name="species-faces-picker"
+                  value={speciesId}
+                  checked={speciesId === selectedSpeciesId}
+                  disabled={isLoading}
+                  onChange={() => onChange({ speciesId, colorId })}
+                />
                 <Box
-                  as="img"
-                  src={src}
-                  alt={speciesName}
-                  width={50}
-                  height={50}
-                  filter="saturate(90%)"
-                  opacity="0.9"
+                  overflow="hidden"
                   transition="all 0.2s"
                   className={css`
-                    input:checked + * > & {
-                      opacity: 1;
-                      filter: saturate(110%);
+                    input:checked + & {
+                      background: ${selectedBackgroundColorValue};
+                      border-radius: 6px;
+                      box-shadow: ${selectedBorderColorValue} 0 0 0 3px;
+                      transform: scale(1.2);
+                      z-index: 1;
                     }
                   `}
-                />
-              </Box>
-            </WrapItem>
-          ))}
+                >
+                  <Box
+                    as="img"
+                    src={`https://pets.neopets-asset-proxy.openneo.net/cp/${neopetsImageHash}/1/1.png`}
+                    srcSet={
+                      `https://pets.neopets-asset-proxy.openneo.net/cp/${neopetsImageHash}/1/1.png 1x, ` +
+                      `https://pets.neopets-asset-proxy.openneo.net/cp/${neopetsImageHash}/1/6.png 2x`
+                    }
+                    alt={speciesName}
+                    width={50}
+                    height={50}
+                    filter="saturate(90%)"
+                    opacity="0.9"
+                    transition="all 0.2s"
+                    className={css`
+                      input:checked + * > & {
+                        opacity: 1;
+                        filter: saturate(110%);
+                      }
+                    `}
+                  />
+                </Box>
+              </WrapItem>
+            )
+          )}
         </Wrap>
       )}
     </ClassNames>
@@ -847,331 +848,331 @@ const colors = { BLUE: "8", RED: "61", GREEN: "34", YELLOW: "84" };
 const speciesFaces = [
   {
     speciesId: "1",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/obxdjm88/1/1.png",
+    neopetsImageHash: "obxdjm88",
     colorId: colors.GREEN,
     speciesName: "Acara",
   },
   {
     speciesId: "2",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/n9ozx4z5/1/1.png",
+    neopetsImageHash: "n9ozx4z5",
     colorId: colors.BLUE,
     speciesName: "Aisha",
   },
   {
     speciesId: "3",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/kfonqhdc/1/1.png",
+    neopetsImageHash: "kfonqhdc",
     colorId: colors.YELLOW,
     speciesName: "Blumaroo",
   },
   {
     speciesId: "4",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/sc2hhvhn/1/1.png",
+    neopetsImageHash: "sc2hhvhn",
     colorId: colors.YELLOW,
     speciesName: "Bori",
   },
   {
     speciesId: "5",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/wqz8xn4t/1/1.png",
+    neopetsImageHash: "wqz8xn4t",
     colorId: colors.YELLOW,
     speciesName: "Bruce",
   },
   {
     speciesId: "6",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/jc9klfxm/1/1.png",
+    neopetsImageHash: "jc9klfxm",
     colorId: colors.YELLOW,
     speciesName: "Buzz",
   },
   {
     speciesId: "7",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/4lrb4n3f/1/1.png",
+    neopetsImageHash: "4lrb4n3f",
     colorId: colors.RED,
     speciesName: "Chia",
   },
   {
     speciesId: "8",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/bdml26md/1/1.png",
+    neopetsImageHash: "bdml26md",
     colorId: colors.YELLOW,
     speciesName: "Chomby",
   },
   {
     speciesId: "9",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/xl6msllv/1/1.png",
+    neopetsImageHash: "xl6msllv",
     colorId: colors.GREEN,
     speciesName: "Cybunny",
   },
   {
     speciesId: "10",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/bob39shq/1/1.png",
+    neopetsImageHash: "bob39shq",
     colorId: colors.YELLOW,
     speciesName: "Draik",
   },
   {
     speciesId: "11",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/jhhhbrww/1/1.png",
+    neopetsImageHash: "jhhhbrww",
     colorId: colors.RED,
     speciesName: "Elephante",
   },
   {
     speciesId: "12",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/6kngmhvs/1/1.png",
+    neopetsImageHash: "6kngmhvs",
     colorId: colors.RED,
     speciesName: "Eyrie",
   },
   {
     speciesId: "13",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/47vt32x2/1/1.png",
+    neopetsImageHash: "47vt32x2",
     colorId: colors.GREEN,
     speciesName: "Flotsam",
   },
   {
     speciesId: "14",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/5nrd2lvd/1/1.png",
+    neopetsImageHash: "5nrd2lvd",
     colorId: colors.YELLOW,
     speciesName: "Gelert",
   },
   {
     speciesId: "15",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/6c275jcg/1/1.png",
+    neopetsImageHash: "6c275jcg",
     colorId: colors.BLUE,
     speciesName: "Gnorbu",
   },
   {
     speciesId: "16",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/j7q65fv4/1/1.png",
+    neopetsImageHash: "j7q65fv4",
     colorId: colors.BLUE,
     speciesName: "Grarrl",
   },
   {
     speciesId: "17",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/5xn4kjf8/1/1.png",
+    neopetsImageHash: "5xn4kjf8",
     colorId: colors.GREEN,
     speciesName: "Grundo",
   },
   {
     speciesId: "18",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/jsfvcqwt/1/1.png",
+    neopetsImageHash: "jsfvcqwt",
     colorId: colors.RED,
     speciesName: "Hissi",
   },
   {
     speciesId: "19",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/w32r74vo/1/1.png",
+    neopetsImageHash: "w32r74vo",
     colorId: colors.GREEN,
     speciesName: "Ixi",
   },
   {
     speciesId: "20",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/kz43rnld/1/1.png",
+    neopetsImageHash: "kz43rnld",
     colorId: colors.YELLOW,
     speciesName: "Jetsam",
   },
   {
     speciesId: "21",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/m267j935/1/1.png",
+    neopetsImageHash: "m267j935",
     colorId: colors.GREEN,
     speciesName: "Jubjub",
   },
   {
     speciesId: "22",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/4gsrb59g/1/1.png",
+    neopetsImageHash: "4gsrb59g",
     colorId: colors.YELLOW,
     speciesName: "Kacheek",
   },
   {
     speciesId: "23",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/ktlxmrtr/1/1.png",
+    neopetsImageHash: "ktlxmrtr",
     colorId: colors.BLUE,
     speciesName: "Kau",
   },
   {
     speciesId: "24",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/42j5q3zx/1/1.png",
+    neopetsImageHash: "42j5q3zx",
     colorId: colors.GREEN,
     speciesName: "Kiko",
   },
   {
     speciesId: "25",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/ncfn87wk/1/1.png",
+    neopetsImageHash: "ncfn87wk",
     colorId: colors.GREEN,
     speciesName: "Koi",
   },
   {
     speciesId: "26",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/omx9c876/1/1.png",
+    neopetsImageHash: "omx9c876",
     colorId: colors.RED,
     speciesName: "Korbat",
   },
   {
     speciesId: "27",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/rfsbh59t/1/1.png",
+    neopetsImageHash: "rfsbh59t",
     colorId: colors.BLUE,
     speciesName: "Kougra",
   },
   {
     speciesId: "28",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/hxgsm5d4/1/1.png",
+    neopetsImageHash: "hxgsm5d4",
     colorId: colors.BLUE,
     speciesName: "Krawk",
   },
   {
     speciesId: "29",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/blxmjgbk/1/1.png",
+    neopetsImageHash: "blxmjgbk",
     colorId: colors.YELLOW,
     speciesName: "Kyrii",
   },
   {
     speciesId: "30",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/8r94jhfq/1/1.png",
+    neopetsImageHash: "8r94jhfq",
     colorId: colors.YELLOW,
     speciesName: "Lenny",
   },
   {
     speciesId: "31",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/z42535zh/1/1.png",
+    neopetsImageHash: "z42535zh",
     colorId: colors.YELLOW,
     speciesName: "Lupe",
   },
   {
     speciesId: "32",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/qgg6z8s7/1/1.png",
+    neopetsImageHash: "qgg6z8s7",
     colorId: colors.BLUE,
     speciesName: "Lutari",
   },
   {
     speciesId: "33",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/kk2nn2jr/1/1.png",
+    neopetsImageHash: "kk2nn2jr",
     colorId: colors.YELLOW,
     speciesName: "Meerca",
   },
   {
     speciesId: "34",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/jgkoro5z/1/1.png",
+    neopetsImageHash: "jgkoro5z",
     colorId: colors.GREEN,
     speciesName: "Moehog",
   },
   {
     speciesId: "35",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/xwlo9657/1/1.png",
+    neopetsImageHash: "xwlo9657",
     colorId: colors.BLUE,
     speciesName: "Mynci",
   },
   {
     speciesId: "36",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/bx7fho8x/1/1.png",
+    neopetsImageHash: "bx7fho8x",
     colorId: colors.BLUE,
     speciesName: "Nimmo",
   },
   {
     speciesId: "37",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/rjzmx24v/1/1.png",
+    neopetsImageHash: "rjzmx24v",
     colorId: colors.YELLOW,
     speciesName: "Ogrin",
   },
   {
     speciesId: "38",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/kokc52kh/1/1.png",
+    neopetsImageHash: "kokc52kh",
     colorId: colors.RED,
     speciesName: "Peophin",
   },
   {
     speciesId: "39",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/fw6lvf3c/1/1.png",
+    neopetsImageHash: "fw6lvf3c",
     colorId: colors.GREEN,
     speciesName: "Poogle",
   },
   {
     speciesId: "40",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/tjhwbro3/1/1.png",
+    neopetsImageHash: "tjhwbro3",
     colorId: colors.RED,
     speciesName: "Pteri",
   },
   {
     speciesId: "41",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/jdto7mj4/1/1.png",
+    neopetsImageHash: "jdto7mj4",
     colorId: colors.YELLOW,
     speciesName: "Quiggle",
   },
   {
     speciesId: "42",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/qsgbm5f6/1/1.png",
+    neopetsImageHash: "qsgbm5f6",
     colorId: colors.BLUE,
     speciesName: "Ruki",
   },
   {
     speciesId: "43",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/hkjoncsx/1/1.png",
+    neopetsImageHash: "hkjoncsx",
     colorId: colors.RED,
     speciesName: "Scorchio",
   },
   {
     speciesId: "44",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/mmvn4tkg/1/1.png",
+    neopetsImageHash: "mmvn4tkg",
     colorId: colors.YELLOW,
     speciesName: "Shoyru",
   },
   {
     speciesId: "45",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/fc4cxk3t/1/1.png",
+    neopetsImageHash: "fc4cxk3t",
     colorId: colors.RED,
     speciesName: "Skeith",
   },
   {
     speciesId: "46",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/84gvowmj/1/1.png",
+    neopetsImageHash: "84gvowmj",
     colorId: colors.YELLOW,
     speciesName: "Techo",
   },
   {
     speciesId: "47",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/jd433863/1/1.png",
+    neopetsImageHash: "jd433863",
     colorId: colors.BLUE,
     speciesName: "Tonu",
   },
   {
     speciesId: "48",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/q39wn6vq/1/1.png",
+    neopetsImageHash: "q39wn6vq",
     colorId: colors.YELLOW,
     speciesName: "Tuskaninny",
   },
   {
     speciesId: "49",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/njzvoflw/1/1.png",
+    neopetsImageHash: "njzvoflw",
     colorId: colors.GREEN,
     speciesName: "Uni",
   },
   {
     speciesId: "50",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/rox4mgh5/1/1.png",
+    neopetsImageHash: "rox4mgh5",
     colorId: colors.RED,
     speciesName: "Usul",
   },
   {
     speciesId: "51",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/dnr2kj4b/1/1.png",
+    neopetsImageHash: "dnr2kj4b",
     colorId: colors.YELLOW,
     speciesName: "Wocky",
   },
   {
     speciesId: "52",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/tdkqr2b6/1/1.png",
+    neopetsImageHash: "tdkqr2b6",
     colorId: colors.RED,
     speciesName: "Xweetok",
   },
   {
     speciesId: "53",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/h95cs547/1/1.png",
+    neopetsImageHash: "h95cs547",
     colorId: colors.RED,
     speciesName: "Yurble",
   },
   {
     speciesId: "54",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/x8c57g2l/1/1.png",
+    neopetsImageHash: "x8c57g2l",
     colorId: colors.BLUE,
     speciesName: "Zafara",
   },
   {
     speciesId: "55",
-    src: "https://pets.neopets-asset-proxy.openneo.net/cp/xkntzsww/1/1.png",
+    neopetsImageHash: "xkntzsww",
     colorId: colors.YELLOW,
     speciesName: "Vandagyre",
   },
