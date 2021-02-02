@@ -686,21 +686,19 @@ function ItemPageOutfitPreview({ itemId }) {
           </Box>
         </Box>
       </VStack>
-      <Box maxWidth="400px">
-        <SpeciesFacesPicker
-          itemId={itemId}
-          selectedSpeciesId={petState.speciesId}
-          onChange={({ speciesId, colorId }) =>
-            setPetState({
-              speciesId,
-              colorId,
-              pose: idealPose,
-              appearanceId: null,
-            })
-          }
-          isLoading={loading}
-        />
-      </Box>
+      <SpeciesFacesPicker
+        itemId={itemId}
+        selectedSpeciesId={petState.speciesId}
+        onChange={({ speciesId, colorId }) =>
+          setPetState({
+            speciesId,
+            colorId,
+            pose: idealPose,
+            appearanceId: null,
+          })
+        }
+        isLoading={loading}
+      />
     </Stack>
   );
 }
@@ -757,10 +755,20 @@ function PlayPauseButton({ isPaused, onClick }) {
 function SpeciesFacesPicker({ selectedSpeciesId, onChange, isLoading }) {
   const selectedBorderColor = useColorModeValue("green.600", "green.400");
   const selectedBackgroundColor = useColorModeValue("green.200", "green.600");
+  const focusBorderColor = "blue.400";
+  const focusBackgroundColor = "blue.100";
   const [
     selectedBorderColorValue,
     selectedBackgroundColorValue,
-  ] = useToken("colors", [selectedBorderColor, selectedBackgroundColor]);
+    focusBorderColorValue,
+    focusBackgroundColorValue,
+  ] = useToken("colors", [
+    selectedBorderColor,
+    selectedBackgroundColor,
+    focusBorderColor,
+    focusBackgroundColor,
+  ]);
+  const lgShadow = useToken("shadows", "xl");
 
   const allSpeciesFaces = speciesFaces.sort((a, b) =>
     a.speciesName.localeCompare(b.speciesName)
@@ -769,71 +777,89 @@ function SpeciesFacesPicker({ selectedSpeciesId, onChange, isLoading }) {
   return (
     <ClassNames>
       {({ css }) => (
-        <Wrap
-          spacing="0"
-          justify="center"
-          // On mobile, give this a scroll container, and some extra padding so
-          // the selected-face effects still fit inside.
-          maxHeight={{ base: "200px", md: "none" }}
-          overflow={{ base: "auto", md: "visible" }}
-          padding={{ base: "8px", md: "0" }}
+        <Box
+          _focusWithin={{
+            boxShadow: `${focusBackgroundColorValue} 0 0 1px 2px`,
+          }}
+          maxWidth="400px"
+          boxSizing="content-box"
+          padding="2"
+          borderRadius="md"
+          transition="all 0.2s"
         >
-          {allSpeciesFaces.map(
-            ({ speciesId, speciesName, colorId, neopetsImageHash }) => (
-              <WrapItem
-                key={speciesId}
-                as="label"
-                cursor={isLoading ? "wait" : "pointer"}
-                position="relative"
-              >
-                <VisuallyHidden
-                  as="input"
-                  type="radio"
-                  aria-label={speciesName}
-                  name="species-faces-picker"
-                  value={speciesId}
-                  checked={speciesId === selectedSpeciesId}
-                  disabled={isLoading}
-                  onChange={() => onChange({ speciesId, colorId })}
-                />
-                <Box
-                  overflow="hidden"
-                  transition="all 0.2s"
-                  className={css`
-                    input:checked + & {
-                      background: ${selectedBackgroundColorValue};
-                      border-radius: 6px;
-                      box-shadow: ${selectedBorderColorValue} 0 0 0 3px;
-                      transform: scale(1.2);
-                      z-index: 1;
-                    }
-                  `}
+          <Wrap
+            spacing="0"
+            justify="center"
+            // On mobile, give this a scroll container, and some extra padding so
+            // the selected-face effects still fit inside.
+            maxHeight={{ base: "200px", md: "none" }}
+            overflow={{ base: "auto", md: "visible" }}
+            padding={{ base: "8px", md: "0" }}
+          >
+            {allSpeciesFaces.map(
+              ({ speciesId, speciesName, colorId, neopetsImageHash }) => (
+                <WrapItem
+                  key={speciesId}
+                  as="label"
+                  cursor={isLoading ? "wait" : "pointer"}
+                  position="relative"
                 >
+                  <VisuallyHidden
+                    as="input"
+                    type="radio"
+                    aria-label={speciesName}
+                    name="species-faces-picker"
+                    value={speciesId}
+                    checked={speciesId === selectedSpeciesId}
+                    disabled={isLoading}
+                    onChange={() => onChange({ speciesId, colorId })}
+                  />
                   <Box
-                    as="img"
-                    src={`https://pets.neopets-asset-proxy.openneo.net/cp/${neopetsImageHash}/1/1.png`}
-                    srcSet={
-                      `https://pets.neopets-asset-proxy.openneo.net/cp/${neopetsImageHash}/1/1.png 1x, ` +
-                      `https://pets.neopets-asset-proxy.openneo.net/cp/${neopetsImageHash}/1/6.png 2x`
-                    }
-                    alt={speciesName}
-                    width={50}
-                    height={50}
-                    filter="saturate(90%)"
-                    opacity="0.9"
+                    overflow="hidden"
                     transition="all 0.2s"
                     className={css`
-                      input:checked + * > & {
-                        opacity: 1;
-                        filter: saturate(110%);
+                      input:checked + & {
+                        background: ${selectedBackgroundColorValue};
+                        border-radius: 6px;
+                        box-shadow: ${lgShadow},
+                          ${selectedBorderColorValue} 0 0 2px 2px;
+                        transform: scale(1.2);
+                        z-index: 1;
+                      }
+
+                      input:focus + & {
+                        background: ${focusBackgroundColorValue};
+                        box-shadow: ${lgShadow},
+                          ${focusBorderColorValue} 0 0 0 3px;
                       }
                     `}
-                  />
-                </Box>
-              </WrapItem>
-            )
-          )}
-        </Wrap>
+                  >
+                    <Box
+                      as="img"
+                      src={`https://pets.neopets-asset-proxy.openneo.net/cp/${neopetsImageHash}/1/1.png`}
+                      srcSet={
+                        `https://pets.neopets-asset-proxy.openneo.net/cp/${neopetsImageHash}/1/1.png 1x, ` +
+                        `https://pets.neopets-asset-proxy.openneo.net/cp/${neopetsImageHash}/1/6.png 2x`
+                      }
+                      alt={speciesName}
+                      width={50}
+                      height={50}
+                      filter="saturate(90%)"
+                      opacity="0.9"
+                      transition="all 0.2s"
+                      className={css`
+                        input:checked + * & {
+                          opacity: 1;
+                          filter: saturate(110%);
+                        }
+                      `}
+                    />
+                  </Box>
+                </WrapItem>
+              )
+            )}
+          </Wrap>
+        </Box>
       )}
     </ClassNames>
   );
