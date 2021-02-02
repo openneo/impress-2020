@@ -40,7 +40,7 @@ function OutfitMovieLayer({
         console.error(`Error rendering movie clip ${libraryUrl}`);
         logAndCapture(e);
         toast({
-          status: "error",
+          status: "warning",
           title:
             "Hmm, we're maybe having trouble playing one of these animations.",
           description:
@@ -59,19 +59,47 @@ function OutfitMovieLayer({
 
   // This effect gives us a `stage` corresponding to the canvas element.
   React.useLayoutEffect(() => {
-    if (loadingDeps || !canvasRef.current) {
+    const canvas = canvasRef.current;
+
+    if (loadingDeps || !canvas) {
+      return;
+    }
+
+    if (canvas.getContext("2d") == null) {
+      console.warn(`Out of memory, can't use canvas for ${libraryUrl}.`);
+      toast({
+        status: "warning",
+        title: "Oops, too many animations!",
+        description:
+          `Your device is out of memory, so we can't show any more ` +
+          `animations. Try removing some items, or using another device.`,
+        duration: null,
+        isClosable: true,
+      });
       return;
     }
 
     setStage((stage) => {
-      if (stage && stage.canvas === canvasRef.current) {
+      if (stage && stage.canvas === canvas) {
         return stage;
       }
 
-      return new window.createjs.Stage(canvasRef.current);
+      return new window.createjs.Stage(canvas);
     });
-    return () => setStage(null);
-  }, [loadingDeps]);
+
+    return () => {
+      setStage(null);
+
+      if (canvas) {
+        // There's a Safari bug where it doesn't reliably garbage-collect
+        // canvas data. Clean it up ourselves, rather than leaking memory over
+        // time! https://stackoverflow.com/a/52586606/107415
+        // https://bugs.webkit.org/show_bug.cgi?id=195325
+        canvas.width = 0;
+        canvas.height = 0;
+      }
+    };
+  }, [loadingDeps, libraryUrl, toast]);
 
   // This effect gives us the `library` and `movieClip`, based on the incoming
   // `libraryUrl`.
@@ -94,7 +122,7 @@ function OutfitMovieLayer({
         setMovieClip(movieClip);
       })
       .catch((e) => {
-        console.error("Error loading outfit movie layer", e);
+        console.error(`Error loading outfit movie layer: ${libraryUrl}`, e);
       });
 
     return () => {
