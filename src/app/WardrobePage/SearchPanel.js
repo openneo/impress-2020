@@ -372,7 +372,7 @@ function useSearchResults(query, outfitState) {
   // When SearchResults calls this, we'll resend the query, with the `offset`
   // increased. We'll append the results to the original query!
   const fetchMore = React.useCallback(() => {
-    if (!loadingGQL && !isEndOfResults) {
+    if (!loadingGQL && !error && !isEndOfResults) {
       fetchMoreGQL({
         variables: {
           offset: items.length,
@@ -402,9 +402,11 @@ function useSearchResults(query, outfitState) {
             },
           };
         },
+      }).catch((e) => {
+        console.error("Error loading more search results pages", e);
       });
     }
-  }, [loadingGQL, isEndOfResults, fetchMoreGQL, items.length]);
+  }, [loadingGQL, error, isEndOfResults, fetchMoreGQL, items.length]);
 
   return { loading, loadingMore, error, items, fetchMore };
 }
