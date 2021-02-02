@@ -687,8 +687,8 @@ function ItemPageOutfitPreview({ itemId }) {
         </Box>
       </VStack>
       <SpeciesFacesPicker
-        itemId={itemId}
         selectedSpeciesId={petState.speciesId}
+        compatibleBodyIds={["180"]}
         onChange={({ speciesId, colorId }) =>
           setPetState({
             speciesId,
@@ -752,7 +752,67 @@ function PlayPauseButton({ isPaused, onClick }) {
   );
 }
 
-function SpeciesFacesPicker({ selectedSpeciesId, onChange, isLoading }) {
+function SpeciesFacesPicker({
+  selectedSpeciesId,
+  compatibleBodyIds,
+  onChange,
+  isLoading,
+}) {
+  const allSpeciesFaces = speciesFaces.sort((a, b) =>
+    a.speciesName.localeCompare(b.speciesName)
+  );
+
+  const focusBorderColorValue = useToken("colors", "blue.100");
+
+  return (
+    <Box
+      _focusWithin={{
+        boxShadow: `${focusBorderColorValue} 0 0 1px 2px`,
+      }}
+      maxWidth="400px"
+      boxSizing="content-box"
+      padding="2"
+      borderRadius="md"
+      transition="all 0.2s"
+    >
+      <Wrap
+        spacing="0"
+        justify="center"
+        // On mobile, give this a scroll container, and some extra padding so
+        // the selected-face effects still fit inside.
+        maxHeight={{ base: "200px", md: "none" }}
+        overflow={{ base: "auto", md: "visible" }}
+        padding={{ base: "8px", md: "0" }}
+      >
+        {allSpeciesFaces.map((speciesFace) => (
+          <WrapItem key={speciesFace.speciesId}>
+            <SpeciesFaceOption
+              speciesId={speciesFace.speciesId}
+              speciesName={speciesFace.speciesName}
+              colorId={speciesFace.colorId}
+              neopetsImageHash={speciesFace.neopetsImageHash}
+              isCompatible={compatibleBodyIds.includes(speciesFace.bodyId)}
+              isSelected={speciesFace.speciesId === selectedSpeciesId}
+              onChange={onChange}
+              isLoading={isLoading}
+            />
+          </WrapItem>
+        ))}
+      </Wrap>
+    </Box>
+  );
+}
+
+function SpeciesFaceOption({
+  speciesId,
+  speciesName,
+  colorId,
+  neopetsImageHash,
+  isCompatible,
+  isSelected,
+  onChange,
+  isLoading,
+}) {
   const selectedBorderColor = useColorModeValue("green.600", "green.400");
   const selectedBackgroundColor = useColorModeValue("green.200", "green.600");
   const focusBorderColor = "blue.400";
@@ -768,98 +828,82 @@ function SpeciesFacesPicker({ selectedSpeciesId, onChange, isLoading }) {
     focusBorderColor,
     focusBackgroundColor,
   ]);
-  const lgShadow = useToken("shadows", "xl");
+  const xlShadow = useToken("shadows", "xl");
 
-  const allSpeciesFaces = speciesFaces.sort((a, b) =>
-    a.speciesName.localeCompare(b.speciesName)
+  const isHappy = isLoading || isCompatible;
+  const emotionId = isHappy ? "1" : "2";
+
+  const tooltipLabel = isCompatible ? (
+    speciesName
+  ) : (
+    <div style={{ textAlign: "center" }}>
+      {speciesName}
+      <div style={{ fontStyle: "italic", fontSize: "0.75em" }}>
+        (Not compatible yet)
+      </div>
+    </div>
   );
+
+  const cursor = isLoading ? "wait" : !isCompatible ? "not-allowed" : "pointer";
 
   return (
     <ClassNames>
       {({ css }) => (
-        <Box
-          _focusWithin={{
-            boxShadow: `${focusBackgroundColorValue} 0 0 1px 2px`,
-          }}
-          maxWidth="400px"
-          boxSizing="content-box"
-          padding="2"
-          borderRadius="md"
-          transition="all 0.2s"
-        >
-          <Wrap
-            spacing="0"
-            justify="center"
-            // On mobile, give this a scroll container, and some extra padding so
-            // the selected-face effects still fit inside.
-            maxHeight={{ base: "200px", md: "none" }}
-            overflow={{ base: "auto", md: "visible" }}
-            padding={{ base: "8px", md: "0" }}
-          >
-            {allSpeciesFaces.map(
-              ({ speciesId, speciesName, colorId, neopetsImageHash }) => (
-                <WrapItem
-                  key={speciesId}
-                  as="label"
-                  cursor={isLoading ? "wait" : "pointer"}
-                  position="relative"
-                >
-                  <VisuallyHidden
-                    as="input"
-                    type="radio"
-                    aria-label={speciesName}
-                    name="species-faces-picker"
-                    value={speciesId}
-                    checked={speciesId === selectedSpeciesId}
-                    disabled={isLoading}
-                    onChange={() => onChange({ speciesId, colorId })}
-                  />
-                  <Box
-                    overflow="hidden"
-                    transition="all 0.2s"
-                    className={css`
-                      input:checked + & {
-                        background: ${selectedBackgroundColorValue};
-                        border-radius: 6px;
-                        box-shadow: ${lgShadow},
-                          ${selectedBorderColorValue} 0 0 2px 2px;
-                        transform: scale(1.2);
-                        z-index: 1;
-                      }
+        <Tooltip label={tooltipLabel} placement="top" gutter={-12}>
+          <Box as="label" cursor={cursor}>
+            <VisuallyHidden
+              as="input"
+              type="radio"
+              aria-label={speciesName}
+              name="species-faces-picker"
+              value={speciesId}
+              checked={isSelected}
+              disabled={isLoading || !isCompatible}
+              onChange={() => onChange({ speciesId, colorId })}
+            />
+            <Box
+              overflow="hidden"
+              transition="all 0.2s"
+              position="relative"
+              className={css`
+                input:checked + & {
+                  background: ${selectedBackgroundColorValue};
+                  border-radius: 6px;
+                  box-shadow: ${xlShadow},
+                    ${selectedBorderColorValue} 0 0 2px 2px;
+                  transform: scale(1.2);
+                  z-index: 1;
+                }
 
-                      input:focus + & {
-                        background: ${focusBackgroundColorValue};
-                        box-shadow: ${lgShadow},
-                          ${focusBorderColorValue} 0 0 0 3px;
-                      }
-                    `}
-                  >
-                    <Box
-                      as="img"
-                      src={`https://pets.neopets-asset-proxy.openneo.net/cp/${neopetsImageHash}/1/1.png`}
-                      srcSet={
-                        `https://pets.neopets-asset-proxy.openneo.net/cp/${neopetsImageHash}/1/1.png 1x, ` +
-                        `https://pets.neopets-asset-proxy.openneo.net/cp/${neopetsImageHash}/1/6.png 2x`
-                      }
-                      alt={speciesName}
-                      width={50}
-                      height={50}
-                      filter="saturate(90%)"
-                      opacity="0.9"
-                      transition="all 0.2s"
-                      className={css`
-                        input:checked + * & {
-                          opacity: 1;
-                          filter: saturate(110%);
-                        }
-                      `}
-                    />
-                  </Box>
-                </WrapItem>
-              )
-            )}
-          </Wrap>
-        </Box>
+                input:focus + & {
+                  background: ${focusBackgroundColorValue};
+                  box-shadow: ${xlShadow}, ${focusBorderColorValue} 0 0 0 3px;
+                }
+              `}
+            >
+              <Box
+                as="img"
+                src={`https://pets.neopets-asset-proxy.openneo.net/cp/${neopetsImageHash}/${emotionId}/1.png`}
+                srcSet={
+                  `https://pets.neopets-asset-proxy.openneo.net/cp/${neopetsImageHash}/${emotionId}/1.png 1x, ` +
+                  `https://pets.neopets-asset-proxy.openneo.net/cp/${neopetsImageHash}/${emotionId}/6.png 2x`
+                }
+                alt={speciesName}
+                width={50}
+                height={50}
+                filter={isCompatible ? "saturate(90%)" : "saturate(0%)"}
+                opacity="0.9"
+                transition="all 0.2s"
+                className={css`
+                  input:checked + * & {
+                    opacity: 1;
+                    filter: saturate(110%);
+                  }
+                `}
+              />
+            </Box>
+          </Box>
+        </Tooltip>
       )}
     </ClassNames>
   );
@@ -873,334 +917,389 @@ function SpeciesFacesPicker({ selectedSpeciesId, onChange, isLoading }) {
 const colors = { BLUE: "8", RED: "61", GREEN: "34", YELLOW: "84" };
 const speciesFaces = [
   {
-    speciesId: "1",
-    neopetsImageHash: "obxdjm88",
-    colorId: colors.GREEN,
     speciesName: "Acara",
+    speciesId: "1",
+    colorId: colors.GREEN,
+    bodyId: "93",
+    neopetsImageHash: "obxdjm88",
   },
   {
-    speciesId: "2",
-    neopetsImageHash: "n9ozx4z5",
-    colorId: colors.BLUE,
     speciesName: "Aisha",
+    speciesId: "2",
+    colorId: colors.BLUE,
+    bodyId: "106",
+    neopetsImageHash: "n9ozx4z5",
   },
   {
-    speciesId: "3",
-    neopetsImageHash: "kfonqhdc",
-    colorId: colors.YELLOW,
     speciesName: "Blumaroo",
+    speciesId: "3",
+    colorId: colors.YELLOW,
+    bodyId: "47",
+    neopetsImageHash: "kfonqhdc",
   },
   {
-    speciesId: "4",
-    neopetsImageHash: "sc2hhvhn",
-    colorId: colors.YELLOW,
     speciesName: "Bori",
+    speciesId: "4",
+    colorId: colors.YELLOW,
+    bodyId: "84",
+    neopetsImageHash: "sc2hhvhn",
   },
   {
-    speciesId: "5",
-    neopetsImageHash: "wqz8xn4t",
-    colorId: colors.YELLOW,
     speciesName: "Bruce",
+    speciesId: "5",
+    colorId: colors.YELLOW,
+    bodyId: "146",
+    neopetsImageHash: "wqz8xn4t",
   },
   {
-    speciesId: "6",
-    neopetsImageHash: "jc9klfxm",
-    colorId: colors.YELLOW,
     speciesName: "Buzz",
+    speciesId: "6",
+    colorId: colors.YELLOW,
+    bodyId: "250",
+    neopetsImageHash: "jc9klfxm",
   },
   {
-    speciesId: "7",
-    neopetsImageHash: "4lrb4n3f",
-    colorId: colors.RED,
     speciesName: "Chia",
+    speciesId: "7",
+    colorId: colors.RED,
+    bodyId: "212",
+    neopetsImageHash: "4lrb4n3f",
   },
   {
-    speciesId: "8",
-    neopetsImageHash: "bdml26md",
-    colorId: colors.YELLOW,
     speciesName: "Chomby",
+    speciesId: "8",
+    colorId: colors.YELLOW,
+    bodyId: "74",
+    neopetsImageHash: "bdml26md",
   },
   {
-    speciesId: "9",
-    neopetsImageHash: "xl6msllv",
-    colorId: colors.GREEN,
     speciesName: "Cybunny",
+    speciesId: "9",
+    colorId: colors.GREEN,
+    bodyId: "94",
+    neopetsImageHash: "xl6msllv",
   },
   {
-    speciesId: "10",
-    neopetsImageHash: "bob39shq",
-    colorId: colors.YELLOW,
     speciesName: "Draik",
+    speciesId: "10",
+    colorId: colors.YELLOW,
+    bodyId: "132",
+    neopetsImageHash: "bob39shq",
   },
   {
-    speciesId: "11",
-    neopetsImageHash: "jhhhbrww",
-    colorId: colors.RED,
     speciesName: "Elephante",
+    speciesId: "11",
+    colorId: colors.RED,
+    bodyId: "56",
+    neopetsImageHash: "jhhhbrww",
   },
   {
-    speciesId: "12",
-    neopetsImageHash: "6kngmhvs",
-    colorId: colors.RED,
     speciesName: "Eyrie",
+    speciesId: "12",
+    colorId: colors.RED,
+    bodyId: "90",
+    neopetsImageHash: "6kngmhvs",
   },
   {
-    speciesId: "13",
-    neopetsImageHash: "47vt32x2",
-    colorId: colors.GREEN,
     speciesName: "Flotsam",
+    speciesId: "13",
+    colorId: colors.GREEN,
+    bodyId: "136",
+    neopetsImageHash: "47vt32x2",
   },
   {
-    speciesId: "14",
-    neopetsImageHash: "5nrd2lvd",
-    colorId: colors.YELLOW,
     speciesName: "Gelert",
+    speciesId: "14",
+    colorId: colors.YELLOW,
+    bodyId: "138",
+    neopetsImageHash: "5nrd2lvd",
   },
   {
-    speciesId: "15",
-    neopetsImageHash: "6c275jcg",
-    colorId: colors.BLUE,
     speciesName: "Gnorbu",
+    speciesId: "15",
+    colorId: colors.BLUE,
+    bodyId: "166",
+    neopetsImageHash: "6c275jcg",
   },
   {
-    speciesId: "16",
-    neopetsImageHash: "j7q65fv4",
-    colorId: colors.BLUE,
     speciesName: "Grarrl",
+    speciesId: "16",
+    colorId: colors.BLUE,
+    bodyId: "119",
+    neopetsImageHash: "j7q65fv4",
   },
   {
-    speciesId: "17",
-    neopetsImageHash: "5xn4kjf8",
-    colorId: colors.GREEN,
     speciesName: "Grundo",
+    speciesId: "17",
+    colorId: colors.GREEN,
+    bodyId: "126",
+    neopetsImageHash: "5xn4kjf8",
   },
   {
-    speciesId: "18",
-    neopetsImageHash: "jsfvcqwt",
-    colorId: colors.RED,
     speciesName: "Hissi",
+    speciesId: "18",
+    colorId: colors.RED,
+    bodyId: "67",
+    neopetsImageHash: "jsfvcqwt",
   },
   {
-    speciesId: "19",
-    neopetsImageHash: "w32r74vo",
-    colorId: colors.GREEN,
     speciesName: "Ixi",
+    speciesId: "19",
+    colorId: colors.GREEN,
+    bodyId: "163",
+    neopetsImageHash: "w32r74vo",
   },
   {
-    speciesId: "20",
-    neopetsImageHash: "kz43rnld",
-    colorId: colors.YELLOW,
     speciesName: "Jetsam",
+    speciesId: "20",
+    colorId: colors.YELLOW,
+    bodyId: "147",
+    neopetsImageHash: "kz43rnld",
   },
   {
-    speciesId: "21",
-    neopetsImageHash: "m267j935",
-    colorId: colors.GREEN,
     speciesName: "Jubjub",
+    speciesId: "21",
+    colorId: colors.GREEN,
+    bodyId: "80",
+    neopetsImageHash: "m267j935",
   },
   {
-    speciesId: "22",
-    neopetsImageHash: "4gsrb59g",
-    colorId: colors.YELLOW,
     speciesName: "Kacheek",
+    speciesId: "22",
+    colorId: colors.YELLOW,
+    bodyId: "117",
+    neopetsImageHash: "4gsrb59g",
   },
   {
-    speciesId: "23",
-    neopetsImageHash: "ktlxmrtr",
-    colorId: colors.BLUE,
     speciesName: "Kau",
+    speciesId: "23",
+    colorId: colors.BLUE,
+    bodyId: "201",
+    neopetsImageHash: "ktlxmrtr",
   },
   {
-    speciesId: "24",
-    neopetsImageHash: "42j5q3zx",
-    colorId: colors.GREEN,
     speciesName: "Kiko",
+    speciesId: "24",
+    colorId: colors.GREEN,
+    bodyId: "51",
+    neopetsImageHash: "42j5q3zx",
   },
   {
-    speciesId: "25",
-    neopetsImageHash: "ncfn87wk",
-    colorId: colors.GREEN,
     speciesName: "Koi",
+    speciesId: "25",
+    colorId: colors.GREEN,
+    bodyId: "208",
+    neopetsImageHash: "ncfn87wk",
   },
   {
-    speciesId: "26",
-    neopetsImageHash: "omx9c876",
-    colorId: colors.RED,
     speciesName: "Korbat",
+    speciesId: "26",
+    colorId: colors.RED,
+    bodyId: "196",
+    neopetsImageHash: "omx9c876",
   },
   {
-    speciesId: "27",
-    neopetsImageHash: "rfsbh59t",
-    colorId: colors.BLUE,
     speciesName: "Kougra",
+    speciesId: "27",
+    colorId: colors.BLUE,
+    bodyId: "143",
+    neopetsImageHash: "rfsbh59t",
   },
   {
-    speciesId: "28",
-    neopetsImageHash: "hxgsm5d4",
-    colorId: colors.BLUE,
     speciesName: "Krawk",
+    speciesId: "28",
+    colorId: colors.BLUE,
+    bodyId: "150",
+    neopetsImageHash: "hxgsm5d4",
   },
   {
-    speciesId: "29",
-    neopetsImageHash: "blxmjgbk",
-    colorId: colors.YELLOW,
     speciesName: "Kyrii",
+    speciesId: "29",
+    colorId: colors.YELLOW,
+    bodyId: "175",
+    neopetsImageHash: "blxmjgbk",
   },
   {
-    speciesId: "30",
-    neopetsImageHash: "8r94jhfq",
-    colorId: colors.YELLOW,
     speciesName: "Lenny",
+    speciesId: "30",
+    colorId: colors.YELLOW,
+    bodyId: "173",
+    neopetsImageHash: "8r94jhfq",
   },
   {
-    speciesId: "31",
-    neopetsImageHash: "z42535zh",
-    colorId: colors.YELLOW,
     speciesName: "Lupe",
+    speciesId: "31",
+    colorId: colors.YELLOW,
+    bodyId: "199",
+    neopetsImageHash: "z42535zh",
   },
   {
-    speciesId: "32",
-    neopetsImageHash: "qgg6z8s7",
-    colorId: colors.BLUE,
     speciesName: "Lutari",
+    speciesId: "32",
+    colorId: colors.BLUE,
+    bodyId: "52",
+    neopetsImageHash: "qgg6z8s7",
   },
   {
-    speciesId: "33",
-    neopetsImageHash: "kk2nn2jr",
-    colorId: colors.YELLOW,
     speciesName: "Meerca",
+    speciesId: "33",
+    colorId: colors.YELLOW,
+    bodyId: "109",
+    neopetsImageHash: "kk2nn2jr",
   },
   {
-    speciesId: "34",
-    neopetsImageHash: "jgkoro5z",
-    colorId: colors.GREEN,
     speciesName: "Moehog",
+    speciesId: "34",
+    colorId: colors.GREEN,
+    bodyId: "134",
+    neopetsImageHash: "jgkoro5z",
   },
   {
-    speciesId: "35",
-    neopetsImageHash: "xwlo9657",
-    colorId: colors.BLUE,
     speciesName: "Mynci",
+    speciesId: "35",
+    colorId: colors.BLUE,
+    bodyId: "95",
+    neopetsImageHash: "xwlo9657",
   },
   {
-    speciesId: "36",
-    neopetsImageHash: "bx7fho8x",
-    colorId: colors.BLUE,
     speciesName: "Nimmo",
+    speciesId: "36",
+    colorId: colors.BLUE,
+    bodyId: "96",
+    neopetsImageHash: "bx7fho8x",
   },
   {
-    speciesId: "37",
-    neopetsImageHash: "rjzmx24v",
-    colorId: colors.YELLOW,
     speciesName: "Ogrin",
+    speciesId: "37",
+    colorId: colors.YELLOW,
+    bodyId: "154",
+    neopetsImageHash: "rjzmx24v",
   },
   {
-    speciesId: "38",
-    neopetsImageHash: "kokc52kh",
-    colorId: colors.RED,
     speciesName: "Peophin",
+    speciesId: "38",
+    colorId: colors.RED,
+    bodyId: "55",
+    neopetsImageHash: "kokc52kh",
   },
   {
-    speciesId: "39",
-    neopetsImageHash: "fw6lvf3c",
-    colorId: colors.GREEN,
     speciesName: "Poogle",
-  },
-  {
-    speciesId: "40",
-    neopetsImageHash: "tjhwbro3",
-    colorId: colors.RED,
-    speciesName: "Pteri",
-  },
-  {
-    speciesId: "41",
-    neopetsImageHash: "jdto7mj4",
-    colorId: colors.YELLOW,
-    speciesName: "Quiggle",
-  },
-  {
-    speciesId: "42",
-    neopetsImageHash: "qsgbm5f6",
-    colorId: colors.BLUE,
-    speciesName: "Ruki",
-  },
-  {
-    speciesId: "43",
-    neopetsImageHash: "hkjoncsx",
-    colorId: colors.RED,
-    speciesName: "Scorchio",
-  },
-  {
-    speciesId: "44",
-    neopetsImageHash: "mmvn4tkg",
-    colorId: colors.YELLOW,
-    speciesName: "Shoyru",
-  },
-  {
-    speciesId: "45",
-    neopetsImageHash: "fc4cxk3t",
-    colorId: colors.RED,
-    speciesName: "Skeith",
-  },
-  {
-    speciesId: "46",
-    neopetsImageHash: "84gvowmj",
-    colorId: colors.YELLOW,
-    speciesName: "Techo",
-  },
-  {
-    speciesId: "47",
-    neopetsImageHash: "jd433863",
-    colorId: colors.BLUE,
-    speciesName: "Tonu",
-  },
-  {
-    speciesId: "48",
-    neopetsImageHash: "q39wn6vq",
-    colorId: colors.YELLOW,
-    speciesName: "Tuskaninny",
-  },
-  {
-    speciesId: "49",
-    neopetsImageHash: "njzvoflw",
+    speciesId: "39",
     colorId: colors.GREEN,
-    speciesName: "Uni",
+    bodyId: "76",
+    neopetsImageHash: "fw6lvf3c",
   },
   {
-    speciesId: "50",
-    neopetsImageHash: "rox4mgh5",
+    speciesName: "Pteri",
+    speciesId: "40",
     colorId: colors.RED,
-    speciesName: "Usul",
+    bodyId: "156",
+    neopetsImageHash: "tjhwbro3",
   },
   {
-    speciesId: "51",
-    neopetsImageHash: "dnr2kj4b",
+    speciesName: "Quiggle",
+    speciesId: "41",
     colorId: colors.YELLOW,
-    speciesName: "Wocky",
+    bodyId: "78",
+    neopetsImageHash: "jdto7mj4",
   },
   {
-    speciesId: "52",
-    neopetsImageHash: "tdkqr2b6",
-    colorId: colors.RED,
-    speciesName: "Xweetok",
-  },
-  {
-    speciesId: "53",
-    neopetsImageHash: "h95cs547",
-    colorId: colors.RED,
-    speciesName: "Yurble",
-  },
-  {
-    speciesId: "54",
-    neopetsImageHash: "x8c57g2l",
+    speciesName: "Ruki",
+    speciesId: "42",
     colorId: colors.BLUE,
-    speciesName: "Zafara",
+    bodyId: "191",
+    neopetsImageHash: "qsgbm5f6",
   },
   {
-    speciesId: "55",
-    neopetsImageHash: "xkntzsww",
+    speciesName: "Scorchio",
+    speciesId: "43",
+    colorId: colors.RED,
+    bodyId: "187",
+    neopetsImageHash: "hkjoncsx",
+  },
+  {
+    speciesName: "Shoyru",
+    speciesId: "44",
     colorId: colors.YELLOW,
+    bodyId: "46",
+    neopetsImageHash: "mmvn4tkg",
+  },
+  {
+    speciesName: "Skeith",
+    speciesId: "45",
+    colorId: colors.RED,
+    bodyId: "178",
+    neopetsImageHash: "fc4cxk3t",
+  },
+  {
+    speciesName: "Techo",
+    speciesId: "46",
+    colorId: colors.YELLOW,
+    bodyId: "100",
+    neopetsImageHash: "84gvowmj",
+  },
+  {
+    speciesName: "Tonu",
+    speciesId: "47",
+    colorId: colors.BLUE,
+    bodyId: "130",
+    neopetsImageHash: "jd433863",
+  },
+  {
+    speciesName: "Tuskaninny",
+    speciesId: "48",
+    colorId: colors.YELLOW,
+    bodyId: "188",
+    neopetsImageHash: "q39wn6vq",
+  },
+  {
+    speciesName: "Uni",
+    speciesId: "49",
+    colorId: colors.GREEN,
+    bodyId: "257",
+    neopetsImageHash: "njzvoflw",
+  },
+  {
+    speciesName: "Usul",
+    speciesId: "50",
+    colorId: colors.RED,
+    bodyId: "206",
+    neopetsImageHash: "rox4mgh5",
+  },
+  {
     speciesName: "Vandagyre",
+    speciesId: "55",
+    colorId: colors.YELLOW,
+    bodyId: "306",
+    neopetsImageHash: "xkntzsww",
+  },
+  {
+    speciesName: "Wocky",
+    speciesId: "51",
+    colorId: colors.YELLOW,
+    bodyId: "101",
+    neopetsImageHash: "dnr2kj4b",
+  },
+  {
+    speciesName: "Xweetok",
+    speciesId: "52",
+    colorId: colors.RED,
+    bodyId: "68",
+    neopetsImageHash: "tdkqr2b6",
+  },
+  {
+    speciesName: "Yurble",
+    speciesId: "53",
+    colorId: colors.RED,
+    bodyId: "182",
+    neopetsImageHash: "h95cs547",
+  },
+  {
+    speciesName: "Zafara",
+    speciesId: "54",
+    colorId: colors.BLUE,
+    bodyId: "180",
+    neopetsImageHash: "x8c57g2l",
   },
 ];
 
