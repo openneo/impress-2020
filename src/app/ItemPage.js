@@ -844,20 +844,22 @@ function SpeciesFaceOption({
   ]);
   const xlShadow = useToken("shadows", "xl");
 
+  const [labelIsHovered, setLabelIsHovered] = React.useState(false);
+  const [inputIsFocused, setInputIsFocused] = React.useState(false);
+
   const isHappy = isLoading || isCompatible;
   const emotionId = isHappy ? "1" : "2";
 
-  const tooltipLabel =
-    isCompatible || isLoading ? (
-      speciesName
-    ) : (
-      <div style={{ textAlign: "center" }}>
-        {speciesName}
+  const tooltipLabel = (
+    <div style={{ textAlign: "center" }}>
+      {speciesName}
+      {!isLoading && !isCompatible && (
         <div style={{ fontStyle: "italic", fontSize: "0.75em" }}>
           (Not compatible yet)
         </div>
-      </div>
-    );
+      )}
+    </div>
+  );
 
   const cursor = isLoading ? "wait" : !isCompatible ? "not-allowed" : "pointer";
 
@@ -872,8 +874,18 @@ function SpeciesFaceOption({
           //       `pointer-events: none` to the portal container, which I
           //       think is intercepting the hover even if the label doesn't.
           gutter={-12}
+          // We track hover and focus state manually for the tooltip, so that
+          // keyboard nav to switch between options causes the tooltip to
+          // follow. (By default, the tooltip appears on the first tab focus,
+          // but not when you _change_ options!)
+          isOpen={labelIsHovered || inputIsFocused}
         >
-          <Box as="label" cursor={cursor}>
+          <Box
+            as="label"
+            cursor={cursor}
+            onMouseEnter={() => setLabelIsHovered(true)}
+            onMouseLeave={() => setLabelIsHovered(false)}
+          >
             <VisuallyHidden
               as="input"
               type="radio"
@@ -883,6 +895,8 @@ function SpeciesFaceOption({
               checked={isSelected}
               disabled={isLoading || !isCompatible}
               onChange={() => onChange({ speciesId, colorId })}
+              onFocus={() => setInputIsFocused(true)}
+              onBlur={() => setInputIsFocused(false)}
             />
             <Box
               overflow="hidden"
