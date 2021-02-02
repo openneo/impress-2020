@@ -44,6 +44,9 @@ const typeDefs = gql`
 
     # A PetAppearance that has this body. Prefers Blue and happy poses.
     canonicalAppearance: PetAppearance
+
+    # Whether this is the special body type that represents fitting _all_ pets.
+    representsAllBodies: Boolean!
   }
 
   # Cache for 1 week (unlikely to change)
@@ -130,6 +133,9 @@ const resolvers = {
         "HACK: We populate this when you look up a canonicalAppearance, but " +
           "don't have a direct query for it yet, oops!"
       );
+    },
+    representsAllBodies: ({ id }) => {
+      return id == "0";
     },
     canonicalAppearance: async (
       { id },

@@ -513,11 +513,15 @@ function ItemPageOutfitPreview({ itemId }) {
   //       query after this loads, because our Apollo cache can't detect the
   //       shared item appearance. (For standard colors though, our logic to
   //       cover standard-color switches works for this preloading too.)
-  const { loading, error } = useQuery(
+  const { loading, error, data } = useQuery(
     gql`
       query ItemPageOutfitPreview($itemId: ID!) {
         item(id: $itemId) {
           id
+          compatibleBodies {
+            id
+            representsAllBodies
+          }
           canonicalAppearance {
             id
             ...ItemAppearanceForOutfitPreview
@@ -558,6 +562,8 @@ function ItemPageOutfitPreview({ itemId }) {
       },
     }
   );
+
+  const compatibleBodies = data?.item?.compatibleBodies || [];
 
   // To check whether the item is compatible with this pet, query for the
   // appearance, but only against the cache. That way, we don't send a
@@ -688,7 +694,7 @@ function ItemPageOutfitPreview({ itemId }) {
       </VStack>
       <SpeciesFacesPicker
         selectedSpeciesId={petState.speciesId}
-        compatibleBodyIds={["180"]}
+        compatibleBodies={compatibleBodies}
         onChange={({ speciesId, colorId }) =>
           setPetState({
             speciesId,
@@ -754,10 +760,15 @@ function PlayPauseButton({ isPaused, onClick }) {
 
 function SpeciesFacesPicker({
   selectedSpeciesId,
-  compatibleBodyIds,
+  compatibleBodies,
   onChange,
   isLoading,
 }) {
+  const allBodiesAreCompatible = compatibleBodies.some(
+    (body) => body.representsAllBodies
+  );
+  const compatibleBodyIds = compatibleBodies.map((body) => body.id);
+
   const allSpeciesFaces = speciesFaces.sort((a, b) =>
     a.speciesName.localeCompare(b.speciesName)
   );
@@ -791,7 +802,10 @@ function SpeciesFacesPicker({
               speciesName={speciesFace.speciesName}
               colorId={speciesFace.colorId}
               neopetsImageHash={speciesFace.neopetsImageHash}
-              isCompatible={compatibleBodyIds.includes(speciesFace.bodyId)}
+              isCompatible={
+                allBodiesAreCompatible ||
+                compatibleBodyIds.includes(speciesFace.bodyId)
+              }
               isSelected={speciesFace.speciesId === selectedSpeciesId}
               onChange={onChange}
               isLoading={isLoading}
@@ -833,23 +847,32 @@ function SpeciesFaceOption({
   const isHappy = isLoading || isCompatible;
   const emotionId = isHappy ? "1" : "2";
 
-  const tooltipLabel = isCompatible ? (
-    speciesName
-  ) : (
-    <div style={{ textAlign: "center" }}>
-      {speciesName}
-      <div style={{ fontStyle: "italic", fontSize: "0.75em" }}>
-        (Not compatible yet)
+  const tooltipLabel =
+    isCompatible || isLoading ? (
+      speciesName
+    ) : (
+      <div style={{ textAlign: "center" }}>
+        {speciesName}
+        <div style={{ fontStyle: "italic", fontSize: "0.75em" }}>
+          (Not compatible yet)
+        </div>
       </div>
-    </div>
-  );
+    );
 
   const cursor = isLoading ? "wait" : !isCompatible ? "not-allowed" : "pointer";
 
   return (
     <ClassNames>
       {({ css }) => (
-        <Tooltip label={tooltipLabel} placement="top" gutter={-12}>
+        <Tooltip
+          label={tooltipLabel}
+          placement="top"
+          // TODO: This looks great visually, but disrupts the hover state and
+          //       causes flicker. I couldn't figure out how to apply
+          //       `pointer-events: none` to the portal container, which I
+          //       think is intercepting the hover even if the label doesn't.
+          gutter={-12}
+        >
           <Box as="label" cursor={cursor}>
             <VisuallyHidden
               as="input"

@@ -66,6 +66,10 @@ const typeDefs = gql`
     # a union of zones for all of its appearances! We use this for overview
     # info about the item.
     allOccupiedZones: [Zone!]!
+
+    # All bodies that this item is compatible with. Note that this might return
+    # the special representsAllPets body, e.g. if this is just a Background!
+    compatibleBodies: [Body!]!
   }
 
   type ItemAppearance {
@@ -329,6 +333,24 @@ const resolvers = {
       const zoneIds = await itemAllOccupiedZonesLoader.load(id);
       const zones = zoneIds.map((id) => ({ id }));
       return zones;
+    },
+    compatibleBodies: async ({ id }, _, { db }) => {
+      const [rows, __] = await db.query(
+        `
+        SELECT DISTINCT swf_assets.body_id
+          FROM items
+          INNER JOIN parents_swf_assets ON
+            items.id = parents_swf_assets.parent_id AND
+              parents_swf_assets.parent_type = "Item"
+          INNER JOIN swf_assets ON
+            parents_swf_assets.swf_asset_id = swf_assets.id
+          WHERE items.id = ?
+        `,
+        [id]
+      );
+      const bodyIds = rows.map((row) => row.body_id);
+      const bodies = bodyIds.map((id) => ({ id }));
+      return bodies;
     },
   },
 
