@@ -518,6 +518,7 @@ function ItemPageOutfitPreview({ itemId }) {
       query ItemPageOutfitPreview($itemId: ID!) {
         item(id: $itemId) {
           id
+          name
           compatibleBodies {
             id
             representsAllBodies
@@ -531,6 +532,7 @@ function ItemPageOutfitPreview({ itemId }) {
                 id
                 species {
                   id
+                  name
                 }
                 color {
                   id
@@ -564,6 +566,23 @@ function ItemPageOutfitPreview({ itemId }) {
   );
 
   const compatibleBodies = data?.item?.compatibleBodies || [];
+
+  // If there's only one compatible body, and the canonical species's name
+  // appears in the item name, then this is probably a species-specific item,
+  // and we should adjust the UI to avoid implying that other species could
+  // model it.
+  const isProbablySpeciesSpecific =
+    compatibleBodies.length === 1 &&
+    !compatibleBodies[0].representsAllBodies &&
+    (data?.item?.name || "").includes(
+      data?.item?.canonicalAppearance?.body?.canonicalAppearance?.species?.name
+    );
+  const couldProbablyModelMoreData = !isProbablySpeciesSpecific;
+  console.log(
+    compatibleBodies,
+    data?.item?.name,
+    data?.item?.canonicalAppearance?.body?.canonicalAppearance?.species?.name
+  );
 
   // To check whether the item is compatible with this pet, query for the
   // appearance, but only against the cache. That way, we don't send a
@@ -681,7 +700,14 @@ function ItemPageOutfitPreview({ itemId }) {
           />
           <Box flex="1 0 0" lineHeight="1">
             {isIncompatible && (
-              <Tooltip label="No data yet" placement="top">
+              <Tooltip
+                label={
+                  couldProbablyModelMoreData
+                    ? "Not modeled yet"
+                    : "Not compatible"
+                }
+                placement="top"
+              >
                 <WarningIcon
                   color={errorColor}
                   transition="color 0.2"
@@ -695,6 +721,7 @@ function ItemPageOutfitPreview({ itemId }) {
       <SpeciesFacesPicker
         selectedSpeciesId={petState.speciesId}
         compatibleBodies={compatibleBodies}
+        couldProbablyModelMoreData={couldProbablyModelMoreData}
         onChange={({ speciesId, colorId }) =>
           setPetState({
             speciesId,
@@ -761,6 +788,7 @@ function PlayPauseButton({ isPaused, onClick }) {
 function SpeciesFacesPicker({
   selectedSpeciesId,
   compatibleBodies,
+  couldProbablyModelMoreData,
   onChange,
   isLoading,
 }) {
@@ -807,6 +835,7 @@ function SpeciesFacesPicker({
                 compatibleBodyIds.includes(speciesFace.bodyId)
               }
               isSelected={speciesFace.speciesId === selectedSpeciesId}
+              couldProbablyModelMoreData={couldProbablyModelMoreData}
               onChange={onChange}
               isLoading={isLoading}
             />
@@ -833,6 +862,7 @@ function SpeciesFaceOption({
   neopetsImageHash,
   isCompatible,
   isSelected,
+  couldProbablyModelMoreData,
   onChange,
   isLoading,
 }) {
@@ -864,7 +894,9 @@ function SpeciesFaceOption({
       {speciesName}
       {!isLoading && !isCompatible && (
         <div style={{ fontStyle: "italic", fontSize: "0.75em" }}>
-          (Not compatible yet)
+          {couldProbablyModelMoreData
+            ? "(Not modeled yet)"
+            : "(Not compatible)"}
         </div>
       )}
     </div>
@@ -898,7 +930,10 @@ function SpeciesFaceOption({
               name="species-faces-picker"
               value={speciesId}
               checked={isSelected}
-              disabled={isLoading || !isCompatible}
+              // It's possible to get this selected via the SpeciesColorPicker,
+              // even if this would normally be disabled. If so, make this
+              // option enabled, so keyboard users can focus and change it.
+              disabled={!isSelected && (isLoading || !isCompatible)}
               onChange={() => onChange({ speciesId, colorId })}
               onFocus={() => setInputIsFocused(true)}
               onBlur={() => setInputIsFocused(false)}
@@ -933,11 +968,22 @@ function SpeciesFaceOption({
                 alt={speciesName}
                 width={50}
                 height={50}
-                filter={isCompatible ? "saturate(90%)" : "saturate(0%)"}
-                opacity={isCompatible ? "0.9" : "0.6"}
+                data-is-compatible={isCompatible}
                 transition="all 0.2s"
                 className={css`
-                  input:checked + * & {
+                  filter: saturate(90%);
+                  opacity: 0.9;
+
+                  &[data-is-compatible="false"] {
+                    filter: saturate(0%);
+                    opacity: 0.6;
+                  }
+
+                  input:checked + * &[data-is-compatible="false"] {
+                    opacity: 0.85;
+                  }
+
+                  input:checked + * &[data-is-compatible="true"] {
                     opacity: 1;
                     filter: saturate(110%);
                   }
