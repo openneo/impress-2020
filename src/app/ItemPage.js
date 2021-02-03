@@ -1030,7 +1030,7 @@ function SpeciesFaceOption({
                 }
               `}
             >
-              <img
+              <CrossFadeImage
                 src={`https://pets.neopets-asset-proxy.openneo.net/cp/${neopetsImageHash}/${emotionId}/1.png`}
                 srcSet={
                   `https://pets.neopets-asset-proxy.openneo.net/cp/${neopetsImageHash}/${emotionId}/1.png 1x, ` +
@@ -1039,7 +1039,7 @@ function SpeciesFaceOption({
                 alt={speciesName}
                 width={50}
                 height={50}
-                data-is-compatible={isCompatible}
+                data-is-compatible={!isLoading && isCompatible}
                 className={css`
                   filter: saturate(90%);
                   opacity: 0.9;
@@ -1058,9 +1058,8 @@ function SpeciesFaceOption({
                     opacity: 1;
                     filter: saturate(110%);
                   }
-
                   /* Alt text for when the image fails to load! We hide it
-                   * while still loading though! */
+                     * while still loading though! */
                   font-size: 0.75rem;
                   text-align: center;
                   &:-moz-loading {
@@ -1074,6 +1073,132 @@ function SpeciesFaceOption({
             </div>
           </label>
         </DeferredTooltip>
+      )}
+    </ClassNames>
+  );
+}
+
+/**
+ * CrossFadeImage is like <img>, but listens for successful load events, and
+ * fades from the previous image to the new image once it loads.
+ *
+ * We treat `src` as a unique key representing the image's identity, but we
+ * also carry along the rest of the props during the fade, like `srcSet` and
+ * `className`.
+ */
+function CrossFadeImage(incomingImageProps) {
+  const [prevImageProps, setPrevImageProps] = React.useState(null);
+  const [currentImageProps, setCurrentImageProps] = React.useState(null);
+
+  const incomingImageIsCurrentImage =
+    incomingImageProps.src === currentImageProps?.src;
+
+  const onLoadNextImage = () => {
+    setPrevImageProps(currentImageProps);
+    setCurrentImageProps(incomingImageProps);
+  };
+
+  // The main trick to this component is using React's `key` feature! When
+  // diffing the rendered tree, if React sees two nodes with the same `key`, it
+  // treats them as the same node and makes the prop changes to match.
+  //
+  // We usually use this in `.map`, to make sure that adds/removes in a list
+  // don't cause our children to shift around and swap their React state or DOM
+  // nodes with each other.
+  //
+  // But here, we use `key` to get React to transition the same <img> DOM node
+  // between 3 different states!
+  //
+  // The image starts its life as the last in the list, from
+  // `incomingImageProps`: it's invisible, and still loading. We use its `src`
+  // as the `key`.
+  //
+  // When it loads, we update the state so that this `key` now belongs to the
+  // _second_ node, from `currentImageProps`. React will see this and make the
+  // correct transition for us: it sets opacity to 0, sets z-index to 2,
+  // removes aria-hidden, and removes the `onLoad` handler.
+  //
+  // Then, when another image is ready to show, we update the state so that
+  // this key now belongs to the _first_ node, from `prevImageProps` (and the
+  // second node is showing something new). React sees this, and makes the
+  // transition back to invisibility, but without the `onLoad` handler this
+  // time! (And transitions the current image into view, like it did for this
+  // one.)
+  //
+  // Finally, when yet _another_ image is ready to show, we stop rendering any
+  // images with this key anymore, and so React unmounts the image entirely.
+  //
+  // Thanks, React, for handling our multiple overlapping transitions through
+  // this little state machine! This could have been a LOT harder to write,
+  // whew!
+
+  return (
+    <ClassNames>
+      {({ css }) => (
+        <div
+          className={css`
+            display: grid;
+            grid-template-areas: "shared-overlapping-area";
+            isolation: isolate; /* Avoid z-index conflicts with parent! */
+
+            > div {
+              grid-area: shared-overlapping-area;
+              transition: opacity 0.2s;
+            }
+          `}
+        >
+          {prevImageProps && (
+            <div
+              key={prevImageProps.src}
+              className={css`
+                z-index: 3;
+                opacity: 0;
+              `}
+            >
+              {/* eslint-disable-next-line jsx-a11y/alt-text */}
+              <img {...prevImageProps} aria-hidden />
+            </div>
+          )}
+
+          {currentImageProps && (
+            <div
+              key={currentImageProps.src}
+              className={css`
+                z-index: 2;
+                opacity: 1;
+              `}
+            >
+              {/* eslint-disable-next-line jsx-a11y/alt-text */}
+              <img
+                {...currentImageProps}
+                // If the current image _is_ the incoming image, we'll allow
+                // new props to come in and affect it. But if it's a new image
+                // incoming, we want to stick to the last props the current
+                // image had! (This matters for e.g. `isCompatible` becoming
+                // true in `SpeciesFaceOption` and restoring color, before
+                // the new color's image loads in.)
+                {...(incomingImageIsCurrentImage ? incomingImageProps : {})}
+              />
+            </div>
+          )}
+
+          {!incomingImageIsCurrentImage && (
+            <div
+              key={incomingImageProps.src}
+              className={css`
+                z-index: 1;
+                opacity: 0;
+              `}
+            >
+              {/* eslint-disable-next-line jsx-a11y/alt-text */}
+              <img
+                {...incomingImageProps}
+                aria-hidden
+                onLoad={onLoadNextImage}
+              />
+            </div>
+          )}
+        </div>
       )}
     </ClassNames>
   );
