@@ -891,6 +891,8 @@ function SpeciesFaceOption({
 
   const cursor = isLoading ? "wait" : !isCompatible ? "not-allowed" : "pointer";
 
+  // NOTE: Because we render quite a few of these, avoiding using Chakra
+  //       elements like Box helps with render performance!
   return (
     <ClassNames>
       {({ css }) => (
@@ -904,14 +906,12 @@ function SpeciesFaceOption({
           // but not when you _change_ options!)
           isOpen={labelIsHovered || inputIsFocused}
         >
-          <Box
-            as="label"
-            cursor={cursor}
+          <label
+            style={{ cursor }}
             onMouseEnter={() => setLabelIsHovered(true)}
             onMouseLeave={() => setLabelIsHovered(false)}
           >
-            <VisuallyHidden
-              as="input"
+            <input
               type="radio"
               aria-label={speciesName}
               name="species-faces-picker"
@@ -924,12 +924,25 @@ function SpeciesFaceOption({
               onChange={() => onChange({ speciesId, colorId })}
               onFocus={() => setInputIsFocused(true)}
               onBlur={() => setInputIsFocused(false)}
-            />
-            <Box
-              overflow="hidden"
-              transition="all 0.2s"
-              position="relative"
               className={css`
+                /* Copied from Chakra's <VisuallyHidden /> */
+                border: 0px;
+                clip: rect(0px, 0px, 0px, 0px);
+                height: 1px;
+                width: 1px;
+                margin: -1px;
+                padding: 0px;
+                overflow: hidden;
+                white-space: nowrap;
+                position: absolute;
+              `}
+            />
+            <div
+              className={css`
+                overflow: hidden;
+                transition: all 0.2s;
+                position: relative;
+
                 input:checked + & {
                   background: ${selectedBackgroundColorValue};
                   border-radius: 6px;
@@ -945,8 +958,7 @@ function SpeciesFaceOption({
                 }
               `}
             >
-              <Box
-                as="img"
+              <img
                 src={`https://pets.neopets-asset-proxy.openneo.net/cp/${neopetsImageHash}/${emotionId}/1.png`}
                 srcSet={
                   `https://pets.neopets-asset-proxy.openneo.net/cp/${neopetsImageHash}/${emotionId}/1.png 1x, ` +
@@ -956,10 +968,10 @@ function SpeciesFaceOption({
                 width={50}
                 height={50}
                 data-is-compatible={isCompatible}
-                transition="all 0.2s"
                 className={css`
                   filter: saturate(90%);
                   opacity: 0.9;
+                  transition: all 0.2s;
 
                   &[data-is-compatible="false"] {
                     filter: saturate(0%);
@@ -987,8 +999,8 @@ function SpeciesFaceOption({
                   }
                 `}
               />
-            </Box>
-          </Box>
+            </div>
+          </label>
         </Tooltip>
       )}
     </ClassNames>
