@@ -511,9 +511,32 @@ function ItemPageOutfitPreview({ itemId }) {
     // switch back to it though... we could maybe do something clever there!)
     appearanceId: null,
   });
+  const [preferredSpeciesId, setPreferredSpeciesId] = useLocalStorage(
+    "DTIItemPreviewPreferredSpeciesId",
+    null
+  );
+
+  const setPetStateFromUserAction = (petState) => {
+    setPetState(petState);
+
+    // When the user _intentionally_ chooses a species, save it in local
+    // storage for next time. (This won't update when e.g. their preferred
+    // species isn't available for this item, so we update to the canonical
+    // species automatically.)
+    if (petState.speciesId) {
+      // I have no reason to expect null to come in here, but, since this is
+      // touching client-persisted data, I want it to be even more guaranteed
+      // reliable than usual!
+      setPreferredSpeciesId(petState.speciesId);
+    }
+  };
 
   // Start by loading the "canonical" pet and item appearance for the outfit
   // preview. We'll use this to initialize both the preview and the picker.
+  //
+  // If the user has a preferred species saved from using the ItemPage in the
+  // past, we'll send that instead. This will return the appearance on that
+  // species if possible, or the default canonical species if not.
   //
   // TODO: If this is a non-standard pet color, like Mutant, we'll do an extra
   //       query after this loads, because our Apollo cache can't detect the
@@ -521,7 +544,7 @@ function ItemPageOutfitPreview({ itemId }) {
   //       cover standard-color switches works for this preloading too.)
   const { loading: loadingGQL, error: errorGQL, data } = useQuery(
     gql`
-      query ItemPageOutfitPreview($itemId: ID!) {
+      query ItemPageOutfitPreview($itemId: ID!, $preferredSpeciesId: ID) {
         item(id: $itemId) {
           id
           name
@@ -529,7 +552,7 @@ function ItemPageOutfitPreview({ itemId }) {
             id
             representsAllBodies
           }
-          canonicalAppearance {
+          canonicalAppearance(preferredSpeciesId: $preferredSpeciesId) {
             id
             ...ItemAppearanceForOutfitPreview
             body {
@@ -556,7 +579,7 @@ function ItemPageOutfitPreview({ itemId }) {
       ${petAppearanceFragment}
     `,
     {
-      variables: { itemId },
+      variables: { itemId, preferredSpeciesId },
       onCompleted: (data) => {
         const canonicalBody = data?.item?.canonicalAppearance?.body;
         const canonicalPetAppearance = canonicalBody?.canonicalAppearance;
@@ -692,7 +715,7 @@ function ItemPageOutfitPreview({ itemId }) {
             pose={petState.pose}
             idealPose={idealPose}
             onChange={(species, color, _, closestPose) => {
-              setPetState({
+              setPetStateFromUserAction({
                 speciesId: species.id,
                 colorId: color.id,
                 pose: closestPose,
@@ -732,7 +755,7 @@ function ItemPageOutfitPreview({ itemId }) {
           onChange={({ speciesId, colorId }) => {
             const validPoses = getValidPoses(valids, speciesId, colorId);
             const pose = getClosestPose(validPoses, idealPose);
-            setPetState({
+            setPetStateFromUserAction({
               speciesId,
               colorId,
               pose,

@@ -60,7 +60,11 @@ const typeDefs = gql`
     # on the item page, to initialize the preview section. (You can find out
     # which species this is for by going through the body field on
     # ItemAppearance!)
-    canonicalAppearance: ItemAppearance @cacheControl(maxAge: 1, staleWhileRevalidate: ${oneWeek})
+    #
+    # There's also an optional preferredSpeciesId field, which you can use to
+    # request a certain species if compatible. If not, we'll fall back to the
+    # default species, as described above.
+    canonicalAppearance(preferredSpeciesId: ID): ItemAppearance @cacheControl(maxAge: 1, staleWhileRevalidate: ${oneWeek})
 
     # All zones that this item occupies, for at least one body. That is, it's
     # a union of zones for all of its appearances! We use this for overview
@@ -313,20 +317,23 @@ const resolvers = {
     },
     canonicalAppearance: async (
       { id },
-      _,
+      { preferredSpeciesId },
       { itemBodiesWithAppearanceDataLoader }
     ) => {
       const rows = await itemBodiesWithAppearanceDataLoader.load(id);
-      const canonicalBodyId = rows[0].bodyId;
+      const preferredRow = preferredSpeciesId
+        ? rows.find((row) => row.speciesId === preferredSpeciesId)
+        : null;
+      const bestRow = preferredRow || rows[0];
       return {
         item: { id },
-        bodyId: canonicalBodyId,
+        bodyId: bestRow.bodyId,
         // An optimization: we know the species already, so fill it in here
         // without requiring an extra query if we want it.
         // TODO: Maybe this would be cleaner if we make the body -> species
         //       loader, and prime it in the item bodies loader, rather than
         //       setting it here?
-        body: { id: canonicalBodyId, species: { id: rows[0].speciesId } },
+        body: { id: bestRow.bodyId, species: { id: bestRow.speciesId } },
       };
     },
     allOccupiedZones: async ({ id }, _, { itemAllOccupiedZonesLoader }) => {
