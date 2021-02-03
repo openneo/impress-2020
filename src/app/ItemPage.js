@@ -841,12 +841,17 @@ function SpeciesFacesPicker({
     const providedSpeciesFace = speciesFacesFromData.find(
       (f) => f.species.id === defaultSpeciesFace.speciesId
     );
-    if (providedSpeciesFace && providedSpeciesFace.neopetsImageHash) {
+    if (providedSpeciesFace) {
       return {
         ...defaultSpeciesFace,
         colorId: selectedColorId,
         bodyId: providedSpeciesFace.body.id,
-        neopetsImageHash: providedSpeciesFace.neopetsImageHash,
+        // If this species/color pair exists, but without an image hash, then
+        // we want to provide a face so that it's enabled, but use the fallback
+        // image even though it's wrong, so that it looks like _something_.
+        neopetsImageHash:
+          providedSpeciesFace.neopetsImageHash ||
+          defaultSpeciesFace.neopetsImageHash,
       };
     } else {
       return defaultSpeciesFace;
