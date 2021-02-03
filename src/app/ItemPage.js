@@ -718,20 +718,22 @@ function ItemPageOutfitPreview({ itemId }) {
           </Box>
         </Box>
       </VStack>
-      <SpeciesFacesPicker
-        selectedSpeciesId={petState.speciesId}
-        compatibleBodies={compatibleBodies}
-        couldProbablyModelMoreData={couldProbablyModelMoreData}
-        onChange={({ speciesId, colorId }) =>
-          setPetState({
-            speciesId,
-            colorId,
-            pose: idealPose,
-            appearanceId: null,
-          })
-        }
-        isLoading={loading}
-      />
+      <Box maxWidth="400px">
+        <SpeciesFacesPicker
+          selectedSpeciesId={petState.speciesId}
+          compatibleBodies={compatibleBodies}
+          couldProbablyModelMoreData={couldProbablyModelMoreData}
+          onChange={({ speciesId, colorId }) =>
+            setPetState({
+              speciesId,
+              colorId,
+              pose: idealPose,
+              appearanceId: null,
+            })
+          }
+          isLoading={loading}
+        />
+      </Box>
     </Stack>
   );
 }
@@ -801,19 +803,8 @@ function SpeciesFacesPicker({
     a.speciesName.localeCompare(b.speciesName)
   );
 
-  const focusBorderColorValue = useToken("colors", "blue.100");
-
   return (
-    <Box
-      _focusWithin={{
-        boxShadow: `${focusBorderColorValue} 0 0 1px 2px`,
-      }}
-      maxWidth="400px"
-      boxSizing="content-box"
-      padding="2"
-      borderRadius="md"
-      transition="all 0.2s"
-    >
+    <>
       <Wrap
         spacing="0"
         justify="center"
@@ -851,7 +842,7 @@ function SpeciesFacesPicker({
           }
         `}
       />
-    </Box>
+    </>
   );
 }
 
@@ -910,7 +901,7 @@ function SpeciesFaceOption({
         <Tooltip
           label={tooltipLabel}
           placement="top"
-          gutter={-12}
+          gutter={-10}
           // We track hover and focus state manually for the tooltip, so that
           // keyboard nav to switch between options causes the tooltip to
           // follow. (By default, the tooltip appears on the first tab focus,
