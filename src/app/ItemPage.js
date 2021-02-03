@@ -690,11 +690,6 @@ function ItemPageOutfitPreview({ itemId }) {
             speciesIsDisabled={isProbablySpeciesSpecific}
             size="sm"
             showPlaceholders
-            // This is just a UX affordance: while we could handle invalid states
-            // from a UI perspective, we figure that, if a pet preview is already
-            // visible and responsive to changes, it feels better to treat the
-            // changes as atomic and always-valid.
-            stateMustAlwaysBeValid
           />
           <Box flex="1 0 0" lineHeight="1">
             {isIncompatible && (
