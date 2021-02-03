@@ -6,7 +6,14 @@ const connectToDb = require("./db");
 const buildLoaders = require("./loaders");
 
 const rootTypeDefs = gql`
-  directive @cacheControl(maxAge: Int!) on FIELD_DEFINITION | OBJECT
+  enum CacheScope {
+    PUBLIC
+    PRIVATE
+  }
+  directive @cacheControl(
+    maxAge: Int
+    scope: CacheScope
+  ) on FIELD_DEFINITION | OBJECT
 
   type Mutation
   type Query

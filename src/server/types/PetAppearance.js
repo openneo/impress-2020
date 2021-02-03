@@ -3,18 +3,17 @@ const {
   capitalize,
   getPoseFromPetState,
   getRestrictedZoneIds,
+  oneWeek,
 } = require("../util");
 
 const typeDefs = gql`
-  # Cache for 1 week (unlikely to change)
-  type Color @cacheControl(maxAge: 604800) {
+  type Color @cacheControl(maxAge: ${oneWeek}) {
     id: ID!
     name: String!
     isStandard: Boolean!
   }
 
-  # Cache for 1 week (unlikely to change)
-  type Species @cacheControl(maxAge: 604800) {
+  type Species @cacheControl(maxAge: ${oneWeek}) {
     id: ID!
     name: String!
 
@@ -38,7 +37,7 @@ const typeDefs = gql`
     UNKNOWN # for when we have the data, but we don't know what it is
   }
 
-  type Body {
+  type Body @cacheControl(maxAge: ${oneWeek}) {
     id: ID!
     species: Species!
 
@@ -49,8 +48,7 @@ const typeDefs = gql`
     representsAllBodies: Boolean!
   }
 
-  # Cache for 1 week (unlikely to change)
-  type PetAppearance @cacheControl(maxAge: 604800) {
+  type PetAppearance @cacheControl(maxAge: ${oneWeek}) {
     id: ID!
     species: Species!
     color: Color!

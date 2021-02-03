@@ -148,4 +148,9 @@ module.exports = {
   loadBodyName,
   logToDiscord,
   normalizeRow,
+
+  // For Apollo's @cacheControl maxAge: time in seconds.
+  oneWeek: 604800,
+  oneDay: 86400,
+  oneHour: 3600,
 };

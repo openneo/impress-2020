@@ -1,8 +1,8 @@
 const { gql } = require("apollo-server");
-const { getRestrictedZoneIds } = require("../util");
+const { getRestrictedZoneIds, oneWeek, oneHour } = require("../util");
 
 const typeDefs = gql`
-  type Item {
+  type Item @cacheControl(maxAge: ${oneWeek}) {
     id: ID!
     name: String!
     description: String!
@@ -19,26 +19,26 @@ const typeDefs = gql`
     # item was added so long ago that we don't have this field!
     createdAt: String
 
-    currentUserOwnsThis: Boolean!
-    currentUserWantsThis: Boolean!
+    currentUserOwnsThis: Boolean! @cacheControl(scope: PRIVATE)
+    currentUserWantsThis: Boolean! @cacheControl(scope: PRIVATE)
 
     # How many users are offering/seeking this in their public trade lists.
-    numUsersOfferingThis: Int!
-    numUsersSeekingThis: Int!
+    numUsersOfferingThis: Int! @cacheControl(maxAge: ${oneHour})
+    numUsersSeekingThis: Int! @cacheControl(maxAge: ${oneHour})
 
     # The trades available for this item, grouped by offering vs seeking.
-    tradesOffering: [ItemTrade!]!
-    tradesSeeking: [ItemTrade!]!
+    tradesOffering: [ItemTrade!]! @cacheControl(maxAge: 0)
+    tradesSeeking: [ItemTrade!]! @cacheControl(maxAge: 0)
 
     # How this item appears on the given species/color combo. If it does not
     # fit the pet, we'll return an empty ItemAppearance with no layers.
-    appearanceOn(speciesId: ID!, colorId: ID!): ItemAppearance!
+    appearanceOn(speciesId: ID!, colorId: ID!): ItemAppearance! @cacheControl(maxAge: ${oneHour})
 
     # This is set manually by Support users, when the pet is only for e.g.
     # Maraquan pets, and our usual auto-detection isn't working. We provide
     # this for the Support UI; it's not very helpful for most users, because it
     # can be empty even if the item _has_ an auto-detected special color.
-    manualSpecialColor: Color
+    manualSpecialColor: Color @cacheControl(maxAge: 0)
 
     # This is set manually by Support users, when the item _seems_ to fit all
     # pets the same because of its zones, but it actually doesn't - e.g.,
@@ -46,30 +46,30 @@ const typeDefs = gql`
     # provide this for the Support UI; it's not very helpful for most users,
     # because it's only used at modeling time. This value does not change how
     # layer data from this API should be interpreted!
-    explicitlyBodySpecific: Boolean!
+    explicitlyBodySpecific: Boolean! @cacheControl(maxAge: 0)
 
     # Get the species that we need modeled for this item for the given color.
     #
     # NOTE: Most color IDs won't be accepted here. Either pass the ID of a
     #       major special color like Baby (#6), or leave it blank for standard
     #       bodies like Blue, Green, Red, etc.
-    speciesThatNeedModels(colorId: ID): [Species!]!
+    speciesThatNeedModels(colorId: ID): [Species!]! @cacheControl(maxAge: ${oneHour})
 
     # Return a single ItemAppearance for this item. It'll be for the species
     # with the smallest ID for which we have item appearance data. We use this
     # on the item page, to initialize the preview section. (You can find out
     # which species this is for by going through the body field on
     # ItemAppearance!)
-    canonicalAppearance: ItemAppearance
+    canonicalAppearance: ItemAppearance @cacheControl(maxAge: ${oneHour})
 
     # All zones that this item occupies, for at least one body. That is, it's
     # a union of zones for all of its appearances! We use this for overview
     # info about the item.
-    allOccupiedZones: [Zone!]!
+    allOccupiedZones: [Zone!]! @cacheControl(maxAge: ${oneHour})
 
     # All bodies that this item is compatible with. Note that this might return
     # the special representsAllPets body, e.g. if this is just a Background!
-    compatibleBodies: [Body!]!
+    compatibleBodies: [Body!]! @cacheControl(maxAge: ${oneHour})
   }
 
   type ItemAppearance {
