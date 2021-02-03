@@ -35,6 +35,7 @@ export interface CacheControlExtensionOptions {
 
 declare module 'graphql/type/definition' {
   interface GraphQLResolveInfo {
+    // @ts-ignore: FORK. Don't know enough TypeScript to resolve this!
     cacheControl: {
       setCacheHint: (hint: CacheHint) => void;
       cacheHint: CacheHint;
@@ -45,6 +46,7 @@ declare module 'graphql/type/definition' {
 declare module 'apollo-server-types' {
   interface GraphQLRequestContext<TContext> {
     // Not readonly: plugins can set it.
+    // @ts-ignore: FORK. Don't know enough TypeScript to resolve this!
     overallCachePolicy?: Required<CacheHint> | undefined;
   }
 }
@@ -60,7 +62,9 @@ export const plugin = (
 
 
     function setOverallCachePolicyWhenUnset() {
+      // @ts-ignore: FORK. Don't know enough TypeScript to resolve this!
       if (!requestContext.overallCachePolicy) {
+        // @ts-ignore: FORK. Don't know enough TypeScript to resolve this!
         requestContext.overallCachePolicy = computeOverallCachePolicy(hints);
       }
     }
@@ -136,6 +140,7 @@ export const plugin = (
       willSendResponse(requestContext) {
         const {
           response,
+          // @ts-ignore: FORK. Don't know enough TypeScript to resolve this!
           overallCachePolicy: overallCachePolicyOverride,
         } = requestContext;
 
@@ -148,6 +153,7 @@ export const plugin = (
         // own computation onto the `requestContext` for other plugins to read.
         const overallCachePolicy =
           overallCachePolicyOverride ||
+          // @ts-ignore: FORK. Don't know enough TypeScript to resolve this!
           (requestContext.overallCachePolicy =
             computeOverallCachePolicy(hints));
 
