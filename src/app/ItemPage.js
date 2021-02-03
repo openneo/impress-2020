@@ -578,11 +578,6 @@ function ItemPageOutfitPreview({ itemId }) {
       data?.item?.canonicalAppearance?.body?.canonicalAppearance?.species?.name
     );
   const couldProbablyModelMoreData = !isProbablySpeciesSpecific;
-  console.log(
-    compatibleBodies,
-    data?.item?.name,
-    data?.item?.canonicalAppearance?.body?.canonicalAppearance?.species?.name
-  );
 
   // To check whether the item is compatible with this pet, query for the
   // appearance, but only against the cache. That way, we don't send a
