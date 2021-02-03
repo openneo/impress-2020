@@ -1005,7 +1005,12 @@ const buildCanonicalPetStateForBodyLoader = (db, loaders) =>
               LIMIT 1`,
               nestTables: true,
             },
-            [bodyId, preferredColorId, fallbackColorId, gender === "fem"]
+            [
+              bodyId,
+              preferredColorId || "<ignore>",
+              fallbackColorId,
+              gender === "fem",
+            ]
           );
           const petState = normalizeRow(rows[0].pet_states);
           const petType = normalizeRow(rows[0].pet_types);
