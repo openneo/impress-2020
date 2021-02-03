@@ -934,7 +934,7 @@ function SpeciesFaceOption({
                 width={50}
                 height={50}
                 filter={isCompatible ? "saturate(90%)" : "saturate(0%)"}
-                opacity="0.9"
+                opacity={isCompatible ? "0.9" : "0.6"}
                 transition="all 0.2s"
                 className={css`
                   input:checked + * & {
