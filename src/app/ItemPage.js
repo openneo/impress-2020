@@ -538,10 +538,8 @@ function ItemPageOutfitPreview({ itemId }) {
       if (colorIsBasic(newPetState.colorId)) {
         // When the user chooses a basic color, don't index on it specifically,
         // and instead reset to use default colors.
-        console.log("set to null");
         setPreferredColorId(null);
       } else {
-        console.log("set to color", newPetState.colorId);
         setPreferredColorId(newPetState.colorId);
       }
     }
