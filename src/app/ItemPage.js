@@ -978,6 +978,17 @@ function SpeciesFaceOption({
                     opacity: 1;
                     filter: saturate(110%);
                   }
+
+                  /* Alt text for when the image fails to load! We hide it
+                   * while still loading though! */
+                  font-size: 0.75rem;
+                  text-align: center;
+                  &:-moz-loading {
+                    visibility: hidden;
+                  }
+                  &:-moz-broken {
+                    padding: 0.5rem;
+                  }
                 `}
               />
             </Box>
