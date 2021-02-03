@@ -4,6 +4,9 @@ const { gql, makeExecutableSchema } = require("apollo-server");
 const { getUserIdFromToken } = require("./auth");
 const connectToDb = require("./db");
 const buildLoaders = require("./loaders");
+const {
+  plugin: cacheControlPluginFork,
+} = require("./lib/apollo-cache-control-fork");
 
 const rootTypeDefs = gql`
   enum CacheScope {
@@ -12,6 +15,7 @@ const rootTypeDefs = gql`
   }
   directive @cacheControl(
     maxAge: Int
+    staleWhileRevalidate: Int
     scope: CacheScope
   ) on FIELD_DEFINITION | OBJECT
 
@@ -51,7 +55,7 @@ const schema = makeExecutableSchema(
   ])
 );
 
-const plugins = [];
+const plugins = [cacheControlPluginFork({ calculateHttpHeaders: true })];
 
 if (process.env["NODE_ENV"] !== "test") {
   plugins.push(beelinePlugin);
@@ -75,6 +79,9 @@ const config = {
   },
 
   plugins,
+
+  // We use our own fork of the cacheControl plugin!
+  cacheControl: false,
 
   // Enable Playground in production :)
   introspection: true,

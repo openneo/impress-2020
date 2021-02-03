@@ -4,6 +4,8 @@ const {
   getPoseFromPetState,
   getRestrictedZoneIds,
   oneWeek,
+  oneDay,
+  oneHour,
 } = require("../util");
 
 const typeDefs = gql`
@@ -37,7 +39,7 @@ const typeDefs = gql`
     UNKNOWN # for when we have the data, but we don't know what it is
   }
 
-  type Body @cacheControl(maxAge: ${oneWeek}) {
+  type Body @cacheControl(maxAge: ${oneDay}, staleWhileRevalidate: ${oneWeek}) {
     id: ID!
     species: Species!
 
@@ -48,7 +50,7 @@ const typeDefs = gql`
     representsAllBodies: Boolean!
   }
 
-  type PetAppearance @cacheControl(maxAge: ${oneWeek}) {
+  type PetAppearance @cacheControl(maxAge: ${oneHour}, staleWhileRevalidate: ${oneWeek}) {
     id: ID!
     species: Species!
     color: Color!
@@ -67,14 +69,14 @@ const typeDefs = gql`
 
   extend type Query {
     color(id: ID!): Color
-    allColors: [Color!]! @cacheControl(maxAge: 10800) # Cache for 3 hours (we might add more!)
+    allColors: [Color!]! @cacheControl(maxAge: ${oneHour}, staleWhileRevalidate: ${oneWeek})
     species(id: ID!): Species
-    allSpecies: [Species!]! @cacheControl(maxAge: 10800) # Cache for 3 hours (we might add more!)
-    petAppearanceById(id: ID!): PetAppearance @cacheControl(maxAge: 10800) # Cache for 3 hours (Support might edit!)
+    allSpecies: [Species!]! @cacheControl(maxAge: ${oneDay}, staleWhileRevalidate: ${oneWeek})
+    petAppearanceById(id: ID!): PetAppearance @cacheControl(maxAge: 0) # Only Support really uses this, show changes fast
     # The canonical pet appearance for the given species, color, and pose.
     # Null if we don't have any data for this combination.
     petAppearance(speciesId: ID!, colorId: ID!, pose: Pose!): PetAppearance
-      @cacheControl(maxAge: 10800) # Cache for 3 hours (we might model more!)
+      @cacheControl(maxAge: 1, staleWhileRevalidate: ${oneDay})
     # All pet appearances we've ever seen for the given species and color. Note
     # that this might include multiple copies for the same pose, and they might
     # even be glitched data. We use this for Support tools, and we don't cache

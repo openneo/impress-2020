@@ -1,8 +1,8 @@
 const { gql } = require("apollo-server");
-const { getRestrictedZoneIds, oneWeek, oneHour } = require("../util");
+const { getRestrictedZoneIds, oneWeek, oneDay, oneHour } = require("../util");
 
 const typeDefs = gql`
-  type Item @cacheControl(maxAge: ${oneWeek}) {
+  type Item @cacheControl(maxAge: ${oneDay}, staleWhileRevalidate: ${oneWeek}) {
     id: ID!
     name: String!
     description: String!
@@ -32,7 +32,7 @@ const typeDefs = gql`
 
     # How this item appears on the given species/color combo. If it does not
     # fit the pet, we'll return an empty ItemAppearance with no layers.
-    appearanceOn(speciesId: ID!, colorId: ID!): ItemAppearance! @cacheControl(maxAge: ${oneHour})
+    appearanceOn(speciesId: ID!, colorId: ID!): ItemAppearance! @cacheControl(maxAge: 1, staleWhileRevalidate: ${oneDay})
 
     # This is set manually by Support users, when the pet is only for e.g.
     # Maraquan pets, and our usual auto-detection isn't working. We provide
@@ -53,14 +53,14 @@ const typeDefs = gql`
     # NOTE: Most color IDs won't be accepted here. Either pass the ID of a
     #       major special color like Baby (#6), or leave it blank for standard
     #       bodies like Blue, Green, Red, etc.
-    speciesThatNeedModels(colorId: ID): [Species!]! @cacheControl(maxAge: ${oneHour})
+    speciesThatNeedModels(colorId: ID): [Species!]! @cacheControl(maxAge: 1)
 
     # Return a single ItemAppearance for this item. It'll be for the species
     # with the smallest ID for which we have item appearance data. We use this
     # on the item page, to initialize the preview section. (You can find out
     # which species this is for by going through the body field on
     # ItemAppearance!)
-    canonicalAppearance: ItemAppearance @cacheControl(maxAge: ${oneHour})
+    canonicalAppearance: ItemAppearance @cacheControl(maxAge: 1, staleWhileRevalidate: ${oneWeek})
 
     # All zones that this item occupies, for at least one body. That is, it's
     # a union of zones for all of its appearances! We use this for overview
@@ -69,7 +69,7 @@ const typeDefs = gql`
 
     # All bodies that this item is compatible with. Note that this might return
     # the special representsAllPets body, e.g. if this is just a Background!
-    compatibleBodies: [Body!]! @cacheControl(maxAge: ${oneHour})
+    compatibleBodies: [Body!]! @cacheControl(maxAge: 1, staleWhileRevalidate: ${oneWeek})
   }
 
   type ItemAppearance {
@@ -134,8 +134,8 @@ const typeDefs = gql`
       limit: Int
     ): ItemSearchResult!
 
-    # Get the 20 items most recently added to our database. Cache for 1 hour.
-    newestItems: [Item!]! @cacheControl(maxAge: 3600)
+    # Get the 20 items most recently added to our database.
+    newestItems: [Item!]! @cacheControl(maxAge: ${oneHour}, staleWhileRevalidate: ${oneDay})
 
     # Get items that need models for the given color.
     #

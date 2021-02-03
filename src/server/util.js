@@ -153,4 +153,5 @@ module.exports = {
   oneWeek: 604800,
   oneDay: 86400,
   oneHour: 3600,
+  oneMinute: 60,
 };
