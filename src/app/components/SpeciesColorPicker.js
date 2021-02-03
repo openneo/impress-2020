@@ -44,15 +44,12 @@ function SpeciesColorPicker({
       }
     }
   `);
+
   const {
     loading: loadingValids,
     error: errorValids,
-    data: validsBuffer,
-  } = useFetch("/api/validPetPoses", { responseType: "arrayBuffer" });
-  const valids = React.useMemo(
-    () => validsBuffer && new DataView(validsBuffer),
-    [validsBuffer]
-  );
+    valids,
+  } = useAllValidPetPoses();
 
   const allColors = (meta && [...meta.allColors]) || [];
   allColors.sort((a, b) => a.name.localeCompare(b.name));
@@ -309,6 +306,20 @@ const SpeciesColorSelect = ({
   );
 };
 
+export function useAllValidPetPoses() {
+  const { loading, error, data: validsBuffer } = useFetch(
+    "/api/validPetPoses",
+    { responseType: "arrayBuffer" }
+  );
+
+  const valids = React.useMemo(
+    () => validsBuffer && new DataView(validsBuffer),
+    [validsBuffer]
+  );
+
+  return { loading, error, valids };
+}
+
 function getPairByte(valids, speciesId, colorId) {
   // Reading a bit table, owo!
   const speciesIndex = speciesId - 1;
@@ -331,7 +342,7 @@ function pairIsValid(valids, speciesId, colorId) {
   return getPairByte(valids, speciesId, colorId) !== 0;
 }
 
-function getValidPoses(valids, speciesId, colorId) {
+export function getValidPoses(valids, speciesId, colorId) {
   const pairByte = getPairByte(valids, speciesId, colorId);
 
   const validPoses = new Set();
@@ -347,7 +358,7 @@ function getValidPoses(valids, speciesId, colorId) {
   return validPoses;
 }
 
-function getClosestPose(validPoses, idealPose) {
+export function getClosestPose(validPoses, idealPose) {
   return closestPosesInOrder[idealPose].find((p) => validPoses.has(p)) || null;
 }
 

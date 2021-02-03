@@ -40,7 +40,11 @@ import {
   petAppearanceFragment,
 } from "./components/useOutfitAppearance";
 import OutfitPreview from "./components/OutfitPreview";
-import SpeciesColorPicker from "./components/SpeciesColorPicker";
+import SpeciesColorPicker, {
+  useAllValidPetPoses,
+  getValidPoses,
+  getClosestPose,
+} from "./components/SpeciesColorPicker";
 import useCurrentUser from "./components/useCurrentUser";
 import { useLocalStorage } from "./util";
 
@@ -515,7 +519,7 @@ function ItemPageOutfitPreview({ itemId }) {
   //       query after this loads, because our Apollo cache can't detect the
   //       shared item appearance. (For standard colors though, our logic to
   //       cover standard-color switches works for this preloading too.)
-  const { loading, error, data } = useQuery(
+  const { loading: loadingGQL, error: errorGQL, data } = useQuery(
     gql`
       query ItemPageOutfitPreview($itemId: ID!) {
         item(id: $itemId) {
@@ -581,6 +585,13 @@ function ItemPageOutfitPreview({ itemId }) {
     );
   const couldProbablyModelMoreData = !isProbablySpeciesSpecific;
 
+  // TODO: Does this double-trigger the HTTP request with SpeciesColorPicker?
+  const {
+    loading: loadingValids,
+    error: errorValids,
+    valids,
+  } = useAllValidPetPoses();
+
   // To check whether the item is compatible with this pet, query for the
   // appearance, but only against the cache. That way, we don't send a
   // redundant network request just for this (the OutfitPreview component will
@@ -617,6 +628,7 @@ function ItemPageOutfitPreview({ itemId }) {
   const borderColor = useColorModeValue("green.700", "green.400");
   const errorColor = useColorModeValue("red.600", "red.400");
 
+  const error = errorGQL || errorValids;
   if (error) {
     return <Box color="red.400">{error.message}</Box>;
   }
@@ -648,7 +660,7 @@ function ItemPageOutfitPreview({ itemId }) {
               pose={petState.pose}
               appearanceId={petState.appearanceId}
               wornItemIds={[itemId]}
-              isLoading={loading}
+              isLoading={loadingGQL || loadingValids}
               spinnerVariant="corner"
               loadingDelayMs={2000}
               engine="canvas"
@@ -717,15 +729,17 @@ function ItemPageOutfitPreview({ itemId }) {
           selectedColorId={petState.colorId}
           compatibleBodies={compatibleBodies}
           couldProbablyModelMoreData={couldProbablyModelMoreData}
-          onChange={({ speciesId, colorId }) =>
+          onChange={({ speciesId, colorId }) => {
+            const validPoses = getValidPoses(valids, speciesId, colorId);
+            const pose = getClosestPose(validPoses, idealPose);
             setPetState({
               speciesId,
               colorId,
-              pose: idealPose,
+              pose,
               appearanceId: null,
-            })
-          }
-          isLoading={loading}
+            });
+          }}
+          isLoading={loadingGQL || loadingValids}
         />
       </Box>
     </Stack>
@@ -900,7 +914,7 @@ function SpeciesFacesPicker({
         >
           <WarningTwoIcon marginTop="0.4em" marginRight="1" />
           <Box>
-            Error loading this color's thumbnail images.
+            Error loading this color's pet photos.
             <br />
             Check your connection and try again.
           </Box>
