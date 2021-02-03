@@ -18,6 +18,7 @@ import {
   Stack,
   Wrap,
   WrapItem,
+  Flex,
 } from "@chakra-ui/react";
 import {
   CheckIcon,
@@ -25,6 +26,7 @@ import {
   EditIcon,
   StarIcon,
   WarningIcon,
+  WarningTwoIcon,
 } from "@chakra-ui/icons";
 import { MdPause, MdPlayArrow } from "react-icons/md";
 import gql from "graphql-tag";
@@ -717,6 +719,7 @@ function ItemPageOutfitPreview({ itemId }) {
       <Box maxWidth="400px">
         <SpeciesFacesPicker
           selectedSpeciesId={petState.speciesId}
+          selectedColorId={petState.colorId}
           compatibleBodies={compatibleBodies}
           couldProbablyModelMoreData={couldProbablyModelMoreData}
           onChange={({ speciesId, colorId }) =>
@@ -785,22 +788,73 @@ function PlayPauseButton({ isPaused, onClick }) {
 
 function SpeciesFacesPicker({
   selectedSpeciesId,
+  selectedColorId,
   compatibleBodies,
   couldProbablyModelMoreData,
   onChange,
   isLoading,
 }) {
+  // For basic colors (Blue, Green, Red, Yellow), we just use the hardcoded
+  // data, which is part of the bundle and loads super-fast. For other colors,
+  // we load in all the faces of that color, falling back to basic colors when
+  // absent!
+  //
+  // TODO: Could we move this into our `build-cached-data` script, and just do
+  //       the query all the time, and have Apollo happen to satisfy it fast?
+  //       The semantics of returning our colorful random set could be weird…
+  const selectedColorIsBasic = ["8", "34", "61", "84"].includes(
+    selectedColorId
+  );
+  const { loading: loadingGQL, error, data } = useQuery(
+    gql`
+      query SpeciesFacesPicker($selectedColorId: ID!) {
+        color(id: $selectedColorId) {
+          id
+          appliedToAllCompatibleSpecies {
+            id
+            neopetsImageHash
+            species {
+              id
+            }
+            body {
+              id
+            }
+          }
+        }
+      }
+    `,
+    {
+      variables: { selectedColorId },
+      skip: selectedColorId == null || selectedColorIsBasic,
+      onError: (e) => console.error(e),
+    }
+  );
+
   const allBodiesAreCompatible = compatibleBodies.some(
     (body) => body.representsAllBodies
   );
   const compatibleBodyIds = compatibleBodies.map((body) => body.id);
 
-  const allSpeciesFaces = speciesFaces.sort((a, b) =>
-    a.speciesName.localeCompare(b.speciesName)
-  );
+  const speciesFacesFromData = data?.color?.appliedToAllCompatibleSpecies || [];
+
+  const allSpeciesFaces = DEFAULT_SPECIES_FACES.map((defaultSpeciesFace) => {
+    const providedSpeciesFace = speciesFacesFromData.find(
+      (f) => f.species.id === defaultSpeciesFace.speciesId
+    );
+    if (providedSpeciesFace && providedSpeciesFace.neopetsImageHash) {
+      return {
+        ...defaultSpeciesFace,
+        colorId: selectedColorId,
+        bodyId: providedSpeciesFace.body.id,
+        neopetsImageHash: providedSpeciesFace.neopetsImageHash,
+      };
+    } else {
+      return defaultSpeciesFace;
+    }
+  });
 
   return (
-    <>
+    <Box>
       <Wrap
         spacing="0"
         justify="center"
@@ -824,11 +878,29 @@ function SpeciesFacesPicker({
               isSelected={speciesFace.speciesId === selectedSpeciesId}
               couldProbablyModelMoreData={couldProbablyModelMoreData}
               onChange={onChange}
-              isLoading={isLoading}
+              isLoading={isLoading || loadingGQL}
             />
           </WrapItem>
         ))}
       </Wrap>
+      {error && (
+        <Flex
+          color="yellow.500"
+          fontSize="xs"
+          marginTop="1"
+          textAlign="center"
+          width="100%"
+          align="flex-start"
+          justify="center"
+        >
+          <WarningTwoIcon marginTop="0.4em" marginRight="1" />
+          <Box>
+            Error loading this color's thumbnail images.
+            <br />
+            Check your connection and try again.
+          </Box>
+        </Flex>
+      )}
       <Global
         // Workaround for https://github.com/chakra-ui/chakra-ui/issues/3257,
         // which causes tooltip hover flicker.
@@ -838,7 +910,7 @@ function SpeciesFacesPicker({
           }
         `}
       />
-    </>
+    </Box>
   );
 }
 
@@ -1062,7 +1134,7 @@ function DeferredTooltip({ children, isOpen, ...props }) {
 //       And it's not so bad if this gets out of sync with the database,
 //       because the SpeciesColorPicker will still be usable!
 const colors = { BLUE: "8", RED: "61", GREEN: "34", YELLOW: "84" };
-const speciesFaces = [
+const DEFAULT_SPECIES_FACES = [
   {
     speciesName: "Acara",
     speciesId: "1",

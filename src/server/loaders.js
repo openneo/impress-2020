@@ -742,6 +742,29 @@ const buildPetTypeBySpeciesAndColorLoader = (db, loaders) =>
     { cacheKeyFn: ({ speciesId, colorId }) => `${speciesId},${colorId}` }
   );
 
+const buildPetTypesForColorLoader = (db, loaders) =>
+  new DataLoader(async (colorIds) => {
+    const qs = colorIds.map((_) => "?").join(",");
+    const [rows, _] = await db.execute(
+      `SELECT * FROM pet_types WHERE color_id IN (${qs})`,
+      colorIds
+    );
+
+    const entities = rows.map(normalizeRow);
+
+    for (const petType of entities) {
+      loaders.petTypeLoader.prime(petType.id, petType);
+      loaders.petTypeBySpeciesAndColorLoader.prime(
+        { speciesId: petType.speciesId, colorId: petType.colorId },
+        petType
+      );
+    }
+
+    return colorIds.map((colorId) =>
+      entities.filter((e) => e.colorId === colorId)
+    );
+  });
+
 const buildSwfAssetLoader = (db) =>
   new DataLoader(async (swfAssetIds) => {
     const qs = swfAssetIds.map((_) => "?").join(",");
@@ -1271,6 +1294,7 @@ function buildLoaders(db) {
     db,
     loaders
   );
+  loaders.petTypesForColorLoader = buildPetTypesForColorLoader(db, loaders);
   loaders.swfAssetLoader = buildSwfAssetLoader(db);
   loaders.swfAssetCountLoader = buildSwfAssetCountLoader(db);
   loaders.swfAssetByRemoteIdLoader = buildSwfAssetByRemoteIdLoader(db);

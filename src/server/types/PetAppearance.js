@@ -14,6 +14,9 @@ const typeDefs = gql`
     id: ID!
     name: String!
     isStandard: Boolean!
+
+    # All SpeciesColorPairs of this color.
+    appliedToAllCompatibleSpecies: [SpeciesColorPair!]! @cacheControl(maxAge: 1, staleWhileRevalidate: ${oneDay})
   }
 
   type Species @cacheControl(maxAge: ${oneWeek}) {
@@ -68,6 +71,22 @@ const typeDefs = gql`
     isGlitched: Boolean!
   }
 
+  # Like a PetAppearance, but with no pose specified. Species and color are
+  # enough info to specify a body; and the neopetsImageHash values we save
+  # don't have gender presentation specified, anyway, so they're available
+  # here.
+  type SpeciesColorPair {
+    id: ID!
+    species: Species!
+    color: Color!
+    body: Body!
+
+    # A hash to use in a pets.neopets.com image URL. Might be null if we don't
+    # have one for this pair, which is uncommon - but it's _somewhat_ common
+    # for them to have clothes, if we've never seen a plain version modeled.
+    neopetsImageHash: String
+  }
+
   extend type Query {
     color(id: ID!): Color
     allColors: [Color!]! @cacheControl(maxAge: ${oneHour}, staleWhileRevalidate: ${oneWeek})
@@ -97,6 +116,15 @@ const resolvers = {
     isStandard: async ({ id }, _, { colorLoader }) => {
       const color = await colorLoader.load(id);
       return color.standard ? true : false;
+    },
+    appliedToAllCompatibleSpecies: async (
+      { id },
+      _,
+      { petTypesForColorLoader }
+    ) => {
+      const petTypes = await petTypesForColorLoader.load(id);
+      const speciesColorPairs = petTypes.map((petType) => ({ id: petType.id }));
+      return speciesColorPairs;
     },
   },
 
@@ -190,6 +218,32 @@ const resolvers = {
     isGlitched: async ({ id }, _, { petStateLoader }) => {
       const petState = await petStateLoader.load(id);
       return petState.glitched;
+    },
+  },
+
+  SpeciesColorPair: {
+    species: async ({ id }, _, { petTypeLoader }) => {
+      const petType = await petTypeLoader.load(id);
+      return { id: petType.speciesId };
+    },
+    color: async ({ id }, _, { petTypeLoader }) => {
+      const petType = await petTypeLoader.load(id);
+      return { id: petType.colorId };
+    },
+    body: async ({ id }, _, { petTypeLoader }) => {
+      const petType = await petTypeLoader.load(id);
+      return { id: petType.bodyId };
+    },
+    neopetsImageHash: async ({ id }, _, { petTypeLoader }) => {
+      const petType = await petTypeLoader.load(id);
+
+      // `basicImageHash` is guaranteed to be a plain no-clothes image, whereas
+      // `imageHash` prefers to be if possible, but might not be. (I forget the
+      // details on how this was implemented in Classic, so I'm not _sure_ on
+      // `imageHash` preferences during modeling… but I'm confident that
+      // `basicImageHash` is always better, and `imageHash` is better than
+      // nothing!)
+      return petType.basicImageHash || petType.imageHash;
     },
   },
 
