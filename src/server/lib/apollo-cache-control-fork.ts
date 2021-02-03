@@ -103,6 +103,7 @@ export const plugin = (
             addHint(hints, info.path, hint);
           }
 
+          // @ts-ignore: FORK. Don't know enough TypeScript to resolve this!
           info.cacheControl = {
             setCacheHint: (hint: CacheHint) => {
               addHint(hints, info.path, hint);
