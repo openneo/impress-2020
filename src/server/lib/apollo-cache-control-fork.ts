@@ -33,24 +33,6 @@ export interface CacheControlExtensionOptions {
   stripFormattedExtensions?: boolean;
 }
 
-declare module 'graphql/type/definition' {
-  interface GraphQLResolveInfo {
-    // @ts-ignore: FORK. Don't know enough TypeScript to resolve this!
-    cacheControl: {
-      setCacheHint: (hint: CacheHint) => void;
-      cacheHint: CacheHint;
-    };
-  }
-}
-
-declare module 'apollo-server-types' {
-  interface GraphQLRequestContext<TContext> {
-    // Not readonly: plugins can set it.
-    // @ts-ignore: FORK. Don't know enough TypeScript to resolve this!
-    overallCachePolicy?: Required<CacheHint> | undefined;
-  }
-}
-
 type MapResponsePathHints = Map<ResponsePath, CacheHint>;
 
 export const plugin = (
