@@ -754,7 +754,7 @@ function ItemPageOutfitPreview({ itemId }) {
               <Tooltip
                 label={
                   couldProbablyModelMoreData
-                    ? "Not modeled yet"
+                    ? "Item needs models"
                     : "Not compatible"
                 }
                 placement="top"
@@ -1021,7 +1021,7 @@ function SpeciesFaceOption({
     disabledExplanation = "(Can't be this color)";
   } else if (!bodyIsCompatible) {
     disabledExplanation = couldProbablyModelMoreData
-      ? "(Not modeled yet)"
+      ? "(Item needs models)"
       : "(Not compatible)";
   }
 
