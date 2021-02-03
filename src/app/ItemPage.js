@@ -690,6 +690,7 @@ function ItemPageOutfitPreview({ itemId }) {
                 appearanceId: null,
               });
             }}
+            speciesIsDisabled={isProbablySpeciesSpecific}
             size="sm"
             showPlaceholders
             // This is just a UX affordance: while we could handle invalid states

@@ -25,6 +25,7 @@ function SpeciesColorPicker({
   speciesPlaceholderText = "",
   stateMustAlwaysBeValid = false,
   isDisabled = false,
+  speciesIsDisabled = false,
   size = "md",
   onChange,
 }) {
@@ -217,7 +218,14 @@ function SpeciesColorPicker({
         // We also wait for the valid pairs before enabling, so users can't
         // trigger change events we're not ready for.
         isLoading={allSpecies.length === 0 || loadingValids}
-        isDisabled={isDisabled}
+        isDisabled={isDisabled || speciesIsDisabled}
+        // Don't fade out in the speciesIsDisabled case; it's more like a
+        // read-only state.
+        _disabled={
+          speciesIsDisabled
+            ? { opacity: "1", cursor: "not-allowed" }
+            : undefined
+        }
         onChange={onChangeSpecies}
         size={size}
         valids={valids}
