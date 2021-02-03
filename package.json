@@ -18,6 +18,9 @@
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
+    "@types/node": "^14.14.22",
+    "@types/react": "^17.0.1",
+    "@types/react-dom": "^17.0.0",
     "apollo-link-persisted-queries": "^0.2.2",
     "apollo-server": "^2.19.2",
     "apollo-server-core": "^2.19.2",
@@ -43,6 +46,7 @@
     "react-scripts": "^4.0.1",
     "react-transition-group": "^4.3.0",
     "simple-markdown": "^0.7.2",
+    "typescript": "^4.1.3",
     "xmlrpc": "^1.3.2"
   },
   "scripts": {
@@ -58,9 +62,9 @@
     "download-mysql-schema": "yarn --silent mysqldump --no-data openneo_impress closet_hangers closet_lists items item_translations modeling_logs parents_swf_assets pet_types pet_states swf_assets users | sed 's/ AUTO_INCREMENT=[0-9]*//g' > scripts/setup-mysql-dev-schema.sql && yarn --silent mysqldump openneo_impress species species_translations colors color_translations zones zone_translations > scripts/setup-mysql-dev-constants.sql",
     "setup-mysql": "yarn mysql-admin < scripts/setup-mysql.sql",
     "setup-mysql-dev": "yarn mysql-dev < scripts/setup-mysql-dev-constants.sql && yarn mysql-dev < scripts/setup-mysql-dev-schema.sql",
-    "build-cached-data": "node -r dotenv/config scripts/build-cached-data.js",
-    "cache-asset-manifests": "node -r dotenv/config scripts/cache-asset-manifests.js",
-    "export-users-to-auth0": "node -r dotenv/config scripts/export-users-to-auth0.js"
+    "build-cached-data": "ts-node -r dotenv/config scripts/build-cached-data.js",
+    "cache-asset-manifests": "ts-node -r dotenv/config scripts/cache-asset-manifests.js",
+    "export-users-to-auth0": "ts-node -r dotenv/config scripts/export-users-to-auth0.js"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -85,6 +89,7 @@
     "inquirer": "^7.3.3",
     "jest-image-snapshot": "^4.3.0",
     "prettier": "^2.0.5",
-    "react-is": "^16.13.1"
+    "react-is": "^16.13.1",
+    "ts-node": "^9.1.1"
   }
 }
