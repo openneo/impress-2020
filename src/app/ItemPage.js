@@ -957,7 +957,9 @@ function SpeciesFaceOption({
   const cursor = isLoading ? "wait" : isDisabled ? "not-allowed" : "pointer";
 
   let disabledExplanation = null;
-  if (!isValid) {
+  if (isLoading) {
+    // If we're still loading, don't try to explain anything yet!
+  } else if (!isValid) {
     disabledExplanation = "(Can't be this color)";
   } else if (!bodyIsCompatible) {
     disabledExplanation = couldProbablyModelMoreData
