@@ -1,5 +1,5 @@
-const { gql } = require("apollo-server");
-const { ManagementClient } = require("auth0");
+import { gql } from "apollo-server";
+import { ManagementClient } from "auth0";
 
 const auth0 = new ManagementClient({
   domain: "openneo.us.auth0.com",
@@ -8,7 +8,7 @@ const auth0 = new ManagementClient({
   scope: "read:users update:users",
 });
 
-const {
+import {
   capitalize,
   getPoseFromPetState,
   getPetStateFieldsFromPose,
@@ -16,7 +16,7 @@ const {
   loadBodyName,
   logToDiscord,
   normalizeRow,
-} = require("../util");
+} from "../util";
 
 const typeDefs = gql`
   type RemoveLayerFromItemMutationResult {

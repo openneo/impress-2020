@@ -1,12 +1,13 @@
-const { gql } = require("apollo-server");
-const {
+import { gql } from "apollo-server";
+
+import {
   capitalize,
   getPoseFromPetState,
   getRestrictedZoneIds,
   oneWeek,
   oneDay,
   oneHour,
-} = require("../util");
+} from "../util";
 
 const typeDefs = gql`
   type Color @cacheControl(maxAge: ${oneWeek}) {

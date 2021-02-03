@@ -1,5 +1,5 @@
-const { gql } = require("apollo-server");
-const { getRestrictedZoneIds, oneWeek, oneDay, oneHour } = require("../util");
+import { gql } from "apollo-server";
+import { getRestrictedZoneIds, oneWeek, oneDay, oneHour } from "../util";
 
 const typeDefs = gql`
   type Item @cacheControl(maxAge: ${oneDay}, staleWhileRevalidate: ${oneWeek}) {

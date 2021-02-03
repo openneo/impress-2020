@@ -1,5 +1,5 @@
-const { gql } = require("apollo-server");
-const { loadAssetManifest } = require("../neopets-assets");
+import { gql } from "apollo-server";
+import { loadAssetManifest } from "../neopets-assets";
 
 const typeDefs = gql`
   enum LayerImageSize {

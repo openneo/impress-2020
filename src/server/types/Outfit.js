@@ -1,4 +1,4 @@
-const { gql } = require("apollo-server");
+import { gql } from "apollo-server";
 
 const typeDefs = gql`
   type Outfit {

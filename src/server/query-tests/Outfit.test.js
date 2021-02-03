@@ -1,5 +1,5 @@
-const gql = require("graphql-tag");
-const { query, getDbCalls } = require("./setup.js");
+import gql from "graphql-tag";
+import { query, getDbCalls } from "./setup.js";
 
 describe("Outfit", () => {
   it("loads an outfit by ID", async () => {

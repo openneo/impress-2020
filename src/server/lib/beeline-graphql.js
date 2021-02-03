@@ -1,4 +1,4 @@
-const beeline = require("honeycomb-beeline");
+import beeline from "honeycomb-beeline";
 
 const beelinePlugin = {
   requestDidStart() {

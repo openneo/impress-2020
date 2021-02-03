@@ -1,15 +1,13 @@
-const fs = require("fs");
-const path = require("path");
-
-const { ApolloServer } = require("apollo-server");
-const { createTestClient } = require("apollo-server-testing");
-const { AuthenticationClient } = require("auth0");
-
-const auth = require("../auth");
+import fs from "fs";
+import path from "path";
+import { ApolloServer } from "apollo-server";
+import { createTestClient } from "apollo-server-testing";
+import { AuthenticationClient } from "auth0";
+import auth from "../auth";
 const actualAuth = jest.requireActual("../auth");
-const connectToDb = require("../db");
+import connectToDb from "../db";
 const actualConnectToDb = jest.requireActual("../db");
-const { config } = require("../index");
+import { config } from "../index";
 
 let accessTokenForQueries = null;
 

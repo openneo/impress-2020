@@ -1,5 +1,5 @@
-const beeline = require("honeycomb-beeline");
-const fetch = require("node-fetch");
+import beeline from "honeycomb-beeline";
+import fetch from "node-fetch";
 
 function capitalize(str) {
   return str[0].toUpperCase() + str.slice(1);

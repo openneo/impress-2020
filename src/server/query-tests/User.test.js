@@ -1,5 +1,5 @@
-const gql = require("graphql-tag");
-const { query, getDbCalls, logInAsTestUser } = require("./setup.js");
+import gql from "graphql-tag";
+import { query, getDbCalls, logInAsTestUser } from "./setup.js";
 
 describe("User", () => {
   it("looks up a user", async () => {

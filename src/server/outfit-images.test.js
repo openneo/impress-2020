@@ -1,6 +1,5 @@
-const { renderOutfitImage } = require("./outfit-images");
-
-const { toMatchImageSnapshot } = require("jest-image-snapshot");
+import { renderOutfitImage } from "./outfit-images";
+import { toMatchImageSnapshot } from "jest-image-snapshot";
 expect.extend({ toMatchImageSnapshot });
 
 const originalConsoleWarn = console.warn;

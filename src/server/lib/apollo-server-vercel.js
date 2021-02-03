@@ -1,10 +1,9 @@
 // Adapted from https://github.com/apollographql/apollo-server/blob/201630ad284754248fc9ab6ebedc7506fcc3d951/packages/apollo-server-lambda/src/ApolloServer.ts
 
-const { ApolloServerBase, runHttpQuery } = require("apollo-server-core");
-const { Headers } = require("apollo-server-env");
-const {
-  renderPlaygroundPage,
-} = require("@apollographql/graphql-playground-html");
+import { ApolloServerBase, runHttpQuery } from "apollo-server-core";
+
+import { Headers } from "apollo-server-env";
+import { renderPlaygroundPage } from "@apollographql/graphql-playground-html";
 
 function graphqlVercel(options) {
   if (!options) {

@@ -1,4 +1,4 @@
-const fetch = require("node-fetch");
+import fetch from "node-fetch";
 
 async function loadAssetManifest(swfUrl) {
   const manifestUrl = convertSwfUrlToManifestUrl(swfUrl);

@@ -1,12 +1,9 @@
-const { beelinePlugin } = require("./lib/beeline-graphql");
-const { gql, makeExecutableSchema } = require("apollo-server");
-
-const { getUserIdFromToken } = require("./auth");
-const connectToDb = require("./db");
-const buildLoaders = require("./loaders");
-const {
-  plugin: cacheControlPluginFork,
-} = require("./lib/apollo-cache-control-fork");
+import { beelinePlugin } from "./lib/beeline-graphql";
+import { gql, makeExecutableSchema } from "apollo-server";
+import { getUserIdFromToken } from "./auth";
+import connectToDb from "./db";
+import buildLoaders from "./loaders";
+import { plugin as cacheControlPluginFork } from "./lib/apollo-cache-control-fork";
 
 const rootTypeDefs = gql`
   enum CacheScope {

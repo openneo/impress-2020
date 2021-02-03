@@ -1,11 +1,11 @@
-const gql = require("graphql-tag");
-const {
+import gql from "graphql-tag";
+import {
   query,
   getDbCalls,
   clearDbCalls,
   useTestDb,
   connectToDb,
-} = require("./setup.js");
+} from "./setup.js";
 
 describe("Pet", () => {
   it("looks up a pet", async () => {

@@ -1,8 +1,7 @@
-const gql = require("graphql-tag");
-const { getDbCalls } = require("./query-tests/setup.js");
-
-const connectToDb = require("./db");
-const { loadBodyName } = require("./util");
+import gql from "graphql-tag";
+import { getDbCalls } from "./query-tests/setup.js";
+import connectToDb from "./db";
+import { loadBodyName } from "./util";
 
 describe("loadBodyName", () => {
   it("returns placeholder string for 0", async () => {

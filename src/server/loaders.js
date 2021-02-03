@@ -1,5 +1,5 @@
-const DataLoader = require("dataloader");
-const { normalizeRow } = require("./util");
+import DataLoader from "dataloader";
+import { normalizeRow } from "./util";
 
 const buildClosetListLoader = (db) =>
   new DataLoader(async (ids) => {

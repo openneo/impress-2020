@@ -1,4 +1,4 @@
-const { createCanvas, loadImage } = require("canvas");
+import { createCanvas, loadImage } from "canvas";
 
 async function renderOutfitImage(layerRefs, size) {
   const canvas = createCanvas(size, size);

@@ -1,7 +1,7 @@
-const util = require("util");
+import util from "util";
 
 const jwtVerify = util.promisify(require("jsonwebtoken").verify);
-const jwksClient = require("jwks-rsa");
+import jwksClient from "jwks-rsa";
 
 const jwks = jwksClient({
   jwksUri: "https://openneo.us.auth0.com/.well-known/jwks.json",

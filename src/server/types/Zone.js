@@ -1,4 +1,4 @@
-const { gql } = require("apollo-server");
+import { gql } from "apollo-server";
 
 const typeDefs = gql`
   # Cache for 1 week (unlikely to change)

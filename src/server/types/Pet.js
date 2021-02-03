@@ -1,11 +1,9 @@
-const util = require("util");
-
-const fetch = require("node-fetch");
-const { gql } = require("apollo-server");
-const xmlrpc = require("xmlrpc");
-
-const { getPoseFromPetState } = require("../util");
-const { saveModelingData } = require("../modeling");
+import util from "util";
+import fetch from "node-fetch";
+import { gql } from "apollo-server";
+import xmlrpc from "xmlrpc";
+import { getPoseFromPetState } from "../util";
+import { saveModelingData } from "../modeling";
 
 const typeDefs = gql`
   type Pet {
