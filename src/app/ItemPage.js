@@ -515,19 +515,35 @@ function ItemPageOutfitPreview({ itemId }) {
     "DTIItemPreviewPreferredSpeciesId",
     null
   );
+  const [preferredColorId, setPreferredColorId] = useLocalStorage(
+    "DTIItemPreviewPreferredColorId",
+    null
+  );
 
-  const setPetStateFromUserAction = (petState) => {
-    setPetState(petState);
+  const setPetStateFromUserAction = (newPetState) => {
+    setPetState(newPetState);
 
-    // When the user _intentionally_ chooses a species, save it in local
-    // storage for next time. (This won't update when e.g. their preferred
-    // species isn't available for this item, so we update to the canonical
-    // species automatically.)
-    if (petState.speciesId) {
-      // I have no reason to expect null to come in here, but, since this is
-      // touching client-persisted data, I want it to be even more guaranteed
-      // reliable than usual!
-      setPreferredSpeciesId(petState.speciesId);
+    // When the user _intentionally_ chooses a species or color, save it in
+    // local storage for next time. (This won't update when e.g. their
+    // preferred species or color isn't available for this item, so we update
+    // to the canonical species or color automatically.)
+    //
+    // Re the "ifs", I have no reason to expect null to come in here, but,
+    // since this is touching client-persisted data, I want it to be even more
+    // reliable than usual!
+    if (newPetState.speciesId && newPetState.speciesId !== petState.speciesId) {
+      setPreferredSpeciesId(newPetState.speciesId);
+    }
+    if (newPetState.colorId && newPetState.colorId !== petState.colorId) {
+      if (colorIsBasic(newPetState.colorId)) {
+        // When the user chooses a basic color, don't index on it specifically,
+        // and instead reset to use default colors.
+        console.log("set to null");
+        setPreferredColorId(null);
+      } else {
+        console.log("set to color", newPetState.colorId);
+        setPreferredColorId(newPetState.colorId);
+      }
     }
   };
 
@@ -544,7 +560,11 @@ function ItemPageOutfitPreview({ itemId }) {
   //       cover standard-color switches works for this preloading too.)
   const { loading: loadingGQL, error: errorGQL, data } = useQuery(
     gql`
-      query ItemPageOutfitPreview($itemId: ID!, $preferredSpeciesId: ID) {
+      query ItemPageOutfitPreview(
+        $itemId: ID!
+        $preferredSpeciesId: ID
+        $preferredColorId: ID
+      ) {
         item(id: $itemId) {
           id
           name
@@ -552,12 +572,15 @@ function ItemPageOutfitPreview({ itemId }) {
             id
             representsAllBodies
           }
-          canonicalAppearance(preferredSpeciesId: $preferredSpeciesId) {
+          canonicalAppearance(
+            preferredSpeciesId: $preferredSpeciesId
+            preferredColorId: $preferredColorId
+          ) {
             id
             ...ItemAppearanceForOutfitPreview
             body {
               id
-              canonicalAppearance {
+              canonicalAppearance(preferredColorId: $preferredColorId) {
                 id
                 species {
                   id
@@ -579,7 +602,7 @@ function ItemPageOutfitPreview({ itemId }) {
       ${petAppearanceFragment}
     `,
     {
-      variables: { itemId, preferredSpeciesId },
+      variables: { itemId, preferredSpeciesId, preferredColorId },
       onCompleted: (data) => {
         const canonicalBody = data?.item?.canonicalAppearance?.body;
         const canonicalPetAppearance = canonicalBody?.canonicalAppearance;
@@ -834,9 +857,7 @@ function SpeciesFacesPicker({
   // TODO: Could we move this into our `build-cached-data` script, and just do
   //       the query all the time, and have Apollo happen to satisfy it fast?
   //       The semantics of returning our colorful random set could be weird…
-  const selectedColorIsBasic = ["8", "34", "61", "84"].includes(
-    selectedColorId
-  );
+  const selectedColorIsBasic = colorIsBasic(selectedColorId);
   const { loading: loadingGQL, error, data } = useQuery(
     gql`
       query SpeciesFacesPicker($selectedColorId: ID!) {
@@ -1319,6 +1340,10 @@ function DeferredTooltip({ children, isOpen, ...props }) {
       )}
     </ClassNames>
   );
+}
+
+function colorIsBasic(colorId) {
+  return ["8", "34", "61", "84"].includes(colorId);
 }
 
 // HACK: I'm just hardcoding all this, rather than connecting up to the

@@ -1,5 +1,11 @@
 import { gql } from "apollo-server";
-import { getRestrictedZoneIds, oneWeek, oneDay, oneHour } from "../util";
+import {
+  getRestrictedZoneIds,
+  normalizeRow,
+  oneWeek,
+  oneDay,
+  oneHour,
+} from "../util";
 
 const typeDefs = gql`
   type Item @cacheControl(maxAge: ${oneDay}, staleWhileRevalidate: ${oneWeek}) {
@@ -56,16 +62,22 @@ const typeDefs = gql`
     speciesThatNeedModels(colorId: ID): [Species!]! @cacheControl(maxAge: 1)
 
     # Return a single ItemAppearance for this item. It'll be for the species
-    # with the smallest ID for which we have item appearance data. We use this
-    # on the item page, to initialize the preview section. (You can find out
-    # which species this is for by going through the body field on
-    # ItemAppearance!)
+    # with the smallest ID for which we have item appearance data, and a basic
+    # color. We use this on the item page, to initialize the preview section.
+    # (You can find out which species this is for by going through the body
+    # field on ItemAppearance!)
     #
-    # There's also an optional preferredSpeciesId field, which you can use to
-    # request a certain species if compatible. If not, we'll fall back to the
-    # default species, as described above.
-    canonicalAppearance(preferredSpeciesId: ID): ItemAppearance @cacheControl(maxAge: 1, staleWhileRevalidate: ${oneWeek})
-
+    # There's also optional fields preferredSpeciesId and preferredColorId, to
+    # request a certain species or color if possible. We'll try to match each,
+    # with precedence to species first; then fall back to the canonical values.
+    #
+    # Note that the exact choice of color doesn't usually affect this field,
+    # because ItemAppearance is per-body rather than per-color. It's most
+    # relevant for special colors like Baby or Mutant. But the
+    # canonicalAppearance on the Body type _does_ use the preferred color more
+    # precisely!
+    canonicalAppearance(preferredSpeciesId: ID, preferredColorId: ID): ItemAppearance @cacheControl(maxAge: 1, staleWhileRevalidate: ${oneWeek})
+ 
     # All zones that this item occupies, for at least one body. That is, it's
     # a union of zones for all of its appearances! We use this for overview
     # info about the item.
@@ -317,14 +329,37 @@ const resolvers = {
     },
     canonicalAppearance: async (
       { id },
-      { preferredSpeciesId },
-      { itemBodiesWithAppearanceDataLoader }
+      { preferredSpeciesId, preferredColorId },
+      { db }
     ) => {
-      const rows = await itemBodiesWithAppearanceDataLoader.load(id);
-      const preferredRow = preferredSpeciesId
-        ? rows.find((row) => row.speciesId === preferredSpeciesId)
-        : null;
-      const bestRow = preferredRow || rows[0];
+      const [rows, _] = await db.query(
+        `
+          SELECT pet_types.body_id, pet_types.species_id FROM pet_types
+          INNER JOIN colors ON
+            pet_types.color_id = colors.id
+          INNER JOIN swf_assets ON
+            pet_types.body_id = swf_assets.body_id OR swf_assets.body_id = 0
+          INNER JOIN parents_swf_assets ON
+            parents_swf_assets.swf_asset_id = swf_assets.id
+          INNER JOIN items ON
+            items.id = parents_swf_assets.parent_id AND
+              parents_swf_assets.parent_type = "Item"  
+          WHERE items.id = ?
+          ORDER BY
+            pet_types.species_id = ? DESC,
+            pet_types.color_id = ? DESC,
+            pet_types.species_id ASC,
+            colors.standard DESC
+          LIMIT 1
+        `,
+        [id, preferredSpeciesId || "<ignore>", preferredColorId || "<ignore>"]
+      );
+      if (rows.length === 0) {
+        return null;
+      }
+
+      const bestRow = normalizeRow(rows[0]);
+
       return {
         item: { id },
         bodyId: bestRow.bodyId,

@@ -977,47 +977,54 @@ const buildPetStatesForPetTypeLoader = (db, loaders) =>
 
 /** Given a bodyId, loads the canonical PetState to show as an example. */
 const buildCanonicalPetStateForBodyLoader = (db, loaders) =>
-  new DataLoader(async (bodyIds) => {
-    // I don't know how to do this query in bulk, so we'll just do it in
-    // parallel!
-    return await Promise.all(
-      bodyIds.map(async (bodyId) => {
-        // Randomly-ish choose which gender presentation to prefer, based on
-        // body ID. This makes the outcome stable, which is nice for caching
-        // and testing and just generally not being surprised, but sitll
-        // creates an even distribution.
-        const gender = bodyId % 2 === 0 ? "masc" : "fem";
+  new DataLoader(
+    async (requests) => {
+      // I don't know how to do this query in bulk, so we'll just do it in
+      // parallel!
+      return await Promise.all(
+        requests.map(async ({ bodyId, preferredColorId, fallbackColorId }) => {
+          // Randomly-ish choose which gender presentation to prefer, based on
+          // body ID. This makes the outcome stable, which is nice for caching
+          // and testing and just generally not being surprised, but sitll
+          // creates an even distribution.
+          const gender = bodyId % 2 === 0 ? "masc" : "fem";
 
-        const [rows, _] = await db.execute(
-          {
-            sql: `
+          const [rows, _] = await db.execute(
+            {
+              sql: `
               SELECT pet_states.*, pet_types.* FROM pet_states
               INNER JOIN pet_types ON pet_types.id = pet_states.pet_type_id
               WHERE pet_types.body_id = ?
               ORDER BY
-                pet_types.color_id = 8 DESC, -- Prefer Blue
+                pet_types.color_id = ? DESC, -- Prefer preferredColorId
+                pet_types.color_id = ? DESC, -- Prefer fallbackColorId
                 pet_states.mood_id = 1 DESC, -- Prefer Happy
                 pet_states.female = ? DESC, -- Prefer given gender
                 pet_states.id DESC, -- Prefer recent models (like in the app)
                 pet_states.glitched ASC -- Prefer not glitched (like in the app)
               LIMIT 1`,
-            nestTables: true,
-          },
-          [bodyId, gender === "fem"]
-        );
-        const petState = normalizeRow(rows[0].pet_states);
-        const petType = normalizeRow(rows[0].pet_types);
-        if (!petState || !petType) {
-          return null;
-        }
+              nestTables: true,
+            },
+            [bodyId, preferredColorId, fallbackColorId, gender === "fem"]
+          );
+          const petState = normalizeRow(rows[0].pet_states);
+          const petType = normalizeRow(rows[0].pet_types);
+          if (!petState || !petType) {
+            return null;
+          }
 
-        loaders.petStateLoader.prime(petState.id, petState);
-        loaders.petTypeLoader.prime(petType.id, petType);
+          loaders.petStateLoader.prime(petState.id, petState);
+          loaders.petTypeLoader.prime(petType.id, petType);
 
-        return petState;
-      })
-    );
-  });
+          return petState;
+        })
+      );
+    },
+    {
+      cacheKeyFn: ({ bodyId, preferredColorId, fallbackColorId }) =>
+        `${bodyId}-${preferredColorId}-${fallbackColorId}`,
+    }
+  );
 
 const buildPetStateByPetTypeAndAssetsLoader = (db, loaders) =>
   new DataLoader(

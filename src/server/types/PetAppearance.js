@@ -47,8 +47,9 @@ const typeDefs = gql`
     id: ID!
     species: Species!
 
-    # A PetAppearance that has this body. Prefers Blue and happy poses.
-    canonicalAppearance: PetAppearance
+    # A PetAppearance that has this body. Prefers Blue (or the optional
+    # preferredColorId), and happy poses.
+    canonicalAppearance(preferredColorId: ID): PetAppearance
 
     # Whether this is the special body type that represents fitting _all_ pets.
     representsAllBodies: Boolean!
@@ -167,11 +168,15 @@ const resolvers = {
       return id == "0";
     },
     canonicalAppearance: async (
-      { id },
-      _,
+      { id, species },
+      { preferredColorId },
       { canonicalPetStateForBodyLoader }
     ) => {
-      const petState = await canonicalPetStateForBodyLoader.load(id);
+      const petState = await canonicalPetStateForBodyLoader.load({
+        bodyId: id,
+        preferredColorId,
+        fallbackColorId: FALLBACK_COLOR_IDS[species.id] || "8",
+      });
       if (!petState) {
         return null;
       }
@@ -307,6 +312,66 @@ const resolvers = {
       return petStates.map((petState) => ({ id: petState.id }));
     },
   },
+};
+
+// NOTE: This matches the colors on ItemPage, so that they always match!
+const colors = { BLUE: "8", RED: "61", GREEN: "34", YELLOW: "84" };
+const FALLBACK_COLOR_IDS = {
+  "1": colors.GREEN, // Acara
+  "2": colors.BLUE, // Aisha
+  "3": colors.YELLOW, // Blumaroo
+  "4": colors.YELLOW, // Bori
+  "5": colors.YELLOW, // Bruce
+  "6": colors.YELLOW, // Buzz
+  "7": colors.RED, // Chia
+  "8": colors.YELLOW, // Chomby
+  "9": colors.GREEN, // Cybunny
+  "10": colors.YELLOW, // Draik
+  "11": colors.RED, // Elephante
+  "12": colors.RED, // Eyrie
+  "13": colors.GREEN, // Flotsam
+  "14": colors.YELLOW, // Gelert
+  "15": colors.BLUE, // Gnorbu
+  "16": colors.BLUE, // Grarrl
+  "17": colors.GREEN, // Grundo
+  "18": colors.RED, // Hissi
+  "19": colors.GREEN, // Ixi
+  "20": colors.YELLOW, // Jetsam
+  "21": colors.GREEN, // Jubjub
+  "22": colors.YELLOW, // Kacheek
+  "23": colors.BLUE, // Kau
+  "24": colors.GREEN, // Kiko
+  "25": colors.GREEN, // Koi
+  "26": colors.RED, // Korbat
+  "27": colors.BLUE, // Kougra
+  "28": colors.BLUE, // Krawk
+  "29": colors.YELLOW, // Kyrii
+  "30": colors.YELLOW, // Lenny
+  "31": colors.YELLOW, // Lupe
+  "32": colors.BLUE, // Lutari
+  "33": colors.YELLOW, // Meerca
+  "34": colors.GREEN, // Moehog
+  "35": colors.BLUE, // Mynci
+  "36": colors.BLUE, // Nimmo
+  "37": colors.YELLOW, // Ogrin
+  "38": colors.RED, // Peophin
+  "39": colors.GREEN, // Poogle
+  "40": colors.RED, // Pteri
+  "41": colors.YELLOW, // Quiggle
+  "42": colors.BLUE, // Ruki
+  "43": colors.RED, // Scorchio
+  "44": colors.YELLOW, // Shoyru
+  "45": colors.RED, // Skeith
+  "46": colors.YELLOW, // Techo
+  "47": colors.BLUE, // Tonu
+  "48": colors.YELLOW, // Tuskaninny
+  "49": colors.GREEN, // Uni
+  "50": colors.RED, // Usul
+  "55": colors.YELLOW, // Vandagyre
+  "51": colors.YELLOW, // Wocky
+  "52": colors.RED, // Xweetok
+  "53": colors.RED, // Yurble
+  "54": colors.BLUE, // Zafara
 };
 
 module.exports = { typeDefs, resolvers };
