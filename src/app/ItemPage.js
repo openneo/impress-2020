@@ -896,7 +896,7 @@ function SpeciesFaceOption({
   return (
     <ClassNames>
       {({ css }) => (
-        <Tooltip
+        <DeferredTooltip
           label={tooltipLabel}
           placement="top"
           gutter={-10}
@@ -1001,7 +1001,56 @@ function SpeciesFaceOption({
               />
             </div>
           </label>
-        </Tooltip>
+        </DeferredTooltip>
+      )}
+    </ClassNames>
+  );
+}
+
+/**
+ * DeferredTooltip is like Chakra's <Tooltip />, but it waits until `isOpen` is
+ * true before mounting it, and unmounts it after closing.
+ *
+ * This can drastically improve render performance when there are lots of
+ * tooltip targets to re-render… but it comes with some limitations, like the
+ * extra requirement to control `isOpen`, and some additional DOM structure!
+ */
+function DeferredTooltip({ children, isOpen, ...props }) {
+  const [shouldShowTooltip, setShouldShowToolip] = React.useState(isOpen);
+
+  React.useEffect(() => {
+    if (isOpen) {
+      setShouldShowToolip(true);
+    } else {
+      const timeoutId = setTimeout(() => setShouldShowToolip(false), 500);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isOpen]);
+
+  return (
+    <ClassNames>
+      {({ css }) => (
+        <div
+          className={css`
+            position: relative;
+          `}
+        >
+          {children}
+          {shouldShowTooltip && (
+            <Tooltip isOpen={isOpen} {...props}>
+              <div
+                className={css`
+                  position: absolute;
+                  top: 0;
+                  left: 0;
+                  right: 0;
+                  bottom: 0;
+                  pointer-events: none;
+                `}
+              />
+            </Tooltip>
+          )}
+        </div>
       )}
     </ClassNames>
   );
