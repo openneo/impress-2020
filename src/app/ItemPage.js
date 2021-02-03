@@ -1,5 +1,5 @@
 import React from "react";
-import { ClassNames } from "@emotion/react";
+import { ClassNames, Global, css } from "@emotion/react";
 import {
   AspectRatio,
   Button,
@@ -813,6 +813,15 @@ function SpeciesFacesPicker({
           </WrapItem>
         ))}
       </Wrap>
+      <Global
+        // Workaround for https://github.com/chakra-ui/chakra-ui/issues/3257,
+        // which causes tooltip hover flicker.
+        styles={css`
+          .chakra-portal [data-popper-placement] {
+            pointer-events: none;
+          }
+        `}
+      />
     </Box>
   );
 }
@@ -869,10 +878,6 @@ function SpeciesFaceOption({
         <Tooltip
           label={tooltipLabel}
           placement="top"
-          // TODO: This looks great visually, but disrupts the hover state and
-          //       causes flicker. I couldn't figure out how to apply
-          //       `pointer-events: none` to the portal container, which I
-          //       think is intercepting the hover even if the label doesn't.
           gutter={-12}
           // We track hover and focus state manually for the tooltip, so that
           // keyboard nav to switch between options causes the tooltip to
