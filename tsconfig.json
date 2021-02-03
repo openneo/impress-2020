@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "esnext",
     "module": "esnext",
     "downlevelIteration": true,
     "strict": true,
@@ -23,6 +23,7 @@
   },
   "ts-node": {
     "compilerOptions": {
+      "target": "esnext",
       "module": "commonjs"
     }
   },
