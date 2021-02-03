@@ -5,7 +5,7 @@ import {
   GraphQLObjectType,
   ResponsePath,
   responsePathAsArray,
-} from 'graphql';
+} from "graphql";
 import { ApolloServerPlugin } from "apollo-server-plugin-base";
 
 export interface CacheControlFormat {
@@ -21,8 +21,8 @@ export interface CacheHint {
 }
 
 export enum CacheScope {
-  Public = 'PUBLIC',
-  Private = 'PRIVATE',
+  Public = "PUBLIC",
+  Private = "PRIVATE",
 }
 
 export interface CacheControlExtensionOptions {
@@ -36,12 +36,11 @@ export interface CacheControlExtensionOptions {
 type MapResponsePathHints = Map<ResponsePath, CacheHint>;
 
 export const plugin = (
-  options: CacheControlExtensionOptions = Object.create(null),
+  options: CacheControlExtensionOptions = Object.create(null)
 ): ApolloServerPlugin => ({
   requestDidStart(requestContext) {
     const defaultMaxAge: number = options.defaultMaxAge || 0;
     const hints: MapResponsePathHints = new Map();
-
 
     function setOverallCachePolicyWhenUnset() {
       // @ts-ignore: FORK. Don't know enough TypeScript to resolve this!
@@ -67,7 +66,7 @@ export const plugin = (
             if (targetType.astNode) {
               hint = mergeHints(
                 hint,
-                cacheHintFromDirectives(targetType.astNode.directives),
+                cacheHintFromDirectives(targetType.astNode.directives)
               );
             }
           }
@@ -78,7 +77,7 @@ export const plugin = (
           if (fieldDef.astNode) {
             hint = mergeHints(
               hint,
-              cacheHintFromDirectives(fieldDef.astNode.directives),
+              cacheHintFromDirectives(fieldDef.astNode.directives)
             );
           }
 
@@ -137,29 +136,29 @@ export const plugin = (
         const overallCachePolicy =
           overallCachePolicyOverride ||
           // @ts-ignore: FORK. Don't know enough TypeScript to resolve this!
-          (requestContext.overallCachePolicy =
-            computeOverallCachePolicy(hints));
+          (requestContext.overallCachePolicy = computeOverallCachePolicy(
+            hints
+          ));
 
         if (
           overallCachePolicy &&
           options.calculateHttpHeaders &&
           response.http
         ) {
-          if (overallCachePolicy.staleWhileRevalidate) { // FORK
+          if (overallCachePolicy.staleWhileRevalidate) {
+            // FORK
             response.http.headers.set(
-              'Cache-Control',
-              `max-age=${
-                overallCachePolicy.maxAge
-              }, stale-while-revalidate=${
+              "Cache-Control",
+              `max-age=${overallCachePolicy.maxAge}, stale-while-revalidate=${
                 overallCachePolicy.staleWhileRevalidate
-              }, ${overallCachePolicy.scope.toLowerCase()}`,
+              }, ${overallCachePolicy.scope.toLowerCase()}`
             );
           } else {
             response.http.headers.set(
-              'Cache-Control',
+              "Cache-Control",
               `max-age=${
                 overallCachePolicy.maxAge
-              }, ${overallCachePolicy.scope.toLowerCase()}`,
+              }, ${overallCachePolicy.scope.toLowerCase()}`
             );
           }
         }
@@ -176,7 +175,7 @@ export const plugin = (
         const extensions =
           response.extensions || (response.extensions = Object.create(null));
 
-        if (typeof extensions.cacheControl !== 'undefined') {
+        if (typeof extensions.cacheControl !== "undefined") {
           throw new Error("The cacheControl information already existed.");
         }
 
@@ -187,31 +186,32 @@ export const plugin = (
             ...hint,
           })),
         };
-      }
-    }
-  }
+      },
+    };
+  },
 });
 
 function cacheHintFromDirectives(
-  directives: ReadonlyArray<DirectiveNode> | undefined,
+  directives: ReadonlyArray<DirectiveNode> | undefined
 ): CacheHint | undefined {
   if (!directives) return undefined;
 
   const cacheControlDirective = directives.find(
-    directive => directive.name.value === 'cacheControl',
+    (directive) => directive.name.value === "cacheControl"
   );
   if (!cacheControlDirective) return undefined;
 
   if (!cacheControlDirective.arguments) return undefined;
 
   const maxAgeArgument = cacheControlDirective.arguments.find(
-    argument => argument.name.value === 'maxAge',
+    (argument) => argument.name.value === "maxAge"
   );
-  const staleWhileRevalidateArgument = cacheControlDirective.arguments.find( // FORK
-    argument => argument.name.value === 'staleWhileRevalidate',
+  const staleWhileRevalidateArgument = cacheControlDirective.arguments.find(
+    // FORK
+    (argument) => argument.name.value === "staleWhileRevalidate"
   );
   const scopeArgument = cacheControlDirective.arguments.find(
-    argument => argument.name.value === 'scope',
+    (argument) => argument.name.value === "scope"
   );
 
   // TODO: Add proper typechecking of arguments
@@ -219,19 +219,19 @@ function cacheHintFromDirectives(
     maxAge:
       maxAgeArgument &&
       maxAgeArgument.value &&
-      maxAgeArgument.value.kind === 'IntValue'
+      maxAgeArgument.value.kind === "IntValue"
         ? parseInt(maxAgeArgument.value.value)
         : undefined,
     staleWhileRevalidate:
       staleWhileRevalidateArgument &&
       staleWhileRevalidateArgument.value &&
-      staleWhileRevalidateArgument.value.kind === 'IntValue'
+      staleWhileRevalidateArgument.value.kind === "IntValue"
         ? parseInt(staleWhileRevalidateArgument.value.value)
         : undefined,
     scope:
       scopeArgument &&
       scopeArgument.value &&
-      scopeArgument.value.kind === 'EnumValue'
+      scopeArgument.value.kind === "EnumValue"
         ? (scopeArgument.value.value as CacheScope)
         : undefined,
   };
@@ -239,19 +239,22 @@ function cacheHintFromDirectives(
 
 function mergeHints(
   hint: CacheHint,
-  otherHint: CacheHint | undefined,
+  otherHint: CacheHint | undefined
 ): CacheHint {
   if (!otherHint) return hint;
 
   return {
     maxAge: otherHint.maxAge !== undefined ? otherHint.maxAge : hint.maxAge,
-    staleWhileRevalidate: otherHint.staleWhileRevalidate !== undefined ? otherHint.staleWhileRevalidate : hint.staleWhileRevalidate, // FORK
+    staleWhileRevalidate:
+      otherHint.staleWhileRevalidate !== undefined
+        ? otherHint.staleWhileRevalidate
+        : hint.staleWhileRevalidate, // FORK
     scope: otherHint.scope || hint.scope,
   };
 }
 
 function computeOverallCachePolicy(
-  hints: MapResponsePathHints,
+  hints: MapResponsePathHints
 ): Required<CacheHint> | undefined {
   let lowestMaxAge: number | undefined = undefined;
   let lowestMaxAgePlusSWR: number | undefined = undefined; // FORK
@@ -305,7 +308,11 @@ function computeOverallCachePolicy(
     : undefined;
 }
 
-function addHint(hints: MapResponsePathHints, path: ResponsePath, hint: CacheHint) {
+function addHint(
+  hints: MapResponsePathHints,
+  path: ResponsePath,
+  hint: CacheHint
+) {
   const existingCacheHint = hints.get(path);
   if (existingCacheHint) {
     hints.set(path, mergeHints(existingCacheHint, hint));
