@@ -871,11 +871,16 @@ function SpeciesFacesPicker({
               speciesName={speciesFace.speciesName}
               colorId={speciesFace.colorId}
               neopetsImageHash={speciesFace.neopetsImageHash}
-              isCompatible={
+              isSelected={speciesFace.speciesId === selectedSpeciesId}
+              // If the face color doesn't match the current color, this is a
+              // fallback face for an invalid species/color pair.
+              isValid={
+                speciesFace.colorId === selectedColorId || selectedColorIsBasic
+              }
+              bodyIsCompatible={
                 allBodiesAreCompatible ||
                 compatibleBodyIds.includes(speciesFace.bodyId)
               }
-              isSelected={speciesFace.speciesId === selectedSpeciesId}
               couldProbablyModelMoreData={couldProbablyModelMoreData}
               onChange={onChange}
               isLoading={isLoading || loadingGQL}
@@ -919,8 +924,9 @@ function SpeciesFaceOption({
   speciesName,
   colorId,
   neopetsImageHash,
-  isCompatible,
   isSelected,
+  bodyIsCompatible,
+  isValid,
   couldProbablyModelMoreData,
   onChange,
   isLoading,
@@ -945,23 +951,30 @@ function SpeciesFaceOption({
   const [labelIsHovered, setLabelIsHovered] = React.useState(false);
   const [inputIsFocused, setInputIsFocused] = React.useState(false);
 
-  const isHappy = isLoading || isCompatible;
+  const isDisabled = isLoading || !isValid || !bodyIsCompatible;
+  const isHappy = isLoading || (isValid && bodyIsCompatible);
   const emotionId = isHappy ? "1" : "2";
+  const cursor = isLoading ? "wait" : isDisabled ? "not-allowed" : "pointer";
+
+  let disabledExplanation = null;
+  if (!isValid) {
+    disabledExplanation = "(Can't be this color)";
+  } else if (!bodyIsCompatible) {
+    disabledExplanation = couldProbablyModelMoreData
+      ? "(Not modeled yet)"
+      : "(Not compatible)";
+  }
 
   const tooltipLabel = (
     <div style={{ textAlign: "center" }}>
       {speciesName}
-      {!isLoading && !isCompatible && (
+      {disabledExplanation && (
         <div style={{ fontStyle: "italic", fontSize: "0.75em" }}>
-          {couldProbablyModelMoreData
-            ? "(Not modeled yet)"
-            : "(Not compatible)"}
+          {disabledExplanation}
         </div>
       )}
     </div>
   );
-
-  const cursor = isLoading ? "wait" : !isCompatible ? "not-allowed" : "pointer";
 
   // NOTE: Because we render quite a few of these, avoiding using Chakra
   //       elements like Box helps with render performance!
@@ -992,7 +1005,7 @@ function SpeciesFaceOption({
               // It's possible to get this selected via the SpeciesColorPicker,
               // even if this would normally be disabled. If so, make this
               // option enabled, so keyboard users can focus and change it.
-              disabled={!isSelected && (isLoading || !isCompatible)}
+              disabled={isDisabled && !isSelected}
               onChange={() => onChange({ speciesId, colorId })}
               onFocus={() => setInputIsFocused(true)}
               onBlur={() => setInputIsFocused(false)}
@@ -1040,13 +1053,13 @@ function SpeciesFaceOption({
                 width={50}
                 height={50}
                 data-is-loading={isLoading}
-                data-is-compatible={!isLoading && isCompatible}
+                data-is-disabled={isDisabled}
                 className={css`
                   filter: saturate(90%);
                   opacity: 0.9;
                   transition: all 0.2s;
 
-                  &[data-is-compatible="false"] {
+                  &[data-is-disabled="true"] {
                     filter: saturate(0%);
                     opacity: 0.6;
                   }
@@ -1056,13 +1069,13 @@ function SpeciesFaceOption({
                       pulse;
                   }
 
-                  input:checked + * &[data-is-compatible="false"] {
-                    opacity: 0.85;
-                  }
-
-                  input:checked + * &[data-is-compatible="true"] {
+                  input:checked + * &[data-body-is-disabled="false"] {
                     opacity: 1;
                     filter: saturate(110%);
+                  }
+
+                  input:checked + * &[data-body-is-disabled="true"] {
+                    opacity: 0.85;
                   }
 
                   @keyframes pulse {
@@ -1190,9 +1203,9 @@ function CrossFadeImage(incomingImageProps) {
                 // If the current image _is_ the incoming image, we'll allow
                 // new props to come in and affect it. But if it's a new image
                 // incoming, we want to stick to the last props the current
-                // image had! (This matters for e.g. `isCompatible` becoming
-                // true in `SpeciesFaceOption` and restoring color, before
-                // the new color's image loads in.)
+                // image had! (This matters for e.g. `bodyIsCompatible`
+                // becoming true in `SpeciesFaceOption` and restoring color,
+                // before the new color's image loads in.)
                 {...(incomingImageIsCurrentImage ? incomingImageProps : {})}
               />
             </div>
