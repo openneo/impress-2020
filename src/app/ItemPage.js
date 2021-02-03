@@ -1039,6 +1039,7 @@ function SpeciesFaceOption({
                 alt={speciesName}
                 width={50}
                 height={50}
+                data-is-loading={isLoading}
                 data-is-compatible={!isLoading && isCompatible}
                 className={css`
                   filter: saturate(90%);
@@ -1050,6 +1051,11 @@ function SpeciesFaceOption({
                     opacity: 0.6;
                   }
 
+                  &[data-is-loading="true"] {
+                    animation: 0.8s linear 0s infinite alternate none running
+                      pulse;
+                  }
+
                   input:checked + * &[data-is-compatible="false"] {
                     opacity: 0.85;
                   }
@@ -1058,6 +1064,16 @@ function SpeciesFaceOption({
                     opacity: 1;
                     filter: saturate(110%);
                   }
+
+                  @keyframes pulse {
+                    from {
+                      opacity: 0.5;
+                    }
+                    to {
+                      opacity: 1;
+                    }
+                  }
+
                   /* Alt text for when the image fails to load! We hide it
                      * while still loading though! */
                   font-size: 0.75rem;
