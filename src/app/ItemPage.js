@@ -684,10 +684,15 @@ function ItemPageOutfitPreview({ itemId }) {
   const isIncompatible = Array.isArray(layers) && layers.length === 0;
 
   return (
-    <Stack direction={{ base: "column", md: "row" }} spacing="8">
-      <VStack spacing="3" width="100%">
+    <Stack
+      direction={{ base: "column", md: "row" }}
+      justify="center"
+      spacing="8"
+      width="100%"
+    >
+      <VStack spacing="3" maxWidth="100%">
         <AspectRatio
-          width="300px"
+          width="400px"
           maxWidth="100%"
           ratio="1"
           border="1px"
@@ -767,7 +772,7 @@ function ItemPageOutfitPreview({ itemId }) {
           </Box>
         </Box>
       </VStack>
-      <Box maxWidth="400px">
+      <Box maxWidth="460px" paddingTop="2">
         <SpeciesFacesPicker
           selectedSpeciesId={petState.speciesId}
           selectedColorId={petState.colorId}
@@ -1108,8 +1113,8 @@ function SpeciesFaceOption({
                   `https://pets.neopets-asset-proxy.openneo.net/cp/${neopetsImageHash}/${emotionId}/6.png 2x`
                 }
                 alt={speciesName}
-                width={50}
-                height={50}
+                width={55}
+                height={55}
                 data-is-loading={isLoading}
                 data-is-disabled={isDisabled}
                 className={css`
