@@ -545,6 +545,11 @@ function ItemPageOutfitPreview({ itemId }) {
     }
   };
 
+  // We don't need to reload this query when preferred species/color change, so
+  // cache their initial values here to use as query arguments.
+  const [initialPreferredSpeciesId] = React.useState(preferredSpeciesId);
+  const [initialPreferredColorId] = React.useState(preferredColorId);
+
   // Start by loading the "canonical" pet and item appearance for the outfit
   // preview. We'll use this to initialize both the preview and the picker.
   //
@@ -600,7 +605,11 @@ function ItemPageOutfitPreview({ itemId }) {
       ${petAppearanceFragment}
     `,
     {
-      variables: { itemId, preferredSpeciesId, preferredColorId },
+      variables: {
+        itemId,
+        preferredSpeciesId: initialPreferredSpeciesId,
+        preferredColorId: initialPreferredColorId,
+      },
       onCompleted: (data) => {
         const canonicalBody = data?.item?.canonicalAppearance?.body;
         const canonicalPetAppearance = canonicalBody?.canonicalAppearance;
