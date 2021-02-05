@@ -252,6 +252,7 @@ function useSearchResults(query, outfitState) {
     gql`
       query SearchPanel(
         $query: String!
+        $fitsPet: FitsPetSearchFilter
         $itemKind: ItemKindSearchFilter
         $currentUserOwnsOrWants: OwnsOrWants
         $zoneIds: [ID!]!
@@ -259,13 +260,12 @@ function useSearchResults(query, outfitState) {
         $colorId: ID!
         $offset: Int!
       ) {
-        itemSearchToFit(
+        itemSearch(
           query: $query
+          fitsPet: $fitsPet
           itemKind: $itemKind
           currentUserOwnsOrWants: $currentUserOwnsOrWants
           zoneIds: $zoneIds
-          speciesId: $speciesId
-          colorId: $colorId
           offset: $offset
           limit: 50
         ) {
@@ -309,12 +309,13 @@ function useSearchResults(query, outfitState) {
     {
       variables: {
         query: debouncedQuery.value,
+        fitsPet: { speciesId, colorId },
         itemKind: debouncedQuery.filterToItemKind,
         currentUserOwnsOrWants: debouncedQuery.filterToCurrentUserOwnsOrWants,
         zoneIds: filterToZoneIds,
+        offset: 0,
         speciesId,
         colorId,
-        offset: 0,
       },
       context: { sendAuth: true },
       skip:
@@ -328,7 +329,7 @@ function useSearchResults(query, outfitState) {
         // `fetchMore`, with the extended results. But, on the first time, this
         // logic can tell us whether we're at the end of the list, by counting
         // whether there was <30. We also have to check in `fetchMore`!
-        const items = d && d.itemSearchToFit && d.itemSearchToFit.items;
+        const items = d && d.itemSearch && d.itemSearch.items;
         if (items && items.length < 30) {
           setIsEndOfResults(true);
         }
@@ -340,7 +341,7 @@ function useSearchResults(query, outfitState) {
   );
 
   // Smooth over the data a bit, so that we can use key fields with confidence!
-  const result = data?.itemSearchToFit;
+  const result = data?.itemSearch;
   const resultValue = result?.query;
   const zoneStr = filterToZoneIds.sort().join(",");
   const resultZoneStr = (result?.zones || [])
@@ -387,17 +388,17 @@ function useSearchResults(query, outfitState) {
           // we'd need to return the total result count... a bit annoying to
           // potentially double the query runtime? We'd need to see how slow it
           // actually makes things.
-          if (fetchMoreResult.itemSearchToFit.items.length < 30) {
+          if (fetchMoreResult.itemSearch.items.length < 30) {
             setIsEndOfResults(true);
           }
 
           return {
             ...prev,
-            itemSearchToFit: {
-              ...(prev?.itemSearchToFit || {}),
+            itemSearch: {
+              ...(prev?.itemSearch || {}),
               items: [
-                ...(prev?.itemSearchToFit?.items || []),
-                ...(fetchMoreResult?.itemSearchToFit?.items || []),
+                ...(prev?.itemSearch?.items || []),
+                ...(fetchMoreResult?.itemSearch?.items || []),
               ],
             },
           };

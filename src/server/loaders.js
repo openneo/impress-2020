@@ -290,84 +290,6 @@ const buildItemSearchLoader = (db, loaders) =>
     const queryPromises = queries.map(
       async ({
         query,
-        itemKind,
-        currentUserOwnsOrWants,
-        currentUserId,
-        zoneIds = [],
-        offset,
-        limit,
-      }) => {
-        const actualOffset = offset || 0;
-        const actualLimit = Math.min(limit || 30, 30);
-
-        // Split the query into words, and search for each word as a substring
-        // of the name.
-        const words = query.split(/\s+/);
-        const wordMatchersForMysql = words.map(
-          (word) => "%" + word.replace(/_%/g, "\\$0") + "%"
-        );
-        const matcherPlaceholders = words
-          .map((_) => "t.name LIKE ?")
-          .join(" AND ");
-
-        const itemKindCondition = itemSearchKindConditions[itemKind] || "1";
-        const zoneIdsPlaceholder =
-          zoneIds.length > 0
-            ? `swf_assets.zone_id IN (${zoneIds.map((_) => "?").join(", ")})`
-            : "1";
-        const currentUserJoin = currentUserOwnsOrWants
-          ? `INNER JOIN closet_hangers ch ON ch.item_id = items.id`
-          : "";
-        const currentUserCondition = currentUserOwnsOrWants
-          ? `ch.user_id = ? AND ch.owned = ?`
-          : "1";
-        const currentUserValues = currentUserOwnsOrWants
-          ? [currentUserId, currentUserOwnsOrWants === "OWNS" ? "1" : "0"]
-          : [];
-
-        const [rows, _] = await db.execute(
-          `SELECT DISTINCT items.*, t.name FROM items
-           INNER JOIN item_translations t ON t.item_id = items.id
-           INNER JOIN parents_swf_assets rel
-               ON rel.parent_type = "Item" AND rel.parent_id = items.id
-           INNER JOIN swf_assets ON rel.swf_asset_id = swf_assets.id
-           ${currentUserJoin}
-           WHERE ${matcherPlaceholders} AND t.locale = "en" AND
-               ${zoneIdsPlaceholder} AND ${itemKindCondition} AND
-               ${currentUserCondition}
-           ORDER BY t.name
-           LIMIT ? OFFSET ?`,
-          [
-            ...wordMatchersForMysql,
-            ...zoneIds,
-            ...currentUserValues,
-            actualLimit,
-            actualOffset,
-          ]
-        );
-
-        const entities = rows.map(normalizeRow);
-
-        for (const item of entities) {
-          loaders.itemLoader.prime(item.id, item);
-        }
-
-        return entities;
-      }
-    );
-
-    const responses = await Promise.all(queryPromises);
-
-    return responses;
-  });
-
-const buildItemSearchToFitLoader = (db, loaders) =>
-  new DataLoader(async (queryAndBodyIdPairs) => {
-    // This isn't actually optimized as a batch query, we're just using a
-    // DataLoader API consistency with our other loaders!
-    const queryPromises = queryAndBodyIdPairs.map(
-      async ({
-        query,
         bodyId,
         itemKind,
         currentUserOwnsOrWants,
@@ -390,6 +312,10 @@ const buildItemSearchToFitLoader = (db, loaders) =>
           .join(" AND ");
 
         const itemKindCondition = itemSearchKindConditions[itemKind] || "1";
+        const bodyIdCondition = bodyId
+          ? "(swf_assets.body_id = ? OR swf_assets.body_id = 0)"
+          : "1";
+        const bodyIdValues = bodyId ? [bodyId] : [];
         const zoneIdsCondition =
           zoneIds.length > 0
             ? `swf_assets.zone_id IN (${zoneIds.map((_) => "?").join(", ")})`
@@ -412,14 +338,14 @@ const buildItemSearchToFitLoader = (db, loaders) =>
            INNER JOIN swf_assets ON rel.swf_asset_id = swf_assets.id
            ${currentUserJoin}
            WHERE ${matcherPlaceholders} AND t.locale = "en" AND
-               (swf_assets.body_id = ? OR swf_assets.body_id = 0) AND
+               ${bodyIdCondition} AND
                ${zoneIdsCondition} AND ${itemKindCondition} AND
                ${currentUserCondition}
            ORDER BY t.name
            LIMIT ? OFFSET ?`,
           [
             ...wordMatchersForMysql,
-            bodyId,
+            ...bodyIdValues,
             ...zoneIds,
             ...currentUserValues,
             actualLimit,
@@ -1292,7 +1218,6 @@ function buildLoaders(db) {
   loaders.itemTranslationLoader = buildItemTranslationLoader(db);
   loaders.itemByNameLoader = buildItemByNameLoader(db, loaders);
   loaders.itemSearchLoader = buildItemSearchLoader(db, loaders);
-  loaders.itemSearchToFitLoader = buildItemSearchToFitLoader(db, loaders);
   loaders.newestItemsLoader = buildNewestItemsLoader(db, loaders);
   loaders.itemsThatNeedModelsLoader = buildItemsThatNeedModelsLoader(db);
   loaders.itemBodiesWithAppearanceDataLoader = buildItemBodiesWithAppearanceDataLoader(

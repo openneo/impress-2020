@@ -44,6 +44,7 @@ function ItemsAndSearchPanels({ loading, outfitState, dispatchToOutfit }) {
           position="relative"
           overflow="auto"
           ref={scrollContainerRef}
+          data-test-id="search-panel-scroll-container"
         >
           <Box px="4" py="2">
             <SearchPanel

@@ -275,6 +275,7 @@ function SearchToolbar({
         value: query.value || "",
         ref: searchQueryRef,
         minWidth: 0,
+        "data-test-id": "item-search-input",
         onChange: (e, { newValue, method }) => {
           // The Autosuggest tries to change the _entire_ value of the element
           // when navigating suggestions, which isn't actually what we want.

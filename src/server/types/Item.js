@@ -97,6 +97,11 @@ const typeDefs = gql`
     restrictedZones: [Zone!]!
   }
 
+  input FitsPetSearchFilter {
+    speciesId: ID!
+    colorId: ID!
+  }
+
   enum ItemKindSearchFilter {
     NC
     NP
@@ -133,12 +138,16 @@ const typeDefs = gql`
     # Search for items with fuzzy matching.
     itemSearch(
       query: String!
+      fitsPet: FitsPetSearchFilter
       itemKind: ItemKindSearchFilter
       currentUserOwnsOrWants: OwnsOrWants
       zoneIds: [ID!]
       offset: Int
       limit: Int
     ): ItemSearchResult!
+
+    # Deprecated: an alias for itemSearch, but with speciesId and colorId
+    # required, serving the same purpose as fitsPet in itemSearch.
     itemSearchToFit(
       query: String!
       itemKind: ItemKindSearchFilter
@@ -438,11 +447,34 @@ const resolvers = {
     },
     itemSearch: async (
       _,
-      { query, itemKind, currentUserOwnsOrWants, zoneIds = [], offset, limit },
-      { itemSearchLoader, currentUserId }
+      {
+        query,
+        fitsPet,
+        itemKind,
+        currentUserOwnsOrWants,
+        zoneIds = [],
+        offset,
+        limit,
+      },
+      { itemSearchLoader, petTypeBySpeciesAndColorLoader, currentUserId }
     ) => {
+      let bodyId = null;
+      if (fitsPet) {
+        const petType = await petTypeBySpeciesAndColorLoader.load({
+          speciesId: fitsPet.speciesId,
+          colorId: fitsPet.colorId,
+        });
+        if (!petType) {
+          throw new Error(
+            `pet type not found: speciesId=${fitsPet.speciesId}, ` +
+              `colorId: ${fitsPet.colorId}`
+          );
+        }
+        bodyId = petType.bodyId;
+      }
       const items = await itemSearchLoader.load({
         query: query.trim(),
+        bodyId,
         itemKind,
         currentUserOwnsOrWants,
         currentUserId,
@@ -465,14 +497,19 @@ const resolvers = {
         offset,
         limit,
       },
-      { petTypeBySpeciesAndColorLoader, itemSearchToFitLoader, currentUserId }
+      { petTypeBySpeciesAndColorLoader, itemSearchLoader, currentUserId }
     ) => {
       const petType = await petTypeBySpeciesAndColorLoader.load({
         speciesId,
         colorId,
       });
+      if (!petType) {
+        throw new Error(
+          `pet type not found: speciesId=${speciesId}, colorId: ${colorId}`
+        );
+      }
       const { bodyId } = petType;
-      const items = await itemSearchToFitLoader.load({
+      const items = await itemSearchLoader.load({
         query: query.trim(),
         itemKind,
         currentUserOwnsOrWants,
