@@ -270,8 +270,7 @@ function SearchToolbar({
         </InputGroup>
       )}
       inputProps={{
-        // placeholder: "Search for items to add…",
-        "aria-label": "Search for items to add…",
+        placeholder: "Search all items…",
         focusBorderColor: focusBorderColor,
         value: query.value || "",
         ref: searchQueryRef,
