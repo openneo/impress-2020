@@ -19,6 +19,7 @@ import {
   Wrap,
   WrapItem,
   Flex,
+  usePrefersReducedMotion,
 } from "@chakra-ui/react";
 import {
   CheckIcon,
@@ -34,7 +35,7 @@ import { useQuery, useMutation } from "@apollo/client";
 import { Link, useParams } from "react-router-dom";
 
 import ItemPageLayout, { SubtleSkeleton } from "./ItemPageLayout";
-import { Delay, usePageTitle } from "./util";
+import { Delay, logAndCapture, usePageTitle } from "./util";
 import {
   itemAppearanceFragment,
   petAppearanceFragment,
@@ -813,25 +814,80 @@ function CustomizeMoreButton({ speciesId, colorId, pose, itemId }) {
   // The default background is good in light mode, but in dark mode it's a
   // very subtle transparent white... make it a semi-transparent black, for
   // better contrast against light-colored background items!
-  const backgroundColor = useColorModeValue(undefined, "blackAlpha.600");
-  const backgroundColorHover = useColorModeValue(undefined, "blackAlpha.700");
+  const backgroundColor = useColorModeValue(undefined, "blackAlpha.700");
+  const backgroundColorHover = useColorModeValue(undefined, "blackAlpha.900");
 
   return (
-    <Tooltip label="Customize more" placement="left" colorScheme="white">
-      <IconButton
-        as={Link}
-        to={url}
-        icon={<EditIcon />}
-        position="absolute"
-        top="2"
-        right="2"
-        size="sm"
-        background={backgroundColor}
-        _hover={{ backgroundColor: backgroundColorHover }}
-        _focus={{ backgroundColor: backgroundColorHover }}
-        boxShadow="sm"
-      />
-    </Tooltip>
+    <Button
+      as={Link}
+      to={url}
+      role="group"
+      position="absolute"
+      top="2"
+      right="2"
+      size="sm"
+      background={backgroundColor}
+      _hover={{ backgroundColor: backgroundColorHover }}
+      _focus={{ backgroundColor: backgroundColorHover, boxShadow: "outline" }}
+      boxShadow="sm"
+    >
+      <ExpandOnGroupHover paddingRight="2">Customize more</ExpandOnGroupHover>
+      <EditIcon />
+    </Button>
+  );
+}
+
+/**
+ * ExpandOnGroupHover starts at width=0, and expands to full width when a
+ * parent with role="group" gains hover or focus state.
+ */
+function ExpandOnGroupHover({ children, ...props }) {
+  const [measuredWidth, setMeasuredWidth] = React.useState(null);
+  const measurerRef = React.useRef(null);
+  const prefersReducedMotion = usePrefersReducedMotion();
+
+  React.useLayoutEffect(() => {
+    if (!measurerRef) {
+      // I don't think this is possible, but I'd like to know if it happens!
+      logAndCapture(
+        new Error(
+          `Measurer node not ready during effect. Transition won't be smooth.`
+        )
+      );
+      return;
+    }
+
+    if (measuredWidth != null) {
+      // Skip re-measuring when we already have a measured width. This is
+      // mainly defensive, to prevent the possibility of loops, even though
+      // this algorithm should be stable!
+      return;
+    }
+
+    const newMeasuredWidth = measurerRef.current.offsetWidth;
+    setMeasuredWidth(newMeasuredWidth);
+  }, [measuredWidth]);
+
+  return (
+    <Flex
+      // In block layout, the overflowing children would _also_ be constrained
+      // to width 0. But in flex layout, overflowing children _keep_ their
+      // natural size, so we can measure it even when not visible.
+      width="0"
+      overflow="hidden"
+      // Right-align the children, to keep the text feeling right-aligned when
+      // we expand. (To support left-side expansion, make this a prop!)
+      justify="flex-end"
+      // If the width somehow isn't measured yet, expand to width `auto`, which
+      // won't transition smoothly but at least will work!
+      _groupHover={{ width: measuredWidth ? measuredWidth + "px" : "auto" }}
+      _groupFocus={{ width: measuredWidth ? measuredWidth + "px" : "auto" }}
+      transition={!prefersReducedMotion && "width 0.2s"}
+    >
+      <Box ref={measurerRef} {...props}>
+        {children}
+      </Box>
+    </Flex>
   );
 }
 
