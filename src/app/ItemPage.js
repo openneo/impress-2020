@@ -695,6 +695,7 @@ function ItemPageOutfitPreview({ itemId }) {
   return (
     <Stack
       direction={{ base: "column", md: "row" }}
+      align="center"
       justify="center"
       spacing="8"
       width="100%"
