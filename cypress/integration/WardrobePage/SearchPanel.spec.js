@@ -4,7 +4,7 @@ const networkTimeout = { timeout: 6000 };
 describe("WardrobePage: SearchPanel", () => {
   // NOTE: This test depends on specific search results on certain pages, and
   //       could break if a lot of matching items are added to the site!
-  it("Searches by keyword", () => {
+  it.only("Searches by keyword", () => {
     cy.visit("/outfits/new");
 
     // The first page should contain this item.
@@ -16,7 +16,7 @@ describe("WardrobePage: SearchPanel", () => {
     // And the second page should contain this item.
     cy.get("[data-test-id=search-panel-scroll-container]").scrollTo("bottom");
     cy.contains(
-      "Dyeworks Green: Winter Poinsettia Staff",
+      "Dyeworks Purple: Winter Rose Foreground",
       networkTimeout
     ).should("exist");
   });
