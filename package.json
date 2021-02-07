@@ -64,9 +64,9 @@
     "download-mysql-schema": "yarn --silent mysqldump --no-data openneo_impress closet_hangers closet_lists items item_translations modeling_logs parents_swf_assets pet_types pet_states swf_assets users | sed 's/ AUTO_INCREMENT=[0-9]*//g' > scripts/setup-mysql-dev-schema.sql && yarn --silent mysqldump openneo_impress species species_translations colors color_translations zones zone_translations > scripts/setup-mysql-dev-constants.sql",
     "setup-mysql": "yarn mysql-admin < scripts/setup-mysql.sql",
     "setup-mysql-dev": "yarn mysql-dev < scripts/setup-mysql-dev-constants.sql && yarn mysql-dev < scripts/setup-mysql-dev-schema.sql",
-    "build-cached-data": "ts-node --transpile-only -r dotenv/config scripts/build-cached-data.js",
-    "cache-asset-manifests": "ts-node --transpile-only -r dotenv/config scripts/cache-asset-manifests.js",
-    "export-users-to-auth0": "ts-node --transpile-only -r dotenv/config scripts/export-users-to-auth0.js"
+    "build-cached-data": "ts-node --compiler=typescript-cached-transpile --transpile-only -r dotenv/config scripts/build-cached-data.js",
+    "cache-asset-manifests": "ts-node --compiler=typescript-cached-transpile --transpile-only -r dotenv/config scripts/cache-asset-manifests.js",
+    "export-users-to-auth0": "ts-node --compiler=typescript-cached-transpile --transpile-only -r dotenv/config scripts/export-users-to-auth0.js"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -95,6 +95,7 @@
     "prettier": "^2.0.5",
     "react-is": "^16.13.1",
     "ts-node": "^9.1.1",
+    "typescript-cached-transpile": "^0.0.6",
     "vercel": "^21.2.3"
   }
 }

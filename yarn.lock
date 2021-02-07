@@ -5010,6 +5010,11 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.17.21.tgz#c00e9603399126925806bed2d9a1e37da506965e"
   integrity sha512-PQKsydPxYxF1DsAFWmunaxd3sOi3iMt6Zmx/tgaagHYmwJ/9cRH91hQkeJZaUGWbvn0K5HlSVEXkn5U/llWPpQ==
 
+"@types/node@^12.12.7":
+  version "12.19.16"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.19.16.tgz#15753af35cbef636182d8d8ca55b37c8583cecb3"
+  integrity sha512-7xHmXm/QJ7cbK2laF+YYD7gb5MggHIIQwqyjin3bpEGiSuvScMQ5JZZXPvRipi1MwckTQbJZROMns/JxdnIL1Q==
+
 "@types/node@^14.14.22":
   version "14.14.22"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-14.14.22.tgz#0d29f382472c4ccf3bd96ff0ce47daf5b7b84b18"
@@ -17550,6 +17555,15 @@ typedarray@^0.0.6:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
+
+typescript-cached-transpile@^0.0.6:
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/typescript-cached-transpile/-/typescript-cached-transpile-0.0.6.tgz#1d1f0620ebb29cf8d8c11e5353c2b4f43dfafc01"
+  integrity sha512-bfPc7YUW0PrVkQHU0xN0ANRuxdPgoYYXtZEW6PNkH5a97/AOM+kPPxSTMZbpWA3BG1do22JUkfC60KoCKJ9VZQ==
+  dependencies:
+    "@types/node" "^12.12.7"
+    fs-extra "^8.1.0"
+    tslib "^1.10.0"
 
 typescript@3.9.3:
   version "3.9.3"
