@@ -115,6 +115,7 @@ const typeDefs = gql`
     query: String!
     zones: [Zone!]!
     items: [Item!]!
+    numTotalItems: Int!
   }
 
   type ItemTrade {
@@ -472,7 +473,7 @@ const resolvers = {
         }
         bodyId = petType.bodyId;
       }
-      const items = await itemSearchLoader.load({
+      const [items, numTotalItems] = await itemSearchLoader.load({
         query: query.trim(),
         bodyId,
         itemKind,
@@ -483,7 +484,7 @@ const resolvers = {
         limit,
       });
       const zones = zoneIds.map((id) => ({ id }));
-      return { query, zones, items };
+      return { query, zones, items, numTotalItems };
     },
     itemSearchToFit: async (
       _,
@@ -509,7 +510,7 @@ const resolvers = {
         );
       }
       const { bodyId } = petType;
-      const items = await itemSearchLoader.load({
+      const [items, numTotalItems] = await itemSearchLoader.load({
         query: query.trim(),
         itemKind,
         currentUserOwnsOrWants,
@@ -520,7 +521,7 @@ const resolvers = {
         limit,
       });
       const zones = zoneIds.map((id) => ({ id }));
-      return { query, zones, items };
+      return { query, zones, items, numTotalItems };
     },
     newestItems: async (_, __, { newestItemsLoader }) => {
       const items = await newestItemsLoader.load("all-newest");

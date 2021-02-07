@@ -330,36 +330,56 @@ const buildItemSearchLoader = (db, loaders) =>
           ? [currentUserId, currentUserOwnsOrWants === "OWNS" ? "1" : "0"]
           : [];
 
-        const [rows, _] = await db.execute(
-          `SELECT DISTINCT items.*, t.name FROM items
-           INNER JOIN item_translations t ON t.item_id = items.id
-           INNER JOIN parents_swf_assets rel
-               ON rel.parent_type = "Item" AND rel.parent_id = items.id
-           INNER JOIN swf_assets ON rel.swf_asset_id = swf_assets.id
-           ${currentUserJoin}
-           WHERE ${matcherPlaceholders} AND t.locale = "en" AND
-               ${bodyIdCondition} AND
-               ${zoneIdsCondition} AND ${itemKindCondition} AND
-               ${currentUserCondition}
-           ORDER BY t.name
-           LIMIT ? OFFSET ?`,
-          [
-            ...wordMatchersForMysql,
-            ...bodyIdValues,
-            ...zoneIds,
-            ...currentUserValues,
-            actualLimit,
-            actualOffset,
-          ]
-        );
+        const queryJoins = `
+          INNER JOIN item_translations t ON t.item_id = items.id
+          INNER JOIN parents_swf_assets rel
+              ON rel.parent_type = "Item" AND rel.parent_id = items.id
+          INNER JOIN swf_assets ON rel.swf_asset_id = swf_assets.id
+          ${currentUserJoin}
+        `;
+
+        const queryConditions = `
+          ${matcherPlaceholders} AND t.locale = "en" AND
+          ${bodyIdCondition} AND
+          ${zoneIdsCondition} AND ${itemKindCondition} AND
+          ${currentUserCondition}
+        `;
+        const queryConditionValues = [
+          ...wordMatchersForMysql,
+          ...bodyIdValues,
+          ...zoneIds,
+          ...currentUserValues,
+        ];
+
+        const [[rows, _], [totalRows, __]] = await Promise.all([
+          db.execute(
+            `
+              SELECT DISTINCT items.*, t.name FROM items
+              ${queryJoins}
+              WHERE ${queryConditions}
+              ORDER BY t.name
+              LIMIT ? OFFSET ?
+            `,
+            [...queryConditionValues, actualLimit, actualOffset]
+          ),
+          db.execute(
+            `
+              SELECT count(DISTINCT items.id) AS numTotalItems FROM items
+              ${queryJoins}
+              WHERE ${queryConditions}
+            `,
+            queryConditionValues
+          ),
+        ]);
 
         const entities = rows.map(normalizeRow);
+        const { numTotalItems } = totalRows[0];
 
         for (const item of entities) {
           loaders.itemLoader.prime(item.id, item);
         }
 
-        return entities;
+        return [entities, numTotalItems];
       }
     );
 

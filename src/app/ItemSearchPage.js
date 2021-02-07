@@ -129,6 +129,7 @@ function ItemSearchPageResults({ query: latestQuery }) {
           offset: 0
           limit: 30
         ) {
+          numTotalItems
           items {
             id
             name
@@ -197,7 +198,8 @@ function ItemSearchPageResults({ query: latestQuery }) {
             details="I wanted to get this out asap for looking up specific items! Multi-page browsing coming soon 😅"
             marginTop="6"
           >
-            We only show the first 30 results for now! 😅
+            We only show the first 30 results for now! 😅 (
+            {data.itemSearch.numTotalItems.toLocaleString()} total)
           </WIPCallout>
         </Flex>
       )}
