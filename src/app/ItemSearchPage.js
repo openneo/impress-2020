@@ -15,7 +15,7 @@ import WIPCallout from "./components/WIPCallout";
 import { Delay, ErrorMessage, useCommonStyles, useDebounce } from "./util";
 
 function ItemSearchPage() {
-  const [query, setQuery] = useSearchQueryInUrl();
+  const [query, offset, setQuery] = useSearchQueryInUrl();
   const { brightBackground } = useCommonStyles();
 
   return (
@@ -29,14 +29,14 @@ function ItemSearchPage() {
         autoFocus
       />
       <Box height="6" />
-      <ItemSearchPageResults query={query} />
+      <ItemSearchPageResults query={query} offset={offset} />
     </Box>
   );
 }
 
 /**
  * useSearchQueryInUrl provides an API like useState, but stores the search
- * query in the URL!
+ * query in the URL! It also parses out the offset for us.
  */
 function useSearchQueryInUrl() {
   const history = useHistory();
@@ -51,6 +51,9 @@ function useSearchQueryInUrl() {
     filterToItemKind: searchParams.get("kind") || null,
     filterToCurrentUserOwnsOrWants: searchParams.get("user") || null,
   };
+
+  const offset = parseInt(searchParams.get("offset")) || 0;
+
   const setQuery = React.useCallback(
     (newQuery) => {
       let url = `/items/search`;
@@ -69,6 +72,10 @@ function useSearchQueryInUrl() {
       if (newQuery.filterToCurrentUserOwnsOrWants) {
         newParams.append("user", newQuery.filterToCurrentUserOwnsOrWants);
       }
+
+      // NOTE: We omit `offset`, because changing the query should reset us
+      //       back to the first page!
+
       const search = newParams.toString();
       if (search) {
         url += "?" + search;
@@ -79,10 +86,13 @@ function useSearchQueryInUrl() {
     [history]
   );
 
-  return [query, setQuery];
+  // NOTE: We don't provide a `setOffset`, because that's handled via
+  //       pagination links.
+
+  return [query, offset, setQuery];
 }
 
-function ItemSearchPageResults({ query: latestQuery }) {
+function ItemSearchPageResults({ query: latestQuery, offset }) {
   // NOTE: Some of this is copied from SearchPanel... but all of this is messy
   //       enough that I'm not comfy code-sharing yet, esp since I feel like
   //       SearchPanel pagination is a bit of a mess and will need refactoring.
@@ -120,13 +130,14 @@ function ItemSearchPageResults({ query: latestQuery }) {
         $itemKind: ItemKindSearchFilter
         $currentUserOwnsOrWants: OwnsOrWants
         $zoneIds: [ID!]!
+        $offset: Int!
       ) {
         itemSearch(
           query: $query
           itemKind: $itemKind
           currentUserOwnsOrWants: $currentUserOwnsOrWants
           zoneIds: $zoneIds
-          offset: 0
+          offset: $offset
           limit: 30
         ) {
           numTotalItems
@@ -144,6 +155,7 @@ function ItemSearchPageResults({ query: latestQuery }) {
         itemKind: query.filterToItemKind,
         currentUserOwnsOrWants: query.filterToCurrentUserOwnsOrWants,
         zoneIds: filterToZoneIds,
+        offset,
       },
       context: { sendAuth: true },
       skip: searchQueryIsEmpty(query),
