@@ -1,6 +1,5 @@
-// Our local dev server is slow, give it plenty of breathing room!
-// (For me, it can often take 10-15 seconds when working correctly.)
-const networkTimeout = { timeout: 20000 };
+// Give network requests a bit of breathing room!
+const networkTimeout = { timeout: 6000 };
 
 describe("WardrobePage: SearchPanel", () => {
   // NOTE: This test depends on specific search results on certain pages, and
