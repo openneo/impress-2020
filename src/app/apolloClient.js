@@ -135,11 +135,6 @@ const typePolicies = {
   },
 };
 
-// The PersistedQueryLink in front of the HttpLink helps us send cacheable GET
-// requests.
-const persistedQueryLink = createPersistedQueryLink({
-  useGETForHashedQueries: true,
-});
 const httpLink = createHttpLink({ uri: "/api/graphql" });
 const buildAuthLink = (getAuth0) =>
   setContext(async (_, { headers = {}, sendAuth = false }) => {
@@ -177,13 +172,30 @@ for (const zone of cachedZones) {
   initialCache[`Zone:${zone.id}`] = { __typename: "Zone", ...zone };
 }
 
+const buildLink = (getAuth0) => {
+  let link = buildAuthLink(getAuth0);
+  if (process.env.NODE_ENV === "production") {
+    // In production, we send GET requests for queries, to enable CDN and
+    // browser caching. But in development, we skip it, because our dev server
+    // reloads the route from scratch on each request, so queries never get
+    // persisted, and the GET always fails and falls back to POST anyway.
+    link = link.concat(
+      createPersistedQueryLink({
+        useGETForHashedQueries: true,
+      })
+    );
+  }
+  link = link.concat(httpLink);
+  return link;
+};
+
 /**
  * apolloClient is the global Apollo Client instance we use for GraphQL
  * queries. This is how we communicate with the server!
  */
 const buildClient = (getAuth0) =>
   new ApolloClient({
-    link: buildAuthLink(getAuth0).concat(persistedQueryLink).concat(httpLink),
+    link: buildLink(getAuth0),
     cache: new InMemoryCache({ typePolicies }).restore(initialCache),
     connectToDevTools: true,
   });
