@@ -50,7 +50,7 @@
     "xmlrpc": "^1.3.2"
   },
   "scripts": {
-    "start": "TS_NODE_COMPILER_OPTIONS='{\"target\": \"esnext\", \"module\": \"commonjs\"}' vercel dev",
+    "start": "vercel dev",
     "dev": "yarn build-cached-data && REACT_APP_IMPRESS_LOG_IN_AS=$IMPRESS_LOG_IN_AS react-scripts start",
     "build": "yarn build-cached-data && react-scripts build",
     "vercel-build": "yum install libuuid-devel libmount-devel && cp /lib64/{libuuid,libmount,libblkid}.so.1 node_modules/canvas/build/Release/",
