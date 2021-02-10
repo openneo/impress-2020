@@ -662,7 +662,6 @@ function ItemPageOutfitPreview({ itemId }) {
     wornItemIds: [itemId],
     isLoading: loadingGQL || loadingValids,
     spinnerVariant: "corner",
-    loadingDelayMs: 200,
     engine: "canvas",
     onChangeHasAnimations: setHasAnimations,
   });
