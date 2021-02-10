@@ -128,4 +128,8 @@ function HTML5BadgeLayout({ children, tooltipLabel, ...props }) {
   );
 }
 
+export function layerUsesHTML5(layer) {
+  return layer.svgUrl || layer.canvasMovieLibraryUrl;
+}
+
 export default HTML5Badge;

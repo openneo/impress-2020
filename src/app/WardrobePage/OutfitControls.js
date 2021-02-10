@@ -24,12 +24,12 @@ import { MdPause, MdPlayArrow } from "react-icons/md";
 import { Link } from "react-router-dom";
 
 import { getBestImageUrlForLayer } from "../components/OutfitPreview";
+import HTML5Badge, { layerUsesHTML5 } from "../components/HTML5Badge";
 import PosePicker from "./PosePicker";
 import SpeciesColorPicker from "../components/SpeciesColorPicker";
 import { loadImage, useLocalStorage } from "../util";
 import useCurrentUser from "../components/useCurrentUser";
 import useOutfitAppearance from "../components/useOutfitAppearance";
-import HTML5Badge from "../components/HTML5Badge";
 
 /**
  * OutfitControls is the set of controls layered over the outfit preview, to
@@ -89,11 +89,10 @@ function OutfitControls({
   };
 
   const itemLayers = appearance.itemAppearances.map((a) => a.layers).flat();
-  const usesHTML5 = itemLayers.every(
-    (l) => l.svgUrl || l.canvasMovieLibraryUrl
-  );
+  const usesHTML5 = itemLayers.every(layerUsesHTML5);
+
   const itemsNotUsingHTML5 = appearance.items.filter((item) =>
-    item.appearance.layers.some((l) => !l.svgUrl && !l.canvasMovieLibraryUrl)
+    item.appearance.layers.some((l) => !layerUsesHTML5(l))
   );
   itemsNotUsingHTML5.sort((a, b) => a.name.localeCompare(b.name));
 

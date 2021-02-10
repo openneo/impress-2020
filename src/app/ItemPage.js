@@ -38,7 +38,7 @@ import { Link, useParams } from "react-router-dom";
 
 import ItemPageLayout, { SubtleSkeleton } from "./ItemPageLayout";
 import { Delay, logAndCapture, usePageTitle } from "./util";
-import HTML5Badge from "./components/HTML5Badge";
+import HTML5Badge, { layerUsesHTML5 } from "./components/HTML5Badge";
 import {
   itemAppearanceFragment,
   petAppearanceFragment,
@@ -672,9 +672,7 @@ function ItemPageOutfitPreview({ itemId }) {
   const itemAppearance = appearance?.itemAppearances?.[0];
   const itemLayers = itemAppearance?.layers || [];
   const isCompatible = itemLayers.length > 0;
-  const usesHTML5 = itemLayers.every(
-    (l) => l.svgUrl || l.canvasMovieLibraryUrl
-  );
+  const usesHTML5 = itemLayers.every(layerUsesHTML5);
 
   const borderColor = useColorModeValue("green.700", "green.400");
   const errorColor = useColorModeValue("red.600", "red.400");
