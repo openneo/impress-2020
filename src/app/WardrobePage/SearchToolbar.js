@@ -47,7 +47,7 @@ export function searchQueryIsEmpty(query) {
 function SearchToolbar({
   query,
   searchQueryRef,
-  firstSearchResultRef,
+  firstSearchResultRef = null,
   onChange,
   autoFocus,
   showItemsLabel = false,
@@ -77,7 +77,7 @@ function SearchToolbar({
   zoneLabels.sort();
 
   const onMoveFocusDownToResults = (e) => {
-    if (firstSearchResultRef.current) {
+    if (firstSearchResultRef && firstSearchResultRef.current) {
       firstSearchResultRef.current.focus();
       e.preventDefault();
     }
