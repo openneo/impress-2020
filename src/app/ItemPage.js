@@ -776,6 +776,9 @@ function ItemPageOutfitPreview({ itemId }) {
                       color={errorColor}
                       transition="color 0.2"
                       marginLeft="2"
+                      borderRadius="full"
+                      tabIndex="0"
+                      _focus={{ outline: "none", boxShadow: "outline" }}
                     />
                   </Tooltip>
                 )
