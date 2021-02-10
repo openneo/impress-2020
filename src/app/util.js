@@ -108,7 +108,26 @@ export function safeImageUrl(urlString) {
     return urlString;
   }
 
-  const url = new URL(urlString);
+  let url;
+  try {
+    url = new URL(
+      urlString,
+      // A few item thumbnail images incorrectly start with "/". When that
+      // happens, the correct URL is at images.neopets.com.
+      //
+      // So, we provide "http://images.neopets.com" as the base URL when
+      // parsing. Most URLs are absolute and will ignore it, but relative URLs
+      // will resolve relative to that base.
+      "http://images.neopets.com"
+    );
+  } catch (e) {
+    logAndCapture(
+      new Error(
+        `safeImageUrl could not parse URL: ${urlString}. Returning a placeholder.`
+      )
+    );
+    return "https://impress-openneo.net/__error__URL-was-not-parseable__";
+  }
 
   if (url.origin === "http://images.neopets.com") {
     url.protocol = "https:";
@@ -120,10 +139,10 @@ export function safeImageUrl(urlString) {
 
   if (url.protocol !== "https:") {
     console.warn(
-      "safeImageUrl was provided an unsafe URL, but we don't know how to " +
-        "upgrade it to HTTPS. Returning as-is: " +
-        urlString
+      `safeImageUrl was provided an unsafe URL, but we don't know how to ` +
+        `upgrade it to HTTPS: ${urlString}. Returning a placeholder.`
     );
+    return "https://impress-openneo.net/__error__URL-was-not-HTTPS__";
   }
 
   return url.toString();
