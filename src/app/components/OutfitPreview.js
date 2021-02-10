@@ -77,8 +77,9 @@ export function useOutfitPreview({
     }
   }, [layersHaveAnimations, onChangeHasAnimations]);
 
+  let preview;
   if (error || error2) {
-    return (
+    preview = (
       <FullScreenCenter>
         <Text color="green.50" d="flex" alignItems="center">
           <WarningIcon />
@@ -87,21 +88,21 @@ export function useOutfitPreview({
         </Text>
       </FullScreenCenter>
     );
+  } else {
+    preview = (
+      <OutfitLayers
+        loading={isLoading || loading || loading2}
+        visibleLayers={loadedLayers}
+        placeholder={placeholder}
+        backdrop={backdrop}
+        loadingDelayMs={loadingDelayMs}
+        spinnerVariant={spinnerVariant}
+        onChangeHasAnimations={onChangeHasAnimations}
+        doTransitions
+        isPaused={isPaused}
+      />
+    );
   }
-
-  const preview = (
-    <OutfitLayers
-      loading={isLoading || loading || loading2}
-      visibleLayers={loadedLayers}
-      placeholder={placeholder}
-      backdrop={backdrop}
-      loadingDelayMs={loadingDelayMs}
-      spinnerVariant={spinnerVariant}
-      onChangeHasAnimations={onChangeHasAnimations}
-      doTransitions
-      isPaused={isPaused}
-    />
-  );
 
   return { appearance, preview };
 }
