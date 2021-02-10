@@ -88,7 +88,7 @@ export default function useOutfitAppearance(outfitState) {
   );
 
   const petAppearance = data1?.petAppearance;
-  const items = data2?.items || [];
+  const items = data2?.items;
   const itemAppearances = React.useMemo(
     () => (items || []).map((i) => i.appearance),
     [items]
@@ -104,7 +104,7 @@ export default function useOutfitAppearance(outfitState) {
     loading: loading1 || loading2,
     error: error1 || error2,
     petAppearance,
-    items,
+    items: items || [],
     itemAppearances,
     visibleLayers,
     bodyId,
