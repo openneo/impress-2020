@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Grid, useColorModeValue } from "@chakra-ui/react";
 
-function WardrobePageLayout({ preview, controls, itemsAndSearch }) {
+function WardrobePageLayout({ previewAndControls, itemsAndSearch }) {
   const itemsAndSearchBackground = useColorModeValue("white", "gray.900");
 
   return (
@@ -32,13 +32,8 @@ function WardrobePageLayout({ preview, controls, itemsAndSearch }) {
         height="100%"
         width="100%"
       >
-        <Box gridArea="previewAndControls" bg="gray.900" pos="relative">
-          <Box position="absolute" top="0" bottom="0" left="0" right="0">
-            {preview}
-          </Box>
-          <Box position="absolute" top="0" bottom="0" left="0" right="0">
-            {controls}
-          </Box>
+        <Box gridArea="previewAndControls" bg="gray.900" position="relative">
+          {previewAndControls}
         </Box>
         <Box gridArea="itemsAndSearch" bg={itemsAndSearchBackground}>
           {itemsAndSearch}

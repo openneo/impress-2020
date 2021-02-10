@@ -7,11 +7,8 @@ import SupportOnly from "./support/SupportOnly";
 import useOutfitState, { OutfitStateContext } from "./useOutfitState";
 import { usePageTitle } from "../util";
 import WardrobePageLayout from "./WardrobePageLayout";
-import WardrobeOutfitPreview from "./WardrobeOutfitPreview";
+import WardrobePreviewAndControls from "./WardrobePreviewAndControls";
 
-const OutfitControls = loadable(() =>
-  import(/* webpackPreload: true */ "./OutfitControls")
-);
 const WardrobeDevHacks = loadable(() => import("./WardrobeDevHacks"));
 
 /**
@@ -28,10 +25,6 @@ const WardrobeDevHacks = loadable(() => import("./WardrobeDevHacks"));
 function WardrobePage() {
   const toast = useToast();
   const { loading, error, outfitState, dispatchToOutfit } = useOutfitState();
-
-  // Whether the current outfit preview has animations. Determines whether we
-  // show the play/pause button.
-  const [hasAnimations, setHasAnimations] = React.useState(false);
 
   usePageTitle(outfitState.name || "Untitled outfit");
 
@@ -60,18 +53,11 @@ function WardrobePage() {
         <WardrobeDevHacks />
       </SupportOnly>
       <WardrobePageLayout
-        preview={
-          <WardrobeOutfitPreview
+        previewAndControls={
+          <WardrobePreviewAndControls
             isLoading={loading}
             outfitState={outfitState}
-            onChangeHasAnimations={setHasAnimations}
-          />
-        }
-        controls={
-          <OutfitControls
-            outfitState={outfitState}
             dispatchToOutfit={dispatchToOutfit}
-            showAnimationControls={hasAnimations}
           />
         }
         itemsAndSearch={

@@ -1,4 +1,5 @@
 import React from "react";
+import { Box, DarkMode } from "@chakra-ui/react";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
 
@@ -7,26 +8,43 @@ import OutfitThumbnail, {
   getOutfitThumbnailRenderSize,
 } from "../components/OutfitThumbnail";
 import OutfitPreview from "../components/OutfitPreview";
-import { DarkMode } from "@chakra-ui/react";
+import { loadable } from "../util";
 
-function WardrobeOutfitPreview({
+const OutfitControls = loadable(() => import("./OutfitControls"));
+
+function WardrobePreviewAndControls({
   isLoading,
   outfitState,
-  onChangeHasAnimations,
+  dispatchToOutfit,
 }) {
+  // Whether the current outfit preview has animations. Determines whether we
+  // show the play/pause button.
+  const [hasAnimations, setHasAnimations] = React.useState(false);
+
   return (
-    <DarkMode>
-      <OutfitPreview
-        isLoading={isLoading}
-        speciesId={outfitState.speciesId}
-        colorId={outfitState.colorId}
-        pose={outfitState.pose}
-        appearanceId={outfitState.appearanceId}
-        wornItemIds={outfitState.wornItemIds}
-        onChangeHasAnimations={onChangeHasAnimations}
-        backdrop={<OutfitThumbnailIfCached outfitId={outfitState.id} />}
-      />
-    </DarkMode>
+    <>
+      <Box position="absolute" top="0" bottom="0" left="0" right="0">
+        <DarkMode>
+          <OutfitPreview
+            isLoading={isLoading}
+            speciesId={outfitState.speciesId}
+            colorId={outfitState.colorId}
+            pose={outfitState.pose}
+            appearanceId={outfitState.appearanceId}
+            wornItemIds={outfitState.wornItemIds}
+            onChangeHasAnimations={setHasAnimations}
+            backdrop={<OutfitThumbnailIfCached outfitId={outfitState.id} />}
+          />
+        </DarkMode>
+      </Box>
+      <Box position="absolute" top="0" bottom="0" left="0" right="0">
+        <OutfitControls
+          outfitState={outfitState}
+          dispatchToOutfit={dispatchToOutfit}
+          showAnimationControls={hasAnimations}
+        />
+      </Box>
+    </>
   );
 }
 
@@ -83,4 +101,4 @@ function OutfitThumbnailIfCached({ outfitId }) {
   );
 }
 
-export default WardrobeOutfitPreview;
+export default WardrobePreviewAndControls;
