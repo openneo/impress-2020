@@ -506,6 +506,7 @@ function ItemPageOutfitPreview({ itemId }) {
     speciesId: null,
     colorId: null,
     pose: null,
+    isValid: false,
 
     // We use appearance ID, in addition to the above, to give the Apollo cache
     // a really clear hint that the canonical pet appearance we preloaded is
@@ -621,6 +622,7 @@ function ItemPageOutfitPreview({ itemId }) {
           speciesId: canonicalPetAppearance?.species?.id,
           colorId: canonicalPetAppearance?.color?.id,
           pose: canonicalPetAppearance?.pose,
+          isValid: true,
           appearanceId: canonicalPetAppearance?.id,
         });
       },
@@ -709,6 +711,7 @@ function ItemPageOutfitPreview({ itemId }) {
               colorId={petState.colorId}
               pose={petState.pose}
               itemId={itemId}
+              isDisabled={!petState.isValid}
             />
             {hasAnimations && (
               <PlayPauseButton
@@ -736,11 +739,12 @@ function ItemPageOutfitPreview({ itemId }) {
             colorId={petState.colorId}
             pose={petState.pose}
             idealPose={idealPose}
-            onChange={(species, color, _, closestPose) => {
+            onChange={(species, color, isValid, closestPose) => {
               setPetStateFromUserAction({
                 speciesId: species.id,
                 colorId: color.id,
                 pose: closestPose,
+                isValid,
                 appearanceId: null,
               });
             }}
@@ -785,6 +789,7 @@ function ItemPageOutfitPreview({ itemId }) {
               speciesId,
               colorId,
               pose,
+              isValid: true,
               appearanceId: null,
             });
           }}
@@ -795,7 +800,7 @@ function ItemPageOutfitPreview({ itemId }) {
   );
 }
 
-function CustomizeMoreButton({ speciesId, colorId, pose, itemId }) {
+function CustomizeMoreButton({ speciesId, colorId, pose, itemId, isDisabled }) {
   const url =
     `/outfits/new?species=${speciesId}&color=${colorId}&pose=${pose}&` +
     `objects[]=${itemId}`;
@@ -808,8 +813,8 @@ function CustomizeMoreButton({ speciesId, colorId, pose, itemId }) {
 
   return (
     <Button
-      as={Link}
-      to={url}
+      as={isDisabled ? "button" : Link}
+      to={isDisabled ? null : url}
       role="group"
       position="absolute"
       top="2"
@@ -819,6 +824,7 @@ function CustomizeMoreButton({ speciesId, colorId, pose, itemId }) {
       _hover={{ backgroundColor: backgroundColorHover }}
       _focus={{ backgroundColor: backgroundColorHover, boxShadow: "outline" }}
       boxShadow="sm"
+      isDisabled={isDisabled}
     >
       <ExpandOnGroupHover paddingRight="2">Customize more</ExpandOnGroupHover>
       <EditIcon />
