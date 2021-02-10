@@ -705,7 +705,7 @@ function ItemPageOutfitPreview({ itemId }) {
           overflow="hidden"
         >
           <Box>
-            {preview}
+            {petState.isValid && preview}
             <CustomizeMoreButton
               speciesId={petState.speciesId}
               colorId={petState.colorId}
