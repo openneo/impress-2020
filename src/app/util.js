@@ -126,7 +126,7 @@ export function safeImageUrl(urlString) {
         `safeImageUrl could not parse URL: ${urlString}. Returning a placeholder.`
       )
     );
-    return "https://impress-openneo.net/__error__URL-was-not-parseable__";
+    return "https://impress-2020.openneo.net/__error__URL-was-not-parseable__";
   }
 
   if (url.origin === "http://images.neopets.com") {
@@ -144,7 +144,7 @@ export function safeImageUrl(urlString) {
           `upgrade it to HTTPS: ${urlString}. Returning a placeholder.`
       )
     );
-    return "https://impress-openneo.net/__error__URL-was-not-HTTPS__";
+    return "https://impress-2020.openneo.net/__error__URL-was-not-HTTPS__";
   }
 
   return url.toString();
