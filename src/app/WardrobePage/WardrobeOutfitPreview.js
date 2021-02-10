@@ -7,6 +7,7 @@ import OutfitThumbnail, {
   getOutfitThumbnailRenderSize,
 } from "../components/OutfitThumbnail";
 import OutfitPreview from "../components/OutfitPreview";
+import { DarkMode } from "@chakra-ui/react";
 
 function WardrobeOutfitPreview({
   isLoading,
@@ -14,16 +15,18 @@ function WardrobeOutfitPreview({
   onChangeHasAnimations,
 }) {
   return (
-    <OutfitPreview
-      isLoading={isLoading}
-      speciesId={outfitState.speciesId}
-      colorId={outfitState.colorId}
-      pose={outfitState.pose}
-      appearanceId={outfitState.appearanceId}
-      wornItemIds={outfitState.wornItemIds}
-      onChangeHasAnimations={onChangeHasAnimations}
-      backdrop={<OutfitThumbnailIfCached outfitId={outfitState.id} />}
-    />
+    <DarkMode>
+      <OutfitPreview
+        isLoading={isLoading}
+        speciesId={outfitState.speciesId}
+        colorId={outfitState.colorId}
+        pose={outfitState.pose}
+        appearanceId={outfitState.appearanceId}
+        wornItemIds={outfitState.wornItemIds}
+        onChangeHasAnimations={onChangeHasAnimations}
+        backdrop={<OutfitThumbnailIfCached outfitId={outfitState.id} />}
+      />
+    </DarkMode>
   );
 }
 

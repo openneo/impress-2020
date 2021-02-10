@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, DarkMode, Flex, Text } from "@chakra-ui/react";
+import { Box, DarkMode, Flex, Text, useColorModeValue } from "@chakra-ui/react";
 import { WarningIcon } from "@chakra-ui/icons";
 import { ClassNames } from "@emotion/react";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
@@ -77,11 +77,13 @@ export function useOutfitPreview({
     }
   }, [layersHaveAnimations, onChangeHasAnimations]);
 
+  const textColor = useColorModeValue("green.700", "white");
+
   let preview;
   if (error || error2) {
     preview = (
       <FullScreenCenter>
-        <Text color="green.50" d="flex" alignItems="center">
+        <Text color={textColor} d="flex" alignItems="center">
           <WarningIcon />
           <Box width={2} />
           Could not load preview. Try again?
