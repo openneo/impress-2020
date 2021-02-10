@@ -138,9 +138,11 @@ export function safeImageUrl(urlString) {
   }
 
   if (url.protocol !== "https:") {
-    console.warn(
-      `safeImageUrl was provided an unsafe URL, but we don't know how to ` +
-        `upgrade it to HTTPS: ${urlString}. Returning a placeholder.`
+    logAndCapture(
+      new Error(
+        `safeImageUrl was provided an unsafe URL, but we don't know how to ` +
+          `upgrade it to HTTPS: ${urlString}. Returning a placeholder.`
+      )
     );
     return "https://impress-openneo.net/__error__URL-was-not-HTTPS__";
   }
