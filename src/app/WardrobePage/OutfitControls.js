@@ -27,6 +27,7 @@ import SpeciesColorPicker from "../components/SpeciesColorPicker";
 import { loadImage, useLocalStorage } from "../util";
 import useCurrentUser from "../components/useCurrentUser";
 import useOutfitAppearance from "../components/useOutfitAppearance";
+import HTML5Badge from "../components/HTML5Badge";
 
 /**
  * OutfitControls is the set of controls layered over the outfit preview, to
@@ -36,6 +37,7 @@ function OutfitControls({
   outfitState,
   dispatchToOutfit,
   showAnimationControls,
+  appearance,
 }) {
   const [focusIsLocked, setFocusIsLocked] = React.useState(false);
   const onLockFocus = React.useCallback(() => setFocusIsLocked(true), [
@@ -83,6 +85,11 @@ function OutfitControls({
       onUnlockFocus();
     }
   };
+
+  const itemLayers = appearance.itemAppearances.map((a) => a.layers).flat();
+  const usesHTML5 = itemLayers.every(
+    (l) => l.svgUrl || l.canvasMovieLibraryUrl
+  );
 
   return (
     <ClassNames>
@@ -173,7 +180,32 @@ function OutfitControls({
                * We try to center the species/color picker, but the left spacer will
                * shrink more than the pose picker container if we run out of space!
                */}
-              <Box flex="1 1 0" />
+              <Flex
+                flex="1 1 0"
+                paddingRight="2"
+                align="center"
+                justify="center"
+              >
+                <HTML5Badge
+                  usesHTML5={usesHTML5}
+                  isLoading={appearance.loading}
+                  tooltipLabel={
+                    usesHTML5 ? (
+                      <>
+                        This outfit is converted to HTML5, and ready to use on
+                        Neopets.com!
+                      </>
+                    ) : (
+                      <>
+                        This outfit isn't converted to HTML5 yet, so it might
+                        not appear in Neopets.com customization yet. Once it's
+                        ready, it could look a bit different than our temporary
+                        preview here. It might even be animated!
+                      </>
+                    )
+                  }
+                />
+              </Flex>
               <Box flex="0 0 auto">
                 <DarkMode>
                   {

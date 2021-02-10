@@ -7,7 +7,7 @@ import OutfitThumbnail, {
   outfitThumbnailFragment,
   getOutfitThumbnailRenderSize,
 } from "../components/OutfitThumbnail";
-import OutfitPreview from "../components/OutfitPreview";
+import OutfitPreview, { useOutfitPreview } from "../components/OutfitPreview";
 import { loadable } from "../util";
 
 const OutfitControls = loadable(() => import("./OutfitControls"));
@@ -21,27 +21,28 @@ function WardrobePreviewAndControls({
   // show the play/pause button.
   const [hasAnimations, setHasAnimations] = React.useState(false);
 
+  const { appearance, preview } = useOutfitPreview({
+    isLoading: isLoading,
+    speciesId: outfitState.speciesId,
+    colorId: outfitState.colorId,
+    pose: outfitState.pose,
+    appearanceId: outfitState.appearanceId,
+    wornItemIds: outfitState.wornItemIds,
+    onChangeHasAnimations: setHasAnimations,
+    backdrop: <OutfitThumbnailIfCached outfitId={outfitState.id} />,
+  });
+
   return (
     <>
       <Box position="absolute" top="0" bottom="0" left="0" right="0">
-        <DarkMode>
-          <OutfitPreview
-            isLoading={isLoading}
-            speciesId={outfitState.speciesId}
-            colorId={outfitState.colorId}
-            pose={outfitState.pose}
-            appearanceId={outfitState.appearanceId}
-            wornItemIds={outfitState.wornItemIds}
-            onChangeHasAnimations={setHasAnimations}
-            backdrop={<OutfitThumbnailIfCached outfitId={outfitState.id} />}
-          />
-        </DarkMode>
+        <DarkMode>{preview}</DarkMode>
       </Box>
       <Box position="absolute" top="0" bottom="0" left="0" right="0">
         <OutfitControls
           outfitState={outfitState}
           dispatchToOutfit={dispatchToOutfit}
           showAnimationControls={hasAnimations}
+          appearance={appearance}
         />
       </Box>
     </>
