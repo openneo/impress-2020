@@ -730,9 +730,13 @@ function ItemPageOutfitPreview({ itemId }) {
             justifyContent="center"
             paddingRight="2"
           >
-            {!appearance.loading && isCompatible && (
-              <HTML5Badge usesHTML5={usesHTML5} />
-            )}
+            <HTML5Badge
+              usesHTML5={usesHTML5}
+              // If we're not compatible, act the same as if we're loading:
+              // don't change the badge, but don't show one yet if we don't
+              // have one yet.
+              isLoading={appearance.loading || !isCompatible}
+            />
           </Box>
           <SpeciesColorPicker
             speciesId={petState.speciesId}
@@ -752,7 +756,7 @@ function ItemPageOutfitPreview({ itemId }) {
             size="sm"
             showPlaceholders
           />
-          <Box flex="1 0 0" lineHeight="1">
+          <Box flex="1 0 0" lineHeight="1" paddingLeft="1">
             {
               // Wait for us to start _requesting_ the appearance, and _then_
               // for it to load, and _then_ check compatibility.
@@ -886,7 +890,7 @@ function ExpandOnGroupHover({ children, ...props }) {
   );
 }
 
-function HTML5Badge({ usesHTML5 }) {
+function HTML5Badge({ usesHTML5, isLoading }) {
   const greenBackground = useColorModeValue("green.100", "green.900");
   const greenBorderColor = useColorModeValue("green.600", "green.500");
   const greenTextColor = useColorModeValue("green.700", "white");
@@ -895,7 +899,19 @@ function HTML5Badge({ usesHTML5 }) {
   const yellowBorderColor = useColorModeValue("yellow.600", "yellow.500");
   const yellowTextColor = useColorModeValue("yellow.700", "white");
 
-  if (usesHTML5) {
+  // `delayedUsesHTML5` stores the last known value of `usesHTML5`, when
+  // `isLoading` was `false`. This enables us to keep showing the badge, even
+  // when loading a new appearance - because it's unlikely the badge will
+  // change between different appearances for the same item, and the flicker is
+  // annoying!
+  const [delayedUsesHTML5, setDelayedUsesHTML5] = React.useState(null);
+  React.useEffect(() => {
+    if (!isLoading) {
+      setDelayedUsesHTML5(usesHTML5);
+    }
+  }, [usesHTML5, isLoading]);
+
+  if (delayedUsesHTML5 === true) {
     return (
       <HTML5BadgeLayout
         backgroundColor={greenBackground}
@@ -919,7 +935,7 @@ function HTML5Badge({ usesHTML5 }) {
         </Icon>
       </HTML5BadgeLayout>
     );
-  } else {
+  } else if (delayedUsesHTML5 === false) {
     return (
       <HTML5BadgeLayout
         backgroundColor={yellowBackground}
@@ -952,6 +968,9 @@ function HTML5Badge({ usesHTML5 }) {
         </Icon>
       </HTML5BadgeLayout>
     );
+  } else {
+    // If no `usesHTML5` value has been provided yet, we're empty for now!
+    return null;
   }
 }
 
