@@ -760,22 +760,25 @@ function ItemPageOutfitPreview({ itemId }) {
             {
               // Wait for us to start _requesting_ the appearance, and _then_
               // for it to load, and _then_ check compatibility.
-              !loadingGQL && !appearance.loading && !isCompatible && (
-                <Tooltip
-                  label={
-                    couldProbablyModelMoreData
-                      ? "Item needs models"
-                      : "Not compatible"
-                  }
-                  placement="top"
-                >
-                  <WarningIcon
-                    color={errorColor}
-                    transition="color 0.2"
-                    marginLeft="2"
-                  />
-                </Tooltip>
-              )
+              !loadingGQL &&
+                !appearance.loading &&
+                petState.isValid &&
+                !isCompatible && (
+                  <Tooltip
+                    label={
+                      couldProbablyModelMoreData
+                        ? "Item needs models"
+                        : "Not compatible"
+                    }
+                    placement="top"
+                  >
+                    <WarningIcon
+                      color={errorColor}
+                      transition="color 0.2"
+                      marginLeft="2"
+                    />
+                  </Tooltip>
+                )
             }
           </Box>
         </Box>
