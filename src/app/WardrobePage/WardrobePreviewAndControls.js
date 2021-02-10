@@ -7,7 +7,7 @@ import OutfitThumbnail, {
   outfitThumbnailFragment,
   getOutfitThumbnailRenderSize,
 } from "../components/OutfitThumbnail";
-import OutfitPreview, { useOutfitPreview } from "../components/OutfitPreview";
+import { useOutfitPreview } from "../components/OutfitPreview";
 import { loadable } from "../util";
 
 const OutfitControls = loadable(() => import("./OutfitControls"));

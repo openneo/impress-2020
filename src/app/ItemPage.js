@@ -20,10 +20,8 @@ import {
   WrapItem,
   Flex,
   usePrefersReducedMotion,
-  Icon,
 } from "@chakra-ui/react";
 import {
-  CheckCircleIcon,
   CheckIcon,
   ChevronRightIcon,
   EditIcon,
