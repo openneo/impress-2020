@@ -980,12 +980,19 @@ function HTML5Badge({ usesHTML5, isLoading }) {
 }
 
 function HTML5BadgeLayout({ children, tooltipLabel, ...props }) {
+  const [isHovered, setIsHovered] = React.useState(false);
+  const [isFocused, setIsFocused] = React.useState(false);
+
   return (
     <Tooltip
       textAlign="center"
       fontSize="xs"
       placement="bottom-start"
       label={tooltipLabel}
+      // HACK: Chakra tooltips seem inconsistent about staying open when focus
+      //       comes from touch events. But I really want this one to work on
+      //       mobile!
+      isOpen={isHovered || isFocused}
     >
       <Flex
         align="center"
@@ -997,6 +1004,10 @@ function HTML5BadgeLayout({ children, tooltipLabel, ...props }) {
         transition="all 0.2s"
         tabIndex="0"
         _focus={{ outline: "none", boxShadow: "outline" }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
         {...props}
       >
         {children}
