@@ -88,13 +88,16 @@ function OutfitControls({
     }
   };
 
-  const itemLayers = appearance.itemAppearances.map((a) => a.layers).flat();
-  const usesHTML5 = itemLayers.every(layerUsesHTML5);
+  const petIsUsingHTML5 = appearance.petAppearance?.layers.every(
+    layerUsesHTML5
+  );
 
   const itemsNotUsingHTML5 = appearance.items.filter((item) =>
     item.appearance.layers.some((l) => !layerUsesHTML5(l))
   );
   itemsNotUsingHTML5.sort((a, b) => a.name.localeCompare(b.name));
+
+  const usesHTML5 = petIsUsingHTML5 && itemsNotUsingHTML5.length === 0;
 
   return (
     <ClassNames>
@@ -202,20 +205,29 @@ function OutfitControls({
                       </>
                     ) : (
                       <Box>
-                        <Box as="p" marginBottom="1em">
+                        <Box as="p">
                           This outfit isn't converted to HTML5 yet, so it might
                           not appear in Neopets.com customization yet. Once it's
                           ready, it could look a bit different than our
                           temporary preview here. It might even be animated!
                         </Box>
-                        <Box as="header" fontWeight="bold">
-                          The following items aren't yet converted:
-                        </Box>
-                        <UnorderedList>
-                          {itemsNotUsingHTML5.map((item) => (
-                            <ListItem key={item.id}>{item.name}</ListItem>
-                          ))}
-                        </UnorderedList>
+                        {!petIsUsingHTML5 && (
+                          <Box as="p" marginTop="1em" fontWeight="bold">
+                            This pet is not yet converted.
+                          </Box>
+                        )}
+                        {itemsNotUsingHTML5.length > 0 && (
+                          <>
+                            <Box as="header" marginTop="1em" fontWeight="bold">
+                              The following items aren't yet converted:
+                            </Box>
+                            <UnorderedList>
+                              {itemsNotUsingHTML5.map((item) => (
+                                <ListItem key={item.id}>{item.name}</ListItem>
+                              ))}
+                            </UnorderedList>
+                          </>
+                        )}
                       </Box>
                     )
                   }
