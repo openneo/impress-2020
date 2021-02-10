@@ -69,7 +69,7 @@ export default function useOutfitAppearance(outfitState) {
       ) {
         items(ids: $wornItemIds) {
           id
-          appearanceOn(speciesId: $speciesId, colorId: $colorId) {
+          appearance: appearanceOn(speciesId: $speciesId, colorId: $colorId) {
             ...ItemAppearanceForOutfitPreview
           }
         }
@@ -86,20 +86,25 @@ export default function useOutfitAppearance(outfitState) {
     }
   );
 
+  const petAppearance = data1?.petAppearance;
+  const items = data2?.items;
   const itemAppearances = React.useMemo(
-    () => (data2?.items || []).map((i) => i.appearanceOn),
-    [data2]
+    () => (items || []).map((i) => i.appearance),
+    [items]
   );
   const visibleLayers = React.useMemo(
-    () => getVisibleLayers(data1?.petAppearance, itemAppearances),
-    [data1, itemAppearances]
+    () => getVisibleLayers(petAppearance, itemAppearances),
+    [petAppearance, itemAppearances]
   );
 
-  const bodyId = data1?.petAppearance?.bodyId;
+  const bodyId = petAppearance?.bodyId;
 
   return {
     loading: loading1 || loading2,
     error: error1 || error2,
+    petAppearance,
+    items,
+    itemAppearances,
     visibleLayers,
     bodyId,
   };

@@ -28,7 +28,19 @@ import useOutfitAppearance from "./useOutfitAppearance";
  * TODO: There's some duplicate work happening in useOutfitAppearance and
  * useOutfitState both getting appearance data on first load...
  */
-function OutfitPreview({
+function OutfitPreview(props) {
+  const { preview } = useOutfitPreview(props);
+  return preview;
+}
+
+/**
+ * useOutfitPreview is like `<OutfitPreview />`, but a bit more power!
+ *
+ * It takes the same props and returns a `preview` field, which is just like
+ * `<OutfitPreview />` - but it also returns `appearance` data too, in case you
+ * want to show some additional UI that uses the appearance data we loaded!
+ */
+export function useOutfitPreview({
   speciesId,
   colorId,
   pose,
@@ -41,13 +53,14 @@ function OutfitPreview({
   spinnerVariant,
   onChangeHasAnimations = null,
 }) {
-  const { loading, error, visibleLayers } = useOutfitAppearance({
+  const appearance = useOutfitAppearance({
     speciesId,
     colorId,
     pose,
     appearanceId,
     wornItemIds,
   });
+  const { loading, error, visibleLayers } = appearance;
 
   const {
     loading: loading2,
@@ -76,7 +89,7 @@ function OutfitPreview({
     );
   }
 
-  return (
+  const preview = (
     <OutfitLayers
       loading={isLoading || loading || loading2}
       visibleLayers={loadedLayers}
@@ -89,6 +102,8 @@ function OutfitPreview({
       isPaused={isPaused}
     />
   );
+
+  return { appearance, preview };
 }
 
 /**

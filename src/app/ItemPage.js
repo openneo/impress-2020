@@ -40,7 +40,7 @@ import {
   itemAppearanceFragment,
   petAppearanceFragment,
 } from "./components/useOutfitAppearance";
-import OutfitPreview from "./components/OutfitPreview";
+import { useOutfitPreview } from "./components/OutfitPreview";
 import SpeciesColorPicker, {
   useAllValidPetPoses,
   getValidPoses,
@@ -646,38 +646,27 @@ function ItemPageOutfitPreview({ itemId }) {
     valids,
   } = useAllValidPetPoses();
 
-  // To check whether the item is compatible with this pet, query for the
-  // appearance, but only against the cache. That way, we don't send a
-  // redundant network request just for this (the OutfitPreview component will
-  // handle it!), but we'll get an update once it arrives in the cache.
-  const { data: cachedData } = useQuery(
-    gql`
-      query ItemPageOutfitPreview_CacheOnly(
-        $itemId: ID!
-        $speciesId: ID!
-        $colorId: ID!
-      ) {
-        item(id: $itemId) {
-          appearanceOn(speciesId: $speciesId, colorId: $colorId) {
-            layers {
-              id
-            }
-          }
-        }
-      }
-    `,
-    {
-      variables: {
-        itemId,
-        speciesId: petState.speciesId,
-        colorId: petState.colorId,
-      },
-      fetchPolicy: "cache-only",
-    }
-  );
-
   const [hasAnimations, setHasAnimations] = React.useState(false);
   const [isPaused, setIsPaused] = useLocalStorage("DTIOutfitIsPaused", true);
+
+  // This is like <OutfitPreview />, but we can use the appearance data, too!
+  const { appearance, preview } = useOutfitPreview({
+    speciesId: petState.speciesId,
+    colorId: petState.colorId,
+    pose: petState.pose,
+    appearanceId: petState.appearanceId,
+    wornItemIds: [itemId],
+    isLoading: loadingGQL || loadingValids,
+    spinnerVariant: "corner",
+    loadingDelayMs: 200,
+    engine: "canvas",
+    onChangeHasAnimations: setHasAnimations,
+  });
+
+  // If there's an appearance loaded for this item, but it's empty, then the
+  // item is incompatible. (There should only be one item appearance: this one!)
+  const itemAppearance = appearance?.itemAppearances?.[0];
+  const isIncompatible = itemAppearance && itemAppearance.layers.length === 0;
 
   const borderColor = useColorModeValue("green.700", "green.400");
   const errorColor = useColorModeValue("red.600", "red.400");
@@ -686,12 +675,6 @@ function ItemPageOutfitPreview({ itemId }) {
   if (error) {
     return <Box color="red.400">{error.message}</Box>;
   }
-
-  // If the layers are null-y, then we're still loading. Otherwise, if the
-  // layers are an empty array, then we're incomaptible. Or, if they're a
-  // non-empty array, then we're compatible!
-  const layers = cachedData?.item?.appearanceOn?.layers;
-  const isIncompatible = Array.isArray(layers) && layers.length === 0;
 
   return (
     <Stack
@@ -714,18 +697,7 @@ function ItemPageOutfitPreview({ itemId }) {
           overflow="hidden"
         >
           <Box>
-            <OutfitPreview
-              speciesId={petState.speciesId}
-              colorId={petState.colorId}
-              pose={petState.pose}
-              appearanceId={petState.appearanceId}
-              wornItemIds={[itemId]}
-              isLoading={loadingGQL || loadingValids}
-              spinnerVariant="corner"
-              loadingDelayMs={2000}
-              engine="canvas"
-              onChangeHasAnimations={setHasAnimations}
-            />
+            {preview}
             <CustomizeMoreButton
               speciesId={petState.speciesId}
               colorId={petState.colorId}
