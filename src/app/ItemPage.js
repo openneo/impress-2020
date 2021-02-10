@@ -952,7 +952,6 @@ function HTML5Badge({ usesHTML5 }) {
 function HTML5BadgeLayout({ children, tooltipLabel, ...props }) {
   return (
     <Tooltip
-      shouldWrapChildren
       textAlign="center"
       fontSize="xs"
       placement="bottom-start"
@@ -966,6 +965,8 @@ function HTML5BadgeLayout({ children, tooltipLabel, ...props }) {
         paddingX="2"
         paddingY="1"
         transition="all 0.2s"
+        tabIndex="0"
+        _focus={{ outline: "none", boxShadow: "outline" }}
         {...props}
       >
         {children}
