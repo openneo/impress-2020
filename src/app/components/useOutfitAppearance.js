@@ -69,6 +69,7 @@ export default function useOutfitAppearance(outfitState) {
       ) {
         items(ids: $wornItemIds) {
           id
+          name # HACK: This is for HTML5 detection UI in OutfitControls!
           appearance: appearanceOn(speciesId: $speciesId, colorId: $colorId) {
             ...ItemAppearanceForOutfitPreview
           }
@@ -87,7 +88,7 @@ export default function useOutfitAppearance(outfitState) {
   );
 
   const petAppearance = data1?.petAppearance;
-  const items = data2?.items;
+  const items = data2?.items || [];
   const itemAppearances = React.useMemo(
     () => (items || []).map((i) => i.appearance),
     [items]

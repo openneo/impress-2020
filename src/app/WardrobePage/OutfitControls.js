@@ -6,9 +6,11 @@ import {
   DarkMode,
   Flex,
   IconButton,
+  ListItem,
   Portal,
   Stack,
   Tooltip,
+  UnorderedList,
   useClipboard,
   useToast,
 } from "@chakra-ui/react";
@@ -90,6 +92,10 @@ function OutfitControls({
   const usesHTML5 = itemLayers.every(
     (l) => l.svgUrl || l.canvasMovieLibraryUrl
   );
+  const itemsNotUsingHTML5 = appearance.items.filter((item) =>
+    item.appearance.layers.some((l) => !l.svgUrl && !l.canvasMovieLibraryUrl)
+  );
+  itemsNotUsingHTML5.sort((a, b) => a.name.localeCompare(b.name));
 
   return (
     <ClassNames>
@@ -196,12 +202,22 @@ function OutfitControls({
                         Neopets.com!
                       </>
                     ) : (
-                      <>
-                        This outfit isn't converted to HTML5 yet, so it might
-                        not appear in Neopets.com customization yet. Once it's
-                        ready, it could look a bit different than our temporary
-                        preview here. It might even be animated!
-                      </>
+                      <Box>
+                        <Box as="p" marginBottom="1em">
+                          This outfit isn't converted to HTML5 yet, so it might
+                          not appear in Neopets.com customization yet. Once it's
+                          ready, it could look a bit different than our
+                          temporary preview here. It might even be animated!
+                        </Box>
+                        <Box as="header" fontWeight="bold">
+                          The following items aren't yet converted:
+                        </Box>
+                        <UnorderedList>
+                          {itemsNotUsingHTML5.map((item) => (
+                            <ListItem key={item.id}>{item.name}</ListItem>
+                          ))}
+                        </UnorderedList>
+                      </Box>
                     )
                   }
                 />
