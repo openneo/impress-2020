@@ -15,7 +15,6 @@ import {
   useTheme,
   useToast,
   useToken,
-  Stack,
   Wrap,
   WrapItem,
   Flex,
@@ -826,7 +825,29 @@ function ItemPageOutfitPreview({ itemId }) {
         />
       </Box>
       <Box gridArea="zones" alignSelf="center" justifySelf="center">
-        <ItemZonesInfo />
+        <ItemZonesInfo
+          zonesAndTheirBodies={[
+            {
+              zone: { id: "1", label: "Foreground" },
+              bodies: [{ id: "0", representsAllBodies: true }],
+            },
+            {
+              zone: { id: "1", label: "Background" },
+              bodies: [
+                {
+                  id: "1",
+                  representsAllBodies: false,
+                  species: { name: "Blumaroo" },
+                },
+                {
+                  id: "1",
+                  representsAllBodies: false,
+                  species: { name: "Aisha" },
+                },
+              ],
+            },
+          ]}
+        />
       </Box>
     </Grid>
   );
@@ -1255,12 +1276,89 @@ function SpeciesFaceOption({
   );
 }
 
-function ItemZonesInfo() {
+function ItemZonesInfo({ zonesAndTheirBodies }) {
+  const sortedZonesAndTheirBodies = [...zonesAndTheirBodies].sort((a, b) =>
+    zonesAndTheirBodiesSortKey(a).localeCompare(zonesAndTheirBodiesSortKey(b))
+  );
+
+  // We only show body info if there's more than one group of bodies to talk
+  // about. If they all have the same zones, it's clear from context that any
+  // preview available in the list has the zones listed here.
+  const bodyGroups = new Set(
+    zonesAndTheirBodies.map(({ bodies }) => bodies.map((b) => b.id).join(","))
+  );
+  const showBodyInfo = bodyGroups.size > 1;
+
   return (
     <Box fontSize="sm" textAlign="center">
-      {/* TODO */}
+      <Box as="header" fontWeight="bold" display="inline">
+        Zones:
+      </Box>{" "}
+      <Box as="ul" listStyleType="none" display="inline">
+        {sortedZonesAndTheirBodies.map(({ zone, bodies }) => (
+          <Box
+            key={zone.id}
+            as="li"
+            display="inline"
+            _notLast={{ _after: { content: '", "' } }}
+          >
+            <ItemZonesInfoListItem
+              zone={zone}
+              bodies={bodies}
+              showBodyInfo={showBodyInfo}
+            />
+          </Box>
+        ))}
+      </Box>
     </Box>
   );
+}
+
+function ItemZonesInfoListItem({ zone, bodies, showBodyInfo }) {
+  let content = zone.label;
+
+  if (showBodyInfo) {
+    if (bodies.some((b) => b.representsAllBodies)) {
+      content = <>{content} (all species)</>;
+    } else {
+      // TODO: This is a bit reductive, if it's different for like special
+      //       colors, e.g. Blue Acara vs Mutant Acara, this will just show
+      //       "Acara" in either case! (We are at least gonna be defensive here
+      //       and remove duplicates, though, in case both the Blue Acara and
+      //       Mutant Acara body end up in the same list.)
+      const speciesNames = new Set(bodies.map((b) => b.species.name));
+      const speciesListString = [...speciesNames].sort().join(", ");
+
+      content = (
+        <>
+          {content}{" "}
+          <Tooltip label={speciesListString}>
+            <Box
+              as="span"
+              tabIndex="0"
+              _focus={{ outline: "none", boxShadow: "outline" }}
+              textDecoration="underline"
+              style={{ textDecorationStyle: "dashed" }}
+            >
+              {/* Show the speciesNames count, even though it's less info,
+               * because it's more important that the tooltip content matches
+               * the count we show! */}
+              ({speciesNames.size} species)
+            </Box>
+          </Tooltip>
+        </>
+      );
+    }
+  }
+
+  return content;
+}
+
+function zonesAndTheirBodiesSortKey({ zone, bodies }) {
+  // Sort by "represents all bodies", then by body count, then alphabetically.
+  const representsAllBodies = bodies.some((body) => body.representsAllBodies);
+  const bodyCountString = bodies.length.toString().padStart(4, "0");
+  return `${representsAllBodies ? "A" : "Z"}-${bodyCountString}-${zone.label}`;
 }
 
 /**
