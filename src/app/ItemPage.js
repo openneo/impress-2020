@@ -20,6 +20,7 @@ import {
   WrapItem,
   Flex,
   usePrefersReducedMotion,
+  Grid,
 } from "@chakra-ui/react";
 import {
   CheckIcon,
@@ -681,108 +682,130 @@ function ItemPageOutfitPreview({ itemId }) {
   }
 
   return (
-    <Stack
-      direction={{ base: "column", md: "row" }}
-      align={{ base: "center", md: "flex-start" }}
-      justify="center"
-      spacing="8"
-      width="100%"
+    <Grid
+      templateAreas={{
+        base: `
+          "preview"
+          "speciesColorPicker"
+          "speciesFacesPicker"
+          "zones"
+        `,
+        md: `
+          "preview             speciesFacesPicker"
+          "speciesColorPicker  zones"
+        `,
+      }}
+      templateRows={{
+        base: "auto auto 400px auto",
+        md: "400px auto",
+      }}
+      templateColumns={{
+        base: "minmax(min-content, 400px)",
+        md: "minmax(min-content, 400px) fit-content(480px)",
+      }}
+      rowGap="4"
+      columnGap="6"
+      justifyContent="center"
     >
-      <VStack spacing="3" maxWidth="100%">
-        <AspectRatio
-          width="400px"
-          maxWidth="100%"
-          ratio="1"
-          border="1px"
-          borderColor={borderColor}
-          transition="border-color 0.2s"
-          borderRadius="lg"
-          boxShadow="lg"
-          overflow="hidden"
-        >
-          <Box>
-            {petState.isValid && preview}
-            <CustomizeMoreButton
-              speciesId={petState.speciesId}
-              colorId={petState.colorId}
-              pose={petState.pose}
-              itemId={itemId}
-              isDisabled={!petState.isValid}
-            />
-            {hasAnimations && (
-              <PlayPauseButton
-                isPaused={isPaused}
-                onClick={() => setIsPaused(!isPaused)}
-              />
-            )}
-          </Box>
-        </AspectRatio>
-        <Box display="flex" width="100%" alignItems="center">
-          <Box
-            // This box grows at the same rate as the box on the right, so the
-            // middle box will be centered, if there's space!
-            flex="1 0 0"
-            display="flex"
-            justifyContent="center"
-            paddingRight="2"
-          >
-            <HTML5Badge
-              usesHTML5={usesHTML5}
-              // If we're not compatible, act the same as if we're loading:
-              // don't change the badge, but don't show one yet if we don't
-              // have one yet.
-              isLoading={appearance.loading || !isCompatible}
-            />
-          </Box>
-          <SpeciesColorPicker
+      <AspectRatio
+        gridArea="preview"
+        maxWidth="400px"
+        maxHeight="400px"
+        ratio="1"
+        border="1px"
+        borderColor={borderColor}
+        transition="border-color 0.2s"
+        borderRadius="lg"
+        boxShadow="lg"
+        overflow="hidden"
+      >
+        <Box>
+          {petState.isValid && preview}
+          <CustomizeMoreButton
             speciesId={petState.speciesId}
             colorId={petState.colorId}
             pose={petState.pose}
-            idealPose={idealPose}
-            onChange={(species, color, isValid, closestPose) => {
-              setPetStateFromUserAction({
-                speciesId: species.id,
-                colorId: color.id,
-                pose: closestPose,
-                isValid,
-                appearanceId: null,
-              });
-            }}
-            speciesIsDisabled={isProbablySpeciesSpecific}
-            size="sm"
-            showPlaceholders
+            itemId={itemId}
+            isDisabled={!petState.isValid}
           />
-          <Box flex="1 0 0" lineHeight="1" paddingLeft="1">
-            {
-              // Wait for us to start _requesting_ the appearance, and _then_
-              // for it to load, and _then_ check compatibility.
-              !loadingGQL &&
-                !appearance.loading &&
-                petState.isValid &&
-                !isCompatible && (
-                  <Tooltip
-                    label={
-                      couldProbablyModelMoreData
-                        ? "Item needs models"
-                        : "Not compatible"
-                    }
-                    placement="top"
-                  >
-                    <WarningIcon
-                      color={errorColor}
-                      transition="color 0.2"
-                      marginLeft="2"
-                      borderRadius="full"
-                      tabIndex="0"
-                      _focus={{ outline: "none", boxShadow: "outline" }}
-                    />
-                  </Tooltip>
-                )
-            }
-          </Box>
+          {hasAnimations && (
+            <PlayPauseButton
+              isPaused={isPaused}
+              onClick={() => setIsPaused(!isPaused)}
+            />
+          )}
         </Box>
-      </VStack>
-      <Box maxWidth="460px" paddingTop="2">
+      </AspectRatio>
+      <Box gridArea="speciesColorPicker" display="flex" alignItems="center">
+        <Box
+          // This box grows at the same rate as the box on the right, so the
+          // middle box will be centered, if there's space!
+          flex="1 0 0"
+          display="flex"
+          justifyContent="center"
+          paddingRight="2"
+        >
+          <HTML5Badge
+            usesHTML5={usesHTML5}
+            // If we're not compatible, act the same as if we're loading:
+            // don't change the badge, but don't show one yet if we don't
+            // have one yet.
+            isLoading={appearance.loading || !isCompatible}
+          />
+        </Box>
+        <SpeciesColorPicker
+          speciesId={petState.speciesId}
+          colorId={petState.colorId}
+          pose={petState.pose}
+          idealPose={idealPose}
+          onChange={(species, color, isValid, closestPose) => {
+            setPetStateFromUserAction({
+              speciesId: species.id,
+              colorId: color.id,
+              pose: closestPose,
+              isValid,
+              appearanceId: null,
+            });
+          }}
+          speciesIsDisabled={isProbablySpeciesSpecific}
+          size="sm"
+          showPlaceholders
+        />
+        <Box flex="1 0 0" lineHeight="1" paddingLeft="1">
+          {
+            // Wait for us to start _requesting_ the appearance, and _then_
+            // for it to load, and _then_ check compatibility.
+            !loadingGQL &&
+              !appearance.loading &&
+              petState.isValid &&
+              !isCompatible && (
+                <Tooltip
+                  label={
+                    couldProbablyModelMoreData
+                      ? "Item needs models"
+                      : "Not compatible"
+                  }
+                  placement="top"
+                >
+                  <WarningIcon
+                    color={errorColor}
+                    transition="color 0.2"
+                    marginLeft="2"
+                    borderRadius="full"
+                    tabIndex="0"
+                    _focus={{ outline: "none", boxShadow: "outline" }}
+                  />
+                </Tooltip>
+              )
+          }
+        </Box>
+      </Box>
+      <Box
+        gridArea="speciesFacesPicker"
+        paddingTop="2"
+        overflow="auto"
+        padding="8px"
+      >
         <SpeciesFacesPicker
           selectedSpeciesId={petState.speciesId}
           selectedColorId={petState.colorId}
@@ -802,7 +825,10 @@ function ItemPageOutfitPreview({ itemId }) {
           isLoading={loadingGQL || loadingValids}
         />
       </Box>
-    </Stack>
+      <Box gridArea="zones" alignSelf="center" justifySelf="center">
+        <ItemZonesInfo />
+      </Box>
+    </Grid>
   );
 }
 
@@ -983,15 +1009,7 @@ function SpeciesFacesPicker({
 
   return (
     <Box>
-      <Wrap
-        spacing="0"
-        justify="center"
-        // On mobile, give this a scroll container, and some extra padding so
-        // the selected-face effects still fit inside.
-        maxHeight={{ base: "200px", md: "none" }}
-        overflow={{ base: "auto", md: "visible" }}
-        padding={{ base: "8px", md: "0" }}
-      >
+      <Wrap spacing="0" justify="center">
         {allSpeciesFaces.map((speciesFace) => (
           <WrapItem key={speciesFace.speciesId}>
             <SpeciesFaceOption
@@ -1234,6 +1252,14 @@ function SpeciesFaceOption({
         </DeferredTooltip>
       )}
     </ClassNames>
+  );
+}
+
+function ItemZonesInfo() {
+  return (
+    <Box fontSize="sm" textAlign="center">
+      {/* TODO */}
+    </Box>
   );
 }
 
