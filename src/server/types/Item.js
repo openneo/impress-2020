@@ -85,7 +85,13 @@ const typeDefs = gql`
 
     # All bodies that this item is compatible with. Note that this might return
     # the special representsAllPets body, e.g. if this is just a Background!
+    # Deprecated: Impress 2020 now uses compatibleBodiesAndTheirZones.
     compatibleBodies: [Body!]! @cacheControl(maxAge: 1, staleWhileRevalidate: ${oneWeek})
+
+    # All bodies that this item is compatible with, and the zones this item
+    # occupies for that body. Note that this might return the special
+    # representsAllPets body, e.g. if this is just a Background!
+    compatibleBodiesAndTheirZones: [BodyAndZones!]! @cacheControl(maxAge: 1, staleWhileRevalidate: ${oneWeek})
   }
 
   type ItemAppearance {
@@ -95,6 +101,11 @@ const typeDefs = gql`
     body: Body!
     layers: [AppearanceLayer!]
     restrictedZones: [Zone!]!
+  }
+
+  type BodyAndZones {
+    body: Body!
+    zones: [Zone!]!
   }
 
   input FitsPetSearchFilter {
@@ -403,6 +414,30 @@ const resolvers = {
       const bodyIds = rows.map((row) => row.body_id);
       const bodies = bodyIds.map((id) => ({ id }));
       return bodies;
+    },
+    compatibleBodiesAndTheirZones: async ({ id }, _, { db }) => {
+      const [rows, __] = await db.query(
+        `
+        SELECT
+            swf_assets.body_id AS bodyId,
+            (SELECT species_id FROM pet_types WHERE body_id = bodyId LIMIT 1)
+              AS speciesId,
+            GROUP_CONCAT(DISTINCT swf_assets.zone_id) AS zoneIds
+          FROM items
+          INNER JOIN parents_swf_assets ON
+            items.id = parents_swf_assets.parent_id AND
+              parents_swf_assets.parent_type = "Item"
+          INNER JOIN swf_assets ON
+            parents_swf_assets.swf_asset_id = swf_assets.id
+          WHERE items.id = ?
+          GROUP BY swf_assets.body_id
+        `,
+        [id]
+      );
+      return rows.map((row) => ({
+        body: { id: row.bodyId, species: { id: row.speciesId } },
+        zones: row.zoneIds.split(",").map((zoneId) => ({ id: zoneId })),
+      }));
     },
   },
 

@@ -574,9 +574,19 @@ function ItemPageOutfitPreview({ itemId }) {
         item(id: $itemId) {
           id
           name
-          compatibleBodies {
-            id
-            representsAllBodies
+          compatibleBodiesAndTheirZones {
+            body {
+              id
+              representsAllBodies
+              species {
+                id
+                name
+              }
+            }
+            zones {
+              id
+              label @client
+            }
           }
           canonicalAppearance(
             preferredSpeciesId: $preferredSpeciesId
@@ -628,7 +638,10 @@ function ItemPageOutfitPreview({ itemId }) {
     }
   );
 
-  const compatibleBodies = data?.item?.compatibleBodies || [];
+  const compatibleBodies =
+    data?.item?.compatibleBodiesAndTheirZones?.map(({ body }) => body) || [];
+  const compatibleBodiesAndTheirZones =
+    data?.item?.compatibleBodiesAndTheirZones || [];
 
   // If there's only one compatible body, and the canonical species's name
   // appears in the item name, then this is probably a species-specific item,
@@ -825,29 +838,11 @@ function ItemPageOutfitPreview({ itemId }) {
         />
       </Box>
       <Box gridArea="zones" alignSelf="center" justifySelf="center">
-        <ItemZonesInfo
-          zonesAndTheirBodies={[
-            {
-              zone: { id: "1", label: "Foreground" },
-              bodies: [{ id: "0", representsAllBodies: true }],
-            },
-            {
-              zone: { id: "1", label: "Background" },
-              bodies: [
-                {
-                  id: "1",
-                  representsAllBodies: false,
-                  species: { name: "Blumaroo" },
-                },
-                {
-                  id: "1",
-                  representsAllBodies: false,
-                  species: { name: "Aisha" },
-                },
-              ],
-            },
-          ]}
-        />
+        {compatibleBodiesAndTheirZones.length > 0 && (
+          <ItemZonesInfo
+            compatibleBodiesAndTheirZones={compatibleBodiesAndTheirZones}
+          />
+        )}
       </Box>
     </Grid>
   );
@@ -1276,34 +1271,55 @@ function SpeciesFaceOption({
   );
 }
 
-function ItemZonesInfo({ zonesAndTheirBodies }) {
-  const sortedZonesAndTheirBodies = [...zonesAndTheirBodies].sort((a, b) =>
-    zonesAndTheirBodiesSortKey(a).localeCompare(zonesAndTheirBodiesSortKey(b))
+function ItemZonesInfo({ compatibleBodiesAndTheirZones }) {
+  // Reorganize the body-and-zones data, into zone-and-bodies data. Also, we're
+  // merging zones with the same label, because that's how user-facing zone UI
+  // generally works!
+  const zoneLabelsAndTheirBodiesMap = {};
+  for (const { body, zones } of compatibleBodiesAndTheirZones) {
+    for (const zone of zones) {
+      if (!zoneLabelsAndTheirBodiesMap[zone.label]) {
+        zoneLabelsAndTheirBodiesMap[zone.label] = {
+          zoneLabel: zone.label,
+          bodies: [],
+        };
+      }
+      zoneLabelsAndTheirBodiesMap[zone.label].bodies.push(body);
+    }
+  }
+  const zoneLabelsAndTheirBodies = Object.values(zoneLabelsAndTheirBodiesMap);
+
+  const sortedZonesAndTheirBodies = [...zoneLabelsAndTheirBodies].sort((a, b) =>
+    buildSortKeyForZoneLabelsAndTheirBodies(a).localeCompare(
+      buildSortKeyForZoneLabelsAndTheirBodies(b)
+    )
   );
 
   // We only show body info if there's more than one group of bodies to talk
   // about. If they all have the same zones, it's clear from context that any
   // preview available in the list has the zones listed here.
   const bodyGroups = new Set(
-    zonesAndTheirBodies.map(({ bodies }) => bodies.map((b) => b.id).join(","))
+    zoneLabelsAndTheirBodies.map(({ bodies }) =>
+      bodies.map((b) => b.id).join(",")
+    )
   );
   const showBodyInfo = bodyGroups.size > 1;
 
   return (
-    <Box fontSize="sm" textAlign="center">
+    <Box fontSize="sm" textAlign="center" data-test-id="item-zones-info">
       <Box as="header" fontWeight="bold" display="inline">
-        Zones:
+        {sortedZonesAndTheirBodies.length > 1 ? "Zones" : "Zone"}:
       </Box>{" "}
       <Box as="ul" listStyleType="none" display="inline">
-        {sortedZonesAndTheirBodies.map(({ zone, bodies }) => (
+        {sortedZonesAndTheirBodies.map(({ zoneLabel, bodies }) => (
           <Box
-            key={zone.id}
+            key={zoneLabel}
             as="li"
             display="inline"
             _notLast={{ _after: { content: '", "' } }}
           >
             <ItemZonesInfoListItem
-              zone={zone}
+              zoneLabel={zoneLabel}
               bodies={bodies}
               showBodyInfo={showBodyInfo}
             />
@@ -1314,8 +1330,8 @@ function ItemZonesInfo({ zonesAndTheirBodies }) {
   );
 }
 
-function ItemZonesInfoListItem({ zone, bodies, showBodyInfo }) {
-  let content = zone.label;
+function ItemZonesInfoListItem({ zoneLabel, bodies, showBodyInfo }) {
+  let content = zoneLabel;
 
   if (showBodyInfo) {
     if (bodies.some((b) => b.representsAllBodies)) {
@@ -1332,7 +1348,7 @@ function ItemZonesInfoListItem({ zone, bodies, showBodyInfo }) {
       content = (
         <>
           {content}{" "}
-          <Tooltip label={speciesListString}>
+          <Tooltip label={speciesListString} textAlign="center" placement="top">
             <Box
               as="span"
               tabIndex="0"
@@ -1354,11 +1370,20 @@ function ItemZonesInfoListItem({ zone, bodies, showBodyInfo }) {
   return content;
 }
 
-function zonesAndTheirBodiesSortKey({ zone, bodies }) {
-  // Sort by "represents all bodies", then by body count, then alphabetically.
+function buildSortKeyForZoneLabelsAndTheirBodies({ zoneLabel, bodies }) {
+  // Sort by "represents all bodies", then by body count descending, then
+  // alphabetically.
   const representsAllBodies = bodies.some((body) => body.representsAllBodies);
-  const bodyCountString = bodies.length.toString().padStart(4, "0");
-  return `${representsAllBodies ? "A" : "Z"}-${bodyCountString}-${zone.label}`;
+
+  // To sort by body count _descending_, we subtract it from a large number.
+  // Then, to make it work in string comparison, we pad it with leading zeroes.
+  // Hacky but solid!
+  const inverseBodyCount = (9999 - bodies.length).toString().padStart(4, "0");
+
+  console.log(
+    `${representsAllBodies ? "A" : "Z"}-${inverseBodyCount}-${zoneLabel}`
+  );
+  return `${representsAllBodies ? "A" : "Z"}-${inverseBodyCount}-${zoneLabel}`;
 }
 
 /**
