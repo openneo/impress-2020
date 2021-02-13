@@ -1412,7 +1412,11 @@ function ItemZonesInfoListItem({ zoneLabel, bodies, showBodyInfo }) {
       content = (
         <>
           {content}{" "}
-          <Tooltip label={speciesListString} textAlign="center" placement="top">
+          <Tooltip
+            label={speciesListString}
+            textAlign="center"
+            placement="bottom"
+          >
             <Box
               as="span"
               tabIndex="0"
