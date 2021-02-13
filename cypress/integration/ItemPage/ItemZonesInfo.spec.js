@@ -7,7 +7,7 @@ describe("ItemZonesInfo", () => {
     cy.visit("/items/37375");
     cy.get("[data-test-id='item-zones-info']", networkTimeout).should(
       "have.text",
-      "Zone: Background"
+      "Occupies: Background" + "Restricts: N/A"
     );
   });
 
@@ -15,7 +15,7 @@ describe("ItemZonesInfo", () => {
     cy.visit("/items/34985");
     cy.get("[data-test-id='item-zones-info']", networkTimeout).should(
       "have.text",
-      "Zone: Hat"
+      "Occupies: Hat" + "Restricts: N/A"
     );
   });
 
@@ -23,7 +23,9 @@ describe("ItemZonesInfo", () => {
     cy.visit("/items/43397");
     cy.get("[data-test-id='item-zones-info']", networkTimeout).should(
       "have.text",
-      "Zones: Right-hand Item (52 species)" + "Left-hand Item (2 species)"
+      "Occupies: Right-hand Item (52 species)" +
+        "Left-hand Item (2 species)" +
+        "Restricts: N/A"
     );
 
     cy.contains("(52 species)").focus();
@@ -39,7 +41,15 @@ describe("ItemZonesInfo", () => {
     cy.visit("/items/70564");
     cy.get("[data-test-id='item-zones-info']", networkTimeout).should(
       "have.text",
-      "Zone: Shirt/Dress"
+      "Occupies: Shirt/Dress" + "Restricts: N/A"
+    );
+  });
+
+  it("shows zone restrict data for a simple hood", () => {
+    cy.visit("/items/38911");
+    cy.get("[data-test-id='item-zones-info']", networkTimeout).should(
+      "have.text",
+      "Occupies: Hat" + "Restricts: Hair Front" + "Head Transient Biology"
     );
   });
 });

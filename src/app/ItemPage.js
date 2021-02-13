@@ -574,6 +574,10 @@ function ItemPageOutfitPreview({ itemId }) {
         item(id: $itemId) {
           id
           name
+          restrictedZones {
+            id
+            label @client
+          }
           compatibleBodiesAndTheirZones {
             body {
               id
@@ -751,7 +755,7 @@ function ItemPageOutfitPreview({ itemId }) {
           )}
         </Box>
       </AspectRatio>
-      <Box gridArea="speciesColorPicker" display="flex" alignItems="center">
+      <Flex gridArea="speciesColorPicker" alignSelf="start" align="center">
         <Box
           // This box grows at the same rate as the box on the right, so the
           // middle box will be centered, if there's space!
@@ -803,7 +807,7 @@ function ItemPageOutfitPreview({ itemId }) {
               )
           }
         </Box>
-      </Box>
+      </Flex>
       <Box
         gridArea="speciesFacesPicker"
         paddingTop="2"
@@ -833,9 +837,10 @@ function ItemPageOutfitPreview({ itemId }) {
         {compatibleBodiesAndTheirZones.length > 0 && (
           <ItemZonesInfo
             compatibleBodiesAndTheirZones={compatibleBodiesAndTheirZones}
+            restrictedZones={data?.item?.restrictedZones || []}
           />
         )}
-        <Box width="4" />
+        <Box width="6" />
         <Flex
           // Avoid layout shift while loading
           minWidth="54px"
@@ -1276,7 +1281,7 @@ function SpeciesFaceOption({
   );
 }
 
-function ItemZonesInfo({ compatibleBodiesAndTheirZones }) {
+function ItemZonesInfo({ compatibleBodiesAndTheirZones, restrictedZones }) {
   // Reorganize the body-and-zones data, into zone-and-bodies data. Also, we're
   // merging zones with the same label, because that's how user-facing zone UI
   // generally works!
@@ -1300,6 +1305,10 @@ function ItemZonesInfo({ compatibleBodiesAndTheirZones }) {
     )
   );
 
+  const restrictedZoneLabels = [
+    ...new Set(restrictedZones.map((z) => z.label)),
+  ].sort();
+
   // We only show body info if there's more than one group of bodies to talk
   // about. If they all have the same zones, it's clear from context that any
   // preview available in the list has the zones listed here.
@@ -1311,27 +1320,61 @@ function ItemZonesInfo({ compatibleBodiesAndTheirZones }) {
   const showBodyInfo = bodyGroups.size > 1;
 
   return (
-    <Box fontSize="sm" textAlign="center" data-test-id="item-zones-info">
-      <Box as="header" fontWeight="bold" display="inline">
-        {sortedZonesAndTheirBodies.length > 1 ? "Zones" : "Zone"}:
-      </Box>{" "}
-      <Box as="ul" listStyleType="none" display="inline">
-        {sortedZonesAndTheirBodies.map(({ zoneLabel, bodies }) => (
-          <Box
-            key={zoneLabel}
-            as="li"
-            display="inline"
-            _notLast={{ _after: { content: '", "' } }}
-          >
-            <ItemZonesInfoListItem
-              zoneLabel={zoneLabel}
-              bodies={bodies}
-              showBodyInfo={showBodyInfo}
-            />
-          </Box>
-        ))}
+    <Flex
+      fontSize="sm"
+      textAlign="center"
+      // If the text gets too long, wrap Restricts onto another line, and center
+      // them relative to each other.
+      wrap="wrap"
+      justify="center"
+      data-test-id="item-zones-info"
+    >
+      <Box flex="0 0 auto" maxWidth="100%">
+        <Box as="header" fontWeight="bold" display="inline">
+          Occupies:
+        </Box>{" "}
+        <Box as="ul" listStyleType="none" display="inline">
+          {sortedZonesAndTheirBodies.map(({ zoneLabel, bodies }) => (
+            <Box
+              key={zoneLabel}
+              as="li"
+              display="inline"
+              _notLast={{ _after: { content: '", "' } }}
+            >
+              <ItemZonesInfoListItem
+                zoneLabel={zoneLabel}
+                bodies={bodies}
+                showBodyInfo={showBodyInfo}
+              />
+            </Box>
+          ))}
+        </Box>
       </Box>
-    </Box>
+      <Box width="4" flex="0 0 auto" />
+      <Box flex="0 0 auto" maxWidth="100%">
+        <Box as="header" fontWeight="bold" display="inline">
+          Restricts:
+        </Box>{" "}
+        {restrictedZoneLabels.length > 0 ? (
+          <Box as="ul" listStyleType="none" display="inline">
+            {restrictedZoneLabels.map((zoneLabel) => (
+              <Box
+                key={zoneLabel}
+                as="li"
+                display="inline"
+                _notLast={{ _after: { content: '", "' } }}
+              >
+                {zoneLabel}
+              </Box>
+            ))}
+          </Box>
+        ) : (
+          <Box as="span" fontStyle="italic" opacity="0.8">
+            N/A
+          </Box>
+        )}
+      </Box>
+    </Flex>
   );
 }
 
@@ -1385,9 +1428,6 @@ function buildSortKeyForZoneLabelsAndTheirBodies({ zoneLabel, bodies }) {
   // Hacky but solid!
   const inverseBodyCount = (9999 - bodies.length).toString().padStart(4, "0");
 
-  console.log(
-    `${representsAllBodies ? "A" : "Z"}-${inverseBodyCount}-${zoneLabel}`
-  );
   return `${representsAllBodies ? "A" : "Z"}-${inverseBodyCount}-${zoneLabel}`;
 }
 

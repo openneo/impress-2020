@@ -83,6 +83,10 @@ const typeDefs = gql`
     # info about the item.
     allOccupiedZones: [Zone!]! @cacheControl(maxAge: ${oneHour})
 
+    # The zones this item restricts. Turns out, even though we offer this on
+    # ItemAppearance for consistency, this is static across all appearances.
+    restrictedZones: [Zone!]! @cacheControl(maxAge: ${oneHour}, staleWhileRevalidate: ${oneWeek})
+
     # All bodies that this item is compatible with. Note that this might return
     # the special representsAllPets body, e.g. if this is just a Background!
     # Deprecated: Impress 2020 now uses compatibleBodiesAndTheirZones.
@@ -396,6 +400,12 @@ const resolvers = {
       const zoneIds = await itemAllOccupiedZonesLoader.load(id);
       const zones = zoneIds.map((id) => ({ id }));
       return zones;
+    },
+    restrictedZones: async ({ id }, _, { itemLoader }) => {
+      const item = await itemLoader.load(id);
+      return getRestrictedZoneIds(item.zonesRestrict).map((zoneId) => ({
+        id: zoneId,
+      }));
     },
     compatibleBodies: async ({ id }, _, { db }) => {
       const [rows, __] = await db.query(
