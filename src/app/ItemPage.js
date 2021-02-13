@@ -1341,11 +1341,19 @@ function ItemZonesInfo({ compatibleBodiesAndTheirZones, restrictedZones }) {
               display="inline"
               _notLast={{ _after: { content: '", "' } }}
             >
-              <ItemZonesInfoListItem
-                zoneLabel={zoneLabel}
-                bodies={bodies}
-                showBodyInfo={showBodyInfo}
-              />
+              <Box
+                as="span"
+                // Don't wrap any of the list item content. But, by putting
+                // this in an extra container element, we _do_ allow wrapping
+                // _between_ list items.
+                whiteSpace="nowrap"
+              >
+                <ItemZonesInfoListItem
+                  zoneLabel={zoneLabel}
+                  bodies={bodies}
+                  showBodyInfo={showBodyInfo}
+                />
+              </Box>
             </Box>
           ))}
         </Box>
@@ -1362,9 +1370,18 @@ function ItemZonesInfo({ compatibleBodiesAndTheirZones, restrictedZones }) {
                 key={zoneLabel}
                 as="li"
                 display="inline"
+                whiteSpace="nowrap"
                 _notLast={{ _after: { content: '", "' } }}
               >
-                {zoneLabel}
+                <Box
+                  as="span"
+                  // Don't wrap any of the list item content. But, by putting
+                  // this in an extra container element, we _do_ allow wrapping
+                  // _between_ list items.
+                  whiteSpace="nowrap"
+                >
+                  {zoneLabel}
+                </Box>
               </Box>
             ))}
           </Box>
