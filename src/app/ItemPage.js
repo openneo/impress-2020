@@ -1370,7 +1370,6 @@ function ItemZonesInfo({ compatibleBodiesAndTheirZones, restrictedZones }) {
                 key={zoneLabel}
                 as="li"
                 display="inline"
-                whiteSpace="nowrap"
                 _notLast={{ _after: { content: '", "' } }}
               >
                 <Box
