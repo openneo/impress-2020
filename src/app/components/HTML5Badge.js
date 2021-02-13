@@ -99,7 +99,7 @@ function HTML5BadgeLayout({ children, tooltipLabel, ...props }) {
     <Tooltip
       textAlign="center"
       fontSize="xs"
-      placement="bottom-start"
+      placement="top"
       label={tooltipLabel}
       // HACK: Chakra tooltips seem inconsistent about staying open when focus
       //       comes from touch events. But I really want this one to work on

@@ -756,18 +756,7 @@ function ItemPageOutfitPreview({ itemId }) {
           // This box grows at the same rate as the box on the right, so the
           // middle box will be centered, if there's space!
           flex="1 0 0"
-          display="flex"
-          justifyContent="center"
-          paddingRight="2"
-        >
-          <HTML5Badge
-            usesHTML5={usesHTML5}
-            // If we're not compatible, act the same as if we're loading:
-            // don't change the badge, but don't show one yet if we don't
-            // have one yet.
-            isLoading={appearance.loading || !isCompatible}
-          />
-        </Box>
+        />
         <SpeciesColorPicker
           speciesId={petState.speciesId}
           colorId={petState.colorId}
@@ -840,13 +829,26 @@ function ItemPageOutfitPreview({ itemId }) {
           isLoading={loadingGQL || loadingValids}
         />
       </Box>
-      <Box gridArea="zones" alignSelf="center" justifySelf="center">
+      <Flex gridArea="zones" justifySelf="center" align="center">
         {compatibleBodiesAndTheirZones.length > 0 && (
           <ItemZonesInfo
             compatibleBodiesAndTheirZones={compatibleBodiesAndTheirZones}
           />
         )}
-      </Box>
+        <Box width="4" />
+        <Flex
+          // Avoid layout shift while loading
+          minWidth="54px"
+        >
+          <HTML5Badge
+            usesHTML5={usesHTML5}
+            // If we're not compatible, act the same as if we're loading:
+            // don't change the badge, but don't show one yet if we don't
+            // have one yet.
+            isLoading={appearance.loading || !isCompatible}
+          />
+        </Flex>
+      </Flex>
     </Grid>
   );
 }
