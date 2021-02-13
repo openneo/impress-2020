@@ -1418,8 +1418,10 @@ function ItemZonesInfoListItem({ zoneLabel, bodies, showBodyInfo }) {
               as="span"
               tabIndex="0"
               _focus={{ outline: "none", boxShadow: "outline" }}
+              fontStyle="italic"
               textDecoration="underline"
-              style={{ textDecorationStyle: "dashed" }}
+              style={{ textDecorationStyle: "dotted" }}
+              opacity="0.8"
             >
               {/* Show the speciesNames count, even though it's less info,
                * because it's more important that the tooltip content matches
