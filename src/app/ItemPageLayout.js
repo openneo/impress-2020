@@ -221,19 +221,7 @@ function ItemKindBadgeWithSupportTools({ item }) {
         <Portal>
           <PopoverContent padding="4">
             <PopoverArrow />
-            <Badge colorScheme="pink" position="absolute" right="4" top="4">
-              Support <span aria-hidden="true">💖</span>
-            </Badge>
             <VStack spacing="2" align="flex-start">
-              <Flex align="center">
-                <Box as="span" fontWeight="600" marginRight="1">
-                  Rarity:
-                </Box>
-                <Box>
-                  {item.rarityIndex} (
-                  {isNcAutoDetectedFromRarity ? "NC" : "not NC"})
-                </Box>
-              </Flex>
               <Flex align="center">
                 <Box as="span" fontWeight="600" marginRight="2">
                   NC:
@@ -244,11 +232,33 @@ function ItemKindBadgeWithSupportTools({ item }) {
                   value={item.isManuallyNc ? "true" : "false"}
                 >
                   <option value="false">
-                    Auto-detect ({isNcAutoDetectedFromRarity ? "Yes" : "No"})
+                    Auto-detect: {isNcAutoDetectedFromRarity ? "Yes" : "No"}.{" "}
+                    (Rarity {item.rarityIndex})
                   </option>
-                  <option value="true">Always NC (ignore rarity)</option>
+                  <option value="true">Manually set: Yes.</option>
                 </Select>
               </Flex>
+              <Flex align="center">
+                <Box as="span" fontWeight="600" marginRight="1">
+                  PB:
+                </Box>
+                <Select size="xs" isReadOnly value="auto-detect">
+                  <option value="auto-detect">
+                    Auto-detect: {item.isPb ? "Yes" : "No"}. (from description)
+                  </option>
+                  <option style={{ fontStyle: "italic" }}>
+                    (This cannot be manually set.)
+                  </option>
+                </Select>
+              </Flex>
+              <Badge
+                colorScheme="pink"
+                alignSelf="flex-end"
+                marginBottom="-2"
+                marginRight="-2"
+              >
+                Support <span aria-hidden="true">💖</span>
+              </Badge>
             </VStack>
           </PopoverContent>
         </Portal>
