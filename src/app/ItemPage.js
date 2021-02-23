@@ -1,5 +1,5 @@
 import React from "react";
-import { ClassNames, Global, css } from "@emotion/react";
+import { ClassNames } from "@emotion/react";
 import {
   AspectRatio,
   Button,
@@ -1078,15 +1078,6 @@ function SpeciesFacesPicker({
           </Box>
         </Flex>
       )}
-      <Global
-        // Workaround for https://github.com/chakra-ui/chakra-ui/issues/3257,
-        // which causes tooltip hover flicker.
-        styles={css`
-          .chakra-portal [data-popper-placement] {
-            pointer-events: none;
-          }
-        `}
-      />
     </Box>
   );
 }
