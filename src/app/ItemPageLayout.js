@@ -10,10 +10,13 @@ import {
   Portal,
   Select,
   Skeleton,
+  Spinner,
   Tooltip,
+  useToast,
   VStack,
 } from "@chakra-ui/react";
 import { ExternalLinkIcon, ChevronRightIcon } from "@chakra-ui/icons";
+import { gql, useMutation } from "@apollo/client";
 
 import {
   ItemBadgeList,
@@ -204,12 +207,31 @@ function ItemPageBadges({ item, isEmbedded }) {
 }
 
 function ItemKindBadgeWithSupportTools({ item }) {
-  const { isSupportUser } = useSupport();
+  const { isSupportUser, supportSecret } = useSupport();
+  const toast = useToast();
 
   const ncRef = React.useRef(null);
 
   const isNcAutoDetectedFromRarity =
     item.rarityIndex === 500 || item.rarityIndex === 0;
+
+  const [mutate, { loading }] = useMutation(gql`
+    mutation ItemPageSupportSetIsManuallyNc(
+      $itemId: ID!
+      $isManuallyNc: Boolean!
+      $supportSecret: String!
+    ) {
+      setItemIsManuallyNc(
+        itemId: $itemId
+        isManuallyNc: $isManuallyNc
+        supportSecret: $supportSecret
+      ) {
+        id
+        isNc
+        isManuallyNc
+      }
+    }
+  `);
 
   if (isSupportUser && item.rarityIndex != null && item.isManuallyNc != null) {
     // TODO: Could code-split this into a SupportOnly file...
@@ -230,6 +252,31 @@ function ItemKindBadgeWithSupportTools({ item }) {
                   ref={ncRef}
                   size="xs"
                   value={item.isManuallyNc ? "true" : "false"}
+                  onChange={(e) => {
+                    const isManuallyNc = e.target.value === "true";
+                    mutate({
+                      variables: {
+                        itemId: item.id,
+                        isManuallyNc,
+                        supportSecret,
+                      },
+                      optimisticResponse: {
+                        setItemIsManuallyNc: {
+                          __typename: "Item",
+                          id: item.id,
+                          isNc: isManuallyNc || isNcAutoDetectedFromRarity,
+                          isManuallyNc,
+                        },
+                      },
+                    }).catch((e) => {
+                      console.error(e);
+                      toast({
+                        status: "error",
+                        title:
+                          "Could not set NC status for this item. Try again?",
+                      });
+                    });
+                  }}
                 >
                   <option value="false">
                     Auto-detect: {isNcAutoDetectedFromRarity ? "Yes" : "No"}.{" "}
@@ -237,6 +284,7 @@ function ItemKindBadgeWithSupportTools({ item }) {
                   </option>
                   <option value="true">Manually set: Yes.</option>
                 </Select>
+                {loading && <Spinner size="sm" marginLeft="2" />}
               </Flex>
               <Flex align="center">
                 <Box as="span" fontWeight="600" marginRight="1">

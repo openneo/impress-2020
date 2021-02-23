@@ -37,6 +37,12 @@ const typeDefs = gql`
       supportSecret: String!
     ): Item!
 
+    setItemIsManuallyNc(
+      itemId: ID!
+      isManuallyNc: Boolean!
+      supportSecret: String!
+    ): Item!
+
     setLayerBodyId(
       layerId: ID!
       bodyId: ID!
@@ -188,6 +194,69 @@ const resolvers = {
                 fields: [
                   {
                     name: "Pet compatibility rule",
+                    value: `${oldRuleName} → **${newRuleName}**`,
+                  },
+                ],
+                timestamp: new Date().toISOString(),
+                url: `https://impress.openneo.net/items/${oldItem.id}`,
+              },
+            ],
+          });
+        } catch (e) {
+          console.error("Error sending Discord support log", e);
+        }
+      } else {
+        console.warn("No Discord support webhook provided, skipping");
+      }
+
+      return { id: itemId };
+    },
+
+    setItemIsManuallyNc: async (
+      _,
+      { itemId, isManuallyNc, supportSecret },
+      { itemLoader, itemTranslationLoader, db }
+    ) => {
+      assertSupportSecretOrThrow(supportSecret);
+
+      const oldItem = await itemLoader.load(itemId);
+
+      const [
+        result,
+      ] = await db.execute(
+        `UPDATE items SET is_manually_nc = ? WHERE id = ? LIMIT 1`,
+        [isManuallyNc ? 1 : 0, itemId]
+      );
+
+      if (result.affectedRows !== 1) {
+        throw new Error(
+          `Expected to affect 1 item, but affected ${result.affectedRows}`
+        );
+      }
+
+      itemLoader.clear(itemId); // we changed the item, so clear it from cache
+
+      if (process.env["SUPPORT_TOOLS_DISCORD_WEBHOOK_URL"]) {
+        try {
+          const itemTranslation = await itemTranslationLoader.load(itemId);
+          const oldRuleName = oldItem.isManuallyNc
+            ? "Manually set: Yes"
+            : "Auto-detect";
+          const newRuleName = isManuallyNc
+            ? "Manually set: Yes"
+            : "Auto-detect";
+          await logToDiscord({
+            embeds: [
+              {
+                title: `🛠 ${itemTranslation.name}`,
+                thumbnail: {
+                  url: oldItem.thumbnailUrl,
+                  height: 80,
+                  width: 80,
+                },
+                fields: [
+                  {
+                    name: "Is NC rule",
                     value: `${oldRuleName} → **${newRuleName}**`,
                   },
                 ],
