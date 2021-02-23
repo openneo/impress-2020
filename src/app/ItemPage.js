@@ -74,6 +74,10 @@ export function ItemPageContent({ itemId, isEmbedded }) {
           thumbnailUrl
           description
           createdAt
+
+          # For Support users.
+          rarityIndex
+          isManuallyNc
         }
       }
     `,

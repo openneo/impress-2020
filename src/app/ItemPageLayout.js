@@ -1,5 +1,18 @@
 import React from "react";
-import { Badge, Box, Skeleton, Tooltip } from "@chakra-ui/react";
+import {
+  Badge,
+  Box,
+  Flex,
+  Popover,
+  PopoverArrow,
+  PopoverContent,
+  PopoverTrigger,
+  Portal,
+  Select,
+  Skeleton,
+  Tooltip,
+  VStack,
+} from "@chakra-ui/react";
 import { ExternalLinkIcon, ChevronRightIcon } from "@chakra-ui/icons";
 
 import {
@@ -8,6 +21,8 @@ import {
   ItemThumbnail,
 } from "./components/ItemCard";
 import { Heading1 } from "./util";
+
+import useSupport from "./WardrobePage/support/useSupport";
 
 function ItemPageLayout({ children, item, isEmbedded }) {
   return (
@@ -91,7 +106,7 @@ function ItemPageBadges({ item, isEmbedded }) {
   return (
     <ItemBadgeList marginTop="1">
       <SubtleSkeleton isLoaded={item?.isNc != null}>
-        <ItemKindBadge isNc={item.isNc} isPb={item.isPb} />
+        <ItemKindBadgeWithSupportTools item={item} />
       </SubtleSkeleton>
       {
         // If the createdAt date is null (loaded and empty), hide the badge.
@@ -186,6 +201,62 @@ function ItemPageBadges({ item, isEmbedded }) {
       </SubtleSkeleton>
     </ItemBadgeList>
   );
+}
+
+function ItemKindBadgeWithSupportTools({ item }) {
+  const { isSupportUser } = useSupport();
+
+  const ncRef = React.useRef(null);
+
+  const isNcAutoDetectedFromRarity =
+    item.rarityIndex === 500 || item.rarityIndex === 0;
+
+  if (isSupportUser && item.rarityIndex != null && item.isManuallyNc != null) {
+    // TODO: Could code-split this into a SupportOnly file...
+    return (
+      <Popover placement="bottom-start" initialFocusRef={ncRef} showArrow>
+        <PopoverTrigger>
+          <ItemKindBadge isNc={item.isNc} isPb={item.isPb} isEditButton />
+        </PopoverTrigger>
+        <Portal>
+          <PopoverContent padding="4">
+            <PopoverArrow />
+            <Badge colorScheme="pink" position="absolute" right="4" top="4">
+              Support <span aria-hidden="true">💖</span>
+            </Badge>
+            <VStack spacing="2" align="flex-start">
+              <Flex align="center">
+                <Box as="span" fontWeight="600" marginRight="1">
+                  Rarity:
+                </Box>
+                <Box>
+                  {item.rarityIndex} (
+                  {isNcAutoDetectedFromRarity ? "NC" : "not NC"})
+                </Box>
+              </Flex>
+              <Flex align="center">
+                <Box as="span" fontWeight="600" marginRight="2">
+                  NC:
+                </Box>
+                <Select
+                  ref={ncRef}
+                  size="xs"
+                  value={item.isManuallyNc ? "true" : "false"}
+                >
+                  <option value="false">
+                    Auto-detect ({isNcAutoDetectedFromRarity ? "Yes" : "No"})
+                  </option>
+                  <option value="true">Always NC (ignore rarity)</option>
+                </Select>
+              </Flex>
+            </VStack>
+          </PopoverContent>
+        </Portal>
+      </Popover>
+    );
+  }
+
+  return <ItemKindBadge isNc={item.isNc} isPb={item.isPb} />;
 }
 
 function LinkBadge({ children, href, isEmbedded }) {

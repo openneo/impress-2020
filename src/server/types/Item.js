@@ -54,6 +54,11 @@ const typeDefs = gql`
     # layer data from this API should be interpreted!
     explicitlyBodySpecific: Boolean! @cacheControl(maxAge: 0)
 
+    # This is set manually by Support users, when the item is from the NC Mall
+    # but isn't correctly labeled as r500 on Neopets.com. When this is true,
+    # it sets isNc to be true as well, regardless of rarityIndex.
+    isManuallyNc: Boolean!
+
     # Get the species that we need modeled for this item for the given color.
     #
     # NOTE: Most color IDs won't be accepted here. Either pass the ID of a
@@ -327,6 +332,10 @@ const resolvers = {
     explicitlyBodySpecific: async ({ id }, _, { itemLoader }) => {
       const item = await itemLoader.load(id);
       return item.explicitlyBodySpecific;
+    },
+    isManuallyNc: async ({ id }, _, { itemLoader }) => {
+      const item = await itemLoader.load(id);
+      return item.isManuallyNc;
     },
     speciesThatNeedModels: async (
       { id },

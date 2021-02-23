@@ -10,7 +10,12 @@ import {
   useColorModeValue,
   useTheme,
 } from "@chakra-ui/react";
-import { CheckIcon, NotAllowedIcon, StarIcon } from "@chakra-ui/icons";
+import {
+  CheckIcon,
+  EditIcon,
+  NotAllowedIcon,
+  StarIcon,
+} from "@chakra-ui/icons";
 import { HiSparkles } from "react-icons/hi";
 import { Link } from "react-router-dom";
 
@@ -242,43 +247,73 @@ export function ItemBadgeTooltip({ label, children }) {
   );
 }
 
-export function NcBadge() {
+export const NcBadge = React.forwardRef(({ isEditButton, ...props }, ref) => {
   return (
     <ItemBadgeTooltip label="Neocash">
-      <Badge colorScheme="purple" display="block">
+      <Badge
+        ref={ref}
+        as={isEditButton ? "button" : "span"}
+        colorScheme="purple"
+        display="flex"
+        alignItems="center"
+        _focus={{ outline: "none", boxShadow: "outline" }}
+        {...props}
+      >
         NC
+        {isEditButton && <EditIcon fontSize="0.85em" marginLeft="1" />}
       </Badge>
     </ItemBadgeTooltip>
   );
-}
+});
 
-export function NpBadge() {
+export const NpBadge = React.forwardRef(({ isEditButton, ...props }, ref) => {
   return (
     <ItemBadgeTooltip label="Neopoints">
-      <Badge display="block">NP</Badge>
-    </ItemBadgeTooltip>
-  );
-}
-
-export function PbBadge() {
-  return (
-    <ItemBadgeTooltip label="This item is only obtainable via paintbrush">
-      <Badge colorScheme="orange" display="block">
-        PB
+      <Badge
+        ref={ref}
+        as={isEditButton ? "button" : "span"}
+        display="flex"
+        alignItems="center"
+        _focus={{ outline: "none", boxShadow: "outline" }}
+        {...props}
+      >
+        NP
+        {isEditButton && <EditIcon fontSize="0.85em" marginLeft="1" />}
       </Badge>
     </ItemBadgeTooltip>
   );
-}
+});
 
-export function ItemKindBadge({ isNc, isPb }) {
-  if (isNc) {
-    return <NcBadge />;
-  } else if (isPb) {
-    return <PbBadge />;
-  } else {
-    return <NpBadge />;
+export const PbBadge = React.forwardRef(({ isEditButton, ...props }, ref) => {
+  return (
+    <ItemBadgeTooltip label="This item is only obtainable via paintbrush">
+      <Badge
+        ref={ref}
+        as={isEditButton ? "button" : "span"}
+        colorScheme="orange"
+        display="flex"
+        alignItems="center"
+        _focus={{ outline: "none", boxShadow: "outline" }}
+        {...props}
+      >
+        PB
+        {isEditButton && <EditIcon fontSize="0.85em" marginLeft="1" />}
+      </Badge>
+    </ItemBadgeTooltip>
+  );
+});
+
+export const ItemKindBadge = React.forwardRef(
+  ({ isNc, isPb, isEditButton, ...props }, ref) => {
+    if (isNc) {
+      return <NcBadge ref={ref} isEditButton={isEditButton} {...props} />;
+    } else if (isPb) {
+      return <PbBadge ref={ref} isEditButton={isEditButton} {...props} />;
+    } else {
+      return <NpBadge ref={ref} isEditButton={isEditButton} {...props} />;
+    }
   }
-}
+);
 
 export function YouOwnThisBadge({ variant = "long" }) {
   let badge = (
