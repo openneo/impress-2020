@@ -278,8 +278,8 @@ const buildItemByNameLoader = (db, loaders) =>
 const itemSearchKindConditions = {
   // NOTE: We assume that items cannot have NC rarity and the PB description,
   //       so we don't bother to filter out PB items in the NC filter, for perf.
-  NC: `rarity_index IN (0, 500)`,
-  NP: `rarity_index NOT IN (0, 500) AND description NOT LIKE "%This item is part of a deluxe paint brush set!%"`,
+  NC: `rarity_index IN (0, 500) OR is_manually_nc = 1`,
+  NP: `rarity_index NOT IN (0, 500) AND is_manually_nc = 0 AND description NOT LIKE "%This item is part of a deluxe paint brush set!%"`,
   PB: `description LIKE "%This item is part of a deluxe paint brush set!%"`,
 };
 

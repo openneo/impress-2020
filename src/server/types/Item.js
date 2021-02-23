@@ -217,10 +217,11 @@ const resolvers = {
       const item = await itemLoader.load(id);
       return item.rarityIndex;
     },
-    isNc: async ({ id, rarityIndex }, _, { itemLoader }) => {
-      if (rarityIndex != null) return rarityIndex === 500 || rarityIndex === 0;
+    isNc: async ({ id }, _, { itemLoader }) => {
       const item = await itemLoader.load(id);
-      return item.rarityIndex === 500 || item.rarityIndex === 0;
+      return (
+        item.rarityIndex === 500 || item.rarityIndex === 0 || item.isManuallyNc
+      );
     },
     isPb: async ({ id }, _, { itemTranslationLoader }) => {
       const translation = await itemTranslationLoader.load(id);
