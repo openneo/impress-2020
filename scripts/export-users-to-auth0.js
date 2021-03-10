@@ -1,8 +1,8 @@
 // This exports users from the MySQL database to Auth0.
 //
 // If you use the --since flag, we'll only include users whose OpenNeo ID
-// records were updated (or created) since then. Otherwise, we'll include all
-// users.
+// records were updated (or created) since then. Or, the --username flag will
+// filter for a single specific username. Otherwise, we'll include all users.
 //
 // This sorta creates a second copy of everyone's account, copied onto Auth0.
 // We should be thoughtful about how we do the actual migration process!
@@ -44,15 +44,25 @@ async function main() {
     },
   ]);
 
+  let conditionSQL = "1";
+  let conditionValues = [];
+  if (argv.username) {
+    conditionSQL = "oid.name = ?";
+    conditionValues = [argv.username];
+  } else if (argv.since) {
+    conditionSQL = "oid.created_at >= ?";
+    conditionValues = [argv.since];
+  }
+
   let users;
   try {
     const [rows] = await db.query(
       `SELECT dti.id, oid.name, email, encrypted_password, password_salt
        FROM openneo_id.users oid
        INNER JOIN openneo_impress.users dti ON dti.remote_id = oid.id
-       WHERE oid.created_at >= ?
+       WHERE ${conditionSQL}
        ORDER BY dti.id`,
-      [argv.since || ""]
+      conditionValues
     );
     users = rows.map(normalizeRow);
   } finally {
@@ -130,9 +140,19 @@ function pause(delayMs) {
 }
 
 function formatUserForAuth0(user) {
+  const normalizedUsername = user.name.replace(
+    /[^a-zA-Z0-9_+\-.!#$^`~@']/g,
+    ""
+  );
+  if (normalizedUsername !== user.name) {
+    console.warn(
+      `WARN: Username ${user.name} (${user.email}) was not valid, changing to ${normalizedUsername}`
+    );
+  }
+
   return {
     user_id: `impress-${user.id}`,
-    username: user.name,
+    username: normalizedUsername,
     email: user.email,
     custom_password_hash: {
       algorithm: "hmac",
