@@ -1,3 +1,5 @@
+import * as path from "path";
+
 import { gql } from "apollo-server";
 import { loadAssetManifest } from "../neopets-assets";
 
@@ -203,15 +205,23 @@ const resolvers = {
         return null;
       }
 
-      const jsAssetDatum = asset.assetData.find((ad) =>
-        ad.path.endsWith(".js")
+      const assetUrls = asset.assetData.map(
+        (ad) => new URL(ad.path, "http://images.neopets.com")
       );
-      if (!jsAssetDatum) {
+
+      const jsAssetUrl = assetUrls.find(
+        // NOTE: Sometimes the path ends with a ?v= query string, so we need
+        //       to use `extname` to find the real extension!
+        // TODO: There's a file_ext field in the full manifest, but it's not
+        //       included in our cached copy. That would probably be more
+        //       reliable!
+        (url) => path.extname(url.pathname) === ".js"
+      );
+      if (!jsAssetUrl) {
         return null;
       }
 
-      const url = new URL(jsAssetDatum.path, "http://images.neopets.com");
-      return url.toString();
+      return jsAssetUrl.toString();
     },
     item: async ({ id }, _, { db }) => {
       // TODO: If this becomes a popular request, we'll definitely need to
