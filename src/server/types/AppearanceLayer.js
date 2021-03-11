@@ -159,28 +159,41 @@ const resolvers = {
         return null;
       }
 
+      const assetUrls = asset.assetData.map(
+        (ad) => new URL(ad.path, "http://images.neopets.com")
+      );
+
       // In the `lod` case, if there's a JS asset, then don't treat this as an
       // SVG asset at all. (There might be an SVG in the asset list anyway
       // sometimes I think, for the animation, but ignore it if so!)
       //
       // NOTE: I thiiink the `vector` case is deprecated? I haven't verified
       //       whether it's gone from our database yet, though.
-      const jsAssetDatum = asset.assetData.find((ad) =>
-        ad.path.endsWith(".js")
+      const jsAssetUrl = assetUrls.find(
+        // NOTE: Sometimes the path ends with a ?v= query string, so we need
+        //       to use `extname` to find the real extension!
+        // TODO: There's a file_ext field in the full manifest, but it's not
+        //       included in our cached copy. That would probably be more
+        //       reliable!
+        (url) => path.extname(url.pathname) === ".js"
       );
-      if (jsAssetDatum) {
+      if (jsAssetUrl) {
         return null;
       }
 
-      const svgAssetDatum = asset.assetData.find((ad) =>
-        ad.path.endsWith(".svg")
+      const svgAssetUrl = assetUrls.find(
+        // NOTE: Sometimes the path ends with a ?v= query string, so we need
+        //       to use `extname` to find the real extension!
+        // TODO: There's a file_ext field in the full manifest, but it's not
+        //       included in our cached copy. That would probably be more
+        //       reliable!
+        (url) => path.extname(url.pathname) === ".svg"
       );
-      if (!svgAssetDatum) {
+      if (!svgAssetUrl) {
         return null;
       }
 
-      const url = new URL(svgAssetDatum.path, "http://images.neopets.com");
-      return url.toString();
+      return svgAssetUrl.toString();
     },
     canvasMovieLibraryUrl: async ({ id }, _, { db, swfAssetLoader }) => {
       const layer = await swfAssetLoader.load(id);
