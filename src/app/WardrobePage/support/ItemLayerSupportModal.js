@@ -121,6 +121,14 @@ function ItemLayerSupportModal({
     }
   );
 
+  // TODO: Would be nicer to just learn the correct URL from the server, but we
+  //       don't happen to be saving it, and it would be extra stuff to put on
+  //       the GraphQL request for non-Support users. We could also just try
+  //       loading them, but, ehhh…
+  const [newManifestUrl, oldManifestUrl] = convertSwfUrlToPossibleManifestUrls(
+    itemLayer.swfUrl
+  );
+
   return (
     <Modal size="xl" isOpen={isOpen} onClose={onClose}>
       <ModalOverlay>
@@ -146,11 +154,22 @@ function ItemLayerSupportModal({
                     as="a"
                     size="xs"
                     target="_blank"
-                    href={convertSwfUrlToManifestUrl(itemLayer.swfUrl)}
+                    href={newManifestUrl}
                     colorScheme="teal"
                   >
-                    Manifest <ExternalLinkIcon ml="1" />
+                    Manifest (new) <ExternalLinkIcon ml="1" />
                   </Button>
+                  <Button
+                    as="a"
+                    size="xs"
+                    target="_blank"
+                    href={oldManifestUrl}
+                    colorScheme="teal"
+                  >
+                    Manifest (old) <ExternalLinkIcon ml="1" />
+                  </Button>
+                </HStack>
+                <HStack spacing="2" marginTop="1">
                   {itemLayer.canvasMovieLibraryUrl ? (
                     <Button
                       as="a"
@@ -211,7 +230,7 @@ function ItemLayerSupportModal({
                     colorScheme="gray"
                     onClick={() => setUploadModalIsOpen(true)}
                   >
-                    Upload <ChevronRightIcon />
+                    Upload PNG <ChevronRightIcon />
                   </Button>
                   <ItemLayerSupportUploadModal
                     item={item}
@@ -507,9 +526,9 @@ function ItemLayerSupportModalRemoveButton({
   );
 }
 
-const SWF_URL_PATTERN = /^http:\/\/images\.neopets\.com\/cp\/(.+?)\/swf\/(.+?)_[a-z0-9]+\.swf$/;
+const SWF_URL_PATTERN = /^http:\/\/images\.neopets\.com\/cp\/(bio|items)\/swf\/(.+?)_([a-z0-9]+)\.swf$/;
 
-function convertSwfUrlToManifestUrl(swfUrl) {
+function convertSwfUrlToPossibleManifestUrls(swfUrl) {
   const match = swfUrl.match(SWF_URL_PATTERN);
   if (!match) {
     throw new Error(`unexpected SWF URL format: ${JSON.stringify(swfUrl)}`);
@@ -517,8 +536,14 @@ function convertSwfUrlToManifestUrl(swfUrl) {
 
   const type = match[1];
   const folders = match[2];
+  const hash = match[3];
 
-  return `http://images.neopets.com/cp/${type}/data/${folders}/manifest.json`;
+  // TODO: There are a few potential manifest URLs in play! Long-term, we
+  //       should get this from modeling data. But these are some good guesses!
+  return [
+    `http://images.neopets.com/cp/${type}/data/${folders}/manifest.json`,
+    `http://images.neopets.com/cp/${type}/data/${folders}_${hash}/manifest.json`,
+  ];
 }
 
 export default ItemLayerSupportModal;
