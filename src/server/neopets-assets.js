@@ -1,18 +1,29 @@
 import fetch from "node-fetch";
 
 async function loadAssetManifest(swfUrl) {
-  const manifestUrl = convertSwfUrlToManifestUrl(swfUrl);
-  const res = await fetch(manifestUrl);
-  if (res.status === 404) {
-    return null;
-  } else if (!res.ok) {
-    throw new Error(
-      `for asset manifest, images.neopets.com returned: ` +
-        `${res.status} ${res.statusText}. (${manifestUrl})`
-    );
+  const possibleManifestUrls = convertSwfUrlToPossibleManifestUrls(swfUrl);
+
+  const responses = await Promise.all(
+    possibleManifestUrls.map((url) => fetch(url))
+  );
+
+  // Print errors for any responses with unexpected statuses. We'll do this
+  // even if other requests succeeded, or failed with an expected 404.
+  for (const res of responses) {
+    if (!res.ok && res.status !== 404) {
+      console.error(
+        `for asset manifest, images.neopets.com returned: ` +
+          `${res.status} ${res.statusText}. (${res.url})`
+      );
+    }
   }
 
-  const json = await res.json();
+  const successfulResponse = responses.find((res) => res.ok);
+  if (!successfulResponse) {
+    return null;
+  }
+
+  const json = await successfulResponse.json();
   return {
     assets: json["cpmanifest"]["assets"].map((asset) => ({
       format: asset["format"],
@@ -25,7 +36,7 @@ async function loadAssetManifest(swfUrl) {
 
 const SWF_URL_PATTERN = /^http:\/\/images\.neopets\.com\/cp\/(bio|items)\/swf\/(.+?)_([a-z0-9]+)\.swf$/;
 
-function convertSwfUrlToManifestUrl(swfUrl) {
+function convertSwfUrlToPossibleManifestUrls(swfUrl) {
   const match = swfUrl.match(SWF_URL_PATTERN);
   if (!match) {
     throw new Error(`unexpected SWF URL format: ${JSON.stringify(swfUrl)}`);
@@ -35,13 +46,12 @@ function convertSwfUrlToManifestUrl(swfUrl) {
   const folders = match[2];
   const hash = match[3];
 
-  if (type === "bio") {
-    return `http://images.neopets.com/cp/bio/data/${folders}_${hash}/manifest.json`;
-  } else if (type === "items") {
-    return `http://images.neopets.com/cp/items/data/${folders}/manifest.json`;
-  } else {
-    throw new Error(`Assertion error: type should be bio or item.`);
-  }
+  // TODO: There are a few potential manifest URLs in play! Long-term, we
+  //       should get this from modeling data. But these are some good guesses!
+  return [
+    `http://images.neopets.com/cp/${type}/data/${folders}/manifest.json`,
+    `http://images.neopets.com/cp/${type}/data/${folders}_${hash}/manifest.json`,
+  ];
 }
 
 module.exports = { loadAssetManifest };
