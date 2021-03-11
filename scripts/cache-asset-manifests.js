@@ -53,14 +53,17 @@ async function cacheAssetManifests(db) {
           // Hacky for sure!
           const escapedManifest = JSON.stringify(JSON.stringify(manifest));
           console.log(
-            `UPDATE swf_assets SET manifest = ${escapedManifest} ` +
+            `UPDATE swf_assets SET manifest = ${escapedManifest}, ` +
+              `manifest_cached_at = CURRENT_TIMESTAMP() ` +
               `WHERE id = ${row.id} LIMIT 1;`
           );
         } else {
           const [
             result,
           ] = await db.execute(
-            `UPDATE swf_assets SET manifest = ? WHERE id = ? LIMIT 1;`,
+            `UPDATE swf_assets SET manifest = ?, ` +
+              `manifest_cached_at = CURRENT_TIMESTAMP() ` +
+              `WHERE id = ? LIMIT 1;`,
             [manifest, row.id]
           );
           if (result.affectedRows !== 1) {
