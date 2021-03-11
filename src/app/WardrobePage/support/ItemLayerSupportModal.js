@@ -142,6 +142,30 @@ function ItemLayerSupportModal({
               <MetadataLabel>Assets:</MetadataLabel>
               <MetadataValue>
                 <HStack spacing="2">
+                  <Button
+                    as="a"
+                    size="xs"
+                    target="_blank"
+                    href={getManifestUrlFromSwfUrl(itemLayer.swfUrl)}
+                    colorScheme="teal"
+                  >
+                    Manifest <ExternalLinkIcon ml="1" />
+                  </Button>
+                  {itemLayer.canvasMovieLibraryUrl ? (
+                    <Button
+                      as="a"
+                      size="xs"
+                      target="_blank"
+                      href={itemLayer.canvasMovieLibraryUrl}
+                      colorScheme="teal"
+                    >
+                      Movie <ExternalLinkIcon ml="1" />
+                    </Button>
+                  ) : (
+                    <Button size="xs" isDisabled>
+                      No Movie
+                    </Button>
+                  )}
                   {itemLayer.svgUrl ? (
                     <Button
                       as="a"
@@ -187,7 +211,7 @@ function ItemLayerSupportModal({
                     colorScheme="gray"
                     onClick={() => setUploadModalIsOpen(true)}
                   >
-                    Upload PNG <ChevronRightIcon />
+                    Upload <ChevronRightIcon />
                   </Button>
                   <ItemLayerSupportUploadModal
                     item={item}
@@ -481,6 +505,10 @@ function ItemLayerSupportModalRemoveButton({
       </Modal>
     </>
   );
+}
+
+function getManifestUrlFromSwfUrl(swfUrl) {
+  return swfUrl.replace("/swf/", "/data/").replace(/\.swf$/, "/manifest.json");
 }
 
 export default ItemLayerSupportModal;
