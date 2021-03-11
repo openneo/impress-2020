@@ -23,7 +23,7 @@ async function loadAssetManifest(swfUrl) {
   };
 }
 
-const SWF_URL_PATTERN = /^http:\/\/images\.neopets\.com\/cp\/(.+?)\/swf\/(.+?)_[a-z0-9]+\.swf$/;
+const SWF_URL_PATTERN = /^http:\/\/images\.neopets\.com\/cp\/(bio|items)\/swf\/(.+?)_([a-z0-9]+)\.swf$/;
 
 function convertSwfUrlToManifestUrl(swfUrl) {
   const match = swfUrl.match(SWF_URL_PATTERN);
@@ -33,8 +33,15 @@ function convertSwfUrlToManifestUrl(swfUrl) {
 
   const type = match[1];
   const folders = match[2];
+  const hash = match[3];
 
-  return `http://images.neopets.com/cp/${type}/data/${folders}/manifest.json`;
+  if (type === "bio") {
+    return `http://images.neopets.com/cp/bio/data/${folders}_${hash}/manifest.json`;
+  } else if (type === "items") {
+    return `http://images.neopets.com/cp/items/data/${folders}/manifest.json`;
+  } else {
+    throw new Error(`Assertion error: type should be bio or item.`);
+  }
 }
 
 module.exports = { loadAssetManifest };
