@@ -146,7 +146,7 @@ function ItemLayerSupportModal({
                     as="a"
                     size="xs"
                     target="_blank"
-                    href={getManifestUrlFromSwfUrl(itemLayer.swfUrl)}
+                    href={convertSwfUrlToManifestUrl(itemLayer.swfUrl)}
                     colorScheme="teal"
                   >
                     Manifest <ExternalLinkIcon ml="1" />
@@ -507,8 +507,18 @@ function ItemLayerSupportModalRemoveButton({
   );
 }
 
-function getManifestUrlFromSwfUrl(swfUrl) {
-  return swfUrl.replace("/swf/", "/data/").replace(/\.swf$/, "/manifest.json");
+const SWF_URL_PATTERN = /^http:\/\/images\.neopets\.com\/cp\/(.+?)\/swf\/(.+?)_[a-z0-9]+\.swf$/;
+
+function convertSwfUrlToManifestUrl(swfUrl) {
+  const match = swfUrl.match(SWF_URL_PATTERN);
+  if (!match) {
+    throw new Error(`unexpected SWF URL format: ${JSON.stringify(swfUrl)}`);
+  }
+
+  const type = match[1];
+  const folders = match[2];
+
+  return `http://images.neopets.com/cp/${type}/data/${folders}/manifest.json`;
 }
 
 export default ItemLayerSupportModal;

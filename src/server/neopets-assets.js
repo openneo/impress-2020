@@ -23,7 +23,7 @@ async function loadAssetManifest(swfUrl) {
   };
 }
 
-const SWF_URL_PATTERN = /^http:\/\/images\.neopets\.com\/cp\/(.+?)\/swf\/(.+?)\.swf$/;
+const SWF_URL_PATTERN = /^http:\/\/images\.neopets\.com\/cp\/(.+?)\/swf\/(.+?)_[a-z0-9]+\.swf$/;
 
 function convertSwfUrlToManifestUrl(swfUrl) {
   const match = swfUrl.match(SWF_URL_PATTERN);
@@ -31,7 +31,8 @@ function convertSwfUrlToManifestUrl(swfUrl) {
     throw new Error(`unexpected SWF URL format: ${JSON.stringify(swfUrl)}`);
   }
 
-  const [_, type, folders] = match;
+  const type = match[1];
+  const folders = match[2];
 
   return `http://images.neopets.com/cp/${type}/data/${folders}/manifest.json`;
 }
