@@ -11,7 +11,7 @@ const { renderOutfitImage } = require("../src/server/outfit-images");
 
 const VALID_LAYER_URLS = [
   /^https:\/\/impress-asset-images\.s3\.amazonaws\.com\/(biology|object)\/[0-9]{3}\/[0-9]{3}\/[0-9]{3}\/[0-9]+\/(150|300)x(150|300)\.png(\?[a-zA-Z0-9_-]+)?$/,
-  /^http:\/\/images\.neopets\.com\/cp\/(bio|object|items)\/data\/[0-9]{3}\/[0-9]{3}\/[0-9]{3}\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+\.svg$/,
+  /^http:\/\/images\.neopets\.com\/cp\/(bio|object|items)\/data\/[0-9]{3}\/[0-9]{3}\/[0-9]{3}\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+\.(svg|png)(\?.*)?$/,
 ];
 
 async function handle(req, res) {
