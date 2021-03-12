@@ -45,7 +45,7 @@ function useSearchQueryInUrl() {
   const searchParams = new URLSearchParams(search);
 
   const query = {
-    value: value || "",
+    value: decodeURIComponent(value || ""),
     filterToZoneLabel: searchParams.get("zone") || null,
     filterToItemKind: searchParams.get("kind") || null,
     filterToCurrentUserOwnsOrWants: searchParams.get("user") || null,
