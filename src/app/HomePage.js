@@ -515,12 +515,11 @@ function FeedbackFormPitch() {
           flex={{ base: "0 0 auto", sm: "0 1 50%" }}
         >
           <Box as="h3" fontWeight="600">
-            New updates (Feb 12)
+            New updates (Mar 12)
           </Box>
           <UnorderedList>
-            <ListItem>Zone info on item page!</ListItem>
-            <ListItem>HTML5 status for items!</ListItem>
-            <ListItem>Better item page previews</ListItem>
+            <ListItem>Now compatible with newer HTML5 items, too!</ListItem>
+            <ListItem>Pandemic hiatus again 😅</ListItem>
           </UnorderedList>
         </Box>
         <Box width="2" />
