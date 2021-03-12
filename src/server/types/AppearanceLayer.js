@@ -65,6 +65,13 @@ const typeDefs = gql`
     item: Item
 
     """
+    Glitches that we know to affect this appearance layer. This can be useful
+    for changing our behavior to match official behavior, or to alert the user
+    that our behavior _doesn't_ match official behavior.
+    """
+    knownGlitches: [AppearanceLayerKnownGlitch!]!
+
+    """
     The zones that this layer restricts, if any. Note that, for item layers,
     this is generally empty and the restriction is on the ItemAppearance, not
     the individual layers. For pet layers, this is generally used for
@@ -73,6 +80,15 @@ const typeDefs = gql`
     Deprecated, aggregated into PetAppearance for a simpler API.
     """
     restrictedZones: [Zone!]!
+  }
+
+  enum AppearanceLayerKnownGlitch {
+    # This glitch means that, while the official manifest declares an SVG
+    # version of this layer, it is incorrect and does not visually match the
+    # PNG version that the official pet editor users.
+    #
+    # For affected layers, svgUrl will be null, regardless of the manifest.
+    OFFICIAL_SVG_IS_INCORRECT
   }
 
   extend type Query {
@@ -138,6 +154,13 @@ const resolvers = {
     },
     svgUrl: async ({ id }, _, { db, swfAssetLoader }) => {
       const layer = await swfAssetLoader.load(id);
+
+      if (
+        layer.knownGlitches.split(",").includes("OFFICIAL_SVG_IS_INCORRECT")
+      ) {
+        return null;
+      }
+
       let manifest = layer.manifest && JSON.parse(layer.manifest);
 
       // When the manifest is specifically null, that means we don't know if
@@ -253,6 +276,15 @@ const resolvers = {
       }
 
       return { id: String(rows[0].parent_id) };
+    },
+    knownGlitches: async ({ id }, _, { swfAssetLoader }) => {
+      const layer = await swfAssetLoader.load(id);
+
+      if (!layer.knownGlitches) {
+        return [];
+      }
+
+      return layer.knownGlitches.split(",");
     },
   },
 

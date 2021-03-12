@@ -1,13 +1,6 @@
 import { gql } from "apollo-server";
 import { ManagementClient } from "auth0";
 
-const auth0 = new ManagementClient({
-  domain: "openneo.us.auth0.com",
-  clientId: process.env.AUTH0_SUPPORT_CLIENT_ID,
-  clientSecret: process.env.AUTH0_SUPPORT_CLIENT_SECRET,
-  scope: "read:users update:users",
-});
-
 import {
   capitalize,
   getPoseFromPetState,
@@ -17,6 +10,13 @@ import {
   logToDiscord,
   normalizeRow,
 } from "../util";
+
+const auth0 = new ManagementClient({
+  domain: "openneo.us.auth0.com",
+  clientId: process.env.AUTH0_SUPPORT_CLIENT_ID,
+  clientSecret: process.env.AUTH0_SUPPORT_CLIENT_SECRET,
+  scope: "read:users update:users",
+});
 
 const typeDefs = gql`
   type RemoveLayerFromItemMutationResult {
@@ -47,7 +47,13 @@ const typeDefs = gql`
       layerId: ID!
       bodyId: ID!
       supportSecret: String!
-    ): AppearanceLayer!
+    ): AppearanceLayer
+
+    setLayerKnownGlitches(
+      layerId: ID!
+      knownGlitches: [AppearanceLayerKnownGlitch!]!
+      supportSecret: String!
+    ): AppearanceLayer
 
     removeLayerFromItem(
       layerId: ID!
@@ -289,6 +295,21 @@ const resolvers = {
       assertSupportSecretOrThrow(supportSecret);
 
       const oldSwfAsset = await swfAssetLoader.load(layerId);
+      if (!oldSwfAsset) {
+        console.warn(
+          `Skipping setLayerBodyId for unknown layer ID: ${layerId}`
+        );
+        return null;
+      }
+
+      // Skip the update, and the logging, if there's no change.
+      if (oldSwfAsset.bodyId === bodyId) {
+        console.info(
+          `Skipping setLayerBodyId for ${layerId}: no change. ` +
+            `(bodyId=${oldSwfAsset.bodyId})`
+        );
+        return { id: layerId };
+      }
 
       const [
         result,
@@ -344,6 +365,103 @@ const resolvers = {
                       `Layer ${layerId} (${zoneTranslation.label}): ` +
                       `Pet compatibility`,
                     value: `${oldBodyName} → **${newBodyName}**`,
+                  },
+                ],
+                timestamp: new Date().toISOString(),
+                url: `https://impress.openneo.net/items/${itemId}`,
+              },
+            ],
+          });
+        } catch (e) {
+          console.error("Error sending Discord support log", e);
+        }
+      } else {
+        console.warn("No Discord support webhook provided, skipping");
+      }
+
+      return { id: layerId };
+    },
+
+    setLayerKnownGlitches: async (
+      _,
+      { layerId, knownGlitches, supportSecret },
+      {
+        itemLoader,
+        itemTranslationLoader,
+        swfAssetLoader,
+        zoneTranslationLoader,
+        db,
+      }
+    ) => {
+      assertSupportSecretOrThrow(supportSecret);
+
+      const oldSwfAsset = await swfAssetLoader.load(layerId);
+      if (!oldSwfAsset) {
+        console.warn(
+          `Skipping setLayerKnownGlitches for unknown layer ID: ${layerId}`
+        );
+        return null;
+      }
+
+      const newKnownGlitchesString = knownGlitches.join(",");
+
+      // Skip the update, and the logging, if there's no change.
+      if (oldSwfAsset.knownGlitches === newKnownGlitchesString) {
+        console.info(
+          `Skipping setLayerKnownGlitches for ${layerId}: no change. ` +
+            `(knownGlitches=${oldSwfAsset.knownGlitches})`
+        );
+        return { id: layerId };
+      }
+
+      const [
+        result,
+      ] = await db.execute(
+        `UPDATE swf_assets SET known_glitches = ? WHERE id = ? LIMIT 1`,
+        [newKnownGlitchesString, layerId]
+      );
+
+      if (result.affectedRows !== 1) {
+        throw new Error(
+          `Expected to affect 1 layer, but affected ${result.affectedRows}`
+        );
+      }
+
+      swfAssetLoader.clear(layerId); // we changed it, so clear it from cache
+
+      if (process.env["SUPPORT_TOOLS_DISCORD_WEBHOOK_URL"]) {
+        try {
+          const itemId = await db
+            .execute(
+              `SELECT parent_id FROM parents_swf_assets
+             WHERE swf_asset_id = ? AND parent_type = "Item" LIMIT 1;`,
+              [layerId]
+            )
+            .then(([rows]) => normalizeRow(rows[0]).parentId);
+
+          const [item, itemTranslation, zoneTranslation] = await Promise.all([
+            itemLoader.load(itemId),
+            itemTranslationLoader.load(itemId),
+            zoneTranslationLoader.load(oldSwfAsset.zoneId),
+          ]);
+
+          await logToDiscord({
+            embeds: [
+              {
+                title: `🛠 ${itemTranslation.name}`,
+                thumbnail: {
+                  url: item.thumbnailUrl,
+                  height: 80,
+                  width: 80,
+                },
+                fields: [
+                  {
+                    name:
+                      `Layer ${layerId} (${zoneTranslation.label}): ` +
+                      `Known glitches`,
+                    value: `${oldSwfAsset.knownGlitches || "<none>"} → **${
+                      newKnownGlitchesString || "<none>"
+                    }**`,
                   },
                 ],
                 timestamp: new Date().toISOString(),

@@ -21,6 +21,9 @@ import {
   Spinner,
   useDisclosure,
   useToast,
+  CheckboxGroup,
+  VStack,
+  Checkbox,
 } from "@chakra-ui/react";
 import { ChevronRightIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 
@@ -45,6 +48,10 @@ function ItemLayerSupportModal({
   onClose,
 }) {
   const [selectedBodyId, setSelectedBodyId] = React.useState(itemLayer.bodyId);
+  const [selectedKnownGlitches, setSelectedKnownGlitches] = React.useState(
+    itemLayer.knownGlitches
+  );
+
   const [previewBiology, setPreviewBiology] = React.useState({
     speciesId: outfitState.speciesId,
     colorId: outfitState.colorId,
@@ -63,6 +70,7 @@ function ItemLayerSupportModal({
       mutation ItemSupportSetLayerBodyId(
         $layerId: ID!
         $bodyId: ID!
+        $knownGlitches: [AppearanceLayerKnownGlitch!]!
         $supportSecret: String!
         $outfitSpeciesId: ID!
         $outfitColorId: ID!
@@ -98,6 +106,16 @@ function ItemLayerSupportModal({
             }
           }
         }
+
+        setLayerKnownGlitches(
+          layerId: $layerId
+          knownGlitches: $knownGlitches
+          supportSecret: $supportSecret
+        ) {
+          id
+          knownGlitches
+          svgUrl # Affected by OFFICIAL_SVG_IS_INCORRECT
+        }
       }
       ${itemAppearanceFragment}
     `,
@@ -105,6 +123,7 @@ function ItemLayerSupportModal({
       variables: {
         layerId: itemLayer.id,
         bodyId: selectedBodyId,
+        knownGlitches: selectedKnownGlitches,
         supportSecret,
         outfitSpeciesId: outfitState.speciesId,
         outfitColorId: outfitState.colorId,
@@ -251,6 +270,11 @@ function ItemLayerSupportModal({
               onChangeBodyId={setSelectedBodyId}
               onChangePreviewBiology={setPreviewBiology}
             />
+            <Box height="8" />
+            <ItemLayerSupportKnownGlitchesFields
+              selectedKnownGlitches={selectedKnownGlitches}
+              onChange={setSelectedKnownGlitches}
+            />
           </ModalBody>
           <ModalFooter>
             <ItemLayerSupportModalRemoveButton
@@ -325,7 +349,7 @@ function ItemLayerSupportPetCompatibilityFields({
 
   return (
     <FormControl isInvalid={error || !selectedBiology.isValid ? true : false}>
-      <FormLabel>Pet compatibility</FormLabel>
+      <FormLabel fontWeight="bold">Pet compatibility</FormLabel>
       <RadioGroup
         colorScheme="green"
         value={selectedBodyId}
@@ -393,6 +417,27 @@ function ItemLayerSupportPetCompatibilityFields({
         )}
         {error && <FormErrorMessage>{error.message}</FormErrorMessage>}
       </Box>
+    </FormControl>
+  );
+}
+
+function ItemLayerSupportKnownGlitchesFields({
+  selectedKnownGlitches,
+  onChange,
+}) {
+  return (
+    <FormControl>
+      <FormLabel fontWeight="bold">Known glitches</FormLabel>
+      <CheckboxGroup value={selectedKnownGlitches} onChange={onChange}>
+        <VStack spacing="2" align="flex-start">
+          <Checkbox value="OFFICIAL_SVG_IS_INCORRECT">
+            Official SVG is incorrect{" "}
+            <Box display="inline" color="gray.400" fontSize="sm">
+              (Will use the PNG instead)
+            </Box>
+          </Checkbox>
+        </VStack>
+      </CheckboxGroup>
     </FormControl>
   );
 }

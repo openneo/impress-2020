@@ -169,6 +169,7 @@ export const itemAppearanceFragment = gql`
       canvasMovieLibraryUrl
       imageUrl(size: SIZE_600)
       swfUrl # HACK: This is for Support tools, but other views don't need it
+      knownGlitches # HACK: This is for Support tools, but other views don't need it
       bodyId
       zone {
         label @client # HACK: This is for Support tools, but other views don't need it
