@@ -319,7 +319,7 @@ export function getBestImageUrlForLayer(layer) {
   if (layer.svgUrl) {
     return { src: safeImageUrl(layer.svgUrl), crossOrigin: "anonymous" };
   } else {
-    return { src: layer.imageUrl, crossOrigin: "anonymous" };
+    return { src: safeImageUrl(layer.imageUrl), crossOrigin: "anonymous" };
   }
 }
 

@@ -126,8 +126,34 @@ const resolvers = {
       const layer = await swfAssetLoader.load(id);
       return layer.url;
     },
-    imageUrl: async ({ id }, { size = "SIZE_150" }, { swfAssetLoader }) => {
+    imageUrl: async ({ id }, { size = "SIZE_150" }, { swfAssetLoader, db }) => {
       const layer = await swfAssetLoader.load(id);
+
+      // For the largest size, try to use the official Neopets PNG!
+      //
+      // NOTE: This is mainly to avoid cases where the official PNG, based on
+      //       the official SWF, is inaccurate. (This was the case for the
+      //       Flying in an Airplane item when it first released, with the
+      //       OFFICIAL_SVG_IS_INCORRECT glitch.)
+      //
+      // TODO: This doesn't really help us with the glitches in our own PNGs,
+      //       because 1) if an official PNG is available, an official SVG
+      //       probably is too, and we prefer to use that in most cases; and 2)
+      //       outfit image thumbnails currently only request 300x300 at most,
+      //       so we'll still use our own PNGs for those cases.
+      if (size === "SIZE_600") {
+        const {
+          format,
+          jsAssetUrl,
+          pngAssetUrl,
+        } = await loadAndCacheAssetDataFromManifest(db, layer);
+
+        // If there's an official single-image PNG we can use, use it! This is
+        // what the official /customise editor uses at time of writing.
+        if (format === "lod" && !jsAssetUrl && pngAssetUrl) {
+          return pngAssetUrl.toString();
+        }
+      }
 
       // If there's no image, return null. (In the development db, which isn't
       // aware which assets we have images for on the DTI CDN, assume we _do_
@@ -161,103 +187,41 @@ const resolvers = {
         return null;
       }
 
-      let manifest = layer.manifest && JSON.parse(layer.manifest);
+      const {
+        format,
+        jsAssetUrl,
+        svgAssetUrl,
+      } = await loadAndCacheAssetDataFromManifest(db, layer);
 
-      // When the manifest is specifically null, that means we don't know if
-      // it exists yet. Load it to find out!
-      if (manifest === null) {
-        manifest = await loadAndCacheAssetManifest(db, layer);
-      }
-
-      if (!manifest) {
-        return null;
-      }
-
-      if (manifest.assets.length !== 1) {
-        return null;
-      }
-
-      const asset = manifest.assets[0];
-      if (asset.format !== "vector" && asset.format !== "lod") {
-        return null;
-      }
-
-      const assetUrls = asset.assetData.map(
-        (ad) => new URL(ad.path, "http://images.neopets.com")
-      );
-
-      // In the `lod` case, if there's a JS asset, then don't treat this as an
-      // SVG asset at all. (There might be an SVG in the asset list anyway
-      // sometimes I think, for the animation, but ignore it if so!)
+      // If there's an official single-image SVG we can use, use it! The NC
+      // Mall player uses this at time of writing, and we generally prefer it
+      // over the PNG, because it scales better for larger high-DPI screens.
       //
-      // NOTE: I thiiink the `vector` case is deprecated? I haven't verified
-      //       whether it's gone from our database yet, though.
-      const jsAssetUrl = assetUrls.find(
-        // NOTE: Sometimes the path ends with a ?v= query string, so we need
-        //       to use `extname` to find the real extension!
-        // TODO: There's a file_ext field in the full manifest, but it's not
-        //       included in our cached copy. That would probably be more
-        //       reliable!
-        (url) => path.extname(url.pathname) === ".js"
-      );
-      if (jsAssetUrl) {
+      // NOTE: I'm not sure the vector format is still part of the official
+      //       data set? New items all seem to be lod now.
+      if (
+        (format === "vector" || format === "lod") &&
+        !jsAssetUrl &&
+        svgAssetUrl
+      ) {
+        return svgAssetUrl.toString();
+      } else {
         return null;
       }
-
-      const svgAssetUrl = assetUrls.find(
-        // NOTE: Sometimes the path ends with a ?v= query string, so we need
-        //       to use `extname` to find the real extension!
-        // TODO: There's a file_ext field in the full manifest, but it's not
-        //       included in our cached copy. That would probably be more
-        //       reliable!
-        (url) => path.extname(url.pathname) === ".svg"
-      );
-      if (!svgAssetUrl) {
-        return null;
-      }
-
-      return svgAssetUrl.toString();
     },
     canvasMovieLibraryUrl: async ({ id }, _, { db, swfAssetLoader }) => {
       const layer = await swfAssetLoader.load(id);
-      let manifest = layer.manifest && JSON.parse(layer.manifest);
 
-      // When the manifest is specifically null, that means we don't know if
-      // it exists yet. Load it to find out!
-      if (manifest === null) {
-        manifest = await loadAndCacheAssetManifest(db, layer);
-      }
-
-      if (!manifest) {
-        return null;
-      }
-
-      if (manifest.assets.length !== 1) {
-        return null;
-      }
-
-      const asset = manifest.assets[0];
-      if (asset.format !== "lod") {
-        return null;
-      }
-
-      const assetUrls = asset.assetData.map(
-        (ad) => new URL(ad.path, "http://images.neopets.com")
+      const { format, jsAssetUrl } = await loadAndCacheAssetDataFromManifest(
+        db,
+        layer
       );
 
-      const jsAssetUrl = assetUrls.find(
-        // NOTE: Sometimes the path ends with a ?v= query string, so we need
-        //       to use `extname` to find the real extension!
-        // TODO: There's a file_ext field in the full manifest, but it's not
-        //       included in our cached copy. That would probably be more
-        //       reliable!
-        (url) => path.extname(url.pathname) === ".js"
-      );
-      if (!jsAssetUrl) {
+      if (format === "lod" && jsAssetUrl) {
+        return jsAssetUrl.toString();
+      } else {
         return null;
       }
-
-      return jsAssetUrl.toString();
     },
     item: async ({ id }, _, { db }) => {
       // TODO: If this becomes a popular request, we'll definitely need to
@@ -318,6 +282,70 @@ function convertLayerTypeToSwfAssetType(layerType) {
     default:
       return null;
   }
+}
+
+/**
+ * loadAndCacheAssetDataFromManifest loads and caches the manifest (if not
+ * already cached on the layer from the database), and then accesses some
+ * basic data in a format convenient for our resolvers!
+ *
+ * Specifically, we return the format, and the first asset available of each
+ * common type. (It's important to be careful with this - the presence of a
+ * PNG doesn't necessarily indicate that it can be used as a single static
+ * image for this layer, it could be a supporting sprite for the JS library!)
+ */
+async function loadAndCacheAssetDataFromManifest(db, layer) {
+  let manifest = layer.manifest && JSON.parse(layer.manifest);
+
+  // When the manifest is specifically null, that means we don't know if
+  // it exists yet. Load it to find out!
+  if (manifest === null) {
+    manifest = await loadAndCacheAssetManifest(db, layer);
+  }
+
+  if (!manifest) {
+    return { format: null, assetUrls: [] };
+  }
+
+  if (manifest.assets.length !== 1) {
+    return { format: null, assetUrls: [] };
+  }
+
+  const asset = manifest.assets[0];
+
+  const format = asset.format;
+  const assetUrls = asset.assetData.map(
+    (ad) => new URL(ad.path, "http://images.neopets.com")
+  );
+
+  const jsAssetUrl = assetUrls.find(
+    // NOTE: Sometimes the path ends with a ?v= query string, so we need
+    //       to use `extname` to find the real extension!
+    // TODO: There's a file_ext field in the full manifest, but it's not
+    //       included in our cached copy. That would probably be more
+    //       reliable!
+    (url) => path.extname(url.pathname) === ".js"
+  );
+
+  const svgAssetUrl = assetUrls.find(
+    // NOTE: Sometimes the path ends with a ?v= query string, so we need
+    //       to use `extname` to find the real extension!
+    // TODO: There's a file_ext field in the full manifest, but it's not
+    //       included in our cached copy. That would probably be more
+    //       reliable!
+    (url) => path.extname(url.pathname) === ".svg"
+  );
+
+  const pngAssetUrl = assetUrls.find(
+    // NOTE: Sometimes the path ends with a ?v= query string, so we need
+    //       to use `extname` to find the real extension!
+    // TODO: There's a file_ext field in the full manifest, but it's not
+    //       included in our cached copy. That would probably be more
+    //       reliable!
+    (url) => path.extname(url.pathname) === ".png"
+  );
+
+  return { format, jsAssetUrl, svgAssetUrl, pngAssetUrl };
 }
 
 async function loadAndCacheAssetManifest(db, layer) {
