@@ -190,7 +190,7 @@ function OutfitControls({
                 justify="center"
               >
                 <OutfitHTML5Badge appearance={appearance} />
-                <Box width="1" />
+                <Box width="2" />
                 <OutfitKnownGlitchesBadge appearance={appearance} />
               </Flex>
               <Box flex="0 0 auto">
@@ -283,20 +283,41 @@ function OutfitHTML5Badge({ appearance }) {
 function OutfitKnownGlitchesBadge({ appearance }) {
   const glitchMessages = [];
 
+  // Look for conflicts between Static pet zones (UCs), and Static items.
   const petHasStaticZone = appearance.petAppearance?.layers.some(
     (l) => l.zone.id === "46"
   );
-  const itemHasStaticZone = appearance.itemAppearances
-    ?.map((a) => a.layers)
-    .flat()
-    .some((l) => l.zone.id === "46");
-  if (petHasStaticZone && itemHasStaticZone) {
-    glitchMessages.push(
-      <Box key="static-zone-conflict">
-        When you apply a Static-zone item to an Unconverted pet, it hides the
-        pet. This is a known bug on Neopets.com, so we reproduce it here, too.
-      </Box>
+  if (petHasStaticZone) {
+    for (const item of appearance.items) {
+      const itemHasStaticZone = item.appearance.layers.some(
+        (l) => l.zone.id === "46"
+      );
+      if (itemHasStaticZone) {
+        glitchMessages.push(
+          <Box key={`static-zone-conflict-for-item-${item.id}`}>
+            When you apply a Static-zone item like <i>{item.name}</i> to an
+            Unconverted pet, it hides the pet. This is a known bug on
+            Neopets.com, so we reproduce it here, too.
+          </Box>
+        );
+      }
+    }
+  }
+
+  // Look for items with the OFFICIAL_SVG_IS_INCORRECT glitch.
+  for (const item of appearance.items) {
+    const itemHasOfficialSvgIsIncorrect = item.appearance.layers.some((l) =>
+      l.knownGlitches.includes("OFFICIAL_SVG_IS_INCORRECT")
     );
+    if (itemHasOfficialSvgIsIncorrect) {
+      glitchMessages.push(
+        <Box key={`official-svg-is-incorrect-for-item-${item.id}`}>
+          There's a glitch in the art for <i>{item.name}</i> that prevents us
+          from showing the full-scale SVG version of the image. Instead, we're
+          showing a PNG, which might look a bit blurry at larger screen sizes.
+        </Box>
+      );
+    }
   }
 
   if (glitchMessages.length === 0) {
