@@ -119,10 +119,15 @@ export function getVisibleLayers(petAppearance, itemAppearances) {
   const validItemAppearances = itemAppearances.filter((a) => a);
 
   const petLayers = petAppearance.layers.map((l) => ({ ...l, source: "pet" }));
+  const petOccupiedZoneIds = new Set(petLayers.map((l) => l.zone.id));
+
   const itemLayers = validItemAppearances
     .map((a) => a.layers)
     .flat()
-    .map((l) => ({ ...l, source: "item" }));
+    .map((l) => ({ ...l, source: "item" }))
+    // Don't let items occupy the same zones as the pet, e.g. Static on UCs.
+    .filter((l) => !petOccupiedZoneIds.has(l.zone.id));
+
   let allLayers = [...petLayers, ...itemLayers];
 
   const itemRestrictedZoneIds = validItemAppearances
