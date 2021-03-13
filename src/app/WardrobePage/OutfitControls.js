@@ -185,9 +185,9 @@ function OutfitControls({
                */}
               <Flex
                 flex="1 1 0"
-                paddingRight="2"
+                paddingRight="3"
                 align="center"
-                justify="center"
+                justify="flex-end"
               >
                 <OutfitHTML5Badge appearance={appearance} />
                 <Box width="2" />
@@ -206,7 +206,7 @@ function OutfitControls({
                   }
                 </DarkMode>
               </Box>
-              <Flex flex="1 1 0" align="center" pl="4">
+              <Flex flex="1 1 0" align="center" pl="2">
                 <PosePicker
                   speciesId={outfitState.speciesId}
                   colorId={outfitState.colorId}
