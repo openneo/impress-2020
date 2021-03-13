@@ -320,6 +320,22 @@ function OutfitKnownGlitchesBadge({ appearance }) {
     }
   }
 
+  // Look for Dyeworks items that aren't converted yet.
+  for (const item of appearance.items) {
+    const itemIsDyeworks = item.name.includes("Dyeworks");
+    const itemIsConverted = item.appearance.layers.every(layerUsesHTML5);
+
+    if (itemIsDyeworks && !itemIsConverted) {
+      glitchMessages.push(
+        <Box key={`unconverted-dyeworks-warning-for-item-${item.id}`}>
+          <i>{item.name}</i> isn't converted to HTML5 yet, and our Classic DTI
+          code often shows old Dyeworks items in the wrong color. Once it's
+          converted, we'll display it correctly!
+        </Box>
+      );
+    }
+  }
+
   if (glitchMessages.length === 0) {
     return null;
   }
