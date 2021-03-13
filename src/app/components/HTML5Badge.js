@@ -133,7 +133,13 @@ export function GlitchBadgeLayout({
 }
 
 export function layerUsesHTML5(layer) {
-  return layer.svgUrl || layer.canvasMovieLibraryUrl;
+  return (
+    layer.svgUrl ||
+    layer.canvasMovieLibraryUrl ||
+    // If this glitch is applied, then `svgUrl` will be null, but there's still
+    // an HTML5 manifest that the official player can render.
+    layer.knownGlitches.includes("OFFICIAL_SVG_IS_INCORRECT")
+  );
 }
 
 export default HTML5Badge;
