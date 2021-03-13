@@ -314,7 +314,7 @@ function OutfitKnownGlitchesBadge({ appearance }) {
         <Box key={`official-svg-is-incorrect-for-item-${item.id}`}>
           There's a glitch in the art for <i>{item.name}</i> that prevents us
           from showing the full-scale SVG version of the image. Instead, we're
-          showing a PNG, which might look a bit blurry at larger screen sizes.
+          showing a PNG, which might look a bit blurry on larger screens.
         </Box>
       );
     }
