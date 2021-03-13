@@ -13,18 +13,24 @@ import {
   UnorderedList,
   useClipboard,
   useToast,
+  VStack,
 } from "@chakra-ui/react";
 import {
   ArrowBackIcon,
   CheckIcon,
   DownloadIcon,
   LinkIcon,
+  WarningTwoIcon,
 } from "@chakra-ui/icons";
+import { FaBug } from "react-icons/fa";
 import { MdPause, MdPlayArrow } from "react-icons/md";
 import { Link } from "react-router-dom";
 
 import { getBestImageUrlForLayer } from "../components/OutfitPreview";
-import HTML5Badge, { layerUsesHTML5 } from "../components/HTML5Badge";
+import HTML5Badge, {
+  GlitchBadgeLayout,
+  layerUsesHTML5,
+} from "../components/HTML5Badge";
 import PosePicker from "./PosePicker";
 import SpeciesColorPicker from "../components/SpeciesColorPicker";
 import { loadImage, useLocalStorage } from "../util";
@@ -184,6 +190,8 @@ function OutfitControls({
                 justify="center"
               >
                 <OutfitHTML5Badge appearance={appearance} />
+                <Box width="1" />
+                <OutfitKnownGlitchesBadge appearance={appearance} />
               </Flex>
               <Box flex="0 0 auto">
                 <DarkMode>
@@ -269,6 +277,47 @@ function OutfitHTML5Badge({ appearance }) {
       isLoading={appearance.loading}
       tooltipLabel={tooltipLabel}
     />
+  );
+}
+
+function OutfitKnownGlitchesBadge({ appearance }) {
+  const glitchMessages = [];
+
+  const petHasStaticZone = appearance.petAppearance?.layers.some(
+    (l) => l.zone.id === "46"
+  );
+  const itemHasStaticZone = appearance.itemAppearances
+    ?.map((a) => a.layers)
+    .flat()
+    .some((l) => l.zone.id === "46");
+  if (petHasStaticZone && itemHasStaticZone) {
+    glitchMessages.push(
+      <Box key="static-zone-conflict">
+        When you apply a Static-zone item to an Unconverted pet, it hides the
+        pet. This is a known bug on Neopets.com, so we reproduce it here, too.
+      </Box>
+    );
+  }
+
+  if (glitchMessages.length === 0) {
+    return null;
+  }
+
+  return (
+    <GlitchBadgeLayout
+      aria-label="Has known glitches"
+      tooltipLabel={
+        <Box>
+          <Box as="header" fontWeight="bold" fontSize="sm" marginBottom="1">
+            Known glitches
+          </Box>
+          <VStack spacing="1em">{glitchMessages}</VStack>
+        </Box>
+      }
+    >
+      <WarningTwoIcon fontSize="xs" marginRight="1" />
+      <FaBug />
+    </GlitchBadgeLayout>
   );
 }
 
