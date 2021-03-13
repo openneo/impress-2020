@@ -283,29 +283,41 @@ function OutfitHTML5Badge({ appearance }) {
 function OutfitKnownGlitchesBadge({ appearance }) {
   const glitchMessages = [];
 
-  // Look for conflicts between Static pet zones (UCs), and Static items.
-  const petHasStaticZone = appearance.petAppearance?.layers.some(
-    (l) => l.zone.id === "46"
+  const { petAppearance, items } = appearance;
+
+  // Look for UC/Invisible/etc incompatibilities that we hid, that we should
+  // just mark Incompatible someday instead.
+  //
+  // HACK: Most of this logic is copy-pasted from `useOutfitAppearance`.
+  const petOccupiedZoneIds = new Set(
+    petAppearance?.layers.map((l) => l.zone.id)
   );
-  if (petHasStaticZone) {
-    for (const item of appearance.items) {
-      const itemHasStaticZone = item.appearance.layers.some(
-        (l) => l.zone.id === "46"
+  const petRestrictedZoneIds = new Set(
+    petAppearance?.restrictedZones.map((z) => z.id)
+  );
+  const petOccupiedOrRestrictedZoneIds = new Set([
+    ...petOccupiedZoneIds,
+    ...petRestrictedZoneIds,
+  ]);
+  for (const item of items) {
+    const itemHasZoneRestrictedByPet = item.appearance.layers.some(
+      (layer) =>
+        layer.bodyId !== "0" &&
+        petOccupiedOrRestrictedZoneIds.has(layer.zone.id)
+    );
+    if (itemHasZoneRestrictedByPet) {
+      glitchMessages.push(
+        <Box key={`uc-conflict-for-item-${item.id}`}>
+          <i>{item.name}</i> isn't actually compatible with this special pet.
+          We're still showing the old behavior, which is to hide the item.
+          Fixing this is in our todo list, sorry for the confusing UI!
+        </Box>
       );
-      if (itemHasStaticZone) {
-        glitchMessages.push(
-          <Box key={`static-zone-conflict-for-item-${item.id}`}>
-            When you apply a Static-zone item like <i>{item.name}</i> to an
-            Unconverted pet, it hides the pet. This is a known bug on
-            Neopets.com, so we reproduce it here, too.
-          </Box>
-        );
-      }
     }
   }
 
   // Look for items with the OFFICIAL_SVG_IS_INCORRECT glitch.
-  for (const item of appearance.items) {
+  for (const item of items) {
     const itemHasOfficialSvgIsIncorrect = item.appearance.layers.some((l) =>
       (l.knownGlitches || []).includes("OFFICIAL_SVG_IS_INCORRECT")
     );
@@ -321,7 +333,7 @@ function OutfitKnownGlitchesBadge({ appearance }) {
   }
 
   // Look for Dyeworks items that aren't converted yet.
-  for (const item of appearance.items) {
+  for (const item of items) {
     const itemIsDyeworks = item.name.includes("Dyeworks");
     const itemIsConverted = item.appearance.layers.every(layerUsesHTML5);
 

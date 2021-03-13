@@ -118,33 +118,68 @@ export function getVisibleLayers(petAppearance, itemAppearances) {
 
   const validItemAppearances = itemAppearances.filter((a) => a);
 
+  const petLayers = petAppearance.layers.map((l) => ({ ...l, source: "pet" }));
+
   const itemLayers = validItemAppearances
     .map((a) => a.layers)
     .flat()
     .map((l) => ({ ...l, source: "item" }));
-  const itemOccupiedZoneIds = new Set(itemLayers.map((l) => l.zone.id));
-
-  const petLayers = petAppearance.layers
-    .map((l) => ({ ...l, source: "pet" }))
-    // Copying weird Neopets.com behavior: if an item occupies a zone that the
-    // pet also occupies, the pet's corresponding zone is hidden.
-    .filter((l) => !itemOccupiedZoneIds.has(l.zone.id));
 
   let allLayers = [...petLayers, ...itemLayers];
 
-  const itemRestrictedZoneIds = validItemAppearances
-    .map((a) => a.restrictedZones)
-    .flat()
-    .map((z) => z.id);
-  const petRestrictedZoneIds = petAppearance.restrictedZones.map((z) => z.id);
-  const allRestrictedZoneIds = new Set([
-    ...itemRestrictedZoneIds,
+  const itemRestrictedZoneIds = new Set(
+    validItemAppearances
+      .map((a) => a.restrictedZones)
+      .flat()
+      .map((z) => z.id)
+  );
+  const petOccupiedZoneIds = new Set(petLayers.map((l) => l.zone.id));
+  const petRestrictedZoneIds = new Set(
+    petAppearance.restrictedZones.map((z) => z.id)
+  );
+  const petOccupiedOrRestrictedZoneIds = new Set([
+    ...petOccupiedZoneIds,
     ...petRestrictedZoneIds,
   ]);
 
-  const visibleLayers = allLayers.filter(
-    (l) => !allRestrictedZoneIds.has(l.zone.id)
-  );
+  const visibleLayers = allLayers.filter((layer) => {
+    // When an item restricts a zone, it hides pet layers of the same zone.
+    // We use this to e.g. make a hat hide a hair ruff.
+    //
+    // NOTE: Items' restricted layers also affect what items you can wear at
+    //       the same time. We don't enforce anything about that here, and
+    //       instead assume that the input by this point is valid!
+    if (layer.source === "pet" && itemRestrictedZoneIds.has(layer.zone.id)) {
+      return false;
+    }
+
+    // When a pet appearance restricts or occupies a zone, it makes items
+    // that occupy the zone incompatible, but *only* if the item is
+    // body-specific. We use this to disallow UCs from wearing certain
+    // body-specific Biology Effects, Statics, etc, while still allowing
+    // non-body-specific items in those zones! (I think this happens for some
+    // Invisible pet stuff, too?)
+    //
+    // NOTE: This can result in both pet layers and items occupying the same
+    //       zone, like Static! That's correct, and the item layer should be
+    //       on top! (Here, we implement it by placing item layers second in
+    //       the list, and depending on JS sort stability, and *then* depending
+    //       on the UI to respect that ordering when rendering them by depth.
+    //       Not great! 😅)
+    //
+    // TODO: Hiding the layer is the *old* behavior. Move this way deeper in
+    //       the code to prevent these items from showing up in the first
+    //       place!
+    if (
+      layer.source === "item" &&
+      layer.bodyId !== "0" &&
+      petOccupiedOrRestrictedZoneIds.has(layer.zone.id)
+    ) {
+      return false;
+    }
+
+    return true;
+  });
   visibleLayers.sort((a, b) => a.zone.depth - b.zone.depth);
 
   return visibleLayers;
