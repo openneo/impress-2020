@@ -307,7 +307,7 @@ function OutfitKnownGlitchesBadge({ appearance }) {
   // Look for items with the OFFICIAL_SVG_IS_INCORRECT glitch.
   for (const item of appearance.items) {
     const itemHasOfficialSvgIsIncorrect = item.appearance.layers.some((l) =>
-      l.knownGlitches.includes("OFFICIAL_SVG_IS_INCORRECT")
+      (l.knownGlitches || []).includes("OFFICIAL_SVG_IS_INCORRECT")
     );
     if (itemHasOfficialSvgIsIncorrect) {
       glitchMessages.push(
