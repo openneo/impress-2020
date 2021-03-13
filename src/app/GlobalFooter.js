@@ -6,9 +6,10 @@ import {
   Link as ChakraLink,
   Tooltip,
   useColorMode,
+  Grid,
 } from "@chakra-ui/react";
 import { EmailIcon, MoonIcon, SunIcon } from "@chakra-ui/icons";
-import { SiGithub } from "react-icons/si";
+import { SiGithub, SiTwitter } from "react-icons/si";
 import { Link as RouterLink, useRouteMatch } from "react-router-dom";
 
 function GlobalFooter() {
@@ -36,11 +37,15 @@ function GlobalFooter() {
           Reserved. Used With Permission.
         </Box>
       </Box>
-      <HStack
+      <Grid
         flex="1 0 0"
-        spacing="2"
+        templateColumns={{
+          base: "repeat(2, min-content)",
+          sm: "repeat(4, min-content)",
+        }}
+        gap="2"
+        justifyContent="end"
         marginLeft="3"
-        justifyContent="flex-end"
         opacity="0.75"
         transition="opacity 0.2s"
         _hover={{ opacity: "1" }}
@@ -62,6 +67,16 @@ function GlobalFooter() {
             icon={<EmailIcon />}
           />
         </Tooltip>
+        <Tooltip label="Twitter">
+          <IconButton
+            as="a"
+            href="https://twitter.com/NeopetsDTI"
+            size="sm"
+            variant="outline"
+            aria-label="Twitter"
+            icon={<SiTwitter />}
+          />
+        </Tooltip>
         <Tooltip label="GitHub">
           <IconButton
             as="a"
@@ -73,7 +88,7 @@ function GlobalFooter() {
           />
         </Tooltip>
         <ColorModeButton />
-      </HStack>
+      </Grid>
     </Box>
   );
 }
