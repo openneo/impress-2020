@@ -11,6 +11,7 @@ import {
   InputGroup,
   InputLeftElement,
   InputRightElement,
+  Link,
   ListItem,
   Textarea,
   UnorderedList,
@@ -515,11 +516,18 @@ function FeedbackFormPitch() {
           flex={{ base: "0 0 auto", sm: "0 1 50%" }}
         >
           <Box as="h3" fontWeight="600">
-            New updates (Mar 12)
+            New updates (Mar 13)
           </Box>
           <UnorderedList>
             <ListItem>Now compatible with newer HTML5 items, too!</ListItem>
-            <ListItem>Pandemic hiatus again 😅</ListItem>
+            <ListItem>
+              <Link
+                href="https://twitter.com/NeopetsDTI"
+                textDecoration="underline"
+              >
+                See more on Twitter!
+              </Link>
+            </ListItem>
           </UnorderedList>
         </Box>
         <Box width="2" />
