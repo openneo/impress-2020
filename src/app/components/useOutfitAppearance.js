@@ -56,7 +56,10 @@ export default function useOutfitAppearance(outfitState) {
         pose,
         appearanceId,
       },
-      skip: speciesId == null || colorId == null || pose == null,
+      skip:
+        speciesId == null ||
+        colorId == null ||
+        (pose == null && appearanceId == null),
     }
   );
 

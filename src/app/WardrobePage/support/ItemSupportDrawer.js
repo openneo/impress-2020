@@ -1,16 +1,17 @@
 import * as React from "react";
 import gql from "graphql-tag";
 import { useQuery, useMutation } from "@apollo/client";
-import { ClassNames } from "@emotion/react";
 import {
   Badge,
   Box,
+  Button,
   Drawer,
   DrawerBody,
   DrawerCloseButton,
   DrawerContent,
   DrawerHeader,
   DrawerOverlay,
+  Flex,
   FormControl,
   FormErrorMessage,
   FormHelperText,
@@ -25,14 +26,18 @@ import {
   useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react";
-import { CheckCircleIcon, EditIcon, ExternalLinkIcon } from "@chakra-ui/icons";
+import {
+  CheckCircleIcon,
+  ChevronRightIcon,
+  ExternalLinkIcon,
+} from "@chakra-ui/icons";
 
-import ItemLayerSupportModal from "./ItemLayerSupportModal";
+import AllItemLayersSupportModal from "./AllItemLayersSupportModal";
 import Metadata, { MetadataLabel, MetadataValue } from "./Metadata";
-import { OutfitLayers } from "../../components/OutfitPreview";
 import useOutfitAppearance from "../../components/useOutfitAppearance";
 import { OutfitStateContext } from "../useOutfitState";
 import useSupport from "./useSupport";
+import ItemSupportAppearanceLayer from "./ItemSupportAppearanceLayer";
 
 /**
  * ItemSupportDrawer shows Support UI for the item when open.
@@ -423,9 +428,22 @@ function ItemSupportAppearanceLayers({ item }) {
   const itemLayers = visibleLayers.filter((l) => l.source === "item");
   itemLayers.sort((a, b) => a.zone.depth - b.zone.depth);
 
+  const modalState = useDisclosure();
+
   return (
     <FormControl>
-      <FormLabel>Appearance layers</FormLabel>
+      <Flex align="center">
+        <FormLabel>Appearance layers</FormLabel>
+        <Box width="4" flex="1 0 auto" />
+        <Button size="xs" onClick={modalState.onOpen}>
+          View on all pets <ChevronRightIcon />
+        </Button>
+        <AllItemLayersSupportModal
+          item={item}
+          isOpen={modalState.isOpen}
+          onClose={modalState.onClose}
+        />
+      </Flex>
       <HStack spacing="4" overflow="auto" paddingX="1">
         {itemLayers.map((itemLayer) => (
           <ItemSupportAppearanceLayer
@@ -439,90 +457,6 @@ function ItemSupportAppearanceLayers({ item }) {
       </HStack>
       {error && <FormErrorMessage>{error.message}</FormErrorMessage>}
     </FormControl>
-  );
-}
-
-function ItemSupportAppearanceLayer({
-  item,
-  itemLayer,
-  biologyLayers,
-  outfitState,
-}) {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-
-  const iconButtonBgColor = useColorModeValue("green.100", "green.300");
-  const iconButtonColor = useColorModeValue("green.800", "gray.900");
-
-  return (
-    <ClassNames>
-      {({ css }) => (
-        <Box
-          as="button"
-          width="150px"
-          textAlign="center"
-          fontSize="xs"
-          onClick={onOpen}
-        >
-          <Box
-            width="150px"
-            height="150px"
-            marginBottom="1"
-            boxShadow="md"
-            borderRadius="md"
-            position="relative"
-          >
-            <OutfitLayers visibleLayers={[...biologyLayers, itemLayer]} />
-            <Box
-              className={css`
-                opacity: 0;
-                transition: opacity 0.2s;
-
-                button:hover &,
-                button:focus & {
-                  opacity: 1;
-                }
-
-                /* On touch devices, always show the icon, to clarify that this is
-             * an interactable object! (Whereas I expect other devices to
-             * discover things by exploratory hover or focus!) */
-                @media (hover: none) {
-                  opacity: 1;
-                }
-              `}
-              background={iconButtonBgColor}
-              color={iconButtonColor}
-              borderRadius="full"
-              boxShadow="sm"
-              position="absolute"
-              bottom="2"
-              right="2"
-              padding="2"
-              alignItems="center"
-              justifyContent="center"
-              width="32px"
-              height="32px"
-            >
-              <EditIcon
-                boxSize="16px"
-                position="relative"
-                top="-2px"
-                right="-1px"
-              />
-            </Box>
-          </Box>
-          <Box fontWeight="bold">{itemLayer.zone.label}</Box>
-          <Box>Zone ID: {itemLayer.zone.id}</Box>
-          <Box>DTI ID: {itemLayer.id}</Box>
-          <ItemLayerSupportModal
-            item={item}
-            itemLayer={itemLayer}
-            outfitState={outfitState}
-            isOpen={isOpen}
-            onClose={onClose}
-          />
-        </Box>
-      )}
-    </ClassNames>
   );
 }
 

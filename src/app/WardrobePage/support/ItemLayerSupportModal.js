@@ -43,7 +43,7 @@ import useSupport from "./useSupport";
 function ItemLayerSupportModal({
   item,
   itemLayer,
-  outfitState,
+  outfitState, // speciesId, colorId, pose
   isOpen,
   onClose,
 }) {
@@ -574,7 +574,9 @@ function ItemLayerSupportModalRemoveButton({
 const SWF_URL_PATTERN = /^http:\/\/images\.neopets\.com\/cp\/(bio|items)\/swf\/(.+?)_([a-z0-9]+)\.swf$/;
 
 function convertSwfUrlToPossibleManifestUrls(swfUrl) {
-  const match = swfUrl.match(SWF_URL_PATTERN);
+  const match = new URL(swfUrl, "http://images.neopets.com")
+    .toString()
+    .match(SWF_URL_PATTERN);
   if (!match) {
     throw new Error(`unexpected SWF URL format: ${JSON.stringify(swfUrl)}`);
   }

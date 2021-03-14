@@ -101,6 +101,10 @@ const typeDefs = gql`
     # occupies for that body. Note that this might return the special
     # representsAllPets body, e.g. if this is just a Background!
     compatibleBodiesAndTheirZones: [BodyAndZones!]! @cacheControl(maxAge: 1, staleWhileRevalidate: ${oneWeek})
+
+    # All appearances for this item. Used in Support tools, to show and manage
+    # how this item fits every pet body.
+    allAppearances: [ItemAppearance!]!
   }
 
   type ItemAppearance {
@@ -461,6 +465,24 @@ const resolvers = {
         body: { id: row.bodyId, species: { id: row.speciesId } },
         zones: row.zoneIds.split(",").map((zoneId) => ({ id: zoneId })),
       }));
+    },
+    allAppearances: async ({ id }, _, { db }) => {
+      // HACK: Copy-pasted from `compatibleBodies`. Could be a loader?
+      const [rows, __] = await db.query(
+        `
+        SELECT DISTINCT swf_assets.body_id
+          FROM items
+          INNER JOIN parents_swf_assets ON
+            items.id = parents_swf_assets.parent_id AND
+              parents_swf_assets.parent_type = "Item"
+          INNER JOIN swf_assets ON
+            parents_swf_assets.swf_asset_id = swf_assets.id
+          WHERE items.id = ?
+        `,
+        [id]
+      );
+      const bodyIds = rows.map((row) => String(row.body_id));
+      return bodyIds.map((bodyId) => ({ item: { id }, bodyId }));
     },
   },
 

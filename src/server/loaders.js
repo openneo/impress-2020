@@ -934,12 +934,15 @@ const buildCanonicalPetStateForBodyLoader = (db, loaders) =>
           // creates an even distribution.
           const gender = bodyId % 2 === 0 ? "masc" : "fem";
 
+          const bodyCondition = bodyId !== "0" ? `pet_types.body_id = ?` : `1`;
+          const bodyValues = bodyId !== "0" ? [bodyId] : [];
+
           const [rows, _] = await db.execute(
             {
               sql: `
               SELECT pet_states.*, pet_types.* FROM pet_states
               INNER JOIN pet_types ON pet_types.id = pet_states.pet_type_id
-              WHERE pet_types.body_id = ?
+              WHERE ${bodyCondition}
               ORDER BY
                 pet_types.color_id = ? DESC, -- Prefer preferredColorId
                 pet_types.color_id = ? DESC, -- Prefer fallbackColorId
@@ -951,7 +954,7 @@ const buildCanonicalPetStateForBodyLoader = (db, loaders) =>
               nestTables: true,
             },
             [
-              bodyId,
+              ...bodyValues,
               preferredColorId || "<ignore>",
               fallbackColorId,
               gender === "fem",

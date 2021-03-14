@@ -97,6 +97,7 @@ export function ErrorMessage({ children, ...props }) {
 export function useCommonStyles() {
   return {
     brightBackground: useColorModeValue("white", "gray.700"),
+    bodyBackground: useColorModeValue("gray.50", "gray.800"),
   };
 }
 

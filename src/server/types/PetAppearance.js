@@ -175,7 +175,7 @@ const resolvers = {
       const petState = await canonicalPetStateForBodyLoader.load({
         bodyId: id,
         preferredColorId,
-        fallbackColorId: FALLBACK_COLOR_IDS[species.id] || "8",
+        fallbackColorId: FALLBACK_COLOR_IDS[species?.id] || "8",
       });
       if (!petState) {
         return null;
