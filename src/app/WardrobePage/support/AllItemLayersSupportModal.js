@@ -28,6 +28,8 @@ import { EditIcon } from "@chakra-ui/icons";
 import cachedZones from "../../cached-data/zones.json";
 
 function AllItemLayersSupportModal({ item, isOpen, onClose }) {
+  const [bulkAddProposal, setBulkAddProposal] = React.useState(null);
+
   const { bodyBackground } = useCommonStyles();
 
   return (
@@ -44,7 +46,17 @@ function AllItemLayersSupportModal({ item, isOpen, onClose }) {
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody paddingBottom="12">
-            <BulkAddBodySpecificAssetsForm />
+            <BulkAddBodySpecificAssetsForm onSubmit={setBulkAddProposal} />
+            <Box height="8" />
+            {bulkAddProposal ? (
+              <>
+                TODO: Show assets {bulkAddProposal.minAssetId}–
+                {Number(bulkAddProposal.minAssetId) + 53}, tenatively applied to
+                zone {bulkAddProposal.zoneId}
+              </>
+            ) : (
+              ""
+            )}
             <Box height="8" />
             <AllItemLayersSupportModalContent item={item} />
           </ModalBody>
@@ -54,13 +66,13 @@ function AllItemLayersSupportModal({ item, isOpen, onClose }) {
   );
 }
 
-function BulkAddBodySpecificAssetsForm() {
+function BulkAddBodySpecificAssetsForm({ onSubmit }) {
   const zones = [...cachedZones].sort((a, b) =>
     `${a.label} (${a.id})`.localeCompare(`${b.label} (${b.id})`)
   );
 
   const [minAssetId, setMinAssetId] = React.useState(null);
-  const [selectedZoneId, setSelectedZoneId] = React.useState(zones[0].id);
+  const [zoneId, setZoneId] = React.useState(zones[0].id);
 
   return (
     <Flex
@@ -71,7 +83,7 @@ function BulkAddBodySpecificAssetsForm() {
       transition="0.2s all"
       onSubmit={(e) => {
         e.preventDefault();
-        alert("TODO!");
+        onSubmit({ minAssetId, zoneId });
       }}
     >
       <Tooltip
@@ -127,8 +139,8 @@ function BulkAddBodySpecificAssetsForm() {
       <Select
         size="xs"
         width="20ch"
-        value={selectedZoneId}
-        onChange={(e) => setSelectedZoneId(e.target.value)}
+        value={zoneId}
+        onChange={(e) => setZoneId(e.target.value)}
       >
         {zones.map((zone) => (
           <option key={zone.id} value={zone.id}>
@@ -137,7 +149,7 @@ function BulkAddBodySpecificAssetsForm() {
         ))}
       </Select>
       <Box width="2" />
-      <Button type="submit" size="xs">
+      <Button type="submit" size="xs" isDisabled={minAssetId == null}>
         Preview
       </Button>
     </Flex>
