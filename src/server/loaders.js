@@ -339,10 +339,9 @@ const buildItemSearchLoader = (db, loaders) =>
         `;
 
         const queryConditions = `
-          ${matcherPlaceholders} AND t.locale = "en" AND
-          ${bodyIdCondition} AND
-          ${zoneIdsCondition} AND ${itemKindCondition} AND
-          ${currentUserCondition}
+          (${matcherPlaceholders}) AND t.locale = "en" AND
+          (${bodyIdCondition}) AND (${zoneIdsCondition}) AND
+          (${itemKindCondition}) AND (${currentUserCondition})
         `;
         const queryConditionValues = [
           ...wordMatchersForMysql,
