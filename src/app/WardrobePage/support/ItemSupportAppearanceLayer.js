@@ -75,6 +75,7 @@ function ItemSupportAppearanceLayer({
           </Box>
           <Box fontWeight="bold">{itemLayer.zone.label}</Box>
           <Box>Zone ID: {itemLayer.zone.id}</Box>
+          <Box>Neopets ID: {itemLayer.remoteId}</Box>
           <Box>DTI ID: {itemLayer.id}</Box>
           <ItemLayerSupportModal
             item={item}
