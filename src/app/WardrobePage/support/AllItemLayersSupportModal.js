@@ -1,14 +1,18 @@
 import React from "react";
 import {
   Box,
+  Button,
   Flex,
   Heading,
+  Input,
   Modal,
   ModalBody,
   ModalCloseButton,
   ModalContent,
   ModalHeader,
   ModalOverlay,
+  Select,
+  Tooltip,
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
@@ -20,6 +24,8 @@ import {
 import HangerSpinner from "../../components/HangerSpinner";
 import { ErrorMessage, useCommonStyles } from "../../util";
 import ItemSupportAppearanceLayer from "./ItemSupportAppearanceLayer";
+import { EditIcon } from "@chakra-ui/icons";
+import cachedZones from "../../cached-data/zones.json";
 
 function AllItemLayersSupportModal({ item, isOpen, onClose }) {
   const { bodyBackground } = useCommonStyles();
@@ -28,7 +34,7 @@ function AllItemLayersSupportModal({ item, isOpen, onClose }) {
     <Modal size="4xl" isOpen={isOpen} onClose={onClose}>
       <ModalOverlay>
         <ModalContent background={bodyBackground}>
-          <ModalHeader as="h1">
+          <ModalHeader as="h1" paddingBottom="2">
             <Box as="span" fontWeight="700">
               Layers on all pets:
             </Box>{" "}
@@ -38,11 +44,103 @@ function AllItemLayersSupportModal({ item, isOpen, onClose }) {
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody paddingBottom="12">
+            <BulkAddBodySpecificAssetsForm />
+            <Box height="8" />
             <AllItemLayersSupportModalContent item={item} />
           </ModalBody>
         </ModalContent>
       </ModalOverlay>
     </Modal>
+  );
+}
+
+function BulkAddBodySpecificAssetsForm() {
+  const zones = [...cachedZones].sort((a, b) =>
+    `${a.label} (${a.id})`.localeCompare(`${b.label} (${b.id})`)
+  );
+
+  const [minAssetId, setMinAssetId] = React.useState(null);
+  const [selectedZoneId, setSelectedZoneId] = React.useState(zones[0].id);
+
+  return (
+    <Flex
+      align="center"
+      as="form"
+      fontSize="sm"
+      opacity="0.9"
+      transition="0.2s all"
+      onSubmit={(e) => {
+        e.preventDefault();
+        alert("TODO!");
+      }}
+    >
+      <Tooltip
+        label={
+          <Box textAlign="center" fontSize="xs">
+            <Box as="p" marginBottom="1em">
+              When an item accidentally gets assigned to fit all bodies, this
+              tool can help you recover the original appearances, by assuming
+              the layer IDs are assigned to each species in alphabetical order.
+            </Box>
+            <Box as="p">
+              This will only find layers that have already been modeled!
+            </Box>
+          </Box>
+        }
+      >
+        <Flex align="center" tabIndex="0">
+          <EditIcon marginRight="1" />
+          <Box>Bulk-add body-specific assets:</Box>
+        </Flex>
+      </Tooltip>
+      <Box width="2" />
+      <Input
+        type="number"
+        min="1"
+        step="1"
+        size="xs"
+        width="9ch"
+        placeholder="Min ID"
+        value={minAssetId || ""}
+        onChange={(e) => setMinAssetId(e.target.value || null)}
+      />
+      <Box width="1" />
+      <Box>–</Box>
+      <Box width="1" />
+      <Input
+        type="number"
+        min="54"
+        step="1"
+        size="xs"
+        width="9ch"
+        placeholder="Max ID"
+        // There are 54 species at time of writing, so offsetting the max ID
+        // by 53 gives us ranges like 1–54, one for each species.
+        value={minAssetId != null ? Number(minAssetId) + 53 : ""}
+        onChange={(e) =>
+          setMinAssetId(e.target.value ? Number(e.target.value) - 53 : null)
+        }
+      />
+      <Box width="1" />
+      <Box>, assigned to </Box>
+      <Box width="2" />
+      <Select
+        size="xs"
+        width="20ch"
+        value={selectedZoneId}
+        onChange={(e) => setSelectedZoneId(e.target.value)}
+      >
+        {zones.map((zone) => (
+          <option key={zone.id} value={zone.id}>
+            {zone.label} ({zone.id})
+          </option>
+        ))}
+      </Select>
+      <Box width="2" />
+      <Button type="submit" size="xs">
+        Preview
+      </Button>
+    </Flex>
   );
 }
 
