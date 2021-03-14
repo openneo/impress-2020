@@ -304,7 +304,7 @@ function ItemSupportSpecialColorFields({
             color={linkColor}
             isExternal
           >
-            item page <ExternalLinkIcon />
+            classic item page <ExternalLinkIcon />
           </Link>
           .
         </FormHelperText>
