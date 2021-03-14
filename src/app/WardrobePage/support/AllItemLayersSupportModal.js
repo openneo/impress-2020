@@ -68,7 +68,7 @@ function AllItemLayersSupportModal({ item, isOpen, onClose }) {
 
 function BulkAddBodySpecificAssetsForm({ onSubmit }) {
   const zones = [...cachedZones].sort((a, b) =>
-    `${a.label} (${a.id})`.localeCompare(`${b.label} (${b.id})`)
+    `${a.label}-${a.id}`.localeCompare(`${b.label}-${b.id}`)
   );
 
   const [minAssetId, setMinAssetId] = React.useState(null);
@@ -144,7 +144,7 @@ function BulkAddBodySpecificAssetsForm({ onSubmit }) {
       >
         {zones.map((zone) => (
           <option key={zone.id} value={zone.id}>
-            {zone.label} ({zone.id})
+            {zone.label} (Zone {zone.id})
           </option>
         ))}
       </Select>
