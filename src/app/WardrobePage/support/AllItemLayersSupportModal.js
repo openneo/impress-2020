@@ -261,13 +261,24 @@ function AllItemLayersSupportModalContent({ item, bulkAddProposal }) {
   });
 
   return (
-    <Wrap justify="center" spacing="4">
-      {itemAppearances.map((itemAppearance) => (
-        <WrapItem key={itemAppearance.id}>
-          <ItemAppearanceCard item={item} itemAppearance={itemAppearance} />
-        </WrapItem>
-      ))}
-    </Wrap>
+    <Box>
+      {bulkAddProposalData && (
+        <Flex align="center" marginBottom="6">
+          <Heading size="md">Previewing bulk-add changes</Heading>
+          <Box flex="1 0 auto" width="4" />
+          <Button size="sm" colorScheme="green">
+            Save {bulkAddProposalData.layersToAdd.length} changes
+          </Button>
+        </Flex>
+      )}
+      <Wrap justify="center" spacing="4">
+        {itemAppearances.map((itemAppearance) => (
+          <WrapItem key={itemAppearance.id}>
+            <ItemAppearanceCard item={item} itemAppearance={itemAppearance} />
+          </WrapItem>
+        ))}
+      </Wrap>
+    </Box>
   );
 }
 
