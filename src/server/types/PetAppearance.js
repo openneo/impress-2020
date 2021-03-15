@@ -49,14 +49,16 @@ const typeDefs = gql`
 
   type Body @cacheControl(maxAge: ${oneDay}, staleWhileRevalidate: ${oneWeek}) {
     id: ID!
-    species: Species!
+
+    # Whether this is the special body type that represents fitting _all_ pets.
+    representsAllBodies: Boolean!
+
+    # The species this body belongs to. Null if representsAllBodies is true.
+    species: Species
 
     # A PetAppearance that has this body. Prefers Blue (or the optional
     # preferredColorId), and happy poses.
     canonicalAppearance(preferredColorId: ID): PetAppearance
-
-    # Whether this is the special body type that represents fitting _all_ pets.
-    representsAllBodies: Boolean!
   }
 
   type PetAppearance @cacheControl(maxAge: ${oneHour}, staleWhileRevalidate: ${oneWeek}) {
@@ -188,7 +190,10 @@ const resolvers = {
   },
 
   Body: {
-    species: ({ species }) => {
+    species: ({ id, species }) => {
+      if (id == "0") {
+        return null;
+      }
       if (species) {
         return species;
       }

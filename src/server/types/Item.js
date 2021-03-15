@@ -457,12 +457,15 @@ const resolvers = {
           GROUP BY swf_assets.body_id
           -- We have some invalid data where the asset has a body ID that
           -- matches no pet type. Huh! Well, ignore those bodies!
-          HAVING speciesId IS NOT NULL;
+          HAVING speciesId IS NOT NULL OR bodyId = 0;
         `,
         [id]
       );
       return rows.map((row) => ({
-        body: { id: row.bodyId, species: { id: row.speciesId } },
+        body: {
+          id: row.bodyId,
+          species: row.speciesId ? { id: row.speciesId } : null,
+        },
         zones: row.zoneIds.split(",").map((zoneId) => ({ id: zoneId })),
       }));
     },
