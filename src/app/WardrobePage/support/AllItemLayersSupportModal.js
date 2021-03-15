@@ -309,6 +309,10 @@ function AllItemLayersSupportModalContent({
               {mutationError.message}
             </ErrorMessage>
           )}
+          <Button flex="0 0 auto" size="sm" onClick={onBulkAddComplete}>
+            Clear
+          </Button>
+          <Box width="2" />
           <Button
             flex="0 0 auto"
             size="sm"

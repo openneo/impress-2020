@@ -89,6 +89,15 @@ const typeDefs = gql`
     #
     # For affected layers, svgUrl will be null, regardless of the manifest.
     OFFICIAL_SVG_IS_INCORRECT
+
+    # This glitch is a hack for a bug in DTI: some items, like "Living in
+    # Watermelon Foreground and Background", have a background layer that's
+    # shared across all bodies - but it should NOT fit pets that don't have a
+    # corresponding body-specific foreground!
+    #
+    # The long-term fix here is to refactor our data to not use bodyId=0, and
+    # instead have a more robust concept of item appearance across bodies.
+    REQUIRES_OTHER_BODY_SPECIFIC_ASSETS
   }
 
   extend type Query {
@@ -108,6 +117,13 @@ const typeDefs = gql`
     numAppearanceLayersTotal(type: LayerType): Int! @cacheControl(maxAge: 1800)
   }
 `;
+
+// Extract the AppearanceLayerKnownGlitch values, to filter on later.
+const ALL_KNOWN_GLITCH_VALUES = new Set(
+  typeDefs.definitions
+    .find((d) => d.name.value === "AppearanceLayerKnownGlitch")
+    .values.map((v) => v.name.value)
+);
 
 const resolvers = {
   AppearanceLayer: {
@@ -253,7 +269,22 @@ const resolvers = {
         return [];
       }
 
-      return layer.knownGlitches.split(",");
+      let knownGlitches = layer.knownGlitches.split(",");
+
+      // Skip glitches that our GraphQL definition doesn't recognize. This
+      // helps old clients avoid crashing (or even the latest prod client from
+      // crashing when we're developing new glitch flags!).
+      knownGlitches = knownGlitches.filter((knownGlitch) => {
+        if (!ALL_KNOWN_GLITCH_VALUES.has(knownGlitch)) {
+          console.warn(
+            `Layer ${id}: Skipping unexpected knownGlitches value: ${knownGlitch}`
+          );
+          return false;
+        }
+        return true;
+      });
+
+      return knownGlitches;
     },
   },
 

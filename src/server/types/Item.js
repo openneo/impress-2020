@@ -442,7 +442,7 @@ const resolvers = {
     compatibleBodiesAndTheirZones: async ({ id }, _, { db }) => {
       const [rows, __] = await db.query(
         `
-        SELECT
+          SELECT
             swf_assets.body_id AS bodyId,
             (SELECT species_id FROM pet_types WHERE body_id = bodyId LIMIT 1)
               AS speciesId,
@@ -498,7 +498,21 @@ const resolvers = {
         bodyId,
       });
 
-      return allSwfAssets.filter((sa) => sa.url.endsWith(".swf"));
+      let assets = allSwfAssets.filter((sa) => sa.url.endsWith(".swf"));
+
+      // If there are no body-specific assets in this appearance, then remove
+      // assets with the glitch flag REQUIRES_OTHER_BODY_SPECIFIC_ASSETS: the
+      // requirement isn't met!
+      const hasBodySpecificAssets = assets.some((sa) => sa.bodyId !== "0");
+      if (!hasBodySpecificAssets) {
+        assets = assets.filter((sa) => {
+          return !sa.knownGlitches
+            .split(",")
+            .includes("REQUIRES_OTHER_BODY_SPECIFIC_ASSETS");
+        });
+      }
+
+      return assets.map(({ id }) => ({ id }));
     },
     restrictedZones: async (
       { item: { id: itemId }, bodyId },

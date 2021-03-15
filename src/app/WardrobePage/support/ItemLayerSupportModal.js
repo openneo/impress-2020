@@ -436,6 +436,12 @@ function ItemLayerSupportKnownGlitchesFields({
               (Will use the PNG instead)
             </Box>
           </Checkbox>
+          <Checkbox value="REQUIRES_OTHER_BODY_SPECIFIC_ASSETS">
+            Only fits pets with other body-specific assets{" "}
+            <Box display="inline" color="gray.400" fontSize="sm">
+              (DTI's fault: bodyId=0 is a lie!)
+            </Box>
+          </Checkbox>
         </VStack>
       </CheckboxGroup>
     </FormControl>
