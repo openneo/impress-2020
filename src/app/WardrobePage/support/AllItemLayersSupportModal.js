@@ -11,13 +11,13 @@ import {
   ModalContent,
   ModalHeader,
   ModalOverlay,
-  Select,
   Tooltip,
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
 import { gql, useQuery } from "@apollo/client";
 import {
+  appearanceLayerFragment,
   itemAppearanceFragment,
   petAppearanceFragment,
 } from "../../components/useOutfitAppearance";
@@ -25,7 +25,6 @@ import HangerSpinner from "../../components/HangerSpinner";
 import { ErrorMessage, useCommonStyles } from "../../util";
 import ItemSupportAppearanceLayer from "./ItemSupportAppearanceLayer";
 import { EditIcon } from "@chakra-ui/icons";
-import cachedZones from "../../cached-data/zones.json";
 
 function AllItemLayersSupportModal({ item, isOpen, onClose }) {
   const [bulkAddProposal, setBulkAddProposal] = React.useState(null);
@@ -46,19 +45,15 @@ function AllItemLayersSupportModal({ item, isOpen, onClose }) {
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody paddingBottom="12">
-            <BulkAddBodySpecificAssetsForm onSubmit={setBulkAddProposal} />
+            <BulkAddBodySpecificAssetsForm
+              bulkAddProposal={bulkAddProposal}
+              onSubmit={setBulkAddProposal}
+            />
             <Box height="8" />
-            {bulkAddProposal ? (
-              <>
-                TODO: Show assets {bulkAddProposal.minAssetId}–
-                {Number(bulkAddProposal.minAssetId) + 53}, tenatively applied to
-                zone {bulkAddProposal.zoneId}
-              </>
-            ) : (
-              ""
-            )}
-            <Box height="8" />
-            <AllItemLayersSupportModalContent item={item} />
+            <AllItemLayersSupportModalContent
+              item={item}
+              bulkAddProposal={bulkAddProposal}
+            />
           </ModalBody>
         </ModalContent>
       </ModalOverlay>
@@ -66,13 +61,10 @@ function AllItemLayersSupportModal({ item, isOpen, onClose }) {
   );
 }
 
-function BulkAddBodySpecificAssetsForm({ onSubmit }) {
-  const zones = [...cachedZones].sort((a, b) =>
-    `${a.label}-${a.id}`.localeCompare(`${b.label}-${b.id}`)
+function BulkAddBodySpecificAssetsForm({ bulkAddProposal, onSubmit }) {
+  const [minAssetId, setMinAssetId] = React.useState(
+    bulkAddProposal?.minAssetId
   );
-
-  const [minAssetId, setMinAssetId] = React.useState(null);
-  const [zoneId, setZoneId] = React.useState(zones[0].id);
 
   return (
     <Flex
@@ -83,7 +75,7 @@ function BulkAddBodySpecificAssetsForm({ onSubmit }) {
       transition="0.2s all"
       onSubmit={(e) => {
         e.preventDefault();
-        onSubmit({ minAssetId, zoneId });
+        onSubmit({ minAssetId });
       }}
     >
       <Tooltip
@@ -121,33 +113,18 @@ function BulkAddBodySpecificAssetsForm({ onSubmit }) {
       <Box width="1" />
       <Input
         type="number"
-        min="54"
+        min="55"
         step="1"
         size="xs"
         width="9ch"
         placeholder="Max ID"
-        // There are 54 species at time of writing, so offsetting the max ID
-        // by 53 gives us ranges like 1–54, one for each species.
-        value={minAssetId != null ? Number(minAssetId) + 53 : ""}
+        // There are 55 species at time of writing, so offsetting the max ID
+        // by 54 gives us ranges like 1–55, one for each species.
+        value={minAssetId != null ? Number(minAssetId) + 54 : ""}
         onChange={(e) =>
-          setMinAssetId(e.target.value ? Number(e.target.value) - 53 : null)
+          setMinAssetId(e.target.value ? Number(e.target.value) - 54 : null)
         }
       />
-      <Box width="1" />
-      <Box>, assigned to </Box>
-      <Box width="2" />
-      <Select
-        size="xs"
-        width="20ch"
-        value={zoneId}
-        onChange={(e) => setZoneId(e.target.value)}
-      >
-        {zones.map((zone) => (
-          <option key={zone.id} value={zone.id}>
-            {zone.label} (Zone {zone.id})
-          </option>
-        ))}
-      </Select>
       <Box width="2" />
       <Button type="submit" size="xs" isDisabled={minAssetId == null}>
         Preview
@@ -156,7 +133,7 @@ function BulkAddBodySpecificAssetsForm({ onSubmit }) {
   );
 }
 
-function AllItemLayersSupportModalContent({ item }) {
+function AllItemLayersSupportModalContent({ item, bulkAddProposal }) {
   const { loading, error, data } = useQuery(
     gql`
       query AllItemLayersSupportModal($itemId: ID!) {
@@ -193,7 +170,57 @@ function AllItemLayersSupportModalContent({ item }) {
     { variables: { itemId: item.id } }
   );
 
-  if (loading) {
+  const {
+    loading: loading2,
+    error: error2,
+    data: bulkAddProposalData,
+  } = useQuery(
+    gql`
+      query AllItemLayersSupportModal_BulkAddProposal($layerRemoteIds: [ID!]!) {
+        layersToAdd: itemAppearanceLayersByRemoteId(
+          remoteIds: $layerRemoteIds
+        ) {
+          id
+          ...AppearanceLayerForOutfitPreview
+        }
+
+        allSpecies {
+          id
+          name
+          standardBodyId
+          canonicalAppearance {
+            id
+            species {
+              id
+              name
+            }
+            color {
+              id
+              name
+              isStandard
+            }
+            pose
+            ...PetAppearanceForOutfitPreview
+          }
+        }
+      }
+
+      ${appearanceLayerFragment}
+      ${petAppearanceFragment}
+    `,
+    {
+      variables: {
+        layerRemoteIds: bulkAddProposal
+          ? Array.from({ length: 54 }, (_, i) =>
+              String(Number(bulkAddProposal.minAssetId) + i)
+            )
+          : [],
+      },
+      skip: bulkAddProposal == null,
+    }
+  );
+
+  if (loading || loading2) {
     return (
       <Flex align="center" justify="center" minHeight="64">
         <HangerSpinner />
@@ -201,17 +228,21 @@ function AllItemLayersSupportModalContent({ item }) {
     );
   }
 
-  if (error) {
-    return <ErrorMessage>{error.message}</ErrorMessage>;
+  if (error || error2) {
+    return <ErrorMessage>{(error || error2).message}</ErrorMessage>;
   }
 
-  const itemAppearances = [...(data.item?.allAppearances || [])].sort(
-    (a, b) => {
-      const aKey = getSortKeyForPetAppearance(a.body.canonicalAppearance);
-      const bKey = getSortKeyForPetAppearance(b.body.canonicalAppearance);
-      return aKey.localeCompare(bKey);
-    }
+  let itemAppearances = data.item?.allAppearances || [];
+  itemAppearances = mergeBulkAddProposalIntoItemAppearances(
+    itemAppearances,
+    bulkAddProposal,
+    bulkAddProposalData
   );
+  itemAppearances = [...itemAppearances].sort((a, b) => {
+    const aKey = getSortKeyForBody(a.body);
+    const bKey = getSortKeyForBody(b.body);
+    return aKey.localeCompare(bKey);
+  });
 
   return (
     <Wrap justify="center" spacing="4">
@@ -246,6 +277,18 @@ function ItemAppearanceCard({ item, itemAppearance }) {
       </Heading>
       <Box height="3" />
       <Wrap paddingX="3" spacing="5">
+        {itemLayers.length === 0 && (
+          <Flex
+            minWidth="150px"
+            minHeight="150px"
+            align="center"
+            justify="center"
+          >
+            <Box fontSize="sm" fontStyle="italic">
+              (No data)
+            </Box>
+          </Flex>
+        )}
         {itemLayers.map((itemLayer) => (
           <WrapItem key={itemLayer.id}>
             <ItemSupportAppearanceLayer
@@ -265,7 +308,13 @@ function ItemAppearanceCard({ item, itemAppearance }) {
   );
 }
 
-function getSortKeyForPetAppearance({ color, species }) {
+function getSortKeyForBody(body) {
+  // "All bodies" sorts first!
+  if (body.representsAllBodies) {
+    return "";
+  }
+
+  const { color, species } = body.canonicalAppearance;
   // Sort standard colors first, then special colors by name, then by species
   // within each color.
   return `${color.isStandard ? "A" : "Z"}-${color.name}-${species.name}`;
@@ -284,6 +333,73 @@ function getBodyName(body) {
 
 function capitalize(str) {
   return str[0].toUpperCase() + str.slice(1);
+}
+
+function mergeBulkAddProposalIntoItemAppearances(
+  itemAppearances,
+  bulkAddProposal,
+  bulkAddProposalData
+) {
+  if (!bulkAddProposalData) {
+    return itemAppearances;
+  }
+
+  // Do a deep copy of the existing item appearances, so we can mutate them as
+  // we loop through them in this function!
+  const mergedItemAppearances = JSON.parse(JSON.stringify(itemAppearances));
+
+  // Set up the data in convenient formats.
+  const { allSpecies, layersToAdd } = bulkAddProposalData;
+  const sortedSpecies = [...allSpecies].sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
+  const layersToAddByRemoteId = {};
+  for (const layer of layersToAdd) {
+    layersToAddByRemoteId[layer.remoteId] = layer;
+  }
+
+  for (const [index, species] of sortedSpecies.entries()) {
+    // Find the existing item appearance to add to, or create a new one if it
+    // doesn't exist yet.
+    let itemAppearance = mergedItemAppearances.find(
+      (a) =>
+        a.body.canonicalAppearance.species.id === species.id &&
+        !a.body.representsAllBodies
+    );
+    if (!itemAppearance) {
+      itemAppearance = {
+        id: `bulk-add-proposal-new-item-appearance-for-body-${species.standardBodyId}`,
+        layers: [],
+        body: {
+          id: species.standardBodyId,
+          canonicalAppearance: species.canonicalAppearance,
+        },
+      };
+      mergedItemAppearances.push(itemAppearance);
+    }
+
+    const layerToAddRemoteId = String(
+      Number(bulkAddProposal.minAssetId) + index
+    );
+    const layerToAdd = layersToAddByRemoteId[layerToAddRemoteId];
+    if (!layerToAdd) {
+      continue;
+    }
+
+    // Delete this layer from other appearances (because we're going to
+    // override its body ID), then add it to this new one.
+    for (const otherItemAppearance of mergedItemAppearances) {
+      const indexToDelete = otherItemAppearance.layers.findIndex(
+        (l) => l.remoteId === layerToAddRemoteId
+      );
+      if (indexToDelete >= 0) {
+        otherItemAppearance.layers.splice(indexToDelete, 1);
+      }
+    }
+    itemAppearance.layers.push(layerToAdd);
+  }
+
+  return mergedItemAppearances;
 }
 
 export default AllItemLayersSupportModal;

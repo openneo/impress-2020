@@ -92,6 +92,11 @@ const typeDefs = gql`
   }
 
   extend type Query {
+    # Return the item appearance layers with the given remoteIds. We use this
+    # in Support tool to bulk-add a range of layers to an item. When we can't
+    # find a layer with the given ID, we omit its entry from the returned list.
+    itemAppearanceLayersByRemoteId(remoteIds: [ID!]!): [AppearanceLayer]!
+
     # Return the number of layers that have been converted to HTML5, optionally
     # filtered by type. Cache for 30 minutes (we re-sync with Neopets every
     # hour).
@@ -253,6 +258,16 @@ const resolvers = {
   },
 
   Query: {
+    itemAppearanceLayersByRemoteId: async (
+      _,
+      { remoteIds },
+      { swfAssetByRemoteIdLoader }
+    ) => {
+      const layers = await swfAssetByRemoteIdLoader.loadMany(
+        remoteIds.map((remoteId) => ({ type: "object", remoteId }))
+      );
+      return layers.filter((l) => l).map(({ id }) => ({ id }));
+    },
     numAppearanceLayersConverted: async (
       _,
       { type },

@@ -23,6 +23,10 @@ const typeDefs = gql`
     id: ID!
     name: String!
 
+    # A PetAppearance that has this species. Prefers Blue (or the optional
+    # preferredColorId), and happy poses.
+    canonicalAppearance(preferredColorId: ID): PetAppearance
+
     # The bodyId for PetAppearances that use this species and a standard color.
     # We use this to preload the standard body IDs, so that items stay when
     # switching between standard colors.
@@ -60,6 +64,7 @@ const typeDefs = gql`
     species: Species!
     color: Color!
     pose: Pose!
+    body: Body!
     bodyId: ID!
 
     layers: [AppearanceLayer!]!
@@ -134,6 +139,34 @@ const resolvers = {
       const speciesTranslation = await speciesTranslationLoader.load(id);
       return capitalize(speciesTranslation.name);
     },
+
+    canonicalAppearance: async (
+      { id, species },
+      { preferredColorId },
+      { petTypeBySpeciesAndColorLoader, canonicalPetStateForBodyLoader }
+    ) => {
+      const petType = await petTypeBySpeciesAndColorLoader.load({
+        speciesId: id,
+        colorId: preferredColorId || "8", // defaults to Blue
+      });
+      if (!petType) {
+        // HACK: For a new species, we shouldn't necessarily crash if Blue
+        //       isn't modeled… but like, whatever :p
+        return null;
+      }
+
+      const petState = await canonicalPetStateForBodyLoader.load({
+        bodyId: petType.bodyId,
+        preferredColorId,
+        fallbackColorId: FALLBACK_COLOR_IDS[species?.id] || "8",
+      });
+      if (!petState) {
+        return null;
+      }
+
+      return { id: petState.id };
+    },
+
     standardBodyId: async ({ id }, _, { petTypeBySpeciesAndColorLoader }) => {
       const petType = await petTypeBySpeciesAndColorLoader.load({
         speciesId: id,
@@ -194,6 +227,11 @@ const resolvers = {
       const petState = await petStateLoader.load(id);
       const petType = await petTypeLoader.load(petState.petTypeId);
       return { id: petType.speciesId };
+    },
+    body: async ({ id }, _, { petStateLoader, petTypeLoader }) => {
+      const petState = await petStateLoader.load(id);
+      const petType = await petTypeLoader.load(petState.petTypeId);
+      return { id: petType.bodyId };
     },
     bodyId: async ({ id }, _, { petStateLoader, petTypeLoader }) => {
       const petState = await petStateLoader.load(id);

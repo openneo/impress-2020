@@ -204,25 +204,34 @@ export const itemAppearanceFragmentForGetVisibleLayers = gql`
   }
 `;
 
+export const appearanceLayerFragment = gql`
+  fragment AppearanceLayerForOutfitPreview on AppearanceLayer {
+    id
+    remoteId # HACK: This is for Support tools, but other views don't need it
+    svgUrl
+    canvasMovieLibraryUrl
+    imageUrl(size: SIZE_600)
+    swfUrl # HACK: This is for Support tools, but other views don't need it
+    knownGlitches # HACK: This is for Support tools, but other views don't need it
+    bodyId
+    zone {
+      id
+      depth @client
+      label @client # HACK: This is for Support tools, but other views don't need it
+    }
+  }
+`;
+
 export const itemAppearanceFragment = gql`
   fragment ItemAppearanceForOutfitPreview on ItemAppearance {
     id
     layers {
-      id
-      remoteId # HACK: This is for Support tools, but other views don't need it
-      svgUrl
-      canvasMovieLibraryUrl
-      imageUrl(size: SIZE_600)
-      swfUrl # HACK: This is for Support tools, but other views don't need it
-      knownGlitches # HACK: This is for Support tools, but other views don't need it
-      bodyId
-      zone {
-        label @client # HACK: This is for Support tools, but other views don't need it
-      }
+      ...AppearanceLayerForOutfitPreview
     }
     ...ItemAppearanceForGetVisibleLayers
   }
 
+  ${appearanceLayerFragment}
   ${itemAppearanceFragmentForGetVisibleLayers}
 `;
 
