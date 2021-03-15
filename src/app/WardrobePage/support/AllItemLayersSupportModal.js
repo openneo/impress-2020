@@ -11,6 +11,7 @@ import {
   ModalContent,
   ModalHeader,
   ModalOverlay,
+  Select,
   Tooltip,
   Wrap,
   WrapItem,
@@ -65,6 +66,7 @@ function BulkAddBodySpecificAssetsForm({ bulkAddProposal, onSubmit }) {
   const [minAssetId, setMinAssetId] = React.useState(
     bulkAddProposal?.minAssetId
   );
+  const [numSpecies, setNumSpecies] = React.useState(55);
 
   return (
     <Flex
@@ -75,7 +77,7 @@ function BulkAddBodySpecificAssetsForm({ bulkAddProposal, onSubmit }) {
       transition="0.2s all"
       onSubmit={(e) => {
         e.preventDefault();
-        onSubmit({ minAssetId });
+        onSubmit({ minAssetId, numSpecies });
       }}
     >
       <Tooltip
@@ -118,13 +120,27 @@ function BulkAddBodySpecificAssetsForm({ bulkAddProposal, onSubmit }) {
         size="xs"
         width="9ch"
         placeholder="Max ID"
-        // There are 55 species at time of writing, so offsetting the max ID
-        // by 54 gives us ranges like 1–55, one for each species.
-        value={minAssetId != null ? Number(minAssetId) + 54 : ""}
+        // Because this is an inclusive range, the offset between the numbers
+        // is one less than the number of entries in the range.
+        value={minAssetId != null ? Number(minAssetId) + (numSpecies - 1) : ""}
         onChange={(e) =>
-          setMinAssetId(e.target.value ? Number(e.target.value) - 54 : null)
+          setMinAssetId(
+            e.target.value ? Number(e.target.value) - (numSpecies - 1) : null
+          )
         }
       />
+      <Box width="1" />
+      for
+      <Box width="1" />
+      <Select
+        size="xs"
+        width="20ch"
+        value={String(numSpecies)}
+        onChange={(e) => setNumSpecies(Number(e.target.value))}
+      >
+        <option value="55">All 55 species</option>
+        <option value="54">54 species, no Vandagyre</option>
+      </Select>
       <Box width="2" />
       <Button type="submit" size="xs" isDisabled={minAssetId == null}>
         Preview
@@ -344,13 +360,20 @@ function mergeBulkAddProposalIntoItemAppearances(
     return itemAppearances;
   }
 
+  const { allSpecies, layersToAdd } = bulkAddProposalData;
+
   // Do a deep copy of the existing item appearances, so we can mutate them as
   // we loop through them in this function!
   const mergedItemAppearances = JSON.parse(JSON.stringify(itemAppearances));
 
-  // Set up the data in convenient formats.
-  const { allSpecies, layersToAdd } = bulkAddProposalData;
-  const sortedSpecies = [...allSpecies].sort((a, b) =>
+  // To exclude Vandagyre, we take the first N species by ID - which is
+  // different than the alphabetical sort order we use for assigning layers!
+  const speciesToInclude = [...allSpecies]
+    .sort((a, b) => Number(a.id) - Number(b.id))
+    .slice(0, bulkAddProposal.numSpecies);
+
+  // Set up the incoming data in convenient formats.
+  const sortedSpecies = [...speciesToInclude].sort((a, b) =>
     a.name.localeCompare(b.name)
   );
   const layersToAddByRemoteId = {};
