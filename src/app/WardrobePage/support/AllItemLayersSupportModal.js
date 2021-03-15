@@ -16,7 +16,7 @@ import {
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
-import { gql, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import {
   appearanceLayerFragment,
   itemAppearanceFragment,
@@ -26,6 +26,7 @@ import HangerSpinner from "../../components/HangerSpinner";
 import { ErrorMessage, useCommonStyles } from "../../util";
 import ItemSupportAppearanceLayer from "./ItemSupportAppearanceLayer";
 import { EditIcon } from "@chakra-ui/icons";
+import useSupport from "./useSupport";
 
 function AllItemLayersSupportModal({ item, isOpen, onClose }) {
   const [bulkAddProposal, setBulkAddProposal] = React.useState(null);
@@ -54,6 +55,7 @@ function AllItemLayersSupportModal({ item, isOpen, onClose }) {
             <AllItemLayersSupportModalContent
               item={item}
               bulkAddProposal={bulkAddProposal}
+              onBulkAddComplete={() => setBulkAddProposal(null)}
             />
           </ModalBody>
         </ModalContent>
@@ -149,39 +151,53 @@ function BulkAddBodySpecificAssetsForm({ bulkAddProposal, onSubmit }) {
   );
 }
 
-function AllItemLayersSupportModalContent({ item, bulkAddProposal }) {
+const allAppearancesFragment = gql`
+  fragment AllAppearancesForItem on Item {
+    allAppearances {
+      id
+      body {
+        id
+        representsAllBodies
+        canonicalAppearance {
+          id
+          species {
+            id
+            name
+          }
+          color {
+            id
+            name
+            isStandard
+          }
+          pose
+          ...PetAppearanceForOutfitPreview
+        }
+      }
+      ...ItemAppearanceForOutfitPreview
+    }
+  }
+
+  ${itemAppearanceFragment}
+  ${petAppearanceFragment}
+`;
+
+function AllItemLayersSupportModalContent({
+  item,
+  bulkAddProposal,
+  onBulkAddComplete,
+}) {
+  const { supportSecret } = useSupport();
+
   const { loading, error, data } = useQuery(
     gql`
       query AllItemLayersSupportModal($itemId: ID!) {
         item(id: $itemId) {
           id
-          allAppearances {
-            id
-            body {
-              id
-              representsAllBodies
-              canonicalAppearance {
-                id
-                species {
-                  id
-                  name
-                }
-                color {
-                  id
-                  name
-                  isStandard
-                }
-                pose
-                ...PetAppearanceForOutfitPreview
-              }
-            }
-            ...ItemAppearanceForOutfitPreview
-          }
+          ...AllAppearancesForItem
         }
       }
 
-      ${itemAppearanceFragment}
-      ${petAppearanceFragment}
+      ${allAppearancesFragment}
     `,
     { variables: { itemId: item.id } }
   );
@@ -236,6 +252,28 @@ function AllItemLayersSupportModalContent({ item, bulkAddProposal }) {
     }
   );
 
+  const [
+    sendBulkAddMutation,
+    { loading: mutationLoading, error: mutationError },
+  ] = useMutation(gql`
+    mutation AllItemLayersSupportModal_BulkAddMutation(
+      $itemId: ID!
+      $entries: [BulkAddLayersToItemEntry!]!
+      $supportSecret: String!
+    ) {
+      bulkAddLayersToItem(
+        itemId: $itemId
+        entries: $entries
+        supportSecret: $supportSecret
+      ) {
+        id
+        ...AllAppearancesForItem
+      }
+    }
+
+    ${allAppearancesFragment}
+  `);
+
   if (loading || loading2) {
     return (
       <Flex align="center" justify="center" minHeight="64">
@@ -266,7 +304,37 @@ function AllItemLayersSupportModalContent({ item, bulkAddProposal }) {
         <Flex align="center" marginBottom="6">
           <Heading size="md">Previewing bulk-add changes</Heading>
           <Box flex="1 0 auto" width="4" />
-          <Button size="sm" colorScheme="green">
+          {mutationError && (
+            <ErrorMessage fontSize="xs" textAlign="right" marginRight="2">
+              {mutationError.message}
+            </ErrorMessage>
+          )}
+          <Button
+            flex="0 0 auto"
+            size="sm"
+            colorScheme="green"
+            isLoading={mutationLoading}
+            onClick={() => {
+              // HACK: This could pick up not just new layers, but existing layers
+              //       that aren't changing. Shouldn't be a problem to save,
+              //       though?
+              // NOTE: This API uses actual layer IDs, instead of the remote IDs
+              //       that we use for body assignment in most of this tool.
+              const entries = itemAppearances
+                .map((a) =>
+                  a.layers.map((l) => ({ layerId: l.id, bodyId: a.body.id }))
+                )
+                .flat();
+
+              sendBulkAddMutation({
+                variables: { itemId: item.id, entries, supportSecret },
+              })
+                .then(onBulkAddComplete)
+                .catch((e) => {
+                  /* Handled in UI */
+                });
+            }}
+          >
             Save {bulkAddProposalData.layersToAdd.length} changes
           </Button>
         </Flex>

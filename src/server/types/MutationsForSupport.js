@@ -55,6 +55,12 @@ const typeDefs = gql`
       supportSecret: String!
     ): AppearanceLayer
 
+    bulkAddLayersToItem(
+      itemId: ID!
+      entries: [BulkAddLayersToItemEntry!]!
+      supportSecret: String!
+    ): Item
+
     removeLayerFromItem(
       layerId: ID!
       itemId: ID!
@@ -74,6 +80,11 @@ const typeDefs = gql`
     ): PetAppearance!
 
     setUsername(userId: ID!, newUsername: String!, supportSecret: String!): User
+  }
+
+  input BulkAddLayersToItemEntry {
+    layerId: ID!
+    bodyId: ID!
   }
 `;
 
@@ -477,6 +488,80 @@ const resolvers = {
       }
 
       return { id: layerId };
+    },
+
+    bulkAddLayersToItem: async (
+      _,
+      { itemId, entries, supportSecret },
+      { itemLoader, itemTranslationLoader, db }
+    ) => {
+      assertSupportSecretOrThrow(supportSecret);
+
+      const item = await itemLoader.load(itemId);
+      if (!item) {
+        console.warn(
+          `Skipping removeLayerFromItem for unknown item ID: ${itemId}`
+        );
+        return null;
+      }
+
+      const handleEntry = async ({ layerId, bodyId }) => {
+        await Promise.all([
+          db.execute(`UPDATE swf_assets SET body_id = ? WHERE id = ? LIMIT 1`, [
+            bodyId,
+            layerId,
+          ]),
+          db.execute(
+            // Technique adapted from https://stackoverflow.com/a/3025332/107415
+            `
+            INSERT INTO parents_swf_assets
+              (parent_type, parent_id, swf_asset_id)
+              SELECT "Item", ?, ? FROM DUAL
+                WHERE NOT EXISTS (
+                  SELECT * FROM parents_swf_assets
+                    WHERE parent_type = "Item" AND parent_id = ? AND
+                      swf_asset_id = ?
+              )
+            `,
+            [itemId, layerId, itemId, layerId]
+          ),
+        ]);
+      };
+
+      await Promise.all(entries.map(handleEntry));
+
+      if (process.env["SUPPORT_TOOLS_DISCORD_WEBHOOK_URL"]) {
+        try {
+          const itemTranslation = await itemTranslationLoader.load(itemId);
+
+          await logToDiscord({
+            embeds: [
+              {
+                title: `🛠 ${itemTranslation.name}`,
+                thumbnail: {
+                  url: item.thumbnailUrl,
+                  height: 80,
+                  width: 80,
+                },
+                fields: [
+                  {
+                    name: `Bulk-add body-specific layers`,
+                    value: `✅ Added/updated ${entries.length} layers`,
+                  },
+                ],
+                timestamp: new Date().toISOString(),
+                url: `https://impress.openneo.net/items/${itemId}`,
+              },
+            ],
+          });
+        } catch (e) {
+          console.error("Error sending Discord support log", e);
+        }
+      } else {
+        console.warn("No Discord support webhook provided, skipping");
+      }
+
+      return { id: itemId };
     },
 
     removeLayerFromItem: async (
