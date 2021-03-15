@@ -89,6 +89,9 @@ const typeDefs = gql`
     color: Color!
     body: Body!
 
+    # A PetAppearance that has this species and color. Prefers happy poses.
+    canonicalAppearance: PetAppearance
+
     # A hash to use in a pets.neopets.com image URL. Might be null if we don't
     # have one for this pair, which is uncommon - but it's _somewhat_ common
     # for them to have clothes, if we've never seen a plain version modeled.
@@ -283,6 +286,24 @@ const resolvers = {
     body: async ({ id }, _, { petTypeLoader }) => {
       const petType = await petTypeLoader.load(id);
       return { id: petType.bodyId };
+    },
+    canonicalAppearance: async (
+      { id },
+      _,
+      { petTypeLoader, canonicalPetStateForBodyLoader }
+    ) => {
+      const petType = await petTypeLoader.load(id);
+
+      const petState = await canonicalPetStateForBodyLoader.load({
+        bodyId: petType.bodyId,
+        preferredColorId: petType.colorId,
+        fallbackColorId: petType.colorId,
+      });
+      if (!petState) {
+        return null;
+      }
+
+      return { id: petState.id };
     },
     neopetsImageHash: async ({ id }, _, { petTypeLoader }) => {
       const petType = await petTypeLoader.load(id);

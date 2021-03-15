@@ -68,7 +68,9 @@ function BulkAddBodySpecificAssetsForm({ bulkAddProposal, onSubmit }) {
   const [minAssetId, setMinAssetId] = React.useState(
     bulkAddProposal?.minAssetId
   );
+  const [assetIdStepValue, setAssetIdStepValue] = React.useState(1);
   const [numSpecies, setNumSpecies] = React.useState(55);
+  const [colorId, setColorId] = React.useState("8");
 
   return (
     <Flex
@@ -79,7 +81,7 @@ function BulkAddBodySpecificAssetsForm({ bulkAddProposal, onSubmit }) {
       transition="0.2s all"
       onSubmit={(e) => {
         e.preventDefault();
-        onSubmit({ minAssetId, numSpecies });
+        onSubmit({ minAssetId, numSpecies, assetIdStepValue, colorId });
       }}
     >
       <Tooltip
@@ -98,7 +100,7 @@ function BulkAddBodySpecificAssetsForm({ bulkAddProposal, onSubmit }) {
       >
         <Flex align="center" tabIndex="0">
           <EditIcon marginRight="1" />
-          <Box>Bulk-add body-specific assets:</Box>
+          <Box>Bulk-add:</Box>
         </Flex>
       </Tooltip>
       <Box width="2" />
@@ -124,13 +126,30 @@ function BulkAddBodySpecificAssetsForm({ bulkAddProposal, onSubmit }) {
         placeholder="Max ID"
         // Because this is an inclusive range, the offset between the numbers
         // is one less than the number of entries in the range.
-        value={minAssetId != null ? Number(minAssetId) + (numSpecies - 1) : ""}
+        value={
+          minAssetId != null
+            ? Number(minAssetId) + assetIdStepValue * (numSpecies - 1)
+            : ""
+        }
         onChange={(e) =>
           setMinAssetId(
-            e.target.value ? Number(e.target.value) - (numSpecies - 1) : null
+            e.target.value
+              ? Number(e.target.value) - assetIdStepValue * (numSpecies - 1)
+              : null
           )
         }
       />
+      <Box width="1" />
+      <Select
+        size="xs"
+        width="12ch"
+        value={String(assetIdStepValue)}
+        onChange={(e) => setAssetIdStepValue(Number(e.target.value))}
+      >
+        <option value="1">(All IDs)</option>
+        <option value="2">(Every other ID)</option>
+        <option value="3">(Every 3rd ID)</option>
+      </Select>
       <Box width="1" />
       for
       <Box width="1" />
@@ -142,6 +161,17 @@ function BulkAddBodySpecificAssetsForm({ bulkAddProposal, onSubmit }) {
       >
         <option value="55">All 55 species</option>
         <option value="54">54 species, no Vandagyre</option>
+      </Select>
+      <Box width="1" />
+      <Select
+        size="xs"
+        width="20ch"
+        value={colorId}
+        onChange={(e) => setColorId(e.target.value)}
+      >
+        <option value="8">All standard colors</option>
+        <option value="6">Baby</option>
+        <option value="46">Mutant</option>
       </Select>
       <Box width="2" />
       <Button type="submit" size="xs" isDisabled={minAssetId == null}>
@@ -208,7 +238,10 @@ function AllItemLayersSupportModalContent({
     data: bulkAddProposalData,
   } = useQuery(
     gql`
-      query AllItemLayersSupportModal_BulkAddProposal($layerRemoteIds: [ID!]!) {
+      query AllItemLayersSupportModal_BulkAddProposal(
+        $layerRemoteIds: [ID!]!
+        $colorId: ID!
+      ) {
         layersToAdd: itemAppearanceLayersByRemoteId(
           remoteIds: $layerRemoteIds
         ) {
@@ -216,23 +249,33 @@ function AllItemLayersSupportModalContent({
           ...AppearanceLayerForOutfitPreview
         }
 
-        allSpecies {
+        color(id: $colorId) {
           id
-          name
-          standardBodyId
-          canonicalAppearance {
+          appliedToAllCompatibleSpecies {
             id
             species {
               id
               name
             }
-            color {
+            body {
               id
-              name
-              isStandard
             }
-            pose
-            ...PetAppearanceForOutfitPreview
+            canonicalAppearance {
+              # These are a bit redundant, but it's convenient to just reuse
+              # what the other query is already doing.
+              id
+              species {
+                id
+                name
+              }
+              color {
+                id
+                name
+                isStandard
+              }
+              pose
+              ...PetAppearanceForOutfitPreview
+            }
           }
         }
       }
@@ -244,9 +287,13 @@ function AllItemLayersSupportModalContent({
       variables: {
         layerRemoteIds: bulkAddProposal
           ? Array.from({ length: 54 }, (_, i) =>
-              String(Number(bulkAddProposal.minAssetId) + i)
+              String(
+                Number(bulkAddProposal.minAssetId) +
+                  i * bulkAddProposal.assetIdStepValue
+              )
             )
           : [],
+        colorId: bulkAddProposal?.colorId,
       },
       skip: bulkAddProposal == null,
     }
@@ -319,6 +366,12 @@ function AllItemLayersSupportModalContent({
             colorScheme="green"
             isLoading={mutationLoading}
             onClick={() => {
+              if (
+                !window.confirm("Are you sure? Bulk operations are dangerous!")
+              ) {
+                return;
+              }
+
               // HACK: This could pick up not just new layers, but existing layers
               //       that aren't changing. Shouldn't be a problem to save,
               //       though?
@@ -443,7 +496,7 @@ function mergeBulkAddProposalIntoItemAppearances(
     return itemAppearances;
   }
 
-  const { allSpecies, layersToAdd } = bulkAddProposalData;
+  const { color, layersToAdd } = bulkAddProposalData;
 
   // Do a deep copy of the existing item appearances, so we can mutate them as
   // we loop through them in this function!
@@ -451,41 +504,42 @@ function mergeBulkAddProposalIntoItemAppearances(
 
   // To exclude Vandagyre, we take the first N species by ID - which is
   // different than the alphabetical sort order we use for assigning layers!
-  const speciesToInclude = [...allSpecies]
-    .sort((a, b) => Number(a.id) - Number(b.id))
+  const speciesColorPairsToInclude = [...color.appliedToAllCompatibleSpecies]
+    .sort((a, b) => Number(a.species.id) - Number(b.species.id))
     .slice(0, bulkAddProposal.numSpecies);
 
   // Set up the incoming data in convenient formats.
-  const sortedSpecies = [...speciesToInclude].sort((a, b) =>
-    a.name.localeCompare(b.name)
+  const sortedSpeciesColorPairs = [...speciesColorPairsToInclude].sort((a, b) =>
+    a.species.name.localeCompare(b.species.name)
   );
   const layersToAddByRemoteId = {};
   for (const layer of layersToAdd) {
     layersToAddByRemoteId[layer.remoteId] = layer;
   }
 
-  for (const [index, species] of sortedSpecies.entries()) {
+  for (const [index, speciesColorPair] of sortedSpeciesColorPairs.entries()) {
+    const { body, canonicalAppearance } = speciesColorPair;
+
     // Find the existing item appearance to add to, or create a new one if it
     // doesn't exist yet.
     let itemAppearance = mergedItemAppearances.find(
-      (a) =>
-        a.body.canonicalAppearance.species.id === species.id &&
-        !a.body.representsAllBodies
+      (a) => a.body.id === body.id && !a.body.representsAllBodies
     );
     if (!itemAppearance) {
       itemAppearance = {
-        id: `bulk-add-proposal-new-item-appearance-for-body-${species.standardBodyId}`,
+        id: `bulk-add-proposal-new-item-appearance-for-body-${body.id}`,
         layers: [],
         body: {
-          id: species.standardBodyId,
-          canonicalAppearance: species.canonicalAppearance,
+          id: body.id,
+          canonicalAppearance,
         },
       };
       mergedItemAppearances.push(itemAppearance);
     }
 
     const layerToAddRemoteId = String(
-      Number(bulkAddProposal.minAssetId) + index
+      Number(bulkAddProposal.minAssetId) +
+        index * bulkAddProposal.assetIdStepValue
     );
     const layerToAdd = layersToAddByRemoteId[layerToAddRemoteId];
     if (!layerToAdd) {
