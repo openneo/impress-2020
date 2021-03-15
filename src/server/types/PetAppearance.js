@@ -160,7 +160,8 @@ const resolvers = {
       const petState = await canonicalPetStateForBodyLoader.load({
         bodyId: petType.bodyId,
         preferredColorId,
-        fallbackColorId: FALLBACK_COLOR_IDS[species?.id] || "8",
+        fallbackColorId:
+          (species ? FALLBACK_COLOR_IDS[species.id] : null) || "8",
       });
       if (!petState) {
         return null;
@@ -213,7 +214,8 @@ const resolvers = {
       const petState = await canonicalPetStateForBodyLoader.load({
         bodyId: id,
         preferredColorId,
-        fallbackColorId: FALLBACK_COLOR_IDS[species?.id] || "8",
+        fallbackColorId:
+          (species ? FALLBACK_COLOR_IDS[species.id] : null) || "8",
       });
       if (!petState) {
         return null;
