@@ -348,6 +348,24 @@ function OutfitKnownGlitchesBadge({ appearance }) {
     }
   }
 
+  // Check whether the pet has OFFICIAL_SVG_IS_INCORRECT.
+  const petLayers = petAppearance?.layers || [];
+  for (const layer of petLayers) {
+    const layerHasOfficialSvgIsIncorrect = (layer.knownGlitches || []).includes(
+      "OFFICIAL_SVG_IS_INCORRECT"
+    );
+    if (layerHasOfficialSvgIsIncorrect) {
+      glitchMessages.push(
+        <Box key={`official-svg-is-incorrect-for-pet-layer-${layer.id}`}>
+          There's a glitch in the art for this pet's <i>{layer.zone.label}</i>{" "}
+          zone that prevents us from showing the full-scale SVG version of the
+          image. Instead, we're showing a PNG, which might look a bit blurry on
+          larger screens.
+        </Box>
+      );
+    }
+  }
+
   if (glitchMessages.length === 0) {
     return null;
   }
