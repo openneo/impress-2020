@@ -83,6 +83,16 @@ const typeDefs = gql`
   }
 
   enum AppearanceLayerKnownGlitch {
+    # This glitch means that the official SWF art for this layer is known to
+    # contain a glitch. (It probably also affects the PNG captured by Classic
+    # DTI, too.)
+    #
+    # In this case, there's no correct art we _can_ show until it's converted
+    # to HTML5. We'll show a message explaining the situation, and automatically
+    # change it to be more hesitant after HTML5 conversion, because we don't
+    # know in advance whether the layer will be fixed during conversion.
+    OFFICIAL_SWF_IS_INCORRECT
+
     # This glitch means that, while the official manifest declares an SVG
     # version of this layer, it is incorrect and does not visually match the
     # PNG version that the official pet editor users.

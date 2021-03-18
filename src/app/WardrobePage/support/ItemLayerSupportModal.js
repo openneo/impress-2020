@@ -430,6 +430,12 @@ function ItemLayerSupportKnownGlitchesFields({
       <FormLabel fontWeight="bold">Known glitches</FormLabel>
       <CheckboxGroup value={selectedKnownGlitches} onChange={onChange}>
         <VStack spacing="2" align="flex-start">
+          <Checkbox value="OFFICIAL_SWF_IS_INCORRECT">
+            Official SWF is incorrect{" "}
+            <Box display="inline" color="gray.400" fontSize="sm">
+              (Will display a message)
+            </Box>
+          </Checkbox>
           <Checkbox value="OFFICIAL_SVG_IS_INCORRECT">
             Official SVG is incorrect{" "}
             <Box display="inline" color="gray.400" fontSize="sm">
@@ -439,7 +445,8 @@ function ItemLayerSupportKnownGlitchesFields({
           <Checkbox value="REQUIRES_OTHER_BODY_SPECIFIC_ASSETS">
             Only fits pets with other body-specific assets{" "}
             <Box display="inline" color="gray.400" fontSize="sm">
-              (DTI's fault: bodyId=0 is a lie!)
+              (DTI's fault: bodyId=0 is a lie! Will mark incompatible for some
+              pets.)
             </Box>
           </Checkbox>
         </VStack>

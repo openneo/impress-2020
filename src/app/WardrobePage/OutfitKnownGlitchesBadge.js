@@ -40,6 +40,39 @@ function OutfitKnownGlitchesBadge({ appearance }) {
     }
   }
 
+  // Look for items with the OFFICIAL_SWF_IS_INCORRECT glitch.
+  for (const item of items) {
+    const itemHasBrokenOnNeopetsDotCom = item.appearance.layers.some((l) =>
+      (l.knownGlitches || []).includes("OFFICIAL_SWF_IS_INCORRECT")
+    );
+    const itemHasBrokenUnconvertedLayers = item.appearance.layers.some(
+      (l) =>
+        (l.knownGlitches || []).includes("OFFICIAL_SWF_IS_INCORRECT") &&
+        !layerUsesHTML5(l)
+    );
+    if (itemHasBrokenOnNeopetsDotCom) {
+      glitchMessages.push(
+        <Box key={`official-swf-is-incorrect-for-item-${item.id}`}>
+          {itemHasBrokenUnconvertedLayers ? (
+            <>
+              We're aware of a glitch affecting the art for <i>{item.name}</i>.
+              Last time we checked, this glitch affected its appearance on
+              Neopets.com, too. Hopefully this will be fixed once it's converted
+              to HTML5!
+            </>
+          ) : (
+            <>
+              We're aware of a previous glitch affecting the art for{" "}
+              <i>{item.name}</i>, but it might have been resolved during HTML5
+              conversion. Please use the feedback form on the homepage to let us
+              know if it looks right, or still looks wrong! Thank you!
+            </>
+          )}
+        </Box>
+      );
+    }
+  }
+
   // Look for items with the OFFICIAL_SVG_IS_INCORRECT glitch.
   for (const item of items) {
     const itemHasOfficialSvgIsIncorrect = item.appearance.layers.some((l) =>
