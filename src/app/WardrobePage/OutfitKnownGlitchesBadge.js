@@ -109,6 +109,10 @@ function OutfitKnownGlitchesBadge({ appearance }) {
   // Check whether the pet appearance is marked as Glitched.
   if (petAppearance?.isGlitched) {
     glitchMessages.push(
+      // NOTE: This message assumes that the current pet appearance is the
+      //       best canonical one, but it's _possible_ to view Glitched
+      //       appearances even if we _do_ have a better one saved... but
+      //       only the Support UI ever takes you there.
       <Box key={`pet-appearance-is-glitched`}>
         We know that the art for this pet is incorrect, but we still haven't
         seen a <em>correct</em> model for this pose yet. Once someone models the
