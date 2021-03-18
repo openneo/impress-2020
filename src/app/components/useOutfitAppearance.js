@@ -269,6 +269,9 @@ export const petAppearanceFragment = gql`
     id
     bodyId
     isGlitched # For Known Glitches UI
+    color {
+      id # For Known Glitches UI
+    }
     layers {
       id
       ...AppearanceLayerForOutfitPreview
