@@ -211,7 +211,7 @@ export const appearanceLayerFragment = gql`
     canvasMovieLibraryUrl
     imageUrl(size: SIZE_600)
     bodyId
-    knownGlitches
+    knownGlitches # For HTML5 & Known Glitches UI
     zone {
       id
       depth @client
@@ -268,6 +268,7 @@ export const petAppearanceFragment = gql`
   fragment PetAppearanceForOutfitPreview on PetAppearance {
     id
     bodyId
+    isGlitched # For Known Glitches UI
     layers {
       id
       ...AppearanceLayerForOutfitPreview

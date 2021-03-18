@@ -3,6 +3,7 @@ import { Box, VStack } from "@chakra-ui/react";
 import { WarningTwoIcon } from "@chakra-ui/icons";
 import { FaBug } from "react-icons/fa";
 import { GlitchBadgeLayout, layerUsesHTML5 } from "../components/HTML5Badge";
+import { petAppearanceFragment } from "../components/useOutfitAppearance";
 
 function OutfitKnownGlitchesBadge({ appearance }) {
   const glitchMessages = [];
@@ -103,6 +104,18 @@ function OutfitKnownGlitchesBadge({ appearance }) {
         </Box>
       );
     }
+  }
+
+  // Check whether the pet appearance is marked as Glitched.
+  if (petAppearance?.isGlitched) {
+    glitchMessages.push(
+      <Box key={`pet-appearance-is-glitched`}>
+        We know that the art for this pet is incorrect, but we still haven't
+        seen a <em>correct</em> model for this pose yet. Once someone models the
+        correct data, we'll use that instead. For now, you could also try
+        switching to another pose, by clicking the emoji face to the right!
+      </Box>
+    );
   }
 
   // Check whether the pet has OFFICIAL_SVG_IS_INCORRECT.
