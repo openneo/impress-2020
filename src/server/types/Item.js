@@ -192,7 +192,7 @@ const typeDefs = gql`
     # NOTE: Most color IDs won't be accepted here. Either pass the ID of a
     #       major special color like Baby (#6), or leave it blank for standard
     #       bodies like Blue, Green, Red, etc.
-    itemsThatNeedModels(colorId: ID): [Item!]!
+    itemsThatNeedModels(colorId: ID): [Item!]! @cacheControl(maxAge: 1, staleWhileRevalidate: ${oneHour})
   }
 
   extend type Mutation {

@@ -410,8 +410,6 @@ const buildNewestItemsLoader = (db, loaders) =>
     return [entities];
   });
 
-let lastKnownUpdate = "1970-01-01"; // start it out very old!
-let lastResult = new Map();
 const buildItemsThatNeedModelsLoader = (db) =>
   new DataLoader(async (keys) => {
     // Essentially, I want to take easy advantage of DataLoader's caching, for
@@ -421,48 +419,65 @@ const buildItemsThatNeedModelsLoader = (db) =>
       throw new Error(`this loader can only be loaded with the key "all"`);
     }
 
-    // Call the query as a procedure, defined in `setup-mysql.sql`. It will
-    // only run the query if modeling data has been changed since the timestamp
-    // we provide; otherwise, it skips the query and returns no rows, which is
-    // much faster! (The query takes a few seconds to run.)
-    //
-    // NOTE: This query has the colors hardcoded, we always fetch all of them!
-    //       And then we look up the specific colors
-    const [results, _] = await db.query(
+    const [rows, _] = await db.query(
       `
-        CALL GetItemsThatNeedModelsIfNotCachedV2(?, @LastActualUpdate);
-        SELECT @LastActualUpdate;
-      `,
-      [lastKnownUpdate]
+        SELECT T_ITEMS.item_id,
+          T_BODIES.color_id,
+          T_ITEMS.supports_vandagyre,
+          COUNT(*) AS modeled_species_count,
+          GROUP_CONCAT(
+            T_BODIES.species_id
+            ORDER BY T_BODIES.species_id
+          ) AS modeled_species_ids
+        FROM (
+          -- NOTE: I found that extracting this as a separate query that runs
+          --       first made things WAAAY faster. Less to join/group, I guess?
+          SELECT DISTINCT items.id AS item_id,
+            swf_assets.body_id AS body_id,
+            -- Vandagyre was added on 2014-11-14, so we add some buffer here.
+            -- TODO: Some later Dyeworks items don't support Vandagyre.
+            -- Add a manual db flag?
+            items.created_at >= "2014-12-01" AS supports_vandagyre
+          FROM items
+          INNER JOIN parents_swf_assets psa ON psa.parent_type = "Item"
+            AND psa.parent_id = items.id
+          INNER JOIN swf_assets ON swf_assets.id = psa.swf_asset_id
+          INNER JOIN item_translations it ON it.item_id = items.id AND it.locale = "en"
+          WHERE items.modeling_status_hint IS NULL AND it.name NOT LIKE "%MME%"
+          ORDER BY item_id
+        ) T_ITEMS
+        INNER JOIN (
+          SELECT DISTINCT body_id, species_id, color_id
+          FROM pet_types
+          WHERE color_id IN (6, 8, 44, 46)
+          ORDER BY body_id, species_id
+        ) T_BODIES ON T_ITEMS.body_id = T_BODIES.body_id
+        GROUP BY T_ITEMS.item_id, T_BODIES.color_id
+        HAVING NOT (
+          -- No species (either an All Bodies item, or a Capsule type thing)
+          modeled_species_count = 0
+          -- Single species (probably just their item)
+          OR modeled_species_count = 1
+          -- All species modeled
+          OR modeled_species_count = 55
+          -- All species modeled except Vandagyre, for items that don't support it
+          OR (NOT T_ITEMS.supports_vandagyre AND modeled_species_count = 54 AND modeled_species_ids = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54")
+        )
+        ORDER BY T_ITEMS.item_id;
+      `
     );
 
-    // The query will return 2 or 3 results.
-    // Result 1 (optional): The rows produced by the CALL, if it ran the query.
-    //                      Or, if it skipped the query, this is omitted.
-    // Result 2 (required): The MySQL summary of the effects of the CALL.
-    // Result 3 (required): The 1-row table contianing @LastActualUpdate.
-    //
-    // So, check the number of results. If it's 3, then we should update our
-    // cache. Or, if it's 2, then there was no change and we can continue with
-    // the existing cached value.
-    if (results.length === 3) {
-      const [rawRows, __, varRows] = results;
-      const rows = rawRows.map(normalizeRow);
+    const entities = rows.map(normalizeRow);
 
-      lastKnownUpdate = varRows[0]["@LastActualUpdate"];
-
-      // We build lastResult into a Map up-front, to speed up the many lookups
-      // that the GQL resolvers will do as we group this data into GQL nodes!
-      lastResult = new Map();
-      for (const { colorId, itemId, ...row } of rows) {
-        if (!lastResult.has(colorId)) {
-          lastResult.set(colorId, new Map());
-        }
-        lastResult.get(colorId).set(itemId, row);
+    const result = new Map();
+    for (const { colorId, itemId, ...entity } of entities) {
+      if (!result.has(colorId)) {
+        result.set(colorId, new Map());
       }
+      result.get(colorId).set(itemId, entity);
     }
 
-    return [lastResult];
+    return [result];
   });
 
 const buildItemBodiesWithAppearanceDataLoader = (db) =>
