@@ -878,4 +878,4 @@ function assertSupportSecretOrThrow(supportSecret) {
   }
 }
 
-module.exports = { typeDefs, resolvers };
+module.exports = { typeDefs, resolvers, assertSupportSecretOrThrow };

@@ -1,5 +1,7 @@
 import { gql } from "apollo-server";
 
+import { assertSupportSecretOrThrow } from "./MutationsForSupport";
+
 const typeDefs = gql`
   type User {
     id: ID!
@@ -23,6 +25,9 @@ const typeDefs = gql`
     # This user's outfits. Returns an empty list if the current user is not
     # authorized to see them.
     outfits: [Outfit!]!
+
+    # This user's email address. Requires the correct supportSecret to view.
+    emailForSupportUsers(supportSecret: String!): String!
   }
 
   extend type Query {
@@ -218,7 +223,6 @@ const resolvers = {
           isDefaultList: true,
           userId: id,
           ownsOrWantsItems: "WANTS",
-          isDefaultList: true,
           items: defaultListWantedHangers.map((h) => ({ id: h.itemId })),
         });
       }
@@ -238,6 +242,23 @@ const resolvers = {
 
       const outfits = await userOutfitsLoader.load(id);
       return outfits.map((outfit) => ({ id: outfit.id }));
+    },
+
+    emailForSupportUsers: async ({ id }, { supportSecret }, { db }) => {
+      assertSupportSecretOrThrow(supportSecret);
+
+      const [rows] = await db.query(
+        `
+          SELECT email FROM openneo_id.users
+            WHERE id = (SELECT remote_id FROM users WHERE id = ?)
+        `,
+        [id]
+      );
+      if (rows.length === 0) {
+        throw new Error(`could not find user ${id} in openneo_id database`);
+      }
+
+      return rows[0].email;
     },
   },
 

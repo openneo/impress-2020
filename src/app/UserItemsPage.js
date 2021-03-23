@@ -555,6 +555,24 @@ function UserSupportMenu({ children, user }) {
   const { supportSecret } = useSupport();
   const toast = useToast();
 
+  const { loading, error, data } = useQuery(
+    gql`
+      query UserSupportMenu($userId: ID!, $supportSecret: String!) {
+        user(id: $userId) {
+          id
+          emailForSupportUsers(supportSecret: $supportSecret)
+        }
+      }
+    `,
+    {
+      variables: {
+        userId: user.id,
+        supportSecret,
+        onError: (e) => console.error(e),
+      },
+    }
+  );
+
   const [sendEditUsernameMutation] = useMutation(
     gql`
       mutation UserSupportMenuRename(
@@ -615,6 +633,23 @@ function UserSupportMenu({ children, user }) {
       <Portal>
         <MenuList>
           <MenuItem onClick={editUsername}>Edit username</MenuItem>
+          <MenuItem
+            as="a"
+            href={
+              data?.user?.emailForSupportUsers
+                ? `mailto:${data.user.emailForSupportUsers}`
+                : undefined
+            }
+            isDisabled={data?.user?.emailForSupportUsers == null}
+            sx={{
+              '&[aria-disabled="true"]': {
+                cursor: loading ? "wait !important" : "not-allowed",
+              },
+            }}
+          >
+            Send email
+            {error && <> (Error: {error.message})</>}
+          </MenuItem>
         </MenuList>
       </Portal>
     </Menu>
