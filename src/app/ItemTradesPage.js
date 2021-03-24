@@ -1,6 +1,13 @@
 import React from "react";
 import { ClassNames } from "@emotion/react";
-import { Box, Skeleton, useColorModeValue, useToken } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Flex,
+  Skeleton,
+  useColorModeValue,
+  useToken,
+} from "@chakra-ui/react";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
 import { Link, useHistory, useParams } from "react-router-dom";
@@ -8,6 +15,7 @@ import { Link, useHistory, useParams } from "react-router-dom";
 import { Heading2, usePageTitle } from "./util";
 import ItemPageLayout from "./ItemPageLayout";
 import useCurrentUser from "./components/useCurrentUser";
+import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
 
 export function ItemTradesOfferingPage() {
   return (
@@ -133,6 +141,10 @@ function ItemTradesTable({
     context: { sendAuth: true },
   });
 
+  const [isShowingInactiveTrades, setIsShowingInactiveTrades] = React.useState(
+    false
+  );
+
   const shouldShowCompareColumn = isLoggedIn;
 
   // We partially randomize trade sorting, but we want it to stay stable across
@@ -153,8 +165,20 @@ function ItemTradesTable({
     return tradeSortKeys.get(trade.id);
   };
 
-  const trades = [...(data?.item?.trades || [])];
+  const allTrades = [...(data?.item?.trades || [])];
+
+  // Only trades from users active within the last 6 months are shown by
+  // default. The user can toggle to the full view, though!
+  const sixMonthsAgo = new Date();
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+  const activeTrades = allTrades.filter(
+    (t) => new Date(t.user.lastTradeActivity) > sixMonthsAgo
+  );
+
+  const trades = isShowingInactiveTrades ? allTrades : activeTrades;
   trades.sort((a, b) => getTradeSortKey(b).localeCompare(getTradeSortKey(a)));
+
+  const numInactiveTrades = allTrades.length - activeTrades.length;
 
   if (error) {
     return <Box color="red.400">{error.message}</Box>;
@@ -168,83 +192,109 @@ function ItemTradesTable({
   return (
     <ClassNames>
       {({ css }) => (
-        <Box
-          as="table"
-          width="100%"
-          boxShadow="md"
-          className={css`
-            /* Chakra doesn't have props for these! */
-            border-collapse: separate;
-            border-spacing: 0;
-            table-layout: fixed;
-          `}
-        >
-          <Box as="thead" fontSize={{ base: "xs", sm: "sm" }}>
-            <Box as="tr">
-              <ItemTradesTableCell as="th" width={minorColumnWidth}>
-                {/* A small wording tweak to fit better on the xsmall screens! */}
-                <Box display={{ base: "none", sm: "block" }}>Last active</Box>
-                <Box display={{ base: "block", sm: "none" }}>Last edit</Box>
-              </ItemTradesTableCell>
-              {shouldShowCompareColumn && (
+        <Box>
+          <Box
+            as="table"
+            width="100%"
+            boxShadow="md"
+            className={css`
+              /* Chakra doesn't have props for these! */
+              border-collapse: separate;
+              border-spacing: 0;
+              table-layout: fixed;
+            `}
+          >
+            <Box as="thead" fontSize={{ base: "xs", sm: "sm" }}>
+              <Box as="tr">
                 <ItemTradesTableCell as="th" width={minorColumnWidth}>
-                  <Box display={{ base: "none", sm: "block" }}>
-                    {compareColumnLabel}
-                  </Box>
-                  <Box display={{ base: "block", sm: "none" }}>Matches</Box>
+                  {/* A small wording tweak to fit better on the xsmall screens! */}
+                  <Box display={{ base: "none", sm: "block" }}>Last active</Box>
+                  <Box display={{ base: "block", sm: "none" }}>Last edit</Box>
                 </ItemTradesTableCell>
+                {shouldShowCompareColumn && (
+                  <ItemTradesTableCell as="th" width={minorColumnWidth}>
+                    <Box display={{ base: "none", sm: "block" }}>
+                      {compareColumnLabel}
+                    </Box>
+                    <Box display={{ base: "block", sm: "none" }}>Matches</Box>
+                  </ItemTradesTableCell>
+                )}
+                <ItemTradesTableCell as="th" width={minorColumnWidth}>
+                  {userHeading}
+                </ItemTradesTableCell>
+                <ItemTradesTableCell as="th">List</ItemTradesTableCell>
+              </Box>
+            </Box>
+            <Box as="tbody">
+              {loading && (
+                <>
+                  <ItemTradesTableRowSkeleton
+                    shouldShowCompareColumn={shouldShowCompareColumn}
+                  />
+                  <ItemTradesTableRowSkeleton
+                    shouldShowCompareColumn={shouldShowCompareColumn}
+                  />
+                  <ItemTradesTableRowSkeleton
+                    shouldShowCompareColumn={shouldShowCompareColumn}
+                  />
+                  <ItemTradesTableRowSkeleton
+                    shouldShowCompareColumn={shouldShowCompareColumn}
+                  />
+                  <ItemTradesTableRowSkeleton
+                    shouldShowCompareColumn={shouldShowCompareColumn}
+                  />
+                </>
               )}
-              <ItemTradesTableCell as="th" width={minorColumnWidth}>
-                {userHeading}
-              </ItemTradesTableCell>
-              <ItemTradesTableCell as="th">List</ItemTradesTableCell>
+              {!loading &&
+                trades.length > 0 &&
+                trades.map((trade) => (
+                  <ItemTradesTableRow
+                    key={trade.id}
+                    href={`/user/${trade.user.id}/items#list-${trade.closetList.id}`}
+                    username={trade.user.username}
+                    listName={trade.closetList.name}
+                    lastTradeActivity={trade.user.lastTradeActivity}
+                    matchingItems={trade.user.matchingItems}
+                    shouldShowCompareColumn={shouldShowCompareColumn}
+                  />
+                ))}
+              {!loading && trades.length === 0 && (
+                <Box as="tr">
+                  <ItemTradesTableCell
+                    colSpan={shouldShowCompareColumn ? 4 : 3}
+                    textAlign="center"
+                    fontStyle="italic"
+                  >
+                    No trades yet!
+                  </ItemTradesTableCell>
+                </Box>
+              )}
             </Box>
           </Box>
-          <Box as="tbody">
-            {loading && (
-              <>
-                <ItemTradesTableRowSkeleton
-                  shouldShowCompareColumn={shouldShowCompareColumn}
-                />
-                <ItemTradesTableRowSkeleton
-                  shouldShowCompareColumn={shouldShowCompareColumn}
-                />
-                <ItemTradesTableRowSkeleton
-                  shouldShowCompareColumn={shouldShowCompareColumn}
-                />
-                <ItemTradesTableRowSkeleton
-                  shouldShowCompareColumn={shouldShowCompareColumn}
-                />
-                <ItemTradesTableRowSkeleton
-                  shouldShowCompareColumn={shouldShowCompareColumn}
-                />
-              </>
-            )}
-            {!loading &&
-              trades.length > 0 &&
-              trades.map((trade) => (
-                <ItemTradesTableRow
-                  key={trade.id}
-                  href={`/user/${trade.user.id}/items#list-${trade.closetList.id}`}
-                  username={trade.user.username}
-                  listName={trade.closetList.name}
-                  lastTradeActivity={trade.user.lastTradeActivity}
-                  matchingItems={trade.user.matchingItems}
-                  shouldShowCompareColumn={shouldShowCompareColumn}
-                />
-              ))}
-            {!loading && trades.length === 0 && (
-              <Box as="tr">
-                <ItemTradesTableCell
-                  colSpan={shouldShowCompareColumn ? 4 : 3}
-                  textAlign="center"
-                  fontStyle="italic"
-                >
-                  No trades yet!
-                </ItemTradesTableCell>
-              </Box>
-            )}
-          </Box>
+          {numInactiveTrades > 0 && (
+            <Flex justify="center">
+              <Button
+                size="sm"
+                variant="outline"
+                marginTop="4"
+                onClick={() => setIsShowingInactiveTrades((s) => !s)}
+              >
+                {isShowingInactiveTrades ? (
+                  <>
+                    <ChevronUpIcon marginRight="2" />
+                    Hide {numInactiveTrades} older trades
+                    <ChevronUpIcon marginLeft="2" />
+                  </>
+                ) : (
+                  <>
+                    <ChevronDownIcon marginRight="2" />
+                    Show {numInactiveTrades} more older trades
+                    <ChevronDownIcon marginLeft="2" />
+                  </>
+                )}
+              </Button>
+            </Flex>
+          )}
         </Box>
       )}
     </ClassNames>
