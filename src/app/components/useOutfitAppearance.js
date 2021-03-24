@@ -181,6 +181,12 @@ export function getVisibleLayers(petAppearance, itemAppearances) {
       return false;
     }
 
+    // A pet appearance can also restrict its own zones. The Wraith Uni is an
+    // interesting example: it has a horn, but its zone restrictions hide it!
+    if (layer.source === "pet" && petRestrictedZoneIds.has(layer.zone.id)) {
+      return false;
+    }
+
     return true;
   });
   visibleLayers.sort((a, b) => a.zone.depth - b.zone.depth);
