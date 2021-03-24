@@ -19,6 +19,9 @@ import {
   WrapItem,
   VStack,
   useToast,
+  Button,
+  Textarea,
+  HStack,
 } from "@chakra-ui/react";
 import {
   ArrowForwardIcon,
@@ -239,11 +242,6 @@ function UserItemsPage() {
           </Flex>
 
           <Box marginTop="4">
-            {isCurrentUser && (
-              <Box float="right">
-                <WIPCallout details="These lists are read-only for now. To edit, head back to Classic DTI!" />
-              </Box>
-            )}
             <Heading2 id="owned-items" marginBottom="2">
               {isCurrentUser
                 ? "Items you own"
@@ -417,6 +415,9 @@ function UserSearchForm() {
 }
 
 function ClosetList({ closetList, isCurrentUser, showHeading }) {
+  const { isSupportUser, supportSecret } = useSupport();
+  const toast = useToast();
+
   const hasYouWantThisBadge = (item) =>
     !isCurrentUser &&
     closetList.ownsOrWantsItems === "OWNS" &&
@@ -446,19 +447,155 @@ function ClosetList({ closetList, isCurrentUser, showHeading }) {
     }
   }, [anchorId]);
 
+  const [
+    sendSaveChangesMutation,
+    { loading: loadingSaveChanges },
+  ] = useMutation(
+    gql`
+      mutation ClosetList_Edit(
+        $closetListId: ID!
+        $name: String!
+        $description: String!
+        # Support users can edit any list, if they provide the secret. If you're
+        # editing your own list, this will be empty, and that's okay.
+        $supportSecret: String
+      ) {
+        editClosetList(
+          closetListId: $closetListId
+          name: $name
+          description: $description
+          supportSecret: $supportSecret
+        ) {
+          id
+          name
+          description
+        }
+      }
+    `,
+    { context: { sendAuth: true } }
+  );
+
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [editableName, setEditableName] = React.useState(closetList.name);
+  const [editableDescription, setEditableDescription] = React.useState(
+    closetList.description
+  );
+  const hasChanges =
+    editableName !== closetList.name ||
+    editableDescription !== closetList.description;
+  const onSaveChanges = () => {
+    if (!hasChanges) {
+      setIsEditing(false);
+      return;
+    }
+
+    sendSaveChangesMutation({
+      variables: {
+        closetListId: closetList.id,
+        name: editableName,
+        description: editableDescription,
+        supportSecret,
+      },
+    })
+      .then(() => {
+        setIsEditing(false);
+        toast({
+          status: "success",
+          title: "Changes saved!",
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+        toast({
+          status: "error",
+          title: "Sorry, we couldn't save this list 😖",
+          description: "Check your connection and try again.",
+        });
+      });
+  };
+
   return (
     <Box id={anchorId}>
-      {showHeading && (
-        <Heading3
-          marginBottom="2"
-          fontStyle={closetList.isDefaultList ? "italic" : "normal"}
-        >
-          {closetList.name}
-        </Heading3>
-      )}
+      <Flex align="center" wrap="wrap" marginBottom="2">
+        {showHeading &&
+          (isEditing ? (
+            <Heading3
+              as={Input}
+              value={editableName}
+              onChange={(e) => setEditableName(e.target.value)}
+              maxWidth="20ch"
+              // Shift left by our own padding/border, for alignment with the
+              // original title
+              paddingX="0.75rem"
+              marginLeft="calc(-0.75rem - 1px)"
+              boxShadow="sm"
+            />
+          ) : (
+            <Heading3
+              fontStyle={closetList.isDefaultList ? "italic" : "normal"}
+              lineHeight="1.2" // to match Input
+              paddingY="2px" // to account for Input border/padding
+            >
+              {closetList.name}
+            </Heading3>
+          ))}
+        <Box flex="1 0 auto" width="4" />
+        {(isCurrentUser || isSupportUser) &&
+          !closetList.isDefaultList &&
+          (isEditing ? (
+            <>
+              <WIPCallout
+                size="sm"
+                details="To edit the items, head back to Classic DTI!"
+                marginY="2"
+              >
+                WIP: Can only edit text for now!
+              </WIPCallout>
+              <Box width="4" />
+              <HStack spacing="2" marginLeft="auto" marginY="1">
+                <Button size="sm" onClick={() => setIsEditing(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  display="flex"
+                  align="center"
+                  size="sm"
+                  colorScheme="green"
+                  onClick={onSaveChanges}
+                  isLoading={loadingSaveChanges}
+                >
+                  <CheckIcon marginRight="1" />
+                  Save changes
+                </Button>
+              </HStack>
+            </>
+          ) : (
+            <Button
+              display="flex"
+              align="center"
+              size="sm"
+              onClick={() => setIsEditing(true)}
+            >
+              <EditIcon marginRight="1" />
+              Edit
+            </Button>
+          ))}
+      </Flex>
       {closetList.description && (
         <Box marginBottom="2">
-          <MarkdownAndSafeHTML>{closetList.description}</MarkdownAndSafeHTML>
+          {isEditing ? (
+            <Textarea
+              value={editableDescription}
+              onChange={(e) => setEditableDescription(e.target.value)}
+              // Shift left by our own padding/border, for alignment with the
+              // original title
+              paddingX="0.75rem"
+              marginLeft="calc(-0.75rem - 1px)"
+              boxShadow="sm"
+            />
+          ) : (
+            <MarkdownAndSafeHTML>{closetList.description}</MarkdownAndSafeHTML>
+          )}
         </Box>
       )}
       {sortedItems.length > 0 ? (

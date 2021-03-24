@@ -1,5 +1,7 @@
 import { gql } from "apollo-server";
 
+import { logToDiscord } from "../util";
+
 const typeDefs = gql`
   enum OwnsOrWants {
     OWNS
@@ -25,6 +27,17 @@ const typeDefs = gql`
     isDefaultList: Boolean!
 
     items: [Item!]!
+  }
+
+  extend type Mutation {
+    # Edit the metadata of a closet list. Requires the current user to own the
+    # list, or for the correct supportSecret to be provided.
+    editClosetList(
+      closetListId: ID!
+      name: String!
+      description: String!
+      supportSecret: String
+    ): ClosetList
   }
 `;
 
@@ -89,6 +102,77 @@ const resolvers = {
           `the list resolver stuff in User.js. Break that out into real ` +
           `ClosetList loaders and resolvers!`
       );
+    },
+  },
+
+  Mutation: {
+    editClosetList: async (
+      _,
+      { closetListId, name, description, supportSecret },
+      { currentUserId, closetListLoader, userLoader, db }
+    ) => {
+      const oldClosetList = await closetListLoader.load(closetListId);
+      if (!oldClosetList) {
+        console.warn(
+          `Skipping editClosetList for unknown closet list ID: ${closetListId}`
+        );
+        return null;
+      }
+
+      const isCurrentUser = oldClosetList.userId === currentUserId;
+      const isSupportUser = supportSecret === process.env["SUPPORT_SECRET"];
+      if (!isCurrentUser && !isSupportUser) {
+        throw new Error(
+          `Current user does not have permission to edit closet list ${closetListId}`
+        );
+      }
+
+      await db.execute(
+        `
+        UPDATE closet_lists SET name = ?, description = ? WHERE id = ? LIMIT 1
+      `,
+        [name, description, closetListId]
+      );
+
+      // we changed it, so clear it from cache
+      closetListLoader.clear(closetListId);
+
+      // If this was a Support action (rather than a normal edit), log it.
+      if (!isCurrentUser && isSupportUser) {
+        if (process.env["SUPPORT_TOOLS_DISCORD_WEBHOOK_URL"]) {
+          try {
+            const user = await userLoader.load(oldClosetList.userId);
+
+            await logToDiscord({
+              embeds: [
+                {
+                  title: `🛠 User ${user.name} - List ${closetListId}`,
+                  fields: [
+                    {
+                      name: `Name`,
+                      value: `${oldClosetList.name} → **${name}**`,
+                    },
+                    {
+                      name: `Description`,
+                      value:
+                        `\`${oldClosetList.description.substr(0, 60)}…\`` +
+                        `→ **\`${description.substr(0, 60)}…\`**`,
+                    },
+                  ],
+                  timestamp: new Date().toISOString(),
+                  url: `https://impress-2020.openneo.net/user/${user.id}/items#list-${closetListId}`,
+                },
+              ],
+            });
+          } catch (e) {
+            console.error("Error sending Discord support log", e);
+          }
+        } else {
+          console.warn("No Discord support webhook provided, skipping");
+        }
+      }
+
+      return { id: closetListId };
     },
   },
 };

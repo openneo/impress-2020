@@ -6,7 +6,13 @@ import { useCommonStyles } from "../util";
 import WIPXweeImg from "../images/wip-xwee.png";
 import WIPXweeImg2x from "../images/wip-xwee@2x.png";
 
-function WIPCallout({ children, details, placement = "bottom", ...props }) {
+function WIPCallout({
+  children,
+  details,
+  size = "md",
+  placement = "bottom",
+  ...props
+}) {
   const { brightBackground } = useCommonStyles();
 
   let content = (
@@ -21,7 +27,7 @@ function WIPCallout({ children, details, placement = "bottom", ...props }) {
       paddingLeft="2"
       paddingRight="4"
       paddingY="1"
-      fontSize="sm"
+      fontSize={size === "sm" ? "xs" : "sm"}
       {...props}
     >
       <Box
@@ -29,8 +35,8 @@ function WIPCallout({ children, details, placement = "bottom", ...props }) {
         src={WIPXweeImg}
         srcSet={`${WIPXweeImg} 1x, ${WIPXweeImg2x} 2x`}
         alt=""
-        width="36px"
-        height="36px"
+        width={size === "sm" ? "24px" : "36px"}
+        height={size === "sm" ? "24px" : "36px"}
         marginRight="2"
       />
       {children || (
