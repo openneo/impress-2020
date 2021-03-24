@@ -29,6 +29,7 @@ const typeDefs = gql`
     currentUserWantsThis: Boolean! @cacheControl(scope: PRIVATE)
 
     # How many users are offering/seeking this in their public trade lists.
+    # Excludes users that seem relatively inactive.
     numUsersOfferingThis: Int! @cacheControl(maxAge: ${oneHour})
     numUsersSeekingThis: Int! @cacheControl(maxAge: ${oneHour})
 
@@ -268,19 +269,55 @@ const resolvers = {
       return closetHangers.some((h) => h.itemId === id && !h.owned);
     },
 
-    numUsersOfferingThis: async ({ id }, _, { itemTradeCountsLoader }) => {
-      const count = await itemTradeCountsLoader.load({
+    numUsersOfferingThis: async (
+      { id },
+      _,
+      { itemTradesLoader, userLastTradeActivityLoader }
+    ) => {
+      // First, get the trades themselves. TODO: Optimize into one query?
+      const trades = await itemTradesLoader.load({
         itemId: id,
         isOwned: true,
       });
-      return count;
+
+      // Then, get the last active dates for those users.
+      const userIds = trades.map((t) => t.user.id);
+      const lastActiveDates = await userLastTradeActivityLoader.loadMany(
+        userIds
+      );
+
+      // Finally, count how many of those dates were in the last 6 months.
+      // Those trades get to be in the count!
+      const sixMonthsAgo = new Date();
+      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+      const numTrades = lastActiveDates.filter((d) => d > sixMonthsAgo).length;
+
+      return numTrades;
     },
-    numUsersSeekingThis: async ({ id }, _, { itemTradeCountsLoader }) => {
-      const count = await itemTradeCountsLoader.load({
+    numUsersSeekingThis: async (
+      { id },
+      _,
+      { itemTradesLoader, userLastTradeActivityLoader }
+    ) => {
+      // First, get the trades themselves. TODO: Optimize into one query?
+      const trades = await itemTradesLoader.load({
         itemId: id,
         isOwned: false,
       });
-      return count;
+
+      // Then, get the last active dates for those users.
+      const userIds = trades.map((t) => t.user.id);
+      const lastActiveDates = await userLastTradeActivityLoader.loadMany(
+        userIds
+      );
+
+      // Finally, count how many of those dates were in the last 6 months.
+      // Those trades get to be in the count!
+      const sixMonthsAgo = new Date();
+      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+      const numTrades = lastActiveDates.filter((d) => d > sixMonthsAgo).length;
+
+      return numTrades;
     },
 
     tradesOffering: async ({ id }, _, { itemTradesLoader }) => {

@@ -535,55 +535,6 @@ const buildItemAllOccupiedZonesLoader = (db) =>
     });
   });
 
-const buildItemTradeCountsLoader = (db) =>
-  new DataLoader(
-    async (itemIdOwnedPairs) => {
-      const qs = itemIdOwnedPairs
-        .map((_) => "(closet_hangers.item_id = ? AND closet_hangers.owned = ?)")
-        .join(" OR ");
-      const values = itemIdOwnedPairs
-        .map(({ itemId, isOwned }) => [itemId, isOwned])
-        .flat();
-      const [rows, _] = await db.execute(
-        `
-        SELECT
-          closet_hangers.item_id AS item_id, closet_hangers.owned AS is_owned,
-            count(DISTINCT closet_hangers.user_id) AS users_count
-          FROM closet_hangers
-          INNER JOIN users ON users.id = closet_hangers.user_id
-          LEFT JOIN closet_lists ON closet_lists.id = closet_hangers.list_id
-          WHERE (
-            (${qs})
-            AND (
-              (closet_hangers.list_id IS NOT NULL AND closet_lists.visibility >= 2)
-              OR (
-                closet_hangers.list_id IS NULL AND closet_hangers.owned = 1
-                AND users.owned_closet_hangers_visibility >= 2
-              )
-              OR (
-                closet_hangers.list_id IS NULL AND closet_hangers.owned = 0
-                AND users.wanted_closet_hangers_visibility >= 2
-              )
-            )
-          )
-          GROUP BY closet_hangers.item_id, closet_hangers.owned;
-      `,
-        values
-      );
-
-      const entities = rows.map(normalizeRow);
-
-      return itemIdOwnedPairs.map(({ itemId, isOwned }) => {
-        // NOTE: There may be no matching row, if there are 0 such trades.
-        const entity = entities.find(
-          (e) => e.itemId === itemId && Boolean(e.isOwned) === isOwned
-        );
-        return entity ? entity.usersCount : 0;
-      });
-    },
-    { cacheKeyFn: ({ itemId, isOwned }) => `${itemId}-${isOwned}` }
-  );
-
 const buildItemTradesLoader = (db, loaders) =>
   new DataLoader(
     async (itemIdOwnedPairs) => {
@@ -1261,7 +1212,6 @@ function buildLoaders(db) {
     db
   );
   loaders.itemAllOccupiedZonesLoader = buildItemAllOccupiedZonesLoader(db);
-  loaders.itemTradeCountsLoader = buildItemTradeCountsLoader(db);
   loaders.itemTradesLoader = buildItemTradesLoader(db, loaders);
   loaders.petTypeLoader = buildPetTypeLoader(db, loaders);
   loaders.petTypeBySpeciesAndColorLoader = buildPetTypeBySpeciesAndColorLoader(
