@@ -3,7 +3,6 @@ import { Box, VStack } from "@chakra-ui/react";
 import { WarningTwoIcon } from "@chakra-ui/icons";
 import { FaBug } from "react-icons/fa";
 import { GlitchBadgeLayout, layerUsesHTML5 } from "../components/HTML5Badge";
-import { petAppearanceFragment } from "../components/useOutfitAppearance";
 
 function OutfitKnownGlitchesBadge({ appearance }) {
   const glitchMessages = [];
