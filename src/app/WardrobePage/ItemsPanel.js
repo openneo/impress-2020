@@ -10,13 +10,18 @@ import {
   Skeleton,
   Tooltip,
   VisuallyHidden,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Portal,
 } from "@chakra-ui/react";
 import { EditIcon, QuestionIcon } from "@chakra-ui/icons";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 
 import { Delay, Heading1, Heading2 } from "../util";
 import Item, { ItemListContainer, ItemListSkeleton } from "./Item";
-import WIPCallout from "../components/WIPCallout";
+import { MdMoreVert } from "react-icons/md";
 
 /**
  * ItemsPanel shows the items in the current outfit, and lets the user toggle
@@ -239,58 +244,60 @@ function ItemZoneGroupSkeleton({ itemCount }) {
 
 /**
  * OutfitHeading is an editable outfit name, as a big pretty page heading!
+ * It also contains the outfit menu, for saving etc.
  */
 function OutfitHeading({ outfitState, dispatchToOutfit }) {
   return (
-    <Flex align="flex-start" justify="space-between">
-      <Box marginRight="4">
-        <Box role="group" d="inline-block" position="relative" width="100%">
-          <Heading1 mb="6">
-            <Editable
-              // Make sure not to ever pass `undefined` into here, or else the
-              // component enters uncontrolled mode, and changing the value
-              // later won't fix it!
-              value={outfitState.name || ""}
-              placeholder="Untitled outfit"
-              onChange={(value) =>
-                dispatchToOutfit({ type: "rename", outfitName: value })
-              }
-            >
-              {({ isEditing, onEdit }) => (
-                <Flex align="flex-top">
-                  <EditablePreview />
-                  <EditableInput />
-                  {!isEditing && (
-                    <Box
-                      opacity="0"
-                      transition="opacity 0.5s"
-                      _groupHover={{ opacity: "1" }}
-                      onClick={onEdit}
-                    >
-                      <IconButton
-                        icon={<EditIcon />}
-                        variant="link"
-                        aria-label="Edit outfit name"
-                        title="Edit outfit name"
-                      />
-                    </Box>
-                  )}
-                </Flex>
-              )}
-            </Editable>
-          </Heading1>
-        </Box>
-      </Box>
-      {outfitState.id && (
-        <WIPCallout
-          details={`To save a new version of this outfit, use Classic DTI. But you can still play around in here for now!`}
-          marginTop="1"
-          placement="bottom-end"
-        >
-          Saved outfits are WIP!
-        </WIPCallout>
+    // The Editable wraps everything, including the menu, because the menu has
+    // a Rename option.
+    <Editable
+      // Make sure not to ever pass `undefined` into here, or else the
+      // component enters uncontrolled mode, and changing the value
+      // later won't fix it!
+      value={outfitState.name || ""}
+      placeholder="Untitled outfit"
+      onChange={(value) =>
+        dispatchToOutfit({ type: "rename", outfitName: value })
+      }
+    >
+      {({ onEdit }) => (
+        <Flex align="center" justify="space-between" marginBottom="6">
+          <Box marginRight="4">
+            <Box role="group" d="inline-block" position="relative" width="100%">
+              <Heading1>
+                <EditablePreview lineHeight="48px" />
+                <EditableInput lineHeight="48px" />
+              </Heading1>
+            </Box>
+          </Box>
+          <Menu placement="bottom-end">
+            <MenuButton
+              as={IconButton}
+              variant="ghost"
+              icon={<MdMoreVert />}
+              aria-label="Outfit menu"
+              borderRadius="full"
+              fontSize="24px"
+              opacity="0.8"
+            />
+            <Portal>
+              <MenuList>
+                <MenuItem
+                  icon={<EditIcon />}
+                  onClick={() => {
+                    // Start the rename after a tick, so finishing up the click
+                    // won't just immediately remove focus from the Editable.
+                    setTimeout(onEdit, 0);
+                  }}
+                >
+                  Rename
+                </MenuItem>
+              </MenuList>
+            </Portal>
+          </Menu>
+        </Flex>
       )}
-    </Flex>
+    </Editable>
   );
 }
 
