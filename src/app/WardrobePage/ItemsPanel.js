@@ -15,12 +15,15 @@ import {
   MenuList,
   MenuItem,
   Portal,
+  Button,
 } from "@chakra-ui/react";
 import { EditIcon, QuestionIcon } from "@chakra-ui/icons";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 
 import { Delay, Heading1, Heading2 } from "../util";
 import Item, { ItemListContainer, ItemListSkeleton } from "./Item";
+import { BiRename } from "react-icons/bi";
+import { IoCloudUploadOutline } from "react-icons/io5";
 import { MdMoreVert } from "react-icons/md";
 
 /**
@@ -261,8 +264,8 @@ function OutfitHeading({ outfitState, dispatchToOutfit }) {
       }
     >
       {({ onEdit }) => (
-        <Flex align="center" justify="space-between" marginBottom="6">
-          <Box marginRight="4">
+        <Flex align="center" marginBottom="6">
+          <Box>
             <Box role="group" d="inline-block" position="relative" width="100%">
               <Heading1>
                 <EditablePreview lineHeight="48px" />
@@ -270,6 +273,25 @@ function OutfitHeading({ outfitState, dispatchToOutfit }) {
               </Heading1>
             </Box>
           </Box>
+          <Box width="4" flex="1 0 auto" />
+          <Tooltip label="Coming soon!" shouldWrapChildren>
+            <Button
+              variant="outline"
+              size="sm"
+              isDisabled
+              leftIcon={
+                <Box
+                  // Adjust the visual balance toward the cloud
+                  marginBottom="-2px"
+                >
+                  <IoCloudUploadOutline />
+                </Box>
+              }
+            >
+              Save
+            </Button>
+          </Tooltip>
+          <Box width="2" />
           <Menu placement="bottom-end">
             <MenuButton
               as={IconButton}
@@ -282,8 +304,13 @@ function OutfitHeading({ outfitState, dispatchToOutfit }) {
             />
             <Portal>
               <MenuList>
+                {outfitState.id && (
+                  <MenuItem icon={<EditIcon />} isDisabled>
+                    Edit a copy <i>(Coming soon)</i>
+                  </MenuItem>
+                )}
                 <MenuItem
-                  icon={<EditIcon />}
+                  icon={<BiRename />}
                   onClick={() => {
                     // Start the rename after a tick, so finishing up the click
                     // won't just immediately remove focus from the Editable.
