@@ -25,6 +25,7 @@ import Item, { ItemListContainer, ItemListSkeleton } from "./Item";
 import { BiRename } from "react-icons/bi";
 import { IoCloudUploadOutline } from "react-icons/io5";
 import { MdMoreVert } from "react-icons/md";
+import useCurrentUser from "../components/useCurrentUser";
 
 /**
  * ItemsPanel shows the items in the current outfit, and lets the user toggle
@@ -250,6 +251,8 @@ function ItemZoneGroupSkeleton({ itemCount }) {
  * It also contains the outfit menu, for saving etc.
  */
 function OutfitHeading({ outfitState, dispatchToOutfit }) {
+  const { isLoggedIn } = useCurrentUser();
+
   return (
     // The Editable wraps everything, including the menu, because the menu has
     // a Rename option.
@@ -274,24 +277,29 @@ function OutfitHeading({ outfitState, dispatchToOutfit }) {
             </Box>
           </Box>
           <Box width="4" flex="1 0 auto" />
-          <Tooltip label="Coming soon!" shouldWrapChildren>
-            <Button
-              variant="outline"
-              size="sm"
-              isDisabled
-              leftIcon={
-                <Box
-                  // Adjust the visual balance toward the cloud
-                  marginBottom="-2px"
+          {isLoggedIn && (
+            <>
+              <Tooltip label="Coming soon!" shouldWrapChildren>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  isDisabled
+                  leftIcon={
+                    <Box
+                      // Adjust the visual balance toward the cloud
+                      marginBottom="-2px"
+                    >
+                      <IoCloudUploadOutline />
+                    </Box>
+                  }
                 >
-                  <IoCloudUploadOutline />
-                </Box>
-              }
-            >
-              Save
-            </Button>
-          </Tooltip>
-          <Box width="2" />
+                  Save
+                </Button>
+              </Tooltip>
+              <Box width="2" />
+            </>
+          )}
+
           <Menu placement="bottom-end">
             <MenuButton
               as={IconButton}
