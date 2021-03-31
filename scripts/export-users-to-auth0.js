@@ -3,6 +3,8 @@
 // If you use the --since flag, we'll only include users whose OpenNeo ID
 // records were updated (or created) since then. Or, the --username flag will
 // filter for a single specific username. Otherwise, we'll include all users.
+// (It's safe to re-run against users already imported; Auth0 will reject any
+// duplicates!)
 //
 // This sorta creates a second copy of everyone's account, copied onto Auth0.
 // We should be thoughtful about how we do the actual migration process!
