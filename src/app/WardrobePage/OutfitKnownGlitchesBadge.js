@@ -89,6 +89,22 @@ function OutfitKnownGlitchesBadge({ appearance }) {
     }
   }
 
+  // Look for items with the OFFICIAL_BODY_ID_IS_INCORRECT glitch.
+  for (const item of items) {
+    const itemHasOfficialBodyIdIsIncorrect = item.appearance.layers.some((l) =>
+      (l.knownGlitches || []).includes("OFFICIAL_BODY_ID_IS_INCORRECT")
+    );
+    if (itemHasOfficialBodyIdIsIncorrect) {
+      glitchMessages.push(
+        <Box key={`official-body-id-is-incorrect-for-item-${item.id}`}>
+          Last we checked, <i>{item.name}</i> actually is compatible with this
+          pet, even though it seems like it shouldn't be. But TNT might change
+          this at any time, so be careful!
+        </Box>
+      );
+    }
+  }
+
   // Look for Dyeworks items that aren't converted yet.
   for (const item of items) {
     const itemIsDyeworks = item.name.includes("Dyeworks");

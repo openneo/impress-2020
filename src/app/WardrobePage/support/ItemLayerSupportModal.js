@@ -442,6 +442,13 @@ function ItemLayerSupportKnownGlitchesFields({
               (Will use the PNG instead)
             </Box>
           </Checkbox>
+          <Checkbox value="OFFICIAL_BODY_ID_IS_INCORRECT">
+            Fits all pets on-site, but should not{" "}
+            <Box display="inline" color="gray.400" fontSize="sm">
+              (TNT's fault. Will show a message, and keep the compatibility
+              settings above.)
+            </Box>
+          </Checkbox>
           <Checkbox value="REQUIRES_OTHER_BODY_SPECIFIC_ASSETS">
             Only fits pets with other body-specific assets{" "}
             <Box display="inline" color="gray.400" fontSize="sm">

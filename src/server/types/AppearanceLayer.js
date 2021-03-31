@@ -100,6 +100,12 @@ const typeDefs = gql`
     # For affected layers, svgUrl will be null, regardless of the manifest.
     OFFICIAL_SVG_IS_INCORRECT
 
+    # This glitch means that the official body ID for this asset is not correct
+    # (usually 0), so it will fit some pets that it shouldn't. We reflect this
+    # accurately on DTI, with a message to explain that it's not our error, and
+    # as a warning that this might not work if TNT changes it later.
+    OFFICIAL_BODY_ID_IS_INCORRECT
+
     # This glitch is a hack for a bug in DTI: some items, like "Living in
     # Watermelon Foreground and Background", have a background layer that's
     # shared across all bodies - but it should NOT fit pets that don't have a
