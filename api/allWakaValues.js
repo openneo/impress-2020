@@ -33,14 +33,32 @@ async function handle(req, res) {
 }
 
 async function loadWakaValues() {
-  const wakaJson = await fetch(
+  if (!process.env["GOOGLE_API_KEY"]) {
+    throw new Error(`GOOGLE_API_KEY environment variable must be provided`);
+  }
+
+  const res = await fetch(
     `https://sheets.googleapis.com/v4/spreadsheets/` +
       `1DRMrniTSZP0sgZK6OAFFYqpmbT6xY_Ve_i480zghOX0/values/NC%20Values` +
       `?fields=values&key=${encodeURIComponent(process.env["GOOGLE_API_KEY"])}`
-  ).then((res) => res.json());
+  );
+  const json = await res.json();
+
+  if (!res.ok) {
+    if (json.error) {
+      const { code, status, message } = json.error;
+      throw new Error(
+        `Google Sheets API returned error ${code} ${status}: ${message}`
+      );
+    } else {
+      throw new Error(
+        `Google Sheets API returned unexpected error: ${res.status} ${res.statusText}`
+      );
+    }
+  }
 
   // Get the rows from the JSON response - skipping the first-row headers.
-  const rows = wakaJson.values.slice(1);
+  const rows = json.values.slice(1);
 
   // Reformat the rows as a map from item name to value. We offer the item data
   // as an object with a single field `value` for extensibility, but we omit
