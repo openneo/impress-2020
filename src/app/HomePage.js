@@ -362,6 +362,7 @@ function NewItemsSectionContent() {
           id
           name
           thumbnailUrl
+          isNc
         }
       }
     `

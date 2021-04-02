@@ -1,12 +1,17 @@
 import React from "react";
-import { Skeleton, useTheme, useToken } from "@chakra-ui/react";
+import {
+  Skeleton,
+  useColorModeValue,
+  useTheme,
+  useToken,
+} from "@chakra-ui/react";
 import { ClassNames } from "@emotion/react";
 import { Link } from "react-router-dom";
 
 import { safeImageUrl, useCommonStyles } from "../util";
 
 function SquareItemCard({ item, ...props }) {
-  const theme = useTheme();
+  const outlineShadowValue = useToken("shadows", "outline");
 
   return (
     <ClassNames>
@@ -23,7 +28,7 @@ function SquareItemCard({ item, ...props }) {
               transform: scale(1.05);
             }
             &:focus {
-              box-shadow: ${theme.shadows.outline};
+              box-shadow: ${outlineShadowValue};
               outline: none;
             }
           `}
@@ -31,23 +36,7 @@ function SquareItemCard({ item, ...props }) {
         >
           <SquareItemCardLayout
             name={item.name}
-            thumbnailImage={
-              <img
-                src={safeImageUrl(item.thumbnailUrl)}
-                alt={`Thumbnail art for ${item.name}`}
-                width={80}
-                height={80}
-                className={css`
-                  border-radius: ${theme.radii.md};
-
-                  /* Don't let alt text flash in while loading */
-                  &:-moz-loading {
-                    visibility: hidden;
-                  }
-                `}
-                loading="lazy"
-              />
-            }
+            thumbnailImage={<ItemThumbnail item={item} />}
           />
         </Link>
       )}
@@ -97,6 +86,81 @@ function SquareItemCardLayout({ name, thumbnailImage, minHeightNumLines = 2 }) {
           >
             {name}
           </div>
+        </div>
+      )}
+    </ClassNames>
+  );
+}
+
+function ItemThumbnail({ item }) {
+  const mdRadiusValue = useToken("radii", "md");
+
+  const badgeBackground = useColorModeValue(
+    item.isNc ? "purple.100" : "gray.100",
+    item.isNc ? "purple.500" : "gray.500"
+  );
+  const badgeColor = useColorModeValue(
+    item.isNc ? "purple.500" : "gray.500",
+    item.isNc ? "purple.100" : "gray.100"
+  );
+  const thumbnailShadowColor = useColorModeValue(
+    item.isNc ? "purple.200" : "gray.200",
+    item.isNc ? "purple.600" : "gray.600"
+  );
+
+  const [
+    badgeBackgroundValue,
+    badgeColorValue,
+    thumbnailShadowColorValue,
+  ] = useToken("colors", [badgeBackground, badgeColor, thumbnailShadowColor]);
+
+  return (
+    <ClassNames>
+      {({ css }) => (
+        <div
+          className={css`
+            position: relative;
+          `}
+        >
+          <img
+            src={safeImageUrl(item.thumbnailUrl)}
+            alt={`Thumbnail art for ${item.name}`}
+            width={80}
+            height={80}
+            className={css`
+              border-radius: ${mdRadiusValue};
+              box-shadow: 0 0 4px ${thumbnailShadowColorValue};
+
+              /* Don't let alt text flash in while loading */
+              &:-moz-loading {
+                visibility: hidden;
+              }
+            `}
+            loading="lazy"
+          />
+          {item.isNc != null && (
+            <div
+              className={css`
+                position: absolute;
+                bottom: -6px;
+                right: -3px;
+                /* Copied from Chakra <Badge> */
+                display: inline-block;
+                white-space: nowrap;
+                vertical-align: middle;
+                padding-left: 0.25rem;
+                padding-right: 0.25rem;
+                text-transform: uppercase;
+                font-size: 0.65rem;
+                border-radius: 0.125rem;
+                font-weight: 700;
+                background: ${badgeBackgroundValue};
+                color: ${badgeColorValue};
+              `}
+            >
+              {item.isNc ? "NC" : "NP"}
+            </div>
+          )}
         </div>
       )}
     </ClassNames>
