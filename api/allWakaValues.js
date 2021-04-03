@@ -9,15 +9,28 @@ const beeline = require("honeycomb-beeline")({
 
 import fetch from "node-fetch";
 
+import connectToDb from "../src/server/db";
+
 async function handle(req, res) {
-  let itemValues;
+  const allNcItemNamesAndIdsPromise = loadAllNcItemNamesAndIds();
+
+  let itemValuesByName;
   try {
-    itemValues = await loadWakaValues();
+    itemValuesByName = await loadWakaValuesByName();
   } catch (e) {
     console.error(e);
     res.setHeader("Content-Type", "text/plain");
     res.status(500).send("Error loading Waka data from Google Sheets API");
     return;
+  }
+
+  // Restructure the value data to use IDs as keys, instead of names.
+  const allNcItemNamesAndIds = await allNcItemNamesAndIdsPromise;
+  const itemValues = {};
+  for (const { name, id } of allNcItemNamesAndIds) {
+    if (name in itemValuesByName) {
+      itemValues[id] = itemValuesByName[name];
+    }
   }
 
   // Cache for 1 minute, and immediately serve stale data for a day after.
@@ -32,7 +45,21 @@ async function handle(req, res) {
   return res.send(itemValues);
 }
 
-async function loadWakaValues() {
+async function loadAllNcItemNamesAndIds() {
+  const db = await connectToDb();
+
+  const [rows] = await db.query(`
+    SELECT items.id, item_translations.name FROM items
+      INNER JOIN item_translations ON item_translations.item_id = items.id
+      WHERE
+        items.rarity_index IN (0, 500) OR is_manually_nc = 1
+        AND item_translations.locale = "en"
+  `);
+
+  return rows;
+}
+
+async function loadWakaValuesByName() {
   if (!process.env["GOOGLE_API_KEY"]) {
     throw new Error(`GOOGLE_API_KEY environment variable must be provided`);
   }
@@ -63,12 +90,12 @@ async function loadWakaValues() {
   // Reformat the rows as a map from item name to value. We offer the item data
   // as an object with a single field `value` for extensibility, but we omit
   // the spreadsheet columns that we don't use on DTI, like Notes.
-  const itemValues = {};
+  const itemValuesByName = {};
   for (const [itemName, value] of rows) {
-    itemValues[itemName] = { value };
+    itemValuesByName[itemName] = { value };
   }
 
-  return itemValues;
+  return itemValuesByName;
 }
 
 export default async (req, res) => {
