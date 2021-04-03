@@ -255,14 +255,16 @@ const resolvers = {
       return item.createdAt && item.createdAt.toISOString();
     },
     wakaValueText: async ({ id }, _, { itemWakaValueLoader }) => {
+      let wakaValue;
       try {
-        const wakaValue = await itemWakaValueLoader.load(id);
-        return wakaValue.value;
+        wakaValue = await itemWakaValueLoader.load(id);
       } catch (e) {
         console.error(`Error loading wakaValueText for item ${id}, skipping:`);
         console.error(e);
-        return null;
+        wakaValue = null;
       }
+
+      return wakaValue ? wakaValue.value : null;
     },
 
     currentUserOwnsThis: async (
