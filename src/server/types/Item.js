@@ -25,6 +25,11 @@ const typeDefs = gql`
     # item was added so long ago that we don't have this field!
     createdAt: String
 
+    # This item's capsule trade value as text, according to wakaguide.com, as a
+    # human-readable string. Will be null if the value is not known, or if
+    # there's an error connecting to the data source.
+    wakaValueText: String
+
     currentUserOwnsThis: Boolean! @cacheControl(scope: PRIVATE)
     currentUserWantsThis: Boolean! @cacheControl(scope: PRIVATE)
 
@@ -248,6 +253,16 @@ const resolvers = {
     createdAt: async ({ id }, _, { itemLoader }) => {
       const item = await itemLoader.load(id);
       return item.createdAt && item.createdAt.toISOString();
+    },
+    wakaValueText: async ({ id }, _, { itemWakaValueLoader }) => {
+      try {
+        const wakaValue = await itemWakaValueLoader.load(id);
+        return wakaValue.value;
+      } catch (e) {
+        console.error(`Error loading wakaValueText for item ${id}, skipping:`);
+        console.error(e);
+        return null;
+      }
     },
 
     currentUserOwnsThis: async (
