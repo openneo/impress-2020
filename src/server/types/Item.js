@@ -28,7 +28,7 @@ const typeDefs = gql`
     # This item's capsule trade value as text, according to wakaguide.com, as a
     # human-readable string. Will be null if the value is not known, or if
     # there's an error connecting to the data source.
-    wakaValueText: String
+    wakaValueText: String @cacheControl(maxAge: ${oneHour})
 
     currentUserOwnsThis: Boolean! @cacheControl(scope: PRIVATE)
     currentUserWantsThis: Boolean! @cacheControl(scope: PRIVATE)
