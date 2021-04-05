@@ -90,8 +90,12 @@ async function loadWakaValuesByName() {
   // Reformat the rows as a map from item name to value. We offer the item data
   // as an object with a single field `value` for extensibility, but we omit
   // the spreadsheet columns that we don't use on DTI, like Notes.
+  //
+  // NOTE: The Sheets API only returns the first non-empty cells of the row.
+  //       So, when there's no value specified, it only returns one cell.
+  //       That's why we set `""` as the default `value`.
   const itemValuesByName = {};
-  for (const [itemName, value] of rows) {
+  for (const [itemName, value = ""] of rows) {
     itemValuesByName[itemName] = { value };
   }
 
