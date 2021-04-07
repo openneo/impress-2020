@@ -52,7 +52,7 @@ async function loadAllNcItemNamesAndIds() {
     SELECT items.id, item_translations.name FROM items
       INNER JOIN item_translations ON item_translations.item_id = items.id
       WHERE
-        items.rarity_index IN (0, 500) OR is_manually_nc = 1
+        (items.rarity_index IN (0, 500) OR is_manually_nc = 1)
         AND item_translations.locale = "en"
   `);
 
