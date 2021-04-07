@@ -74,6 +74,7 @@ export function ItemPageContent({ itemId, isEmbedded }) {
           thumbnailUrl
           description
           createdAt
+          wakaValueText
 
           # For Support users.
           rarityIndex

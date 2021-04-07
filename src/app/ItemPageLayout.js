@@ -5,6 +5,7 @@ import {
   Flex,
   Popover,
   PopoverArrow,
+  PopoverBody,
   PopoverContent,
   PopoverTrigger,
   Portal,
@@ -12,10 +13,15 @@ import {
   Skeleton,
   Spinner,
   Tooltip,
+  useBreakpointValue,
   useToast,
   VStack,
 } from "@chakra-ui/react";
-import { ExternalLinkIcon, ChevronRightIcon } from "@chakra-ui/icons";
+import {
+  ExternalLinkIcon,
+  ChevronRightIcon,
+  QuestionIcon,
+} from "@chakra-ui/icons";
 import { gql, useMutation } from "@apollo/client";
 
 import {
@@ -150,6 +156,42 @@ function ItemPageBadges({ item, isEmbedded }) {
           Jellyneo
         </LinkBadge>
       </SubtleSkeleton>
+      {item.isNc && (
+        <SubtleSkeleton
+          isLoaded={
+            // Distinguish between undefined (still loading) and null (loaded and
+            // empty).
+            item.wakaValueText !== undefined
+          }
+        >
+          {item.wakaValueText && (
+            <>
+              {/* For hover-y devices, use a hover popover over the badge. */}
+              <Box sx={{ "@media (hover: none)": { display: "none" } }}>
+                <WakaPopover trigger="hover">
+                  <LinkBadge href="http://www.neopets.com/~waka">
+                    Waka: {item.wakaValueText}
+                  </LinkBadge>
+                </WakaPopover>
+              </Box>
+              {/* For touch-y devices, use a tappable help icon. */}
+              <Flex
+                sx={{ "@media (hover: hover)": { display: "none" } }}
+                align="center"
+              >
+                <LinkBadge href="http://www.neopets.com/~waka">
+                  Waka: {item.wakaValueText}
+                </LinkBadge>
+                <WakaPopover>
+                  <Flex align="center" fontSize="sm" paddingX="2" tabIndex="0">
+                    <QuestionIcon />
+                  </Flex>
+                </WakaPopover>
+              </Flex>
+            </>
+          )}
+        </SubtleSkeleton>
+      )}
       <SubtleSkeleton isLoaded={searchBadgesAreLoaded}>
         {!item?.isNc && !item?.isPb && (
           <LinkBadge
@@ -317,27 +359,36 @@ function ItemKindBadgeWithSupportTools({ item }) {
   return <ItemKindBadge isNc={item.isNc} isPb={item.isPb} />;
 }
 
-function LinkBadge({ children, href, isEmbedded }) {
-  return (
-    <Badge
-      as="a"
-      href={href}
-      display="flex"
-      alignItems="center"
-      // Normally we want to act like a normal webpage, and treat links as
-      // normal. But when we're on the wardrobe page, we want to avoid
-      // disrupting the outfit, and open in a new window instead.
-      target={isEmbedded ? "_blank" : undefined}
-    >
-      {children}
-      {
-        // We also change the icon to signal whether this will launch in a new
-        // window or not!
-        isEmbedded ? <ExternalLinkIcon marginLeft="1" /> : <ChevronRightIcon />
-      }
-    </Badge>
-  );
-}
+const LinkBadge = React.forwardRef(
+  ({ children, href, isEmbedded, ...props }, ref) => {
+    return (
+      <Badge
+        ref={ref}
+        as="a"
+        href={href}
+        display="flex"
+        alignItems="center"
+        // Normally we want to act like a normal webpage, and treat links as
+        // normal. But when we're on the wardrobe page, we want to avoid
+        // disrupting the outfit, and open in a new window instead.
+        target={isEmbedded ? "_blank" : undefined}
+        _focus={{ outline: "none", boxShadow: "outline" }}
+        {...props}
+      >
+        {children}
+        {
+          // We also change the icon to signal whether this will launch in a new
+          // window or not!
+          isEmbedded ? (
+            <ExternalLinkIcon marginLeft="1" />
+          ) : (
+            <ChevronRightIcon />
+          )
+        }
+      </Badge>
+    );
+  }
+);
 
 const fullDateFormatter = new Intl.DateTimeFormat("en-US", {
   dateStyle: "long",
@@ -377,6 +428,38 @@ function ShortTimestamp({ when }) {
         ? monthYearFormatter.format(date)
         : monthDayYearFormatter.format(date)}
     </Tooltip>
+  );
+}
+
+function WakaPopover({ children, ...props }) {
+  const placement = useBreakpointValue({ base: "bottom", md: "right" });
+
+  return (
+    <Popover placement={placement} {...props}>
+      <PopoverTrigger>{children}</PopoverTrigger>
+      <Portal>
+        <PopoverContent>
+          <PopoverArrow />
+          <PopoverBody fontSize="sm">
+            <p>
+              Waka is a community resource that tracks the approximate value of
+              NC items, based on real-world trades.
+            </p>
+            <Box height="1em" />
+            <p>
+              Other factors, like rarity and popularity, can affect the trade
+              economy too—and it can change quickly!
+            </p>
+            <Box height="1em" />
+            <p>
+              Be sure to take all factors into account for your trades! And
+              consider asking for a "value check" on the Neoboards if you're not
+              sure.
+            </p>
+          </PopoverBody>
+        </PopoverContent>
+      </Portal>
+    </Popover>
   );
 }
 
