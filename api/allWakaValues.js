@@ -14,9 +14,9 @@ import connectToDb from "../src/server/db";
 async function handle(req, res) {
   const allNcItemNamesAndIdsPromise = loadAllNcItemNamesAndIds();
 
-  let itemValuesByName;
+  let itemValuesByIdOrName;
   try {
-    itemValuesByName = await loadWakaValuesByName();
+    itemValuesByIdOrName = await loadWakaValuesByIdOrName();
   } catch (e) {
     console.error(e);
     res.setHeader("Content-Type", "text/plain");
@@ -28,25 +28,10 @@ async function handle(req, res) {
   const allNcItemNamesAndIds = await allNcItemNamesAndIdsPromise;
   const itemValues = {};
   for (const { name, id } of allNcItemNamesAndIds) {
-    if (name in itemValuesByName) {
-      itemValues[id] = itemValuesByName[name];
-    } else {
-      console.warn(
-        `[Item: Y, Waka: N] No Waka value for NC DTI item ${JSON.stringify(
-          name
-        )} (${id})`
-      );
-    }
-  }
-
-  const allNcItemNames = new Set(allNcItemNamesAndIds.map(({ name }) => name));
-  for (const name of Object.keys(itemValuesByName)) {
-    if (!allNcItemNames.has(name)) {
-      console.warn(
-        `[Item: N, Waka: Y] No NC DTI data for Waka item ${JSON.stringify(
-          name
-        )}`
-      );
+    if (id in itemValuesByIdOrName) {
+      itemValues[id] = itemValuesByIdOrName[id];
+    } else if (name in itemValuesByIdOrName) {
+      itemValues[id] = itemValuesByIdOrName[name];
     }
   }
 
@@ -76,7 +61,12 @@ async function loadAllNcItemNamesAndIds() {
   return rows.map(({ id, name }) => ({ id, name: normalizeItemName(name) }));
 }
 
-async function loadWakaValuesByName() {
+/**
+ * Load all Waka values from the spreadsheet. Returns an object keyed by ID or
+ * name - that is, if the item ID is provided in the sheet, we use that as the
+ * key; or if not, we use the name as the key.
+ */
+async function loadWakaValuesByIdOrName() {
   if (!process.env["GOOGLE_API_KEY"]) {
     throw new Error(`GOOGLE_API_KEY environment variable must be provided`);
   }
@@ -109,15 +99,21 @@ async function loadWakaValuesByName() {
   // the spreadsheet columns that we don't use on DTI, like Notes.
   //
   // NOTE: The Sheets API only returns the first non-empty cells of the row.
-  //       So, when there's no value specified, it only returns one cell.
-  //       That's why we set `""` as the default `value`.
-  const itemValuesByName = {};
-  for (const [itemName, value = ""] of rows) {
+  //       That's why we set `""` as the defaults, in case the value/notes/etc
+  //       aren't provided.
+  const itemValuesByIdOrName = {};
+  for (const [
+    itemName,
+    value = "",
+    notes = "",
+    marks = "",
+    itemId = "",
+  ] of rows) {
     const normalizedItemName = normalizeItemName(itemName);
-    itemValuesByName[normalizedItemName] = { value };
+    itemValuesByIdOrName[itemId || normalizedItemName] = { value };
   }
 
-  return itemValuesByName;
+  return itemValuesByIdOrName;
 }
 
 function normalizeItemName(name) {
