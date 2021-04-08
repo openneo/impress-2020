@@ -445,15 +445,10 @@ function WakaPopover({ children, ...props }) {
             </p>
             <Box height="1em" />
             <p>
-              It's a super helpful starting point, but it's not the only factor!
-              Rarity and popularity can affect trade values too, and the trade
-              economy can change quickly.
-            </p>
-            <Box height="1em" />
-            <p>
-              Be sure to take all factors into account for your trades, rather
-              than sticking to just this number! And consider asking for a
-              "value check" on the Neoboards if you're not sure.
+              The Waka Team aims to maintain the accuracy of the guide as fully
+              as possible, but please remember values are often changing and
+              with certain difficult-to-find or popular items it doesn't hurt to
+              make a value check!
             </p>
           </PopoverBody>
         </PopoverContent>
