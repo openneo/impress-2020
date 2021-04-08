@@ -290,7 +290,7 @@ function SearchToolbar({
               setSuggestions([]);
               return;
             }
-            onChange(null);
+            onChange(emptySearchQuery);
             e.target.blur();
           } else if (e.key === "ArrowDown") {
             if (suggestions.length > 0) {
