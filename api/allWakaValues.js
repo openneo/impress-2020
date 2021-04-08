@@ -30,6 +30,23 @@ async function handle(req, res) {
   for (const { name, id } of allNcItemNamesAndIds) {
     if (name in itemValuesByName) {
       itemValues[id] = itemValuesByName[name];
+    } else {
+      console.warn(
+        `[Item: Y, Waka: N] No Waka value for NC DTI item ${JSON.stringify(
+          name
+        )} (${id})`
+      );
+    }
+  }
+
+  const allNcItemNames = new Set(allNcItemNamesAndIds.map(({ name }) => name));
+  for (const name of Object.keys(itemValuesByName)) {
+    if (!allNcItemNames.has(name)) {
+      console.warn(
+        `[Item: N, Waka: Y] No NC DTI data for Waka item ${JSON.stringify(
+          name
+        )}`
+      );
     }
   }
 
@@ -56,7 +73,7 @@ async function loadAllNcItemNamesAndIds() {
         AND item_translations.locale = "en"
   `);
 
-  return rows;
+  return rows.map(({ id, name }) => ({ id, name: normalizeItemName(name) }));
 }
 
 async function loadWakaValuesByName() {
@@ -96,10 +113,25 @@ async function loadWakaValuesByName() {
   //       That's why we set `""` as the default `value`.
   const itemValuesByName = {};
   for (const [itemName, value = ""] of rows) {
-    itemValuesByName[itemName] = { value };
+    const normalizedItemName = normalizeItemName(itemName);
+    itemValuesByName[normalizedItemName] = { value };
   }
 
   return itemValuesByName;
+}
+
+function normalizeItemName(name) {
+  return (
+    name
+      // Remove all spaces, they're a common source of inconsistency
+      .replace(/\s+/g, "")
+      // Lower case, because capitalization is another common source
+      .toLowerCase()
+      // Remove diacritics: https://stackoverflow.com/a/37511463/107415
+      // Waka has some stray ones in item names, not sure why!
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+  );
 }
 
 export default async (req, res) => {
