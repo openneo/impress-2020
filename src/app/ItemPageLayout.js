@@ -432,10 +432,8 @@ function ShortTimestamp({ when }) {
 }
 
 function WakaPopover({ children, ...props }) {
-  const placement = useBreakpointValue({ base: "bottom", md: "right" });
-
   return (
-    <Popover placement={placement} {...props}>
+    <Popover placement="bottom" {...props}>
       <PopoverTrigger>{children}</PopoverTrigger>
       <Portal>
         <PopoverContent>
@@ -447,14 +445,15 @@ function WakaPopover({ children, ...props }) {
             </p>
             <Box height="1em" />
             <p>
-              Other factors, like rarity and popularity, can affect the trade
-              economy too—and it can change quickly!
+              It's a super helpful starting point, but it's not the only factor!
+              Rarity and popularity can affect trade values too, and the trade
+              economy can change quickly.
             </p>
             <Box height="1em" />
             <p>
-              Be sure to take all factors into account for your trades! And
-              consider asking for a "value check" on the Neoboards if you're not
-              sure.
+              Be sure to take all factors into account for your trades, rather
+              than sticking to just this number! And consider asking for a
+              "value check" on the Neoboards if you're not sure.
             </p>
           </PopoverBody>
         </PopoverContent>
