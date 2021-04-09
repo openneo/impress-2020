@@ -608,10 +608,11 @@ const buildItemWakaValueLoader = () =>
     // API would, and avoid putting pressure on our Google Sheets API quotas.
     // (Some kind of internal memcache or process-level cache would be a more
     // idiomatic solution in a monolith server environment!)
-    const url =
-      process.env.NODE_ENV === "production"
-        ? "https://impress-2020.openneo.net/api/allWakaValues"
-        : "http://localhost:3000/api/allWakaValues";
+    const url = process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}/api/allWakaValues`
+      : process.env.NODE_ENV === "production"
+      ? "https://impress-2020.openneo.net/api/allWakaValues"
+      : "http://localhost:3000/api/allWakaValues";
     const res = await fetch(url);
     if (!res.ok) {
       throw new Error(
