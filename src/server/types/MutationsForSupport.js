@@ -11,12 +11,23 @@ import {
   normalizeRow,
 } from "../util";
 
-const auth0 = new ManagementClient({
-  domain: "openneo.us.auth0.com",
-  clientId: process.env.AUTH0_SUPPORT_CLIENT_ID,
-  clientSecret: process.env.AUTH0_SUPPORT_CLIENT_SECRET,
-  scope: "read:users update:users",
-});
+let auth0;
+/**
+ * Get an Auth0 client. Raises a runtime error if connection fails. (That way,
+ * we don't crash on server startup, just for this Support-only feature!)
+ */
+function getAuth0() {
+  if (!auth0) {
+  auth0 = new ManagementClient({
+    domain: "openneo.us.auth0.com",
+    clientId: process.env.AUTH0_SUPPORT_CLIENT_ID,
+    clientSecret: process.env.AUTH0_SUPPORT_CLIENT_SECRET,
+    scope: "read:users update:users",
+  });
+}
+
+  return auth0;
+}
 
 const typeDefs = gql`
   type RemoveLayerFromItemMutationResult {
@@ -838,7 +849,7 @@ const resolvers = {
       // I'm not going to bother to write recovery code; in that case, the
       // error will reach the support user console, and we can work to manually
       // fix it.
-      await auth0.users.update(
+      await getAuth0().users.update(
         { id: `auth0|impress-${userId}` },
         { username: newUsername }
       );
