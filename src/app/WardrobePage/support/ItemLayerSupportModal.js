@@ -442,6 +442,12 @@ function ItemLayerSupportKnownGlitchesFields({
               (Will use the PNG instead)
             </Box>
           </Checkbox>
+          <Checkbox value="DISPLAYS_INCORRECTLY_BUT_CAUSE_UNKNOWN">
+            Displays incorrectly, but cause unknown{" "}
+            <Box display="inline" color="gray.400" fontSize="sm">
+              (Will display a vague message)
+            </Box>
+          </Checkbox>
           <Checkbox value="OFFICIAL_BODY_ID_IS_INCORRECT">
             Fits all pets on-site, but should not{" "}
             <Box display="inline" color="gray.400" fontSize="sm">

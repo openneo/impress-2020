@@ -100,6 +100,11 @@ const typeDefs = gql`
     # For affected layers, svgUrl will be null, regardless of the manifest.
     OFFICIAL_SVG_IS_INCORRECT
 
+    # This glitch means that we know the layer doesn't display correctly on
+    # DTI, but we're not sure why, or whether it works differently on-site. We
+    # show a vague apologetic message, asking users to send us info.
+    DISPLAYS_INCORRECTLY_BUT_CAUSE_UNKNOWN
+
     # This glitch means that the official body ID for this asset is not correct
     # (usually 0), so it will fit some pets that it shouldn't. We reflect this
     # accurately on DTI, with a message to explain that it's not our error, and

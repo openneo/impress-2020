@@ -89,6 +89,23 @@ function OutfitKnownGlitchesBadge({ appearance }) {
     }
   }
 
+  // Look for items with the DISPLAYS_INCORRECTLY_BUT_CAUSE_UNKNOWN glitch.
+  for (const item of items) {
+    const itemHasGlitch = item.appearance.layers.some((l) =>
+      (l.knownGlitches || []).includes("DISPLAYS_INCORRECTLY_BUT_CAUSE_UNKNOWN")
+    );
+    if (itemHasGlitch) {
+      glitchMessages.push(
+        <Box key={`displays-incorrectly-but-cause-unknown-for-item-${item.id}`}>
+          There's a glitch in the art for <i>{item.name}</i> that causes it to
+          display incorrectly—but we're not sure if it's on our end, or TNT's.
+          If you own this item, please email me at matchu@openneo.net to let us
+          know how it looks on-site!
+        </Box>
+      );
+    }
+  }
+
   // Look for items with the OFFICIAL_BODY_ID_IS_INCORRECT glitch.
   for (const item of items) {
     const itemHasOfficialBodyIdIsIncorrect = item.appearance.layers.some((l) =>
