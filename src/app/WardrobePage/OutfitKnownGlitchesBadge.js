@@ -73,6 +73,23 @@ function OutfitKnownGlitchesBadge({ appearance }) {
     }
   }
 
+  // Look for items with the OFFICIAL_MOVIE_IS_INCORRECT glitch.
+  for (const item of items) {
+    const itemHasGlitch = item.appearance.layers.some((l) =>
+      (l.knownGlitches || []).includes("OFFICIAL_MOVIE_IS_INCORRECT")
+    );
+    if (itemHasGlitch) {
+      glitchMessages.push(
+        <Box key={`official-movie-is-incorrect-for-item-${item.id}`}>
+          There's a glitch in the art for <i>{item.name}</i>, and we believe it
+          looks this way on-site, too. But our version might be out of date! If
+          you've seen it look better on-site, please email me at
+          matchu@openneo.net so we can fix it!
+        </Box>
+      );
+    }
+  }
+
   // Look for items with the OFFICIAL_SVG_IS_INCORRECT glitch.
   for (const item of items) {
     const itemHasOfficialSvgIsIncorrect = item.appearance.layers.some((l) =>

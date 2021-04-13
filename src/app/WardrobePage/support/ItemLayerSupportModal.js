@@ -442,6 +442,12 @@ function ItemLayerSupportKnownGlitchesFields({
               (Will use the PNG instead)
             </Box>
           </Checkbox>
+          <Checkbox value="OFFICIAL_MOVIE_IS_INCORRECT">
+            Official Movie is incorrect{" "}
+            <Box display="inline" color="gray.400" fontSize="sm">
+              (Will display a message)
+            </Box>
+          </Checkbox>
           <Checkbox value="DISPLAYS_INCORRECTLY_BUT_CAUSE_UNKNOWN">
             Displays incorrectly, but cause unknown{" "}
             <Box display="inline" color="gray.400" fontSize="sm">

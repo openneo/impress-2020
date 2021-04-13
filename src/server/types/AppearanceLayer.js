@@ -100,6 +100,17 @@ const typeDefs = gql`
     # For affected layers, svgUrl will be null, regardless of the manifest.
     OFFICIAL_SVG_IS_INCORRECT
 
+    # This glitch means that the official movie JS library (or supporting data)
+    # for this layer is known to contain a glitch.
+    #
+    # In this case, we _could_ fall back to the PNG, but we choose not to: it
+    # could mislead people about how the item will appear on-site. We like our
+    # previews to match the real on-site appearance whenever possible! Instead,
+    # we show a message, asking users to send us info if they know it to be
+    # fixed on-site. (This could happen by our manifest getting out of date, or
+    # TNT replacing it with a new asset that needs re-modeling.)
+    OFFICIAL_MOVIE_IS_INCORRECT
+
     # This glitch means that we know the layer doesn't display correctly on
     # DTI, but we're not sure why, or whether it works differently on-site. We
     # show a vague apologetic message, asking users to send us info.
