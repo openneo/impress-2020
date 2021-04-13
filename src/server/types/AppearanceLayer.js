@@ -357,7 +357,16 @@ function convertLayerTypeToSwfAssetType(layerType) {
  * image for this layer, it could be a supporting sprite for the JS library!)
  */
 async function loadAndCacheAssetDataFromManifest(db, layer) {
-  let manifest = layer.manifest && JSON.parse(layer.manifest);
+  let manifest;
+  try {
+    manifest = layer.manifest && JSON.parse(layer.manifest);
+  } catch (e) {
+    console.error(
+      `Layer ${layer.id} has invalid manifest JSON: ` +
+        `${JSON.stringify(layer.manifest)}`
+    );
+    manifest = null;
+  }
 
   // When the manifest is specifically null, that means we don't know if
   // it exists yet. Load it to find out!
@@ -429,6 +438,14 @@ async function loadAndCacheAssetManifest(db, layer) {
   // TODO: Someday the manifests will all exist, right? So we'll want to
   //       reload all the missing ones at that time.
   const manifestJson = manifest ? JSON.stringify(manifest) : "";
+
+  if (manifestJson.length > 16777215) {
+    console.warn(
+      `Skipping saving asset manifest for layer ${layer.id}, because its ` +
+        `length is ${manifestJson.length}, which exceeds the database limit.`
+    );
+    return manifest;
+  }
 
   const [
     result,
