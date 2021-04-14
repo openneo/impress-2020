@@ -117,7 +117,7 @@ function OutfitKnownGlitchesBadge({ appearance }) {
           There's a glitch in the art for <i>{item.name}</i> that causes it to
           display incorrectly—but we're not sure if it's on our end, or TNT's.
           If you own this item, please email me at matchu@openneo.net to let us
-          know how it looks on-site!
+          know how it looks in the on-site customizer!
         </Box>
       );
     }
@@ -187,8 +187,9 @@ function OutfitKnownGlitchesBadge({ appearance }) {
     );
   }
 
-  // Check whether the pet has OFFICIAL_SVG_IS_INCORRECT.
   const petLayers = petAppearance?.layers || [];
+
+  // Look for pet layers with the OFFICIAL_SVG_IS_INCORRECT glitch.
   for (const layer of petLayers) {
     const layerHasOfficialSvgIsIncorrect = (layer.knownGlitches || []).includes(
       "OFFICIAL_SVG_IS_INCORRECT"
@@ -200,6 +201,26 @@ function OutfitKnownGlitchesBadge({ appearance }) {
           zone that prevents us from showing the full-scale SVG version of the
           image. Instead, we're showing a PNG, which might look a bit blurry on
           larger screens.
+        </Box>
+      );
+    }
+  }
+
+  // Look for pet layers with the DISPLAYS_INCORRECTLY_BUT_CAUSE_UNKNOWN glitch.
+  for (const layer of petLayers) {
+    const layerHasGlitch = (layer.knownGlitches || []).includes(
+      "DISPLAYS_INCORRECTLY_BUT_CAUSE_UNKNOWN"
+    );
+    if (layerHasGlitch) {
+      glitchMessages.push(
+        <Box
+          key={`displays-incorrectly-but-cause-unknown-for-pet-layer-${layer.id}`}
+        >
+          There's a glitch in the art for this pet's <i>{layer.zone.label}</i>{" "}
+          zone that causes it to display incorrectly—but we're not sure if it's
+          on our end, or TNT's. If you have this pet, please email me at
+          matchu@openneo.net to let us know how it looks in the on-site
+          customizer!
         </Box>
       );
     }
