@@ -197,6 +197,12 @@ function OutfitControls({
                       idealPose={outfitState.pose}
                       onChange={onSpeciesColorChange}
                       stateMustAlwaysBeValid
+                      speciesPickerProps={{
+                        "data-test-id": "wardrobe-species-picker",
+                      }}
+                      colorPickerProps={{
+                        "data-test-id": "wardrobe-color-picker",
+                      }}
                     />
                   }
                 </DarkMode>
@@ -210,6 +216,7 @@ function OutfitControls({
                   dispatchToOutfit={dispatchToOutfit}
                   onLockFocus={onLockFocus}
                   onUnlockFocus={onUnlockFocus}
+                  data-test-id="wardrobe-pose-picker"
                 />
               </Flex>
             </Flex>

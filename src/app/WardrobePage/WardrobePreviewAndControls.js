@@ -30,6 +30,7 @@ function WardrobePreviewAndControls({
     wornItemIds: outfitState.wornItemIds,
     onChangeHasAnimations: setHasAnimations,
     backdrop: <OutfitThumbnailIfCached outfitId={outfitState.id} />,
+    "data-test-id": "wardrobe-outfit-preview",
   });
 
   return (

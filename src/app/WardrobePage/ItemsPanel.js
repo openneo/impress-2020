@@ -271,7 +271,7 @@ function OutfitHeading({ outfitState, dispatchToOutfit }) {
           <Box>
             <Box role="group" d="inline-block" position="relative" width="100%">
               <Heading1>
-                <EditablePreview lineHeight="48px" />
+                <EditablePreview lineHeight="48px" data-test-id="outfit-name" />
                 <EditableInput lineHeight="48px" />
               </Heading1>
             </Box>

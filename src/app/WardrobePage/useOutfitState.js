@@ -12,10 +12,10 @@ export const OutfitStateContext = React.createContext(null);
 
 function useOutfitState() {
   const apolloClient = useApolloClient();
-  const initialState = useParseOutfitUrl();
-  const [state, dispatchToOutfit] = React.useReducer(
+  const urlOutfitState = useParseOutfitUrl();
+  const [localOutfitState, dispatchToOutfit] = React.useReducer(
     outfitStateReducer(apolloClient),
-    initialState
+    urlOutfitState
   );
 
   // If there's an outfit ID (i.e. we're on /outfits/:id), load basic data
@@ -56,55 +56,61 @@ function useOutfitState() {
       }
     `,
     {
-      variables: { id: state.id },
-      skip: state.id == null,
+      variables: { id: urlOutfitState.id },
+      skip: urlOutfitState.id == null,
       returnPartialData: true,
       onCompleted: (outfitData) => {
-        // This is only called once the _entire_ query loads, regardless of
-        // `returnPartialData`. We just use that for some early UI!
-        //
-        // Even though we do a HACK to make these values visible early, we
-        // still want to write them to state, so that reducers can see them and
-        // edit them!
-        const outfit = outfitData.outfit;
         dispatchToOutfit({
           type: "reset",
-          name: outfit.name,
-          speciesId: outfit.petAppearance.species.id,
-          colorId: outfit.petAppearance.color.id,
-          pose: outfit.petAppearance.pose,
-          wornItemIds: outfit.wornItems.map((item) => item.id),
-          closetedItemIds: outfit.closetedItems.map((item) => item.id),
+          newState: getOutfitStateFromOutfitData(outfitData.outfit),
         });
       },
     }
   );
 
-  // HACK: We fall back to outfit data here, to help the loading states go
-  // smoother. (Otherwise, there's a flicker where `outfitLoading` is false,
-  // but the `reset` action hasn't fired yet.) This also enables partial outfit
-  // data to show early, like the name, if we're navigating from Your Outfits.
-  //
-  // We also call `Array.from` on our item IDs. It's more convenient to manage
-  // them as a Set in state, but most callers will find it more convenient to
-  // access them as arrays! e.g. for `.map()`.
-  const outfit = outfitData?.outfit || null;
-  const id = state.id;
-  const creator = outfit?.creator || null;
-  const name = state.name || outfit?.name || null;
-  const speciesId =
-    state.speciesId || outfit?.petAppearance?.species?.id || null;
-  const colorId = state.colorId || outfit?.petAppearance?.color?.id || null;
-  const pose = state.pose || outfit?.petAppearance?.pose || null;
-  const appearanceId = state.appearanceId || null;
-  const wornItemIds = Array.from(
-    state.wornItemIds || outfit?.wornItems?.map((i) => i.id)
-  );
-  const closetedItemIds = Array.from(
-    state.closetedItemIds || outfit?.closetedItems?.map((i) => i.id)
-  );
+  const creator = outfitData?.outfit?.creator;
 
-  const allItemIds = [...state.wornItemIds, ...state.closetedItemIds];
+  const savedOutfitState = getOutfitStateFromOutfitData(outfitData?.outfit);
+
+  // Choose which customization state to use. We want it to match the outfit in
+  // the URL immediately, without having to wait for any effects, to avoid race
+  // conditions!
+  //
+  // The reducer is generally the main source of truth for live changes!
+  //
+  // But if:
+  //   - it's not initialized yet (e.g. the first frame of navigating to an
+  //     outfit from Your Outfits), or
+  //   - it's for a different outfit than the URL says (e.g. clicking Back
+  //     or Forward to switch between saved outfits),
+  //
+  // Then use saved outfit data or the URL query string instead, because that's
+  // a better representation of the outfit in the URL. (If the saved outfit
+  // data isn't loaded yet, then this will be a customization state with
+  // partial data, and that's okay.)
+  let outfitState;
+  if (urlOutfitState.id === localOutfitState.id) {
+    // Use the reducer state: they're both for the same saved outfit, or both
+    // for an unsaved outfit (null === null).
+    outfitState = localOutfitState;
+  } else if (urlOutfitState.id && urlOutfitState.id === savedOutfitState.id) {
+    // Use the saved outfit state: it's for the saved outfit the URL points to.
+    outfitState = savedOutfitState;
+  } else {
+    // Use the URL state: it's more up-to-date than any of the others. (Worst
+    // case, it's empty except for ID, which is fine while the saved outfit
+    // data loads!)
+    outfitState = urlOutfitState;
+  }
+
+  // When unpacking the customization state, we call `Array.from` on our item
+  // IDs. It's more convenient to manage them as a Set in state, but most
+  // callers will find it more convenient to access them as arrays! e.g. for
+  // `.map()`.
+  const { name, speciesId, colorId, pose, appearanceId } = outfitState;
+  const wornItemIds = Array.from(outfitState.wornItemIds);
+  const closetedItemIds = Array.from(outfitState.closetedItemIds);
+  const allItemIds = [...wornItemIds, ...closetedItemIds];
 
   const {
     loading: itemsLoading,
@@ -209,10 +215,10 @@ function useOutfitState() {
     .filter((i) => i.appearanceOn.layers.length === 0)
     .sort((a, b) => a.name.localeCompare(b.name));
 
-  const url = buildOutfitUrl(state);
+  const url = buildOutfitUrl(outfitState);
 
-  const outfitState = {
-    id,
+  const outfitStateWithExtras = {
+    id: urlOutfitState.outfitId,
     creator,
     zonesAndItems,
     incompatibleItems,
@@ -235,7 +241,7 @@ function useOutfitState() {
   return {
     loading: outfitLoading || itemsLoading,
     error: outfitError || itemsError,
-    outfitState,
+    outfitState: outfitStateWithExtras,
     dispatchToOutfit,
   };
 }
@@ -243,15 +249,16 @@ function useOutfitState() {
 const outfitStateReducer = (apolloClient) => (baseState, action) => {
   switch (action.type) {
     case "rename":
-      return { ...baseState, name: action.outfitName };
+      return produce(baseState, (state) => {
+        state.name = action.outfitName;
+      });
     case "setSpeciesAndColor":
-      return {
-        ...baseState,
-        speciesId: action.speciesId,
-        colorId: action.colorId,
-        pose: action.pose,
-        appearanceId: null,
-      };
+      return produce(baseState, (state) => {
+        state.speciesId = action.speciesId;
+        state.colorId = action.colorId;
+        state.pose = action.pose;
+        state.appearanceId = null;
+      });
     case "wearItem":
       return produce(baseState, (state) => {
         const { wornItemIds, closetedItemIds } = state;
@@ -310,39 +317,29 @@ const outfitStateReducer = (apolloClient) => (baseState, action) => {
         reconsiderItems(itemIdsToReconsider, state, apolloClient);
       });
     case "setPose":
-      return {
-        ...baseState,
-        pose: action.pose,
-
+      return produce(baseState, (state) => {
+        state.pose = action.pose;
         // Usually only the `pose` is specified, but `PosePickerSupport` can
         // also specify a corresponding `appearanceId`, to get even more
         // particular about which version of the pose to show if more than one.
-        appearanceId: action.appearanceId || null,
-      };
-    case "reset":
-      return produce(baseState, (state) => {
-        const {
-          name,
-          speciesId,
-          colorId,
-          pose,
-          wornItemIds,
-          closetedItemIds,
-        } = action;
-        state.name = name;
-        state.speciesId = speciesId ? String(speciesId) : baseState.speciesId;
-        state.colorId = colorId ? String(colorId) : baseState.colorId;
-        state.pose = pose || baseState.pose;
-        state.wornItemIds = wornItemIds
-          ? new Set(wornItemIds.map(String))
-          : baseState.wornItemIds;
-        state.closetedItemIds = closetedItemIds
-          ? new Set(closetedItemIds.map(String))
-          : baseState.closetedItemIds;
+        state.appearanceId = action.appearanceId || null;
       });
+    case "reset":
+      return action.newState;
     default:
       throw new Error(`unexpected action ${JSON.stringify(action)}`);
   }
+};
+
+const EMPTY_CUSTOMIZATION_STATE = {
+  id: null,
+  name: null,
+  speciesId: null,
+  colorId: null,
+  pose: null,
+  appearanceId: null,
+  wornItemIds: [],
+  closetedItemIds: [],
 };
 
 function useParseOutfitUrl() {
@@ -352,14 +349,8 @@ function useParseOutfitUrl() {
   // outfit data to load in!
   if (id != null) {
     return {
+      ...EMPTY_CUSTOMIZATION_STATE,
       id,
-      name: null,
-      speciesId: null,
-      colorId: null,
-      pose: null,
-      appearanceId: null,
-      wornItemIds: [],
-      closetedItemIds: [],
     };
   }
 
@@ -367,7 +358,7 @@ function useParseOutfitUrl() {
   // not specified.
   const urlParams = new URLSearchParams(window.location.search);
   return {
-    id: id,
+    id: null,
     name: urlParams.get("name"),
     speciesId: urlParams.get("species") || "1",
     colorId: urlParams.get("color") || "8",
@@ -375,6 +366,25 @@ function useParseOutfitUrl() {
     appearanceId: urlParams.get("state") || null,
     wornItemIds: new Set(urlParams.getAll("objects[]")),
     closetedItemIds: new Set(urlParams.getAll("closet[]")),
+  };
+}
+
+function getOutfitStateFromOutfitData(outfit) {
+  if (!outfit) {
+    return EMPTY_CUSTOMIZATION_STATE;
+  }
+
+  return {
+    id: outfit.id,
+    name: outfit.name,
+    // Note that these fields are intentionally null if loading, rather than
+    // falling back to a default appearance like Blue Acara.
+    speciesId: outfit.petAppearance?.species?.id,
+    colorId: outfit.petAppearance?.color?.id,
+    pose: outfit.petAppearance?.pose,
+    // Whereas the items are more convenient to just leave as empty lists!
+    wornItemIds: (outfit.wornItems || []).map((item) => item.id),
+    closetedItemIds: (outfit.closetedItems || []).map((item) => item.id),
   };
 }
 
@@ -554,7 +564,7 @@ function getZonesAndItems(itemsById, wornItemIds, closetedItemIds) {
   return zonesAndItems;
 }
 
-function buildOutfitUrl(state) {
+function buildOutfitUrl(outfitState) {
   const {
     id,
     name,
@@ -564,7 +574,7 @@ function buildOutfitUrl(state) {
     appearanceId,
     wornItemIds,
     closetedItemIds,
-  } = state;
+  } = outfitState;
 
   const { origin, pathname } = window.location;
 
