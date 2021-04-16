@@ -63,6 +63,7 @@ function PosePicker({
   dispatchToOutfit,
   onLockFocus,
   onUnlockFocus,
+  ...props
 }) {
   const theme = useTheme();
   const initialFocusRef = React.useRef();
@@ -193,6 +194,7 @@ function PosePicker({
                     `,
                     isOpen && "is-open"
                   )}
+                  {...props}
                 >
                   <EmojiImage src={getIcon(pose)} alt="Choose a pose" />
                 </Button>

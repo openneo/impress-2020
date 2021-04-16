@@ -1,0 +1,127 @@
+exports[`WardrobePage: Basic outfit state > Initialize simple outfit from URL #0`] =
+{
+  "auth": "",
+  "hash": "",
+  "host": "localhost:3000",
+  "hostname": "localhost",
+  "href": "http://localhost:3000/outfits/new?name=&species=1&color=8&pose=HAPPY_FEM&objects%5B%5D=76789",
+  "origin": "http://localhost:3000",
+  "originPolicy": "http://localhost:3000",
+  "pathname": "/outfits/new",
+  "port": "3000",
+  "protocol": "http:",
+  "search": "?name=&species=1&color=8&pose=HAPPY_FEM&objects%5B%5D=76789",
+  "superDomain": "localhost"
+};
+
+exports[`WardrobePage: Basic outfit state > Changes species and color #0`] =
+{
+  "auth": "",
+  "hash": "",
+  "host": "localhost:3000",
+  "hostname": "localhost",
+  "href": "http://localhost:3000/outfits/new?name=&species=1&color=8&pose=HAPPY_FEM&objects%5B%5D=76789",
+  "origin": "http://localhost:3000",
+  "originPolicy": "http://localhost:3000",
+  "pathname": "/outfits/new",
+  "port": "3000",
+  "protocol": "http:",
+  "search": "?name=&species=1&color=8&pose=HAPPY_FEM&objects%5B%5D=76789",
+  "superDomain": "localhost"
+};
+
+exports[`WardrobePage: Basic outfit state > Changes species and color #1`] =
+{
+  "auth": "",
+  "hash": "",
+  "host": "localhost:3000",
+  "hostname": "localhost",
+  "href": "http://localhost:3000/outfits/new?name=&species=2&color=8&pose=HAPPY_FEM&objects%5B%5D=76789",
+  "origin": "http://localhost:3000",
+  "originPolicy": "http://localhost:3000",
+  "pathname": "/outfits/new",
+  "port": "3000",
+  "protocol": "http:",
+  "search": "?name=&species=2&color=8&pose=HAPPY_FEM&objects%5B%5D=76789",
+  "superDomain": "localhost"
+};
+
+exports[`WardrobePage: Basic outfit state > Changes species and color #2`] =
+{
+  "auth": "",
+  "hash": "",
+  "host": "localhost:3000",
+  "hostname": "localhost",
+  "href": "http://localhost:3000/outfits/new?name=&species=2&color=61&pose=HAPPY_FEM&objects%5B%5D=76789",
+  "origin": "http://localhost:3000",
+  "originPolicy": "http://localhost:3000",
+  "pathname": "/outfits/new",
+  "port": "3000",
+  "protocol": "http:",
+  "search": "?name=&species=2&color=61&pose=HAPPY_FEM&objects%5B%5D=76789",
+  "superDomain": "localhost"
+};
+
+exports[`WardrobePage: Basic outfit state > Toggles item #0`] =
+{
+  "auth": "",
+  "hash": "",
+  "host": "localhost:3000",
+  "hostname": "localhost",
+  "href": "http://localhost:3000/outfits/new?name=&species=1&color=8&pose=HAPPY_FEM&objects%5B%5D=76789",
+  "origin": "http://localhost:3000",
+  "originPolicy": "http://localhost:3000",
+  "pathname": "/outfits/new",
+  "port": "3000",
+  "protocol": "http:",
+  "search": "?name=&species=1&color=8&pose=HAPPY_FEM&objects%5B%5D=76789",
+  "superDomain": "localhost"
+};
+
+exports[`WardrobePage: Basic outfit state > Toggles item #1`] =
+{
+  "auth": "",
+  "hash": "",
+  "host": "localhost:3000",
+  "hostname": "localhost",
+  "href": "http://localhost:3000/outfits/new?name=&species=1&color=8&pose=HAPPY_FEM&closet%5B%5D=76789",
+  "origin": "http://localhost:3000",
+  "originPolicy": "http://localhost:3000",
+  "pathname": "/outfits/new",
+  "port": "3000",
+  "protocol": "http:",
+  "search": "?name=&species=1&color=8&pose=HAPPY_FEM&closet%5B%5D=76789",
+  "superDomain": "localhost"
+};
+
+exports[`WardrobePage: Basic outfit state > Changes pose #0`] =
+{
+  "auth": "",
+  "hash": "",
+  "host": "localhost:3000",
+  "hostname": "localhost",
+  "href": "http://localhost:3000/outfits/new?name=&species=1&color=8&pose=HAPPY_FEM",
+  "origin": "http://localhost:3000",
+  "originPolicy": "http://localhost:3000",
+  "pathname": "/outfits/new",
+  "port": "3000",
+  "protocol": "http:",
+  "search": "?name=&species=1&color=8&pose=HAPPY_FEM",
+  "superDomain": "localhost"
+};
+
+exports[`WardrobePage: Basic outfit state > Changes pose #1`] =
+{
+  "auth": "",
+  "hash": "",
+  "host": "localhost:3000",
+  "hostname": "localhost",
+  "href": "http://localhost:3000/outfits/new?name=&species=1&color=8&pose=SAD_MASC",
+  "origin": "http://localhost:3000",
+  "originPolicy": "http://localhost:3000",
+  "pathname": "/outfits/new",
+  "port": "3000",
+  "protocol": "http:",
+  "search": "?name=&species=1&color=8&pose=SAD_MASC",
+  "superDomain": "localhost"
+};

@@ -27,6 +27,8 @@ function SpeciesColorPicker({
   isDisabled = false,
   speciesIsDisabled = false,
   size = "md",
+  speciesPickerProps = {},
+  colorPickerProps = {},
   onChange,
 }) {
   const { loading: loadingMeta, error: errorMeta, data: meta } = useQuery(gql`
@@ -188,6 +190,7 @@ function SpeciesColorPicker({
         valids={valids}
         speciesId={speciesId}
         colorId={colorId}
+        {...colorPickerProps}
       >
         {
           // If the selected color isn't in the set we have here, show the
@@ -231,6 +234,7 @@ function SpeciesColorPicker({
         valids={valids}
         speciesId={speciesId}
         colorId={colorId}
+        {...speciesPickerProps}
       >
         {
           // If the selected species isn't in the set we have here, show the

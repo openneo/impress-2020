@@ -1,10 +1,10 @@
 // Give network requests a bit of breathing room!
-const networkTimeout = { timeout: 6000 };
+const networkTimeout = { timeout: 10000 };
 
 describe("WardrobePage: SearchPanel", () => {
   // NOTE: This test depends on specific search results on certain pages, and
   //       could break if a lot of matching items are added to the site!
-  it.only("Searches by keyword", () => {
+  it("Searches by keyword", () => {
     cy.visit("/outfits/new");
 
     // The first page should contain this item.

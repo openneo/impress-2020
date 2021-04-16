@@ -52,6 +52,7 @@ export function useOutfitPreview({
   loadingDelayMs,
   spinnerVariant,
   onChangeHasAnimations = null,
+  ...props
 }) {
   const appearance = useOutfitAppearance({
     speciesId,
@@ -102,6 +103,7 @@ export function useOutfitPreview({
         onChangeHasAnimations={onChangeHasAnimations}
         doTransitions
         isPaused={isPaused}
+        {...props}
       />
     );
   }
@@ -122,6 +124,7 @@ export function OutfitLayers({
   spinnerVariant = "overlay",
   doTransitions = false,
   isPaused = true,
+  ...props
 }) {
   const containerRef = React.useRef(null);
   const [canvasSize, setCanvasSize] = React.useState(0);
@@ -178,6 +181,8 @@ export function OutfitLayers({
           // Create a stacking context, so the z-indexed layers don't escape!
           zIndex="0"
           ref={containerRef}
+          data-loading={loading ? true : undefined}
+          {...props}
         >
           {backdrop && (
             <FullScreenCenter>
