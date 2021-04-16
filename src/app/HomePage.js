@@ -183,10 +183,11 @@ function SubmitPetForm() {
   const history = useHistory();
   const theme = useTheme();
   const toast = useToast();
+  const location = useLocation();
 
   const [petName, setPetName] = React.useState("");
 
-  const [loadPet, { loading }] = useLazyQuery(
+  const [loadPetQuery, { loading }] = useLazyQuery(
     gql`
       query SubmitPetForm($petName: String!) {
         petOnNeopetsDotCom(petName: $petName) {
@@ -230,19 +231,34 @@ function SubmitPetForm() {
     }
   );
 
-  const onSubmit = (e) => {
-    e.preventDefault();
+  const loadPet = React.useCallback(
+    (petName) => {
+      loadPetQuery({ variables: { petName } });
 
-    loadPet({ variables: { petName } });
+      // Start preloading the WardrobePage, too!
+      // eslint-disable-next-line no-unused-expressions
+      import("./WardrobePage").catch((e) => {
+        // Let's just let this slide, because it's a preload error. Critical
+        // failures will happen elsewhere, and trigger reloads!
+        console.error(e);
+      });
+    },
+    [loadPetQuery]
+  );
 
-    // Start preloading the WardrobePage, too!
-    // eslint-disable-next-line no-unused-expressions
-    import("./WardrobePage").catch((e) => {
-      // Let's just let this slide, because it's a preload error. Critical
-      // failures will happen elsewhere, and trigger reloads!
-      console.error(e);
-    });
-  };
+  // If the ?loadPet= query param is provided, auto-load the pet immediately.
+  // This isn't used in-app, but is a helpful hook for things like link-ins and
+  // custom search engines. (I feel like a route or a different UX would be
+  // better, but I don't really know enough to commit to one… let's just keep
+  // this simple for now, I think. We might change this someday!)
+  React.useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const petName = params.get("loadPet");
+    if (petName) {
+      setPetName(petName);
+      loadPet(petName);
+    }
+  }, [location, loadPet]);
 
   const { brightBackground } = useCommonStyles();
   const inputBorderColor = useColorModeValue("green.600", "green.500");
@@ -253,7 +269,12 @@ function SubmitPetForm() {
   return (
     <ClassNames>
       {({ css }) => (
-        <form onSubmit={onSubmit}>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            loadPet(petName);
+          }}
+        >
           <Flex>
             <Input
               value={petName}
