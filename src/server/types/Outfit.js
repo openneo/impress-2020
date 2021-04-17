@@ -3,7 +3,7 @@ import { gql } from "apollo-server";
 const typeDefs = gql`
   type Outfit {
     id: ID!
-    name: String!
+    name: String
     petAppearance: PetAppearance!
     wornItems: [Item!]!
     closetedItems: [Item!]!
