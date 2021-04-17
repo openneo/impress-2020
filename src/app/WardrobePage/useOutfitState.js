@@ -383,8 +383,10 @@ function getOutfitStateFromOutfitData(outfit) {
     colorId: outfit.petAppearance?.color?.id,
     pose: outfit.petAppearance?.pose,
     // Whereas the items are more convenient to just leave as empty lists!
-    wornItemIds: (outfit.wornItems || []).map((item) => item.id),
-    closetedItemIds: (outfit.closetedItems || []).map((item) => item.id),
+    wornItemIds: new Set((outfit.wornItems || []).map((item) => item.id)),
+    closetedItemIds: new Set(
+      (outfit.closetedItems || []).map((item) => item.id)
+    ),
   };
 }
 
