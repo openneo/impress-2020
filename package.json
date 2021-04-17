@@ -36,6 +36,7 @@
     "jimp": "^0.14.0",
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^1.9.0",
+    "lru-cache": "^6.0.0",
     "mysql2": "^2.1.0",
     "node-fetch": "^2.6.0",
     "react": "^17.0.1",

@@ -1,4 +1,5 @@
 import React from "react";
+import LRU from "lru-cache";
 import { useToast } from "@chakra-ui/react";
 
 import { loadImage, logAndCapture, safeImageUrl } from "../util";
@@ -261,7 +262,16 @@ function loadScriptTag(src) {
   });
 }
 
+const MOVIE_LIBRARY_CACHE = new LRU(10);
+
 export async function loadMovieLibrary(librarySrc) {
+  // First, check the LRU cache. This will enable us to quickly return movie
+  // libraries, without re-loading and re-parsing and re-executing.
+  const cachedLibrary = MOVIE_LIBRARY_CACHE.get(librarySrc);
+  if (cachedLibrary) {
+    return cachedLibrary;
+  }
+
   // These library JS files are interesting in their operation. It seems like
   // the idea is, it pushes an object to a global array, and you need to snap
   // it up and see it at the end of the array! And I don't really see a way to
@@ -321,6 +331,8 @@ export async function loadMovieLibrary(librarySrc) {
       frames,
     });
   }
+
+  MOVIE_LIBRARY_CACHE.set(librarySrc, library);
 
   return library;
 }
