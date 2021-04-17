@@ -70,7 +70,7 @@ const resolvers = {
     },
     creator: async ({ id }, _, { outfitLoader }) => {
       const outfit = await outfitLoader.load(id);
-      return { id: outfit.userId };
+      return outfit.userId ? { id: outfit.userId } : null;
     },
   },
   Query: {
