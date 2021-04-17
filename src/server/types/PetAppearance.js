@@ -121,10 +121,20 @@ const typeDefs = gql`
 const resolvers = {
   Color: {
     name: async ({ id }, _, { colorTranslationLoader }) => {
+      // TODO: Add colorId=0 to the database? Pets on Neopets.com can have it.
+      if (id === "0") {
+        return "Unknown";
+      }
+
       const colorTranslation = await colorTranslationLoader.load(id);
       return capitalize(colorTranslation.name);
     },
     isStandard: async ({ id }, _, { colorLoader }) => {
+      // TODO: Add colorId=0 to the database? Pets on Neopets.com can have it.
+      if (id === "0") {
+        return false;
+      }
+
       const color = await colorLoader.load(id);
       return color.standard ? true : false;
     },

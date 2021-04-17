@@ -26,9 +26,11 @@ const typeDefs = gql`
 const resolvers = {
   Pet: {
     species: ({ customPetData }) => ({
-      id: customPetData.custom_pet.species_id,
+      id: String(customPetData.custom_pet.species_id),
     }),
-    color: ({ customPetData }) => ({ id: customPetData.custom_pet.color_id }),
+    color: ({ customPetData }) => ({
+      id: String(customPetData.custom_pet.color_id),
+    }),
     pose: ({ customPetData, petMetaData }) =>
       getPoseFromPetData(petMetaData, customPetData),
     petAppearance: async (
@@ -40,7 +42,9 @@ const resolvers = {
         speciesId: customPetData.custom_pet.species_id,
         colorId: customPetData.custom_pet.color_id,
       });
-      const petStates = await petStatesForPetTypeLoader.load(petType.id);
+      const petStates = petType
+        ? await petStatesForPetTypeLoader.load(petType.id)
+        : [];
 
       let petState;
 
