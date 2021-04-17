@@ -70,11 +70,22 @@ const resolvers = {
     },
     creator: async ({ id }, _, { outfitLoader }) => {
       const outfit = await outfitLoader.load(id);
-      return outfit.userId ? { id: outfit.userId } : null;
+      if (!outfit.userId) {
+        return null;
+      }
+
+      return { id: outfit.userId };
     },
   },
   Query: {
-    outfit: (_, { id }) => ({ id }),
+    outfit: async (_, { id }, { outfitLoader }) => {
+      const outfit = await outfitLoader.load(id);
+      if (!outfit) {
+        return null;
+      }
+
+      return { id };
+    },
   },
 };
 

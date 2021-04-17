@@ -106,7 +106,6 @@ const resolvers = {
     items: (...args) => resolvers.Pet.wornItems(...args),
   },
   Query: {
-    outfit: (_, { id }) => ({ id }),
     petOnNeopetsDotCom: async (
       _,
       { petName },
