@@ -16,9 +16,11 @@ import {
   MenuItem,
   Portal,
   Button,
+  useToast,
 } from "@chakra-ui/react";
 import { EditIcon, QuestionIcon } from "@chakra-ui/icons";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
+import { useHistory } from "react-router-dom";
 
 import { Delay, Heading1, Heading2 } from "../util";
 import Item, { ItemListContainer, ItemListSkeleton } from "./Item";
@@ -26,6 +28,8 @@ import { BiRename } from "react-icons/bi";
 import { IoCloudUploadOutline } from "react-icons/io5";
 import { MdMoreVert } from "react-icons/md";
 import useCurrentUser from "../components/useCurrentUser";
+import gql from "graphql-tag";
+import { useMutation } from "@apollo/client";
 
 /**
  * ItemsPanel shows the items in the current outfit, and lets the user toggle
@@ -246,12 +250,111 @@ function ItemZoneGroupSkeleton({ itemCount }) {
   );
 }
 
+function useOutfitSaving(outfitState) {
+  const { isLoggedIn, id: currentUserId } = useCurrentUser();
+  const history = useHistory();
+  const toast = useToast();
+
+  const isSaved = outfitState.id;
+
+  // Only logged-in users can save outfits - and they can only save new outfits,
+  // or outfits they created.
+  const canSaveOutfit =
+    isLoggedIn &&
+    (!isSaved || outfitState.creator?.id === currentUserId) &&
+    // TODO: Add support for outfits with items
+    outfitState.wornItemIds.length === 0 &&
+    outfitState.closetedItemIds.length === 0;
+
+  const [sendSaveOutfitMutation, { loading: isSaving }] = useMutation(
+    gql`
+      mutation UseOutfitSaving_SaveOutfit(
+        $id: ID # Optional, is null when saving new outfits.
+        $name: String # Optional, server may fill in a placeholder.
+        $speciesId: ID!
+        $colorId: ID!
+        $pose: Pose!
+        $wornItemIds: [ID!]!
+        $closetedItemIds: [ID!]!
+      ) {
+        outfit: saveOutfit(
+          id: $id
+          name: $name
+          speciesId: $speciesId
+          colorId: $colorId
+          pose: $pose
+          wornItemIds: $wornItemIds
+          closetedItemIds: $closetedItemIds
+        ) {
+          id
+          name
+          petAppearance {
+            id
+            species {
+              id
+            }
+            color {
+              id
+            }
+            pose
+          }
+          wornItems {
+            id
+          }
+          closetedItems {
+            id
+          }
+          creator {
+            id
+          }
+        }
+      }
+    `,
+    {
+      variables: {
+        id: outfitState.id, // Optional, is null when saving new outfits
+        name: outfitState.name, // Optional, server may fill in a placeholder
+        speciesId: outfitState.speciesId,
+        colorId: outfitState.colorId,
+        pose: outfitState.pose,
+        wornItemIds: outfitState.wornItemIds,
+        closetedItemIds: outfitState.closetedItemIds,
+      },
+      context: { sendAuth: true },
+    }
+  );
+
+  const saveOutfit = React.useCallback(() => {
+    sendSaveOutfitMutation()
+      .then(({ data: { outfit } }) => {
+        // Navigate to the new saved outfit URL. Our Apollo cache should pick
+        // up the data from this mutation response, and combine it with the
+        // existing cached data, to make this smooth without any loading UI.
+        history.push(`/outfits/${outfit.id}`);
+      })
+      .catch((e) => {
+        console.error(e);
+        toast({
+          status: "error",
+          title: "Sorry, there was an error saving this outfit!",
+          description: "Maybe check your connection and try again.",
+        });
+      });
+  }, [sendSaveOutfitMutation, history, toast]);
+
+  return {
+    canSaveOutfit,
+    isSaving,
+    saveOutfit,
+  };
+}
+
 /**
  * OutfitHeading is an editable outfit name, as a big pretty page heading!
  * It also contains the outfit menu, for saving etc.
  */
 function OutfitHeading({ outfitState, dispatchToOutfit }) {
-  const { isLoggedIn } = useCurrentUser();
+  const { canSaveOutfit, isSaving, saveOutfit } = useOutfitSaving(outfitState);
 
   return (
     // The Editable wraps everything, including the menu, because the menu has
@@ -277,25 +380,26 @@ function OutfitHeading({ outfitState, dispatchToOutfit }) {
             </Box>
           </Box>
           <Box width="4" flex="1 0 auto" />
-          {isLoggedIn && (
+          {canSaveOutfit && (
             <>
-              <Tooltip label="Coming soon!" shouldWrapChildren>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  isDisabled
-                  leftIcon={
-                    <Box
-                      // Adjust the visual balance toward the cloud
-                      marginBottom="-2px"
-                    >
-                      <IoCloudUploadOutline />
-                    </Box>
-                  }
-                >
-                  Save
-                </Button>
-              </Tooltip>
+              <Button
+                variant="outline"
+                size="sm"
+                isLoading={isSaving}
+                loadingText="Saving…"
+                leftIcon={
+                  <Box
+                    // Adjust the visual balance toward the cloud
+                    marginBottom="-2px"
+                  >
+                    <IoCloudUploadOutline />
+                  </Box>
+                }
+                onClick={saveOutfit}
+                data-test-id="wardrobe-save-outfit-button"
+              >
+                Save
+              </Button>
               <Box width="2" />
             </>
           )}

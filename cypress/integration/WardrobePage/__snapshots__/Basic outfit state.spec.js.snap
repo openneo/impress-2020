@@ -125,3 +125,19 @@ exports[`WardrobePage: Basic outfit state > Changes pose #1`] =
   "search": "?name=&species=1&color=8&pose=SAD_MASC",
   "superDomain": "localhost"
 };
+
+exports[`WardrobePage: Basic outfit state > Renames outfit #0`] =
+{
+  "auth": "",
+  "hash": "",
+  "host": "localhost:3000",
+  "hostname": "localhost",
+  "href": "http://localhost:3000/outfits/new?name=Awesome+outfit&species=1&color=8&pose=HAPPY_FEM",
+  "origin": "http://localhost:3000",
+  "originPolicy": "http://localhost:3000",
+  "pathname": "/outfits/new",
+  "port": "3000",
+  "protocol": "http:",
+  "search": "?name=Awesome+outfit&species=1&color=8&pose=HAPPY_FEM",
+  "superDomain": "localhost"
+};
