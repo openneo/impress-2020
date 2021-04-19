@@ -3,6 +3,7 @@ import { setContext } from "@apollo/client/link/context";
 import { createPersistedQueryLink } from "apollo-link-persisted-queries";
 
 import cachedZones from "./cached-data/zones.json";
+import { readCypressLoginData } from "./components/useCurrentUser";
 
 // Teach Apollo to load certain fields from the cache, to avoid extra network
 // requests. This happens a lot - e.g. reusing data from item search on the
@@ -142,22 +143,8 @@ const buildAuthLink = (getAuth0) =>
       return;
     }
 
-    // Wait for auth0 to stop loading, so we can maybe get a token! We'll do
-    // this hackily by checking every 100ms until it's true.
-    await new Promise((resolve) => {
-      function check() {
-        if (getAuth0().isLoading) {
-          setTimeout(check, 100);
-        } else {
-          resolve();
-        }
-      }
-      check();
-    });
-
-    const { isAuthenticated, getAccessTokenSilently } = getAuth0();
-    if (isAuthenticated) {
-      const token = await getAccessTokenSilently();
+    const token = await getAccessToken(getAuth0);
+    if (token) {
       return {
         headers: {
           ...headers,
@@ -166,6 +153,33 @@ const buildAuthLink = (getAuth0) =>
       };
     }
   });
+
+async function getAccessToken(getAuth0) {
+  // Our Cypress tests store login data separately. Use it if available!
+  const cypressToken = readCypressLoginData()?.encodedToken;
+  if (cypressToken) {
+    return cypressToken;
+  }
+
+  // Otherwise, wait for auth0 to stop loading, so we can maybe get a token!
+  // We'll do this hackily by checking every 100ms until it's true.
+  await new Promise((resolve) => {
+    function check() {
+      if (getAuth0().isLoading) {
+        setTimeout(check, 100);
+      } else {
+        resolve();
+      }
+    }
+    check();
+  });
+
+  const { isAuthenticated, getAccessTokenSilently } = getAuth0();
+  if (isAuthenticated) {
+    const token = await getAccessTokenSilently();
+    return token;
+  }
+}
 
 const initialCache = {};
 for (const zone of cachedZones) {
