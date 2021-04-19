@@ -1,7 +1,7 @@
 import * as page from "./page";
 
 describe("WardrobePage: Outfit saving", () => {
-  it("logs in", () => {
+  it("Saves a basic outfit", () => {
     cy.logInAs("dti-test");
     cy.visit("/outfits/new?species=1&color=8");
 
