@@ -14,11 +14,12 @@ describe("WardrobePage: Outfit saving", () => {
     page.getSaveOutfitButton().click().should("have.attr", "data-loading");
 
     // Wait for the outfit to stop saving, and check that it redirected and
-    // still shows the correct outfit name.
+    // still shows the correct outfit preview and name.
     page
       .getSaveOutfitButton({ timeout: 12000 })
       .should("not.have.attr", "data-loading");
     cy.location("pathname").should("match", /^\/outfits\/[0-9]+$/);
     page.getOutfitName().should("have.text", outfitName);
+    page.getOutfitPreview().toMatchImageSnapshot();
   });
 });
