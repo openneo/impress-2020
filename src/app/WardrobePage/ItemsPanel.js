@@ -29,7 +29,7 @@ import { IoCloudUploadOutline } from "react-icons/io5";
 import { MdMoreVert } from "react-icons/md";
 import useCurrentUser from "../components/useCurrentUser";
 import gql from "graphql-tag";
-import { useMutation } from "@apollo/client";
+import { useApolloClient, useMutation } from "@apollo/client";
 
 /**
  * ItemsPanel shows the items in the current outfit, and lets the user toggle
@@ -320,6 +320,27 @@ function useOutfitSaving(outfitState) {
         closetedItemIds: outfitState.closetedItemIds,
       },
       context: { sendAuth: true },
+      update: (cache, { data: { outfit } }) => {
+        // After save, add this outfit to the current user's outfit list. This
+        // will help when navigating back to Your Outfits, to force a refresh.
+        // https://www.apollographql.com/docs/react/caching/cache-interaction/#example-updating-the-cache-after-a-mutation
+        cache.modify({
+          id: cache.identify(outfit.creator),
+          fields: {
+            outfits: (existingOutfitRefs = [], {}) => {
+              const newOutfitRef = cache.writeFragment({
+                data: outfit,
+                fragment: gql`
+                  fragment NewOutfit on Outfit {
+                    id
+                  }
+                `,
+              });
+              return [...existingOutfitRefs, newOutfitRef];
+            },
+          },
+        });
+      },
     }
   );
 
