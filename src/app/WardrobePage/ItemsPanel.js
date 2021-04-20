@@ -255,13 +255,15 @@ function useOutfitSaving(outfitState) {
   const history = useHistory();
   const toast = useToast();
 
-  const isSaved = outfitState.id;
+  const isSaved = Boolean(outfitState.id);
 
   // Only logged-in users can save outfits - and they can only save new outfits,
   // or outfits they created.
   const canSaveOutfit =
     isLoggedIn &&
     (!isSaved || outfitState.creator?.id === currentUserId) &&
+    // TODO: Add support for updating outfits
+    !isSaved &&
     // TODO: Add support for outfits with items
     outfitState.wornItemIds.length === 0 &&
     outfitState.closetedItemIds.length === 0;

@@ -107,7 +107,7 @@ function useOutfitState() {
   // IDs. It's more convenient to manage them as a Set in state, but most
   // callers will find it more convenient to access them as arrays! e.g. for
   // `.map()`.
-  const { name, speciesId, colorId, pose, appearanceId } = outfitState;
+  const { id, name, speciesId, colorId, pose, appearanceId } = outfitState;
   const wornItemIds = Array.from(outfitState.wornItemIds);
   const closetedItemIds = Array.from(outfitState.closetedItemIds);
   const allItemIds = [...wornItemIds, ...closetedItemIds];
@@ -218,7 +218,7 @@ function useOutfitState() {
   const url = buildOutfitUrl(outfitState);
 
   const outfitStateWithExtras = {
-    id: urlOutfitState.outfitId,
+    id,
     creator,
     zonesAndItems,
     incompatibleItems,
