@@ -137,7 +137,10 @@ const resolvers = {
 
       // Get the base name of the provided name: trim it, and strip any "(1)"
       // suffixes.
-      const baseName = rawName.replace(/\s*\([0-9]+\)\s*$/, "");
+      const baseName = (rawName || "Untitled outfit").replace(
+        /\s*\([0-9]+\)\s*$/,
+        ""
+      );
       const namePlaceholder = baseName.trim().replace(/_%/g, "\\$0") + "%";
 
       // Then, look for outfits from this user with the same base name.
