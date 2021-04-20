@@ -263,10 +263,7 @@ function useOutfitSaving(outfitState) {
     isLoggedIn &&
     (!isSaved || outfitState.creator?.id === currentUserId) &&
     // TODO: Add support for updating outfits
-    !isSaved &&
-    // TODO: Add support for outfits with items
-    outfitState.wornItemIds.length === 0 &&
-    outfitState.closetedItemIds.length === 0;
+    !isSaved;
 
   const [sendSaveOutfitMutation, { loading: isSaving }] = useMutation(
     gql`

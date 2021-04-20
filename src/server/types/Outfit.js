@@ -131,10 +131,6 @@ const resolvers = {
         throw new Error("TODO: Add support for updating existing outfits");
       }
 
-      if (wornItemIds.length > 0 || closetedItemIds.length > 0) {
-        throw new Error("TODO: Add support for outfits with items");
-      }
-
       // Get the base name of the provided name: trim it, and strip any "(1)"
       // suffixes.
       const baseName = (rawName || "Untitled outfit").replace(
@@ -182,15 +178,49 @@ const resolvers = {
         );
       }
 
-      const [result] = await db.execute(
-        `
-          INSERT INTO outfits (name, pet_state_id, user_id, created_at, updated_at)
-          VALUES (?, ?, ?, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP());
-        `,
-        [name, petState.id, currentUserId]
-      );
+      // Save the outfit, and its item_outfit_relationships rows, in a
+      // transaction.
+      await db.beginTransaction();
+      let newOutfitId;
+      try {
+        const [result] = await db.execute(
+          `
+            INSERT INTO outfits
+              (name, pet_state_id, user_id, created_at, updated_at)
+              VALUES (?, ?, ?, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP());
+          `,
+          [name, petState.id, currentUserId]
+        );
+        newOutfitId = String(result.insertId);
 
-      const newOutfitId = String(result.insertId);
+        if (wornItemIds.length > 0 || closetedItemIds.length > 0) {
+          const itemRowPlaceholders = [
+            [...wornItemIds, ...closetedItemIds].map(
+              (_) => `(?, ?, ?, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP())`
+            ),
+          ].join(", ");
+          const itemRowValues = [
+            ...wornItemIds.map((itemId) => [newOutfitId, itemId, true]),
+            ...closetedItemIds.map((itemId) => [newOutfitId, itemId, false]),
+          ].flat();
+          await db.execute(
+            // TODO: When we start saving existing outfits, we'll need a delete
+            //       here too, or some other sync mechanism.
+            `
+              INSERT INTO item_outfit_relationships
+                (outfit_id, item_id, is_worn, created_at, updated_at)
+                VALUES ${itemRowPlaceholders};
+            `,
+            itemRowValues
+          );
+        }
+
+        await db.commit();
+      } catch (e) {
+        await db.rollback();
+        throw e;
+      }
+
       console.log(`Saved outfit ${newOutfitId}`);
 
       return { id: newOutfitId };
