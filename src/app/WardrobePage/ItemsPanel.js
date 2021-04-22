@@ -429,7 +429,11 @@ function OutfitSavingIndicator({ outfitState }) {
 
   if (latestVersionIsSaved) {
     return (
-      <Flex align="center" fontSize="xs">
+      <Flex
+        align="center"
+        fontSize="xs"
+        data-test-id="wardrobe-outfit-is-saved-indicator"
+      >
         <CheckIcon
           marginRight="1"
           // HACK: Not sure why my various centering things always feel wrong...

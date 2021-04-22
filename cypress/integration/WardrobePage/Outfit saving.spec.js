@@ -15,10 +15,8 @@ describe("WardrobePage: Outfit saving", () => {
 
     // Wait for the outfit to stop saving, and check that it redirected and
     // still shows the correct outfit preview and name.
-    cy.location("pathname", { timeout: 12000 }).should(
-      "match",
-      /^\/outfits\/[0-9]+$/
-    );
+    page.getOutfitIsSavedIndicator({ timeout: 12000 }).should("exist");
+    cy.location("pathname").should("match", /^\/outfits\/[0-9]+$/);
     page.getOutfitName().should("have.text", outfitName);
     page.getOutfitPreview().toMatchImageSnapshot();
   });
@@ -39,10 +37,8 @@ describe("WardrobePage: Outfit saving", () => {
 
     // Wait for the outfit to stop saving, and check that it redirected and
     // still shows the correct outfit preview and name.
-    cy.location("pathname", { timeout: 12000 }).should(
-      "match",
-      /^\/outfits\/[0-9]+$/
-    );
+    page.getOutfitIsSavedIndicator({ timeout: 12000 }).should("exist");
+    cy.location("pathname").should("match", /^\/outfits\/[0-9]+$/);
     page.getOutfitName().should("have.text", outfitName);
     page.getOutfitPreview().toMatchImageSnapshot();
   });
