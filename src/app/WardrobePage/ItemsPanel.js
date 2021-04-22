@@ -17,8 +17,19 @@ import {
   Portal,
   Button,
   useToast,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverArrow,
+  PopoverBody,
 } from "@chakra-ui/react";
-import { EditIcon, QuestionIcon } from "@chakra-ui/icons";
+import {
+  CheckIcon,
+  EditIcon,
+  ExternalLinkIcon,
+  QuestionIcon,
+  WarningIcon,
+} from "@chakra-ui/icons";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { useHistory } from "react-router-dom";
 
@@ -30,6 +41,7 @@ import { MdMoreVert } from "react-icons/md";
 import useCurrentUser from "../components/useCurrentUser";
 import gql from "graphql-tag";
 import { useMutation } from "@apollo/client";
+import { outfitStatesAreEqual } from "./useOutfitState";
 
 /**
  * ItemsPanel shows the items in the current outfit, and lets the user toggle
@@ -255,16 +267,19 @@ function useOutfitSaving(outfitState) {
   const history = useHistory();
   const toast = useToast();
 
-  // Whether this outfit has *ever* been saved, vs a brand-new local outfit.
-  const hasBeenSaved = Boolean(outfitState.id);
+  // Whether this outfit is new, i.e. local-only, i.e. has _never_ been saved
+  // to the server.
+  const isNewOutfit = outfitState.id == null;
+
+  // Whether this outfit's latest local changes have been saved to the server.
+  const latestVersionIsSaved =
+    outfitState.savedOutfitState &&
+    outfitStatesAreEqual(outfitState, outfitState.savedOutfitState);
 
   // Only logged-in users can save outfits - and they can only save new outfits,
   // or outfits they created.
   const canSaveOutfit =
-    isLoggedIn &&
-    (!hasBeenSaved || outfitState.creator?.id === currentUserId) &&
-    // TODO: Add support for updating outfits
-    !hasBeenSaved;
+    isLoggedIn && (isNewOutfit || outfitState.creator?.id === currentUserId);
 
   const [sendSaveOutfitMutation, { loading: isSaving }] = useMutation(
     gql`
@@ -365,9 +380,97 @@ function useOutfitSaving(outfitState) {
 
   return {
     canSaveOutfit,
+    isNewOutfit,
     isSaving,
+    latestVersionIsSaved,
     saveOutfit,
   };
+}
+
+/**
+ * OutfitSavingIndicator shows a Save button, or the "Saved" or "Saving" state,
+ * if the user can save this outfit. If not, this is empty!
+ */
+function OutfitSavingIndicator({ outfitState }) {
+  const {
+    canSaveOutfit,
+    isNewOutfit,
+    isSaving,
+    latestVersionIsSaved,
+    saveOutfit,
+  } = useOutfitSaving(outfitState);
+
+  if (!canSaveOutfit) {
+    return null;
+  }
+
+  if (isNewOutfit) {
+    return (
+      <Button
+        variant="outline"
+        size="sm"
+        isLoading={isSaving}
+        loadingText="Saving…"
+        leftIcon={
+          <Box
+            // Adjust the visual balance toward the cloud
+            marginBottom="-2px"
+          >
+            <IoCloudUploadOutline />
+          </Box>
+        }
+        onClick={saveOutfit}
+        data-test-id="wardrobe-save-outfit-button"
+      >
+        Save
+      </Button>
+    );
+  }
+
+  if (latestVersionIsSaved) {
+    return (
+      <Flex align="center" fontSize="xs">
+        <CheckIcon
+          marginRight="1"
+          // HACK: Not sure why my various centering things always feel wrong...
+          marginBottom="-2px"
+        />
+        Saved
+      </Flex>
+    );
+  }
+
+  return (
+    <Popover trigger="hover">
+      <PopoverTrigger>
+        <Flex align="center" fontSize="xs" tabIndex="0">
+          <WarningIcon
+            marginRight="1"
+            // HACK: Not sure why my various centering things always feel wrong...
+            marginBottom="-2px"
+          />
+          Not saved
+        </Flex>
+      </PopoverTrigger>
+      <PopoverContent>
+        <PopoverArrow />
+        <PopoverBody>
+          We're still working on this! For now, use{" "}
+          <Box
+            as="a"
+            href={`https://impress.openneo.net/outfits/${outfitState.id}`}
+            target="_blank"
+          >
+            <Box as="span" textDecoration="underline">
+              Classic DTI
+            </Box>
+            <ExternalLinkIcon marginLeft="1" marginTop="-3px" fontSize="sm" />
+          </Box>{" "}
+          to save existing outfits.
+        </PopoverBody>
+      </PopoverContent>
+    </Popover>
+  );
 }
 
 /**
@@ -375,8 +478,6 @@ function useOutfitSaving(outfitState) {
  * It also contains the outfit menu, for saving etc.
  */
 function OutfitHeading({ outfitState, dispatchToOutfit }) {
-  const { canSaveOutfit, isSaving, saveOutfit } = useOutfitSaving(outfitState);
-
   return (
     // The Editable wraps everything, including the menu, because the menu has
     // a Rename option.
@@ -401,30 +502,10 @@ function OutfitHeading({ outfitState, dispatchToOutfit }) {
             </Box>
           </Box>
           <Box width="4" flex="1 0 auto" />
-          {canSaveOutfit && (
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                isLoading={isSaving}
-                loadingText="Saving…"
-                leftIcon={
-                  <Box
-                    // Adjust the visual balance toward the cloud
-                    marginBottom="-2px"
-                  >
-                    <IoCloudUploadOutline />
-                  </Box>
-                }
-                onClick={saveOutfit}
-                data-test-id="wardrobe-save-outfit-button"
-              >
-                Save
-              </Button>
-              <Box width="2" />
-            </>
-          )}
-
+          <Box flex="0 0 auto">
+            <OutfitSavingIndicator outfitState={outfitState} />
+          </Box>
+          <Box width="2" />
           <Menu placement="bottom-end">
             <MenuButton
               as={IconButton}

@@ -231,6 +231,7 @@ function useOutfitState() {
     pose,
     appearanceId,
     url,
+    savedOutfitState,
   };
 
   // Keep the URL up-to-date. (We don't listen to it, though 😅)
@@ -567,8 +568,19 @@ function getZonesAndItems(itemsById, wornItemIds, closetedItemIds) {
 }
 
 function buildOutfitUrl(outfitState) {
+  const { id } = outfitState;
+
+  const { origin, pathname } = window.location;
+
+  if (id) {
+    return origin + `/outfits/${id}`;
+  }
+
+  return origin + pathname + "?" + buildOutfitQueryString(outfitState);
+}
+
+function buildOutfitQueryString(outfitState) {
   const {
-    id,
     name,
     speciesId,
     colorId,
@@ -577,12 +589,6 @@ function buildOutfitUrl(outfitState) {
     wornItemIds,
     closetedItemIds,
   } = outfitState;
-
-  const { origin, pathname } = window.location;
-
-  if (id) {
-    return origin + `/outfits/${id}`;
-  }
 
   const params = new URLSearchParams({
     name: name || "",
@@ -602,7 +608,14 @@ function buildOutfitUrl(outfitState) {
     params.append("state", appearanceId);
   }
 
-  return origin + pathname + "?" + params.toString();
+  return params.toString();
+}
+
+/**
+ * Whether the two given outfit states represent identical customizations.
+ */
+export function outfitStatesAreEqual(a, b) {
+  return buildOutfitQueryString(a) === buildOutfitQueryString(b);
 }
 
 export default useOutfitState;
