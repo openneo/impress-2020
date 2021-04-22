@@ -1,16 +1,28 @@
 import React from "react";
 import gql from "graphql-tag";
 import { useMutation, useQuery } from "@apollo/client";
-import { Box, IconButton, Select, Spinner, Switch } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  IconButton,
+  Select,
+  Spinner,
+  Switch,
+  Wrap,
+  WrapItem,
+  useDisclosure,
+} from "@chakra-ui/react";
 import {
   ArrowBackIcon,
   ArrowForwardIcon,
   CheckCircleIcon,
+  EditIcon,
 } from "@chakra-ui/icons";
 
 import HangerSpinner from "../../components/HangerSpinner";
 import Metadata, { MetadataLabel, MetadataValue } from "./Metadata";
 import useSupport from "./useSupport";
+import AppearanceLayerSupportModal from "./AppearanceLayerSupportModal";
 
 function PosePickerSupport({
   speciesId,
@@ -33,6 +45,24 @@ function PosePickerSupport({
               id
               label @client
             }
+
+            # For AppearanceLayerSupportModal
+            remoteId
+            bodyId
+            swfUrl
+            svgUrl
+            imageUrl
+            canvasMovieLibraryUrl
+          }
+
+          # For AppearanceLayerSupportModal to know the name
+          species {
+            id
+            name
+          }
+          color {
+            id
+            name
           }
         }
 
@@ -128,16 +158,46 @@ function PosePickerSupport({
             colorId={colorId}
           />
         </MetadataValue>
-        <MetadataLabel>Zones:</MetadataLabel>
+        <MetadataLabel>Layers:</MetadataLabel>
         <MetadataValue>
-          {currentPetAppearance.layers
-            .map((l) => l.zone)
-            .map((z) => `${z.label} (${z.id})`)
-            .sort()
-            .join(", ")}
+          <Wrap spacing="1">
+            {currentPetAppearance.layers
+              .map((layer) => [`${layer.zone.label} (${layer.zone.id})`, layer])
+              .sort((a, b) => a[0].localeCompare(b[0]))
+              .map(([text, layer]) => (
+                <WrapItem>
+                  <PetLayerSupportLink
+                    outfitState={{ speciesId, colorId, pose }}
+                    petAppearance={currentPetAppearance}
+                    layer={layer}
+                  >
+                    {text}
+                    <EditIcon marginLeft="1" />
+                  </PetLayerSupportLink>
+                </WrapItem>
+              ))}
+          </Wrap>
         </MetadataValue>
       </Metadata>
     </Box>
+  );
+}
+
+function PetLayerSupportLink({ outfitState, petAppearance, layer, children }) {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  return (
+    <>
+      <Button size="xs" onClick={onOpen}>
+        {children}
+      </Button>
+      <AppearanceLayerSupportModal
+        outfitState={outfitState}
+        petAppearance={petAppearance}
+        layer={layer}
+        isOpen={isOpen}
+        onClose={onClose}
+      />
+    </>
   );
 }
 

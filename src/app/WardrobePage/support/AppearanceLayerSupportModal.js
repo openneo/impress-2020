@@ -41,7 +41,8 @@ import useSupport from "./useSupport";
  * appearance layer. Open it by clicking a layer from ItemSupportDrawer.
  */
 function AppearanceLayerSupportModal({
-  item,
+  item, // Specify this or `petAppearance`
+  petAppearance, // Specify this or `item`
   layer,
   outfitState, // speciesId, colorId, pose
   isOpen,
@@ -62,12 +63,16 @@ function AppearanceLayerSupportModal({
   const { supportSecret } = useSupport();
   const toast = useToast();
 
+  const parentName = item
+    ? item.name
+    : `${petAppearance.color.name} ${petAppearance.species.name} ${petAppearance.id}`;
+
   const [
     mutate,
     { loading: mutationLoading, error: mutationError },
   ] = useMutation(
     gql`
-      mutation ItemSupportSetLayerBodyId(
+      mutation ApperanceLayerSupportSetLayerBodyId(
         $layerId: ID!
         $bodyId: ID!
         $knownGlitches: [AppearanceLayerKnownGlitch!]!
@@ -134,7 +139,7 @@ function AppearanceLayerSupportModal({
         onClose();
         toast({
           status: "success",
-          title: `Saved layer ${layer.id}: ${item.name}`,
+          title: `Saved layer ${layer.id}: ${parentName}`,
         });
       },
     }
@@ -153,7 +158,7 @@ function AppearanceLayerSupportModal({
       <ModalOverlay>
         <ModalContent>
           <ModalHeader>
-            Layer {layer.id}: {item.name}
+            Layer {layer.id}: {parentName}
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
@@ -244,45 +249,55 @@ function AppearanceLayerSupportModal({
                     SWF <ExternalLinkIcon ml="1" />
                   </Button>
                   <Box flex="1 1 0" />
-                  <Button
-                    size="xs"
-                    colorScheme="gray"
-                    onClick={() => setUploadModalIsOpen(true)}
-                  >
-                    Upload PNG <ChevronRightIcon />
-                  </Button>
-                  <AppearanceLayerSupportUploadModal
-                    item={item}
-                    layer={layer}
-                    isOpen={uploadModalIsOpen}
-                    onClose={() => setUploadModalIsOpen(false)}
-                  />
+                  {item && (
+                    <>
+                      <Button
+                        size="xs"
+                        colorScheme="gray"
+                        onClick={() => setUploadModalIsOpen(true)}
+                      >
+                        Upload PNG <ChevronRightIcon />
+                      </Button>
+                      <AppearanceLayerSupportUploadModal
+                        item={item}
+                        layer={layer}
+                        isOpen={uploadModalIsOpen}
+                        onClose={() => setUploadModalIsOpen(false)}
+                      />
+                    </>
+                  )}
                 </HStack>
               </MetadataValue>
             </Metadata>
             <Box height="8" />
-            <AppearanceLayerSupportPetCompatibilityFields
-              item={item}
-              layer={layer}
-              outfitState={outfitState}
-              selectedBodyId={selectedBodyId}
-              previewBiology={previewBiology}
-              onChangeBodyId={setSelectedBodyId}
-              onChangePreviewBiology={setPreviewBiology}
-            />
-            <Box height="8" />
+            {item && (
+              <>
+                <AppearanceLayerSupportPetCompatibilityFields
+                  item={item}
+                  layer={layer}
+                  outfitState={outfitState}
+                  selectedBodyId={selectedBodyId}
+                  previewBiology={previewBiology}
+                  onChangeBodyId={setSelectedBodyId}
+                  onChangePreviewBiology={setPreviewBiology}
+                />
+                <Box height="8" />
+              </>
+            )}
             <AppearanceLayerSupportKnownGlitchesFields
               selectedKnownGlitches={selectedKnownGlitches}
               onChange={setSelectedKnownGlitches}
             />
           </ModalBody>
           <ModalFooter>
-            <AppearanceLayerSupportModalRemoveButton
-              item={item}
-              layer={layer}
-              outfitState={outfitState}
-              onRemoveSuccess={onClose}
-            />
+            {item && (
+              <AppearanceLayerSupportModalRemoveButton
+                item={item}
+                layer={layer}
+                outfitState={outfitState}
+                onRemoveSuccess={onClose}
+              />
+            )}
             <Box flex="1 0 0" />
             {mutationError && (
               <Box
@@ -298,7 +313,11 @@ function AppearanceLayerSupportModal({
             <Button
               isLoading={mutationLoading}
               colorScheme="green"
-              onClick={mutate}
+              onClick={() =>
+                mutate().catch((e) => {
+                  /* Discard errors here; we'll show them in the UI! */
+                })
+              }
               flex="0 0 auto"
             >
               Save changes

@@ -18,13 +18,13 @@ let auth0;
  */
 function getAuth0() {
   if (!auth0) {
-  auth0 = new ManagementClient({
-    domain: "openneo.us.auth0.com",
-    clientId: process.env.AUTH0_SUPPORT_CLIENT_ID,
-    clientSecret: process.env.AUTH0_SUPPORT_CLIENT_SECRET,
-    scope: "read:users update:users",
-  });
-}
+    auth0 = new ManagementClient({
+      domain: "openneo.us.auth0.com",
+      clientId: process.env.AUTH0_SUPPORT_CLIENT_ID,
+      clientSecret: process.env.AUTH0_SUPPORT_CLIENT_SECRET,
+      scope: "read:users update:users",
+    });
+  }
 
   return auth0;
 }
@@ -412,6 +412,10 @@ const resolvers = {
         itemTranslationLoader,
         swfAssetLoader,
         zoneTranslationLoader,
+        petStateLoader,
+        petTypeLoader,
+        colorTranslationLoader,
+        speciesTranslationLoader,
         db,
       }
     ) => {
@@ -453,44 +457,91 @@ const resolvers = {
 
       if (process.env["SUPPORT_TOOLS_DISCORD_WEBHOOK_URL"]) {
         try {
-          const itemId = await db
+          const { parentType, parentId } = await db
             .execute(
-              `SELECT parent_id FROM parents_swf_assets
-             WHERE swf_asset_id = ? AND parent_type = "Item" LIMIT 1;`,
+              `SELECT parent_type, parent_id FROM parents_swf_assets
+               WHERE swf_asset_id = ? LIMIT 1;`,
               [layerId]
             )
-            .then(([rows]) => normalizeRow(rows[0]).parentId);
+            .then(([rows]) => normalizeRow(rows[0]));
 
-          const [item, itemTranslation, zoneTranslation] = await Promise.all([
-            itemLoader.load(itemId),
-            itemTranslationLoader.load(itemId),
-            zoneTranslationLoader.load(oldSwfAsset.zoneId),
-          ]);
+          if (parentType === "Item") {
+            const [item, itemTranslation, zoneTranslation] = await Promise.all([
+              itemLoader.load(parentId),
+              itemTranslationLoader.load(parentId),
+              zoneTranslationLoader.load(oldSwfAsset.zoneId),
+            ]);
 
-          await logToDiscord({
-            embeds: [
-              {
-                title: `🛠 ${itemTranslation.name}`,
-                thumbnail: {
-                  url: item.thumbnailUrl,
-                  height: 80,
-                  width: 80,
-                },
-                fields: [
-                  {
-                    name:
-                      `Layer ${layerId} (${zoneTranslation.label}): ` +
-                      `Known glitches`,
-                    value: `${oldSwfAsset.knownGlitches || "<none>"} → **${
-                      newKnownGlitchesString || "<none>"
-                    }**`,
+            await logToDiscord({
+              embeds: [
+                {
+                  title: `🛠 ${itemTranslation.name}`,
+                  thumbnail: {
+                    url: item.thumbnailUrl,
+                    height: 80,
+                    width: 80,
                   },
-                ],
-                timestamp: new Date().toISOString(),
-                url: `https://impress.openneo.net/items/${itemId}`,
-              },
-            ],
-          });
+                  fields: [
+                    {
+                      name:
+                        `Layer ${layerId} (${zoneTranslation.label}): ` +
+                        `Known glitches`,
+                      value: `${oldSwfAsset.knownGlitches || "<none>"} → **${
+                        newKnownGlitchesString || "<none>"
+                      }**`,
+                    },
+                  ],
+                  timestamp: new Date().toISOString(),
+                  url: `https://impress.openneo.net/items/${parentId}`,
+                },
+              ],
+            });
+          } else if (parentType === "PetState") {
+            const petState = await petStateLoader.load(parentId);
+            const petType = await petTypeLoader.load(petState.petTypeId);
+            const [
+              colorTranslation,
+              speciesTranslation,
+              zoneTranslation,
+            ] = await Promise.all([
+              colorTranslationLoader.load(petType.colorId),
+              speciesTranslationLoader.load(petType.speciesId),
+              zoneTranslationLoader.load(oldSwfAsset.zoneId),
+            ]);
+
+            const colorName = capitalize(colorTranslation.name);
+            const speciesName = capitalize(speciesTranslation.name);
+            const pose = getPoseFromPetState(petState);
+
+            await logToDiscord({
+              embeds: [
+                {
+                  title: `🛠 ${colorName} ${speciesName}`,
+                  thumbnail: {
+                    url: `http://pets.neopets.com/cp/${
+                      petType.basicImageHash || petType.imageHash
+                    }/1/6.png`,
+                    height: 150,
+                    width: 150,
+                  },
+                  fields: [
+                    {
+                      name: `Appearance ${petState.id}, Layer ${layerId} (${zoneTranslation.label}): Known glitches`,
+                      value: `${oldSwfAsset.knownGlitches || "<none>"} → **${
+                        newKnownGlitchesString || "<none>"
+                      }**`,
+                    },
+                  ],
+                  timestamp: new Date().toISOString(),
+                  url: `https://impress-2020.openneo.net/outfits/new?species=${petType.speciesId}&color=${petType.colorId}&pose=${pose}&state=${petState.id}`,
+                },
+              ],
+            });
+          } else {
+            console.error(
+              `Error building Discord support log: unexpected parent type ${parentType}`
+            );
+          }
         } catch (e) {
           console.error("Error sending Discord support log", e);
         }
