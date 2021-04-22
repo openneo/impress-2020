@@ -19,11 +19,11 @@ import { safeImageUrl } from "../../util";
 import useSupport from "./useSupport";
 
 /**
- * ItemLayerSupportUploadModal helps Support users create and upload PNGs for
+ * AppearanceLayerSupportUploadModal helps Support users create and upload PNGs for
  * broken appearance layers. Useful when the auto-converters are struggling,
  * e.g. the SWF uses a color filter our server-side Flash player can't support!
  */
-function ItemLayerSupportUploadModal({ item, itemLayer, isOpen, onClose }) {
+function AppearanceLayerSupportUploadModal({ item, layer, isOpen, onClose }) {
   const [step, setStep] = React.useState(1);
   const [imageOnBlackUrl, setImageOnBlackUrl] = React.useState(null);
   const [imageOnWhiteUrl, setImageOnWhiteUrl] = React.useState(null);
@@ -93,7 +93,7 @@ function ItemLayerSupportUploadModal({ item, itemLayer, isOpen, onClose }) {
     setIsUploading(true);
     setUploadError(null);
     try {
-      const res = await fetch(`/api/uploadLayerImage?layerId=${itemLayer.id}`, {
+      const res = await fetch(`/api/uploadLayerImage?layerId=${layer.id}`, {
         method: "POST",
         headers: {
           "DTI-Support-Secret": supportSecret,
@@ -122,7 +122,7 @@ function ItemLayerSupportUploadModal({ item, itemLayer, isOpen, onClose }) {
       //       update, but not these!) Ultimately the eviction is the only
       //       reliable method I found :/
       apolloClient.cache.evict({
-        id: `AppearanceLayer:${itemLayer.id}`,
+        id: `AppearanceLayer:${layer.id}`,
         fieldName: "imageUrl",
       });
     } catch (e) {
@@ -132,7 +132,7 @@ function ItemLayerSupportUploadModal({ item, itemLayer, isOpen, onClose }) {
   }, [
     imageWithAlphaBlob,
     supportSecret,
-    itemLayer.id,
+    layer.id,
     toast,
     onClose,
     apolloClient.cache,
@@ -163,14 +163,14 @@ function ItemLayerSupportUploadModal({ item, itemLayer, isOpen, onClose }) {
             textAlign="center"
           >
             {(step === 1 || step === 2) && (
-              <ItemLayerSupportScreenshotStep
-                itemLayer={itemLayer}
+              <AppearanceLayerSupportScreenshotStep
+                layer={layer}
                 step={step}
                 onUpload={onUpload}
               />
             )}
             {step === 3 && (
-              <ItemLayerSupportReviewStep
+              <AppearanceLayerSupportReviewStep
                 imageWithAlphaUrl={imageWithAlphaUrl}
                 numWarnings={numWarnings}
                 conflictMode={conflictMode}
@@ -211,7 +211,7 @@ function ItemLayerSupportUploadModal({ item, itemLayer, isOpen, onClose }) {
   );
 }
 
-function ItemLayerSupportScreenshotStep({ itemLayer, step, onUpload }) {
+function AppearanceLayerSupportScreenshotStep({ layer, step, onUpload }) {
   return (
     <>
       <Box>
@@ -250,15 +250,15 @@ function ItemLayerSupportScreenshotStep({ itemLayer, step, onUpload }) {
           Chrome help <ExternalLinkIcon marginLeft="1" />
         </Button>
       </Box>
-      <ItemLayerSupportFlashPlayer
-        swfUrl={itemLayer.swfUrl}
+      <AppearanceLayerSupportFlashPlayer
+        swfUrl={layer.swfUrl}
         backgroundColor={step === 1 ? "black" : "white"}
       />
     </>
   );
 }
 
-function ItemLayerSupportReviewStep({
+function AppearanceLayerSupportReviewStep({
   imageWithAlphaUrl,
   numWarnings,
   conflictMode,
@@ -326,7 +326,7 @@ function ItemLayerSupportReviewStep({
   );
 }
 
-function ItemLayerSupportFlashPlayer({ swfUrl, backgroundColor }) {
+function AppearanceLayerSupportFlashPlayer({ swfUrl, backgroundColor }) {
   const [isVisible, setIsVisible] = React.useState(null);
   const regionRef = React.useRef(null);
 
@@ -631,4 +631,4 @@ function computeSaturation(r, g, b) {
   return s;
 }
 
-export default ItemLayerSupportUploadModal;
+export default AppearanceLayerSupportUploadModal;

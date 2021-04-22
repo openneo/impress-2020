@@ -27,7 +27,7 @@ import {
 } from "@chakra-ui/react";
 import { ChevronRightIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 
-import ItemLayerSupportUploadModal from "./ItemLayerSupportUploadModal";
+import AppearanceLayerSupportUploadModal from "./AppearanceLayerSupportUploadModal";
 import Metadata, { MetadataLabel, MetadataValue } from "./Metadata";
 import { OutfitLayers } from "../../components/OutfitPreview";
 import SpeciesColorPicker from "../../components/SpeciesColorPicker";
@@ -37,19 +37,19 @@ import useOutfitAppearance, {
 import useSupport from "./useSupport";
 
 /**
- * ItemLayerSupportModal offers Support info and tools for a specific item
+ * AppearanceLayerSupportModal offers Support info and tools for a specific item
  * appearance layer. Open it by clicking a layer from ItemSupportDrawer.
  */
-function ItemLayerSupportModal({
+function AppearanceLayerSupportModal({
   item,
-  itemLayer,
+  layer,
   outfitState, // speciesId, colorId, pose
   isOpen,
   onClose,
 }) {
-  const [selectedBodyId, setSelectedBodyId] = React.useState(itemLayer.bodyId);
+  const [selectedBodyId, setSelectedBodyId] = React.useState(layer.bodyId);
   const [selectedKnownGlitches, setSelectedKnownGlitches] = React.useState(
-    itemLayer.knownGlitches
+    layer.knownGlitches
   );
 
   const [previewBiology, setPreviewBiology] = React.useState({
@@ -121,7 +121,7 @@ function ItemLayerSupportModal({
     `,
     {
       variables: {
-        layerId: itemLayer.id,
+        layerId: layer.id,
         bodyId: selectedBodyId,
         knownGlitches: selectedKnownGlitches,
         supportSecret,
@@ -134,7 +134,7 @@ function ItemLayerSupportModal({
         onClose();
         toast({
           status: "success",
-          title: `Saved layer ${itemLayer.id}: ${item.name}`,
+          title: `Saved layer ${layer.id}: ${item.name}`,
         });
       },
     }
@@ -145,7 +145,7 @@ function ItemLayerSupportModal({
   //       the GraphQL request for non-Support users. We could also just try
   //       loading them, but, ehhh…
   const [newManifestUrl, oldManifestUrl] = convertSwfUrlToPossibleManifestUrls(
-    itemLayer.swfUrl
+    layer.swfUrl
   );
 
   return (
@@ -153,18 +153,18 @@ function ItemLayerSupportModal({
       <ModalOverlay>
         <ModalContent>
           <ModalHeader>
-            Layer {itemLayer.id}: {item.name}
+            Layer {layer.id}: {item.name}
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <Metadata>
               <MetadataLabel>DTI ID:</MetadataLabel>
-              <MetadataValue>{itemLayer.id}</MetadataValue>
+              <MetadataValue>{layer.id}</MetadataValue>
               <MetadataLabel>Neopets ID:</MetadataLabel>
-              <MetadataValue>{itemLayer.remoteId}</MetadataValue>
+              <MetadataValue>{layer.remoteId}</MetadataValue>
               <MetadataLabel>Zone:</MetadataLabel>
               <MetadataValue>
-                {itemLayer.zone.label} ({itemLayer.zone.id})
+                {layer.zone.label} ({layer.zone.id})
               </MetadataValue>
               <MetadataLabel>Assets:</MetadataLabel>
               <MetadataValue>
@@ -189,12 +189,12 @@ function ItemLayerSupportModal({
                   </Button>
                 </HStack>
                 <HStack spacing="2" marginTop="1">
-                  {itemLayer.canvasMovieLibraryUrl ? (
+                  {layer.canvasMovieLibraryUrl ? (
                     <Button
                       as="a"
                       size="xs"
                       target="_blank"
-                      href={itemLayer.canvasMovieLibraryUrl}
+                      href={layer.canvasMovieLibraryUrl}
                       colorScheme="teal"
                     >
                       Movie <ExternalLinkIcon ml="1" />
@@ -204,12 +204,12 @@ function ItemLayerSupportModal({
                       No Movie
                     </Button>
                   )}
-                  {itemLayer.svgUrl ? (
+                  {layer.svgUrl ? (
                     <Button
                       as="a"
                       size="xs"
                       target="_blank"
-                      href={itemLayer.svgUrl}
+                      href={layer.svgUrl}
                       colorScheme="teal"
                     >
                       SVG <ExternalLinkIcon ml="1" />
@@ -219,12 +219,12 @@ function ItemLayerSupportModal({
                       No SVG
                     </Button>
                   )}
-                  {itemLayer.imageUrl ? (
+                  {layer.imageUrl ? (
                     <Button
                       as="a"
                       size="xs"
                       target="_blank"
-                      href={itemLayer.imageUrl}
+                      href={layer.imageUrl}
                       colorScheme="teal"
                     >
                       PNG <ExternalLinkIcon ml="1" />
@@ -238,7 +238,7 @@ function ItemLayerSupportModal({
                     as="a"
                     size="xs"
                     target="_blank"
-                    href={itemLayer.swfUrl}
+                    href={layer.swfUrl}
                     colorScheme="teal"
                   >
                     SWF <ExternalLinkIcon ml="1" />
@@ -251,9 +251,9 @@ function ItemLayerSupportModal({
                   >
                     Upload PNG <ChevronRightIcon />
                   </Button>
-                  <ItemLayerSupportUploadModal
+                  <AppearanceLayerSupportUploadModal
                     item={item}
-                    itemLayer={itemLayer}
+                    layer={layer}
                     isOpen={uploadModalIsOpen}
                     onClose={() => setUploadModalIsOpen(false)}
                   />
@@ -261,9 +261,9 @@ function ItemLayerSupportModal({
               </MetadataValue>
             </Metadata>
             <Box height="8" />
-            <ItemLayerSupportPetCompatibilityFields
+            <AppearanceLayerSupportPetCompatibilityFields
               item={item}
-              itemLayer={itemLayer}
+              layer={layer}
               outfitState={outfitState}
               selectedBodyId={selectedBodyId}
               previewBiology={previewBiology}
@@ -271,15 +271,15 @@ function ItemLayerSupportModal({
               onChangePreviewBiology={setPreviewBiology}
             />
             <Box height="8" />
-            <ItemLayerSupportKnownGlitchesFields
+            <AppearanceLayerSupportKnownGlitchesFields
               selectedKnownGlitches={selectedKnownGlitches}
               onChange={setSelectedKnownGlitches}
             />
           </ModalBody>
           <ModalFooter>
-            <ItemLayerSupportModalRemoveButton
+            <AppearanceLayerSupportModalRemoveButton
               item={item}
-              itemLayer={itemLayer}
+              layer={layer}
               outfitState={outfitState}
               onRemoveSuccess={onClose}
             />
@@ -310,9 +310,9 @@ function ItemLayerSupportModal({
   );
 }
 
-function ItemLayerSupportPetCompatibilityFields({
+function AppearanceLayerSupportPetCompatibilityFields({
   item,
-  itemLayer,
+  layer,
   outfitState,
   selectedBodyId,
   previewBiology,
@@ -386,7 +386,7 @@ function ItemLayerSupportPetCompatibilityFields({
         >
           <OutfitLayers
             loading={loading}
-            visibleLayers={[...biologyLayers, itemLayer]}
+            visibleLayers={[...biologyLayers, layer]}
           />
         </Box>
         <SpeciesColorPicker
@@ -421,7 +421,7 @@ function ItemLayerSupportPetCompatibilityFields({
   );
 }
 
-function ItemLayerSupportKnownGlitchesFields({
+function AppearanceLayerSupportKnownGlitchesFields({
   selectedKnownGlitches,
   onChange,
 }) {
@@ -474,9 +474,9 @@ function ItemLayerSupportKnownGlitchesFields({
   );
 }
 
-function ItemLayerSupportModalRemoveButton({
+function AppearanceLayerSupportModalRemoveButton({
   item,
-  itemLayer,
+  layer,
   outfitState,
   onRemoveSuccess,
 }) {
@@ -486,7 +486,7 @@ function ItemLayerSupportModalRemoveButton({
 
   const [mutate, { loading, error }] = useMutation(
     gql`
-      mutation ItemLayerSupportRemoveButton(
+      mutation AppearanceLayerSupportRemoveButton(
         $layerId: ID!
         $itemId: ID!
         $outfitSpeciesId: ID!
@@ -522,7 +522,7 @@ function ItemLayerSupportModalRemoveButton({
     `,
     {
       variables: {
-        layerId: itemLayer.id,
+        layerId: layer.id,
         itemId: item.id,
         outfitSpeciesId: outfitState.speciesId,
         outfitColorId: outfitState.colorId,
@@ -533,7 +533,7 @@ function ItemLayerSupportModalRemoveButton({
         onRemoveSuccess();
         toast({
           status: "success",
-          title: `Removed layer ${itemLayer.id} from ${item.name}`,
+          title: `Removed layer ${layer.id} from ${item.name}`,
         });
       },
     }
@@ -549,13 +549,12 @@ function ItemLayerSupportModalRemoveButton({
           <ModalContent>
             <ModalCloseButton />
             <ModalHeader>
-              Remove Layer {itemLayer.id} ({itemLayer.zone.label}) from{" "}
-              {item.name}?
+              Remove Layer {layer.id} ({layer.zone.label}) from {item.name}?
             </ModalHeader>
             <ModalBody>
               <Box as="p" marginBottom="4">
-                This will permanently-ish remove Layer {itemLayer.id} (
-                {itemLayer.zone.label}) from this item.
+                This will permanently-ish remove Layer {layer.id} (
+                {layer.zone.label}) from this item.
               </Box>
               <Box as="p" marginBottom="4">
                 If you remove a correct layer by mistake, re-modeling should fix
@@ -563,8 +562,7 @@ function ItemLayerSupportModalRemoveButton({
                 before proceeding!
               </Box>
               <Box as="p" marginBottom="4">
-                Are you sure you want to remove Layer {itemLayer.id} from this
-                item?
+                Are you sure you want to remove Layer {layer.id} from this item?
               </Box>
             </ModalBody>
             <ModalFooter>
@@ -625,4 +623,4 @@ function convertSwfUrlToPossibleManifestUrls(swfUrl) {
   ];
 }
 
-export default ItemLayerSupportModal;
+export default AppearanceLayerSupportModal;

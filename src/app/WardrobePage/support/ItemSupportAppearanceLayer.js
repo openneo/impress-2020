@@ -2,7 +2,7 @@ import * as React from "react";
 import { ClassNames } from "@emotion/react";
 import { Box, useColorModeValue, useDisclosure } from "@chakra-ui/react";
 import { EditIcon } from "@chakra-ui/icons";
-import ItemLayerSupportModal from "./ItemLayerSupportModal";
+import AppearanceLayerSupportModal from "./AppearanceLayerSupportModal";
 import { OutfitLayers } from "../../components/OutfitPreview";
 
 function ItemSupportAppearanceLayer({
@@ -83,9 +83,9 @@ function ItemSupportAppearanceLayer({
           </Box>
           <Box>Neopets ID: {itemLayer.remoteId}</Box>
           <Box>DTI ID: {itemLayer.id}</Box>
-          <ItemLayerSupportModal
+          <AppearanceLayerSupportModal
             item={item}
-            itemLayer={itemLayer}
+            layer={itemLayer}
             outfitState={outfitState}
             isOpen={isOpen}
             onClose={onClose}
