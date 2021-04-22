@@ -29,7 +29,7 @@ import { IoCloudUploadOutline } from "react-icons/io5";
 import { MdMoreVert } from "react-icons/md";
 import useCurrentUser from "../components/useCurrentUser";
 import gql from "graphql-tag";
-import { useApolloClient, useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client";
 
 /**
  * ItemsPanel shows the items in the current outfit, and lets the user toggle
@@ -327,7 +327,7 @@ function useOutfitSaving(outfitState) {
         cache.modify({
           id: cache.identify(outfit.creator),
           fields: {
-            outfits: (existingOutfitRefs = [], {}) => {
+            outfits: (existingOutfitRefs = []) => {
               const newOutfitRef = cache.writeFragment({
                 data: outfit,
                 fragment: gql`
