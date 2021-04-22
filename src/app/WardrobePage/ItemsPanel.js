@@ -255,15 +255,16 @@ function useOutfitSaving(outfitState) {
   const history = useHistory();
   const toast = useToast();
 
-  const isSaved = Boolean(outfitState.id);
+  // Whether this outfit has *ever* been saved, vs a brand-new local outfit.
+  const hasBeenSaved = Boolean(outfitState.id);
 
   // Only logged-in users can save outfits - and they can only save new outfits,
   // or outfits they created.
   const canSaveOutfit =
     isLoggedIn &&
-    (!isSaved || outfitState.creator?.id === currentUserId) &&
+    (!hasBeenSaved || outfitState.creator?.id === currentUserId) &&
     // TODO: Add support for updating outfits
-    !isSaved;
+    !hasBeenSaved;
 
   const [sendSaveOutfitMutation, { loading: isSaving }] = useMutation(
     gql`
