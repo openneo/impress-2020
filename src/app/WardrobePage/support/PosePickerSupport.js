@@ -51,7 +51,7 @@ function PosePickerSupport({
             bodyId
             swfUrl
             svgUrl
-            imageUrl
+            imageUrl(size: SIZE_600)
             canvasMovieLibraryUrl
           }
 
