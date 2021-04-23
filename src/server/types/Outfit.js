@@ -10,6 +10,12 @@ const typeDefs = gql`
     closetedItems: [Item!]!
     creator: User
 
+    # When this outfit was created. ISO 8601 string.
+    createdAt: String!
+
+    # When this outfit was last updated. ISO 8601 string.
+    updatedAt: String!
+
     # This is a convenience field: you could query this from the combination of
     # petAppearance and wornItems, but this gets you it in one shot!
     itemAppearances: [ItemAppearance!]!
@@ -88,6 +94,14 @@ const resolvers = {
       }
 
       return { id: outfit.userId };
+    },
+    createdAt: async ({ id }, _, { outfitLoader }) => {
+      const outfit = await outfitLoader.load(id);
+      return outfit.createdAt.toISOString();
+    },
+    updatedAt: async ({ id }, _, { outfitLoader }) => {
+      const outfit = await outfitLoader.load(id);
+      return outfit.updatedAt.toISOString();
     },
   },
 
