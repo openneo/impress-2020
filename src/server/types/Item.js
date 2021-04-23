@@ -70,7 +70,7 @@ const typeDefs = gql`
     # NOTE: Most color IDs won't be accepted here. Either pass the ID of a
     #       major special color like Baby (#6), or leave it blank for standard
     #       bodies like Blue, Green, Red, etc.
-    speciesThatNeedModels(colorId: ID): [Species!]! @cacheControl(maxAge: 1)
+    speciesThatNeedModels(colorId: ID): [Species!]! @cacheControl(maxAge: 1, staleWhileRevalidate: ${oneHour})
 
     # Return a single ItemAppearance for this item. It'll be for the species
     # with the smallest ID for which we have item appearance data, and a basic
