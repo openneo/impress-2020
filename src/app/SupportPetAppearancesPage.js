@@ -89,12 +89,19 @@ function UnlabeledPetAppearancesList() {
   }
 
   return (
-    <Wrap>
+    <Wrap align="center">
       {speciesColorPairs.map(({ species, color }) => (
         <WrapItem key={`${species.id}-${color.id}`}>
           <SpeciesColorEditorLink species={species} color={color} />
         </WrapItem>
       ))}
+      <WrapItem>
+        {speciesColorPairs.length >= 10 && (
+          <Box fontSize="xs" fontStyle="italic" marginLeft="2">
+            (That's {speciesColorPairs.length} total, and fewer by the minute!)
+          </Box>
+        )}
+      </WrapItem>
     </Wrap>
   );
 }
