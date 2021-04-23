@@ -88,6 +88,38 @@ function PosePickerSupport({
     window.dispatchEvent(new Event("resize"));
   }, [loading, appearanceId]);
 
+  const canonicalAppearanceIdsByPose = {
+    HAPPY_MASC: data?.happyMasc?.id,
+    SAD_MASC: data?.sadMasc?.id,
+    SICK_MASC: data?.sickMasc?.id,
+    HAPPY_FEM: data?.happyFem?.id,
+    SAD_FEM: data?.sadFem?.id,
+    SICK_FEM: data?.sickFem?.id,
+    UNCONVERTED: data?.unconverted?.id,
+    UNKNOWN: data?.unknown?.id,
+  };
+  const canonicalAppearanceIds = Object.values(
+    canonicalAppearanceIdsByPose
+  ).filter((id) => id);
+
+  const providedAppearanceId = appearanceId;
+  if (!providedAppearanceId) {
+    appearanceId = canonicalAppearanceIdsByPose[pose];
+  }
+
+  // If you don't already have `appearanceId` in the outfit state, opening up
+  // PosePickerSupport adds it! That way, if you make changes that affect the
+  // canonical poses, we'll still stay navigated to this one.
+  React.useEffect(() => {
+    if (!providedAppearanceId && appearanceId) {
+      dispatchToOutfit({
+        type: "setPose",
+        pose,
+        appearanceId,
+      });
+    }
+  }, [providedAppearanceId, appearanceId]);
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center">
@@ -102,24 +134,6 @@ function PosePickerSupport({
         {error.message}
       </Box>
     );
-  }
-
-  const canonicalAppearanceIdsByPose = {
-    HAPPY_MASC: data.happyMasc?.id,
-    SAD_MASC: data.sadMasc?.id,
-    SICK_MASC: data.sickMasc?.id,
-    HAPPY_FEM: data.happyFem?.id,
-    SAD_FEM: data.sadFem?.id,
-    SICK_FEM: data.sickFem?.id,
-    UNCONVERTED: data.unconverted?.id,
-    UNKNOWN: data.unknown?.id,
-  };
-  const canonicalAppearanceIds = Object.values(
-    canonicalAppearanceIdsByPose
-  ).filter((id) => id);
-
-  if (!appearanceId) {
-    appearanceId = canonicalAppearanceIdsByPose[pose];
   }
 
   const currentPetAppearance = data.petAppearances.find(
