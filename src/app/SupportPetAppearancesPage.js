@@ -8,7 +8,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@chakra-ui/popover";
-import { Tooltip } from "@chakra-ui/tooltip";
 import { Link } from "react-router-dom";
 import HangerSpinner from "./components/HangerSpinner";
 import {
