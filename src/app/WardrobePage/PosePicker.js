@@ -578,13 +578,7 @@ function usePoses(speciesId, colorId, selectedPose) {
         }
       }
 
-      fragment PetAppearanceForPosePicker on PetAppearance {
-        id
-        bodyId
-        pose
-        ...PetAppearanceForOutfitPreview
-      }
-      ${petAppearanceFragment}
+      ${petAppearanceForPosePickerFragment}
     `,
     { variables: { speciesId, colorId }, onError: (e) => console.error(e) }
   );
@@ -667,6 +661,16 @@ function getTransform(poseInfo) {
   }
   return transformsByBodyId.default;
 }
+
+export const petAppearanceForPosePickerFragment = gql`
+  fragment PetAppearanceForPosePicker on PetAppearance {
+    id
+    bodyId
+    pose
+    ...PetAppearanceForOutfitPreview
+  }
+  ${petAppearanceFragment}
+`;
 
 const transformsByBodyId = {
   "93": "translate(-5px, 10px) scale(2.8)",

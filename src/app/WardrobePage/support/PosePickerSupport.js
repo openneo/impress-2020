@@ -23,6 +23,7 @@ import HangerSpinner from "../../components/HangerSpinner";
 import Metadata, { MetadataLabel, MetadataValue } from "./Metadata";
 import useSupport from "./useSupport";
 import AppearanceLayerSupportModal from "./AppearanceLayerSupportModal";
+import { petAppearanceForPosePickerFragment } from "../PosePicker";
 
 function PosePickerSupport({
   speciesId,
@@ -64,11 +65,16 @@ function PosePickerSupport({
             id
             name
           }
+
+          # Also, anything the PosePicker wants that isn't here, so that we
+          # don't have to refetch anything when we change the canonical poses.
+          ...PetAppearanceForPosePicker
         }
 
         ...CanonicalPetAppearances
       }
       ${canonicalPetAppearancesFragment}
+      ${petAppearanceForPosePickerFragment}
     `,
     { variables: { speciesId, colorId } }
   );
