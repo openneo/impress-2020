@@ -1,5 +1,14 @@
 import { gql, useQuery } from "@apollo/client";
+import { QuestionIcon } from "@chakra-ui/icons";
 import { Box, Flex, Wrap, WrapItem } from "@chakra-ui/layout";
+import {
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
+} from "@chakra-ui/popover";
+import { Tooltip } from "@chakra-ui/tooltip";
 import { Link } from "react-router-dom";
 import HangerSpinner from "./components/HangerSpinner";
 import {
@@ -30,8 +39,21 @@ function UnlabeledPetAppearancesList() {
   return (
     <Box>
       <Box as="p" marginBottom="2">
-        These pet appearances have some <code>UNKNOWN</code> poses that need
-        labeled! Please take a look!
+        These species/color combinations have some <code>UNKNOWN</code>{" "}
+        appearances that need labeled! Please take a look!
+        <Popover trigger="hover" placement="top">
+          <PopoverTrigger>
+            <QuestionIcon marginLeft="1.5" marginTop="-2px" tabIndex="0" />
+          </PopoverTrigger>
+          <PopoverContent>
+            <PopoverArrow />
+            <PopoverBody fontSize="sm" textAlign="center">
+              This includes species/color combinations that have at least one{" "}
+              <code>UNKNOWN</code> pose, and are missing at least one of the
+              standard 6 mood/gender-presentation poses.
+            </PopoverBody>
+          </PopoverContent>
+        </Popover>
       </Box>
       {loading && (
         <Flex justify="center">
