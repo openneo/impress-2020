@@ -227,7 +227,7 @@ export function usePageTitle(title, { skip = false } = {}) {
  *
  * Our limited API is designed to match the `use-http` library!
  */
-export function useFetch(url, { responseType }) {
+export function useFetch(url, { headers = {}, responseType }) {
   // Just trying to be clear about what you'll get back ^_^` If we want to
   // fetch non-binary data later, extend this and get something else from res!
   if (responseType !== "arrayBuffer") {
@@ -241,7 +241,7 @@ export function useFetch(url, { responseType }) {
   React.useEffect(() => {
     let canceled = false;
 
-    fetch(url)
+    fetch(url, { headers })
       .then(async (res) => {
         if (canceled) {
           return;

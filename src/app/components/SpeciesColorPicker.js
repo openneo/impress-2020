@@ -310,10 +310,10 @@ const SpeciesColorSelect = ({
   );
 };
 
-export function useAllValidPetPoses() {
+export function useAllValidPetPoses(fetchOptions) {
   const { loading, error, data: validsBuffer } = useFetch(
     "/api/validPetPoses",
-    { responseType: "arrayBuffer" }
+    { ...fetchOptions, responseType: "arrayBuffer" }
   );
 
   const valids = React.useMemo(

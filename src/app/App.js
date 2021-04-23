@@ -30,6 +30,9 @@ const ItemTradesSeekingPage = loadable(() =>
 );
 const ModelingPage = loadable(() => import("./ModelingPage"));
 const PrivacyPolicyPage = loadable(() => import("./PrivacyPolicyPage"));
+const SupportPetAppearancesPage = loadable(() =>
+  import("./SupportPetAppearancesPage")
+);
 const UserItemsPage = loadable(() => import("./UserItemsPage"));
 const UserOutfitsPage = loadable(() => import("./UserOutfitsPage"));
 const WardrobePage = loadable(() => import("./WardrobePage"), {
@@ -154,6 +157,11 @@ function App() {
               <Route path="/conversion">
                 <PageLayout>
                   <ConversionPage />
+                </PageLayout>
+              </Route>
+              <Route path="/support/petAppearances">
+                <PageLayout>
+                  <SupportPetAppearancesPage />
                 </PageLayout>
               </Route>
               <Route path="/">
