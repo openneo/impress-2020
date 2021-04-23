@@ -171,5 +171,8 @@ async function handle(req, res) {
 }
 
 export default async (req, res) => {
-  beeline.withTrace({ name: "uploadLayerImage" }, () => handle(req, res));
+  beeline.withTrace(
+    { name: "api/uploadLayerImage", operation_name: "api/uploadLayerImage" },
+    () => handle(req, res)
+  );
 };

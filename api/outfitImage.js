@@ -67,5 +67,8 @@ async function handle(req, res) {
 }
 
 export default async (req, res) => {
-  beeline.withTrace({ name: "outfitImage" }, () => handle(req, res));
+  beeline.withTrace(
+    { name: "api/outfitImage", operation_name: "api/outfitImage" },
+    () => handle(req, res)
+  );
 };

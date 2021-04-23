@@ -131,5 +131,8 @@ function normalizeItemName(name) {
 }
 
 export default async (req, res) => {
-  beeline.withTrace({ name: "allWakaValues" }, () => handle(req, res));
+  beeline.withTrace(
+    { name: "api/allWakaValues", operation_name: "api/allWakaValues" },
+    () => handle(req, res)
+  );
 };

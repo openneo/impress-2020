@@ -1,3 +1,11 @@
+const beeline = require("honeycomb-beeline")({
+  writeKey: process.env["HONEYCOMB_WRITE_KEY"],
+  dataset:
+    process.env["NODE_ENV"] === "production"
+      ? "Dress to Impress (2020)"
+      : "Dress to Impress (2020, dev)",
+  serviceName: "impress-2020-gql-server",
+});
 import connectToDb from "../src/server/db";
 import { getPoseFromPetState, normalizeRow } from "../src/server/util";
 
@@ -83,7 +91,7 @@ async function getDistinctPetStates(db) {
   return rows.map(normalizeRow);
 }
 
-export default async (req, res) => {
+async function handle(req, res) {
   const buffer = await getValidPetPoses();
 
   // Cache for 1 hour. This will also cache at Vercel's CDN, so the function
@@ -91,4 +99,11 @@ export default async (req, res) => {
   res.setHeader("Cache-Control", "max-age=3600");
 
   res.status(200).send(buffer);
+}
+
+export default async (req, res) => {
+  beeline.withTrace(
+    { name: "api/validPetPoses", operation_name: "api/validPetPoses" },
+    () => handle(req, res)
+  );
 };
