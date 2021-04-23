@@ -12,6 +12,7 @@ import ItemCard, {
   NcBadge,
   YouOwnThisBadge,
 } from "./components/ItemCard";
+import useCurrentUser from "./components/useCurrentUser";
 
 function ModelingPage() {
   usePageTitle("Modeling Hub");
@@ -25,6 +26,8 @@ function ModelingPage() {
 }
 
 function ItemModelsSection() {
+  const { isLoggedIn } = useCurrentUser();
+
   const { loading, error, data } = useQuery(
     gql`
       query ModelingPage {
@@ -59,12 +62,6 @@ function ItemModelsSection() {
             name
           }
         }
-
-        currentUser {
-          itemsTheyOwn {
-            id
-          }
-        }
       }
 
       fragment ItemFields on Item {
@@ -74,8 +71,23 @@ function ItemModelsSection() {
         isNc
         createdAt
       }
+    `
+  );
+
+  // We're going to be silent about the loading/error states here, because it's
+  // not essential info anyway, and announcing the wait or the failure would be
+  // more confusing than anything.
+  const { data: userData } = useQuery(
+    gql`
+      query ModelingPage_UserData {
+        currentUser {
+          itemsTheyOwn {
+            id
+          }
+        }
+      }
     `,
-    { context: { sendAuth: true } }
+    { context: { sendAuth: true }, skip: !isLoggedIn }
   );
 
   if (loading) {
@@ -102,7 +114,7 @@ function ItemModelsSection() {
   }
 
   const ownedItemIds = new Set(
-    data.currentUser?.itemsTheyOwn?.map((item) => item.id)
+    userData?.currentUser?.itemsTheyOwn?.map((item) => item.id)
   );
 
   return (
