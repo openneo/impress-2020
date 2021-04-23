@@ -77,7 +77,7 @@ function SpeciesColorEditorLink({ species, color }) {
   return (
     <Box
       as={Link}
-      to={`/outfits/new?species=${species.id}&color=${color.id}`}
+      to={`/outfits/new?species=${species.id}&color=${color.id}&pose=UNKNOWN`}
       target="supportPetAppearanceEditor"
       border="1px solid"
       borderColor="green.600"
