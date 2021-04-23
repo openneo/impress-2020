@@ -4,6 +4,7 @@ import {
   capitalize,
   getPoseFromPetState,
   getRestrictedZoneIds,
+  normalizeRow,
   oneWeek,
   oneDay,
   oneHour,
@@ -115,6 +116,11 @@ const typeDefs = gql`
     # version here (even if the standard pose picker is still showing outdated
     # cached canonical poses).
     petAppearances(speciesId: ID!, colorId: ID!): [PetAppearance!]!
+
+    # The SpeciesColorPairs that don't have all 6 standard poses labeled yet,
+    # and have at least one UNKNOWN pose to label. For Support users, on
+    # /support/petAppearances.
+    speciesColorPairsThatNeedSupportLabeling: [SpeciesColorPair!]!
   }
 `;
 
@@ -386,6 +392,40 @@ const resolvers = {
       });
       const petStates = await petStatesForPetTypeLoader.load(petType.id);
       return petStates.map((petState) => ({ id: petState.id }));
+    },
+    speciesColorPairsThatNeedSupportLabeling: async (
+      _,
+      __,
+      { db, petTypeLoader }
+    ) => {
+      const [rows] = await db.query(
+        `
+          SELECT * FROM pet_types WHERE
+            -- Does not have all 6 standard poses
+            (
+              SELECT COUNT(DISTINCT mood_id, female)
+              FROM pet_states
+              WHERE
+                pet_type_id = pet_types.id AND mood_id IS NOT NULL AND female IS NOT NULL AND glitched = 0
+            ) < 6
+            -- And has at least one of the UNKNOWN pose
+            AND (
+              SELECT COUNT(*)
+              FROM pet_states
+              WHERE
+                pet_type_id = pet_types.id
+                  AND mood_id IS NULL AND female IS NULL
+                  AND (unconverted = 0 OR unconverted IS NULL)
+                  AND glitched = 0
+            ) >= 1;
+        `
+      );
+      const petTypes = rows.map(normalizeRow);
+
+      // Prime the cache, so the resolvers downstream don't re-query for them.
+      petTypes.forEach((petType) => petTypeLoader.prime(petType.id, petType));
+
+      return petTypes.map(({ id }) => ({ id }));
     },
   },
 };
