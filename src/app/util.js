@@ -238,10 +238,15 @@ export function useFetch(url, { responseType, ...fetchOptions }) {
   const [error, setError] = React.useState(null);
   const [data, setData] = React.useState(null);
 
+  // We expect this to be a simple object, so this helps us only re-send the
+  // fetch when the options have actually changed, rather than e.g. a new copy
+  // of an identical object!
+  const fetchOptionsAsJson = JSON.stringify(fetchOptions);
+
   React.useEffect(() => {
     let canceled = false;
 
-    fetch(url, fetchOptions)
+    fetch(url, JSON.parse(fetchOptionsAsJson))
       .then(async (res) => {
         if (canceled) {
           return;
@@ -265,7 +270,7 @@ export function useFetch(url, { responseType, ...fetchOptions }) {
     return () => {
       canceled = true;
     };
-  }, [url, fetchOptions]);
+  }, [url, fetchOptionsAsJson]);
 
   return { loading, error, data };
 }
