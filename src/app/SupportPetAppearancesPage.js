@@ -1,4 +1,5 @@
 import { gql, useQuery } from "@apollo/client";
+import { useColorModeValue } from "@chakra-ui/color-mode";
 import { QuestionIcon } from "@chakra-ui/icons";
 import { Box, Flex, Wrap, WrapItem } from "@chakra-ui/layout";
 import {
@@ -99,6 +100,11 @@ function UnlabeledPetAppearancesList() {
 }
 
 function SpeciesColorEditorLink({ species, color }) {
+  const hoverBackgroundColor = useColorModeValue(
+    "blackAlpha.50",
+    "whiteAlpha.100"
+  );
+
   return (
     <Box
       as={Link}
@@ -110,6 +116,8 @@ function SpeciesColorEditorLink({ species, color }) {
       paddingX="3"
       paddingY="2"
       fontSize="sm"
+      _hover={{ backgroundColor: hoverBackgroundColor }}
+      _focus={{ boxShadow: "outline", outline: "none" }}
     >
       {color.name} {species.name}
     </Box>
