@@ -124,7 +124,7 @@ function PosePickerSupport({
         appearanceId,
       });
     }
-  }, [providedAppearanceId, appearanceId]);
+  }, [providedAppearanceId, appearanceId, pose, dispatchToOutfit]);
 
   if (loading) {
     return (
