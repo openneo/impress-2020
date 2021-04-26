@@ -98,38 +98,30 @@ function SearchResults({
   // Background we want to restore the previous one!
   const [itemIdsToReconsider] = React.useState(outfitState.wornItemIds);
 
-  // When the checkbox changes, we should wear/unwear the item!
-  const onChange = (e) => {
-    const itemId = e.target.value;
-    const willBeWorn = e.target.checked;
-    if (willBeWorn) {
-      dispatchToOutfit({ type: "wearItem", itemId, itemIdsToReconsider });
-    } else {
-      dispatchToOutfit({ type: "unwearItem", itemId, itemIdsToReconsider });
-    }
-  };
-
   // You can use UpArrow/DownArrow to navigate between items, and even back up
   // to the search field!
-  const goToPrevItem = (e) => {
-    const prevLabel = e.target.closest("label").previousSibling;
-    if (prevLabel) {
-      prevLabel.querySelector("input[type=checkbox]").focus();
-      prevLabel.scrollIntoView({ block: "center" });
-      e.preventDefault();
-    } else {
-      // If we're at the top of the list, move back up to the search box!
-      onMoveFocusUpToQuery(e);
-    }
-  };
-  const goToNextItem = (e) => {
+  const goToPrevItem = React.useCallback(
+    (e) => {
+      const prevLabel = e.target.closest("label").previousSibling;
+      if (prevLabel) {
+        prevLabel.querySelector("input[type=checkbox]").focus();
+        prevLabel.scrollIntoView({ block: "center" });
+        e.preventDefault();
+      } else {
+        // If we're at the top of the list, move back up to the search box!
+        onMoveFocusUpToQuery(e);
+      }
+    },
+    [onMoveFocusUpToQuery]
+  );
+  const goToNextItem = React.useCallback((e) => {
     const nextLabel = e.target.closest("label").nextSibling;
     if (nextLabel) {
       nextLabel.querySelector("input[type=checkbox]").focus();
       nextLabel.scrollIntoView({ block: "center" });
       e.preventDefault();
     }
-  };
+  }, []);
 
   // If the results aren't ready, we have some special case UI!
   if (loading) {
@@ -167,42 +159,85 @@ function SearchResults({
     <>
       <ItemListContainer>
         {items.map((item, index) => (
-          <label key={item.id}>
-            <VisuallyHidden
-              as="input"
-              type="checkbox"
-              aria-label={`Wear "${item.name}"`}
-              value={item.id}
-              checked={outfitState.wornItemIds.includes(item.id)}
-              ref={index === 0 ? firstSearchResultRef : null}
-              onChange={onChange}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.target.click();
-                } else if (e.key === "ArrowUp") {
-                  goToPrevItem(e);
-                } else if (e.key === "ArrowDown") {
-                  goToNextItem(e);
-                }
-              }}
-            />
-            <Item
-              item={item}
-              isWorn={outfitState.wornItemIds.includes(item.id)}
-              isInOutfit={outfitState.allItemIds.includes(item.id)}
-              onRemove={() =>
-                dispatchToOutfit({
-                  type: "removeItem",
-                  itemId: item.id,
-                  itemIdsToReconsider,
-                })
-              }
-            />
-          </label>
+          <SearchResultItem
+            key={item.id}
+            item={item}
+            itemIdsToReconsider={itemIdsToReconsider}
+            isWorn={outfitState.wornItemIds.includes(item.id)}
+            isInOutfit={outfitState.allItemIds.includes(item.id)}
+            dispatchToOutfit={dispatchToOutfit}
+            checkboxRef={index === 0 ? firstSearchResultRef : null}
+            goToPrevItem={goToPrevItem}
+            goToNextItem={goToNextItem}
+          />
         ))}
       </ItemListContainer>
       {loadingMore && <ItemListSkeleton count={8} />}
     </>
+  );
+}
+
+function SearchResultItem({
+  item,
+  itemIdsToReconsider,
+  isWorn,
+  isInOutfit,
+  dispatchToOutfit,
+  checkboxRef,
+  goToPrevItem,
+  goToNextItem,
+}) {
+  // It's important to use `useCallback` for `onRemove`, to avoid re-rendering
+  // the whole list of <Item>s!
+  const onRemove = React.useCallback(
+    () =>
+      dispatchToOutfit({
+        type: "removeItem",
+        itemId: item.id,
+        itemIdsToReconsider,
+      }),
+    [item.id, itemIdsToReconsider, dispatchToOutfit]
+  );
+
+  return (
+    <label>
+      <VisuallyHidden
+        as="input"
+        type="checkbox"
+        aria-label={`Wear "${item.name}"`}
+        value={item.id}
+        checked={isWorn}
+        ref={checkboxRef}
+        onChange={(e) => {
+          const itemId = e.target.value;
+          const willBeWorn = e.target.checked;
+          if (willBeWorn) {
+            dispatchToOutfit({ type: "wearItem", itemId, itemIdsToReconsider });
+          } else {
+            dispatchToOutfit({
+              type: "unwearItem",
+              itemId,
+              itemIdsToReconsider,
+            });
+          }
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.target.click();
+          } else if (e.key === "ArrowUp") {
+            goToPrevItem(e);
+          } else if (e.key === "ArrowDown") {
+            goToNextItem(e);
+          }
+        }}
+      />
+      <Item
+        item={item}
+        isWorn={isWorn}
+        isInOutfit={isInOutfit}
+        onRemove={onRemove}
+      />
+    </label>
   );
 }
 
