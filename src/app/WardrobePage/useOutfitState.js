@@ -248,6 +248,7 @@ function useOutfitState() {
 }
 
 const outfitStateReducer = (apolloClient) => (baseState, action) => {
+  console.log("[Outfit state] Action:", action);
   switch (action.type) {
     case "rename":
       return produce(baseState, (state) => {
@@ -304,7 +305,12 @@ const outfitStateReducer = (apolloClient) => (baseState, action) => {
         wornItemIds.delete(itemId);
         closetedItemIds.add(itemId);
 
-        reconsiderItems(itemIdsToReconsider, state, apolloClient);
+        reconsiderItems(
+          // Don't include the unworn item in items to reconsider!
+          itemIdsToReconsider.filter((x) => x !== itemId),
+          state,
+          apolloClient
+        );
       });
     case "removeItem":
       return produce(baseState, (state) => {
@@ -315,7 +321,12 @@ const outfitStateReducer = (apolloClient) => (baseState, action) => {
         wornItemIds.delete(itemId);
         closetedItemIds.delete(itemId);
 
-        reconsiderItems(itemIdsToReconsider, state, apolloClient);
+        reconsiderItems(
+          // Don't include the removed item in items to reconsider!
+          itemIdsToReconsider.filter((x) => x !== itemId),
+          state,
+          apolloClient
+        );
       });
     case "setPose":
       return produce(baseState, (state) => {
