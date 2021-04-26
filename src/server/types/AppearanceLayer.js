@@ -407,9 +407,8 @@ async function loadAndCacheAssetDataFromManifest(db, layer) {
     manifest = await loadAndCacheAssetManifest(db, layer);
   }
 
-  // If we have an empty copy of the manifest ("" means 404 etc, or it can be
-  // actually empty), return empty data.
-  if (manifest === "" && manifest.assets.length !== 1) {
+  // If we have an empty copy of the manifest, return empty data.
+  if (!manifest || manifest.assets.length !== 1) {
     return { format: null, assetUrls: [] };
   }
 
