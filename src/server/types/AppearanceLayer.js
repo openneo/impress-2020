@@ -362,6 +362,15 @@ function convertLayerTypeToSwfAssetType(layerType) {
   }
 }
 
+// We'll keep manifests in the db for up to 3 days! I'm not sure how well this
+// will perform in practice re hit ratio... keep an eye on it! But this will
+// keep us up-to-date for changes, esp during this HTML5 conversion period,
+// while avoiding _too_ much additional latency. (The main risk here is that
+// cache misses add a SQL UPDATE to the execution path, so cache misses are
+// _worse_ than a no-cache strategy...) We could also consider a regular cron
+// re-sync of all of them!
+const MAX_MANIFEST_AGE_IN_MS = 3 * 24 * 60 * 60 * 1000;
+
 /**
  * loadAndCacheAssetDataFromManifest loads and caches the manifest (if not
  * already cached on the layer from the database), and then accesses some
@@ -384,17 +393,23 @@ async function loadAndCacheAssetDataFromManifest(db, layer) {
     manifest = null;
   }
 
-  // When the manifest is specifically null, that means we don't know if
-  // it exists yet. Load it to find out!
-  if (manifest === null) {
+  const manifestAgeInMs = layer.manifestCachedAt
+    ? new Date() - new Date(layer.manifestCachedAt)
+    : Infinity;
+
+  // If we don't have a recent copy of the manifest (none at all, or an expired
+  // one), load it!
+  if (manifest === null || manifestAgeInMs > MAX_MANIFEST_AGE_IN_MS) {
+    console.info(
+      `[Layer ${layer.id}] Updating manifest cache, ` +
+        `last updated ${manifestAgeInMs}ms ago: ${layer.manifestCachedAt}`
+    );
     manifest = await loadAndCacheAssetManifest(db, layer);
   }
 
-  if (!manifest) {
-    return { format: null, assetUrls: [] };
-  }
-
-  if (manifest.assets.length !== 1) {
+  // If we have an empty copy of the manifest ("" means 404 etc, or it can be
+  // actually empty), return empty data.
+  if (manifest === "" && manifest.assets.length !== 1) {
     return { format: null, assetUrls: [] };
   }
 
@@ -463,10 +478,12 @@ async function loadAndCacheAssetManifest(db, layer) {
     return manifest;
   }
 
-  const [
-    result,
-  ] = await db.execute(
-    `UPDATE swf_assets SET manifest = ? WHERE id = ? LIMIT 1;`,
+  const [result] = await db.execute(
+    `
+      UPDATE swf_assets
+        SET manifest = ?, manifest_cached_at = CURRENT_TIMESTAMP()
+        WHERE id = ? LIMIT 1;
+    `,
     [manifestJson, layer.id]
   );
   if (result.affectedRows !== 1) {
