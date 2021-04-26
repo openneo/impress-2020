@@ -19,6 +19,7 @@ import {
 import { gql, useMutation, useQuery } from "@apollo/client";
 import {
   appearanceLayerFragment,
+  appearanceLayerFragmentForSupport,
   itemAppearanceFragment,
   petAppearanceFragment,
 } from "../../components/useOutfitAppearance";
@@ -246,7 +247,9 @@ function AllItemLayersSupportModalContent({
           remoteIds: $layerRemoteIds
         ) {
           id
+          remoteId
           ...AppearanceLayerForOutfitPreview
+          ...AppearanceLayerForSupport
         }
 
         color(id: $colorId) {
@@ -281,6 +284,7 @@ function AllItemLayersSupportModalContent({
       }
 
       ${appearanceLayerFragment}
+      ${appearanceLayerFragmentForSupport}
       ${petAppearanceFragment}
     `,
     {

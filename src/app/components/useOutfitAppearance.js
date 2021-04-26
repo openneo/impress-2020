@@ -226,7 +226,7 @@ export const appearanceLayerFragment = gql`
   }
 `;
 
-const appearanceLayerFragmentForSupport = gql`
+export const appearanceLayerFragmentForSupport = gql`
   fragment AppearanceLayerForSupport on AppearanceLayer {
     id
     remoteId # HACK: This is for Support tools, but other views don't need it
