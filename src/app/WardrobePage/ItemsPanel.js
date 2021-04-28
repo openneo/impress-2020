@@ -367,11 +367,14 @@ function useOutfitSaving(outfitState, dispatchToOutfit) {
         // Also, send a `reset` action, to show whatever the server returned.
         // This is important for suffix changes to `name`, but can also be
         // relevant for graceful failure when a bug causes a change not to
-        // persist.
-        dispatchToOutfit({
-          type: "resetToSavedOutfitData",
-          savedOutfitData: outfit,
-        });
+        // persist. (But don't do it if it's not the current outfit anymore,
+        // we don't want laggy mutations to reset the outfit!)
+        if (outfit.id === outfitState.id) {
+          dispatchToOutfit({
+            type: "resetToSavedOutfitData",
+            savedOutfitData: outfit,
+          });
+        }
       },
     }
   );
@@ -423,7 +426,12 @@ function useOutfitSaving(outfitState, dispatchToOutfit) {
   // than the saved state.
   const debouncedOutfitState = useDebounce(
     outfitState.outfitStateWithoutExtras,
-    2000
+    2000,
+    {
+      // When the outfit ID changes, update the debounced state immediately!
+      forceReset: (debouncedOutfitState, newOutfitState) =>
+        debouncedOutfitState.id !== newOutfitState.id,
+    }
   );
   // HACK: This prevents us from auto-saving the outfit state that's still
   //       loading. I worry that this might not catch other loading scenarios

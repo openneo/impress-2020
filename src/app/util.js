@@ -164,7 +164,7 @@ export function safeImageUrl(urlString) {
 export function useDebounce(
   value,
   delay,
-  { waitForFirstPause = false, initialValue = null, forceReset = false } = {}
+  { waitForFirstPause = false, initialValue = null, forceReset = null } = {}
 ) {
   // State and setters for debounced value
   const [debouncedValue, setDebouncedValue] = React.useState(
@@ -188,14 +188,17 @@ export function useDebounce(
     [value, delay] // Only re-call effect if value or delay changes
   );
 
-  // The `forceReset` option sets the value immediately!
+  // The `forceReset` option helps us decide whether to set the value
+  // immediately! We'll update it in an effect for consistency and clarity, but
+  // also return it immediately rather than wait a tick.
+  const shouldForceReset = forceReset && forceReset(debouncedValue, value);
   React.useEffect(() => {
-    if (forceReset) {
+    if (shouldForceReset) {
       setDebouncedValue(value);
     }
-  }, [value, forceReset]);
+  }, [shouldForceReset, value]);
 
-  return debouncedValue;
+  return shouldForceReset ? value : debouncedValue;
 }
 
 /**
