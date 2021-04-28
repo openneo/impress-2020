@@ -2,7 +2,7 @@ import React from "react";
 import gql from "graphql-tag";
 import produce, { enableMapSet } from "immer";
 import { useQuery, useApolloClient } from "@apollo/client";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 
 import { itemAppearanceFragment } from "../components/useOutfitAppearance";
 
@@ -70,7 +70,12 @@ function useOutfitState() {
 
   const creator = outfitData?.outfit?.creator;
 
-  const savedOutfitState = getOutfitStateFromOutfitData(outfitData?.outfit);
+  // We memoize this to make `outfitStateWithoutExtras` an even more reliable
+  // stable object!
+  const savedOutfitState = React.useMemo(
+    () => getOutfitStateFromOutfitData(outfitData?.outfit),
+    [outfitData?.outfit]
+  );
 
   // Choose which customization state to use. We want it to match the outfit in
   // the URL immediately, without having to wait for any effects, to avoid race
@@ -92,14 +97,17 @@ function useOutfitState() {
   if (urlOutfitState.id === localOutfitState.id) {
     // Use the reducer state: they're both for the same saved outfit, or both
     // for an unsaved outfit (null === null).
+    console.debug("Choosing local outfit state");
     outfitState = localOutfitState;
   } else if (urlOutfitState.id && urlOutfitState.id === savedOutfitState.id) {
     // Use the saved outfit state: it's for the saved outfit the URL points to.
+    console.debug("Choosing saved outfit state");
     outfitState = savedOutfitState;
   } else {
     // Use the URL state: it's more up-to-date than any of the others. (Worst
     // case, it's empty except for ID, which is fine while the saved outfit
     // data loads!)
+    console.debug("Choosing URL outfit state");
     outfitState = urlOutfitState;
   }
 
@@ -231,6 +239,12 @@ function useOutfitState() {
     pose,
     appearanceId,
     url,
+
+    // We use this plain outfit state objects in `useOutfitSaving`! Unlike the
+    // full `outfitState` object, which we rebuild each render,
+    // `outfitStateWithoutExtras` will mostly only change when there is an
+    // actual change to outfit state.
+    outfitStateWithoutExtras: outfitState,
     savedOutfitState,
   };
 
@@ -248,7 +262,7 @@ function useOutfitState() {
 }
 
 const outfitStateReducer = (apolloClient) => (baseState, action) => {
-  console.info("[Outfit state] Action:", action);
+  console.info("[useOutfitState] Action:", action);
   switch (action.type) {
     case "rename":
       return produce(baseState, (state) => {
@@ -356,29 +370,36 @@ const EMPTY_CUSTOMIZATION_STATE = {
 
 function useParseOutfitUrl() {
   const { id } = useParams();
+  const { search } = useLocation();
 
-  // For the /outfits/:id page, ignore the query string, and just wait for the
-  // outfit data to load in!
-  if (id != null) {
+  // We memoize this to make `outfitStateWithoutExtras` an even more reliable
+  // stable object!
+  const memoizedOutfitState = React.useMemo(() => {
+    // For the /outfits/:id page, ignore the query string, and just wait for the
+    // outfit data to load in!
+    if (id != null) {
+      return {
+        ...EMPTY_CUSTOMIZATION_STATE,
+        id,
+      };
+    }
+
+    // Otherwise, parse the query string, and fill in default values for anything
+    // not specified.
+    const urlParams = new URLSearchParams(search);
     return {
-      ...EMPTY_CUSTOMIZATION_STATE,
-      id,
+      id: null,
+      name: urlParams.get("name"),
+      speciesId: urlParams.get("species") || "1",
+      colorId: urlParams.get("color") || "8",
+      pose: urlParams.get("pose") || "HAPPY_FEM",
+      appearanceId: urlParams.get("state") || null,
+      wornItemIds: new Set(urlParams.getAll("objects[]")),
+      closetedItemIds: new Set(urlParams.getAll("closet[]")),
     };
-  }
+  }, [id, search]);
 
-  // Otherwise, parse the query string, and fill in default values for anything
-  // not specified.
-  const urlParams = new URLSearchParams(window.location.search);
-  return {
-    id: null,
-    name: urlParams.get("name"),
-    speciesId: urlParams.get("species") || "1",
-    colorId: urlParams.get("color") || "8",
-    pose: urlParams.get("pose") || "HAPPY_FEM",
-    appearanceId: urlParams.get("state") || null,
-    wornItemIds: new Set(urlParams.getAll("objects[]")),
-    closetedItemIds: new Set(urlParams.getAll("closet[]")),
-  };
+  return memoizedOutfitState;
 }
 
 function getOutfitStateFromOutfitData(outfit) {
@@ -603,9 +624,9 @@ function buildOutfitQueryString(outfitState) {
 
   const params = new URLSearchParams({
     name: name || "",
-    species: speciesId,
-    color: colorId,
-    pose,
+    species: speciesId || "",
+    color: colorId || "",
+    pose: pose || "",
   });
   for (const itemId of wornItemIds) {
     params.append("objects[]", itemId);

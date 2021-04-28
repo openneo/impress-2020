@@ -17,23 +17,19 @@ import {
   Portal,
   Button,
   useToast,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  PopoverArrow,
-  PopoverBody,
+  Spinner,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import {
   CheckIcon,
   EditIcon,
-  ExternalLinkIcon,
   QuestionIcon,
-  WarningIcon,
+  WarningTwoIcon,
 } from "@chakra-ui/icons";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { useHistory } from "react-router-dom";
 
-import { Delay, Heading1, Heading2 } from "../util";
+import { Delay, Heading1, Heading2, useDebounce } from "../util";
 import Item, { ItemListContainer, ItemListSkeleton } from "./Item";
 import { BiRename } from "react-icons/bi";
 import { IoCloudUploadOutline } from "react-icons/io5";
@@ -267,6 +263,10 @@ function useOutfitSaving(outfitState) {
   const history = useHistory();
   const toast = useToast();
 
+  // There's not a way to reset an Apollo mutation state to clear out the error
+  // when the outfit changes… so we track the error state ourselves!
+  const [saveError, setSaveError] = React.useState(null);
+
   // Whether this outfit is new, i.e. local-only, i.e. has _never_ been saved
   // to the server.
   const isNewOutfit = outfitState.id == null;
@@ -326,15 +326,6 @@ function useOutfitSaving(outfitState) {
       }
     `,
     {
-      variables: {
-        id: outfitState.id, // Optional, is null when saving new outfits
-        name: outfitState.name, // Optional, server may fill in a placeholder
-        speciesId: outfitState.speciesId,
-        colorId: outfitState.colorId,
-        pose: outfitState.pose,
-        wornItemIds: outfitState.wornItemIds,
-        closetedItemIds: outfitState.closetedItemIds,
-      },
       context: { sendAuth: true },
       update: (cache, { data: { outfit } }) => {
         // After save, add this outfit to the current user's outfit list. This
@@ -360,29 +351,99 @@ function useOutfitSaving(outfitState) {
     }
   );
 
-  const saveOutfit = React.useCallback(() => {
-    sendSaveOutfitMutation()
-      .then(({ data: { outfit } }) => {
-        // Navigate to the new saved outfit URL. Our Apollo cache should pick
-        // up the data from this mutation response, and combine it with the
-        // existing cached data, to make this smooth without any loading UI.
-        history.push(`/outfits/${outfit.id}`);
+  const saveOutfitFromProvidedState = React.useCallback(
+    (outfitState) => {
+      sendSaveOutfitMutation({
+        variables: {
+          id: outfitState.id, // Optional, is null when saving new outfits
+          name: outfitState.name, // Optional, server may fill in a placeholder
+          speciesId: outfitState.speciesId,
+          colorId: outfitState.colorId,
+          pose: outfitState.pose,
+          wornItemIds: outfitState.wornItemIds,
+          closetedItemIds: outfitState.closetedItemIds,
+        },
       })
-      .catch((e) => {
-        console.error(e);
-        toast({
-          status: "error",
-          title: "Sorry, there was an error saving this outfit!",
-          description: "Maybe check your connection and try again.",
+        .then(({ data: { outfit } }) => {
+          // Navigate to the new saved outfit URL. Our Apollo cache should pick
+          // up the data from this mutation response, and combine it with the
+          // existing cached data, to make this smooth without any loading UI.
+          history.push(`/outfits/${outfit.id}`);
+        })
+        .catch((e) => {
+          console.error(e);
+          setSaveError(e);
+          toast({
+            status: "error",
+            title: "Sorry, there was an error saving this outfit!",
+            description: "Maybe check your connection and try again.",
+          });
         });
-      });
-  }, [sendSaveOutfitMutation, history, toast]);
+    },
+    // It's important that this callback _doesn't_ change when the outfit
+    // changes, so that the auto-save effect is only responding to the
+    // debounced state!
+    [sendSaveOutfitMutation, history, toast]
+  );
+
+  const saveOutfit = React.useCallback(
+    () => saveOutfitFromProvidedState(outfitState.outfitStateWithoutExtras),
+    [saveOutfitFromProvidedState, outfitState.outfitStateWithoutExtras]
+  );
+
+  // Auto-saving! First, debounce the outfit state. Use `outfitStateWithoutExtras`,
+  // which only contains the basic fields, and will keep a stable object
+  // identity until actual changes occur. Then, save the outfit after the user
+  // has left it alone for long enough, so long as it's actually different
+  // than the saved state.
+  const debouncedOutfitState = useDebounce(
+    outfitState.outfitStateWithoutExtras,
+    2000
+  );
+  // HACK: This prevents us from auto-saving the outfit state that's still
+  //       loading. I worry that this might not catch other loading scenarios
+  //       though, like if the species/color/pose is in the GQL cache, but the
+  //       items are still loading in... not sure where this would happen tho!
+  const debouncedOutfitStateIsSaveable =
+    debouncedOutfitState.speciesId &&
+    debouncedOutfitState.colorId &&
+    debouncedOutfitState.pose;
+  React.useEffect(() => {
+    if (
+      !isNewOutfit &&
+      canSaveOutfit &&
+      debouncedOutfitStateIsSaveable &&
+      !outfitStatesAreEqual(debouncedOutfitState, outfitState.savedOutfitState)
+    ) {
+      console.info(
+        "[useOutfitSaving] Auto-saving outfit from old state to new state",
+        outfitState.savedOutfitState,
+        debouncedOutfitState
+      );
+      saveOutfitFromProvidedState(debouncedOutfitState);
+    }
+  }, [
+    isNewOutfit,
+    canSaveOutfit,
+    debouncedOutfitState,
+    debouncedOutfitStateIsSaveable,
+    outfitState.savedOutfitState,
+    saveOutfitFromProvidedState,
+  ]);
+
+  // When the outfit changes, clear out the error state from previous saves.
+  // We'll send the mutation again after the debounce, and we don't want to
+  // show the error UI in the meantime!
+  React.useEffect(() => {
+    setSaveError(null);
+  }, [outfitState.outfitStateWithoutExtras]);
 
   return {
     canSaveOutfit,
     isNewOutfit,
     isSaving,
     latestVersionIsSaved,
+    saveError,
     saveOutfit,
   };
 }
@@ -397,8 +458,11 @@ function OutfitSavingIndicator({ outfitState }) {
     isNewOutfit,
     isSaving,
     latestVersionIsSaved,
+    saveError,
     saveOutfit,
   } = useOutfitSaving(outfitState);
+
+  const errorTextColor = useColorModeValue("red.600", "red.400");
 
   if (!canSaveOutfit) {
     return null;
@@ -427,6 +491,24 @@ function OutfitSavingIndicator({ outfitState }) {
     );
   }
 
+  if (isSaving) {
+    return (
+      <Flex
+        align="center"
+        fontSize="xs"
+        data-test-id="wardrobe-outfit-is-saving-indicator"
+      >
+        <Spinner
+          size="xs"
+          marginRight="1.5"
+          // HACK: Not sure why my various centering things always feel wrong...
+          marginBottom="-2px"
+        />
+        Saving…
+      </Flex>
+    );
+  }
+
   if (latestVersionIsSaved) {
     return (
       <Flex
@@ -444,37 +526,27 @@ function OutfitSavingIndicator({ outfitState }) {
     );
   }
 
-  return (
-    <Popover trigger="hover">
-      <PopoverTrigger>
-        <Flex align="center" fontSize="xs" tabIndex="0">
-          <WarningIcon
-            marginRight="1"
-            // HACK: Not sure why my various centering things always feel wrong...
-            marginBottom="-2px"
-          />
-          Not saved
-        </Flex>
-      </PopoverTrigger>
-      <PopoverContent>
-        <PopoverArrow />
-        <PopoverBody>
-          We're still working on this! For now, use{" "}
-          <Box
-            as="a"
-            href={`https://impress.openneo.net/outfits/${outfitState.id}`}
-            target="_blank"
-          >
-            <Box as="span" textDecoration="underline">
-              Classic DTI
-            </Box>
-            <ExternalLinkIcon marginLeft="1" marginTop="-3px" fontSize="sm" />
-          </Box>{" "}
-          to save existing outfits.
-        </PopoverBody>
-      </PopoverContent>
-    </Popover>
-  );
+  if (saveError) {
+    return (
+      <Flex
+        align="center"
+        fontSize="xs"
+        data-test-id="wardrobe-outfit-save-error-indicator"
+        color={errorTextColor}
+      >
+        <WarningTwoIcon
+          marginRight="1"
+          // HACK: Not sure why my various centering things always feel wrong...
+          marginBottom="-2px"
+        />
+        Error saving
+      </Flex>
+    );
+  }
+
+  // The most common way we'll hit this null is when the outfit is changing,
+  // but the debouncing isn't done yet, so it's not saving yet.
+  return null;
 }
 
 /**
