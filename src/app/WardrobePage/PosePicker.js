@@ -162,6 +162,7 @@ function PosePicker({
       onOpen={onLockFocus}
       onClose={onUnlockFocus}
       initialFocusRef={initialFocusRef}
+      isLazy
     >
       {({ isOpen }) => (
         <ClassNames>
