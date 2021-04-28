@@ -29,7 +29,7 @@ function WardrobePreviewAndControls({
     appearanceId: outfitState.appearanceId,
     wornItemIds: outfitState.wornItemIds,
     onChangeHasAnimations: setHasAnimations,
-    backdrop: <OutfitThumbnailIfCached outfitId={outfitState.id} />,
+    placeholder: <OutfitThumbnailIfCached outfitId={outfitState.id} />,
     "data-test-id": "wardrobe-outfit-preview",
   });
 
@@ -59,11 +59,6 @@ function WardrobePreviewAndControls({
  * outfit thumbnail instantly while everything else loads. But on direct
  * navigation, this does nothing, and we just wait for the preview to load in
  * like usual!
- *
- * We even use it as our "backdrop", so the thumbnail actually _always_ renders
- * if possible. This makes loading look even smoother, by letting individual
- * layers load in on top of the thumbnail.
- * TODO: Can this become a perf problem on WIP outfits?
  */
 function OutfitThumbnailIfCached({ outfitId }) {
   const { data } = useQuery(
