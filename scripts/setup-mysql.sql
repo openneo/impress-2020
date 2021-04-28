@@ -27,9 +27,9 @@ GRANT INSERT ON modeling_logs TO impress2020;
 -- User data tables
 GRANT SELECT, INSERT, DELETE ON closet_hangers TO impress2020;
 GRANT SELECT, UPDATE ON closet_lists TO impress2020;
-GRANT SELECT ON item_outfit_relationships TO impress2020;
+GRANT SELECT, DELETE ON item_outfit_relationships TO impress2020;
 GRANT SELECT ON neopets_connections TO impress2020;
-GRANT SELECT ON outfits TO impress2020;
+GRANT SELECT, INSERT, UPDATE ON outfits TO impress2020;
 GRANT SELECT, UPDATE ON users TO impress2020;
 GRANT SELECT, UPDATE ON openneo_id.users TO impress2020;
 

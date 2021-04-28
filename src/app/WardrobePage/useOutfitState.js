@@ -61,8 +61,8 @@ function useOutfitState() {
       returnPartialData: true,
       onCompleted: (outfitData) => {
         dispatchToOutfit({
-          type: "reset",
-          newState: getOutfitStateFromOutfitData(outfitData.outfit),
+          type: "resetToSavedOutfitData",
+          savedOutfitData: outfitData.outfit,
         });
       },
     }
@@ -97,17 +97,17 @@ function useOutfitState() {
   if (urlOutfitState.id === localOutfitState.id) {
     // Use the reducer state: they're both for the same saved outfit, or both
     // for an unsaved outfit (null === null).
-    console.debug("Choosing local outfit state");
+    console.debug("[useOutfitState] Choosing local outfit state");
     outfitState = localOutfitState;
   } else if (urlOutfitState.id && urlOutfitState.id === savedOutfitState.id) {
     // Use the saved outfit state: it's for the saved outfit the URL points to.
-    console.debug("Choosing saved outfit state");
+    console.debug("[useOutfitState] Choosing saved outfit state");
     outfitState = savedOutfitState;
   } else {
     // Use the URL state: it's more up-to-date than any of the others. (Worst
     // case, it's empty except for ID, which is fine while the saved outfit
     // data loads!)
-    console.debug("Choosing URL outfit state");
+    console.debug("[useOutfitState] Choosing URL outfit state");
     outfitState = urlOutfitState;
   }
 
@@ -350,8 +350,8 @@ const outfitStateReducer = (apolloClient) => (baseState, action) => {
         // particular about which version of the pose to show if more than one.
         state.appearanceId = action.appearanceId || null;
       });
-    case "reset":
-      return action.newState;
+    case "resetToSavedOutfitData":
+      return getOutfitStateFromOutfitData(action.savedOutfitData);
     default:
       throw new Error(`unexpected action ${JSON.stringify(action)}`);
   }

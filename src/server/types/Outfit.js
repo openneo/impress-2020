@@ -141,10 +141,6 @@ const resolvers = {
         );
       }
 
-      if (id) {
-        throw new Error("TODO: Add support for updating existing outfits");
-      }
-
       // Get the base name of the provided name: trim it, and strip any "(1)"
       // suffixes.
       const baseName = (rawName || "Untitled outfit").replace(
@@ -153,21 +149,23 @@ const resolvers = {
       );
       const namePlaceholder = baseName.trim().replace(/_%/g, "\\$0") + "%";
 
-      // Then, look for outfits from this user with the same base name.
+      // Then, look for outfits from this user with the same base name. Omit
+      // the current outfit (if it's already saved), because it's fine for this
+      // outfit to have the same name as itself lol!
       const [outfitRows] = await db.query(
         `
-          SELECT name FROM outfits WHERE user_id = ? AND name LIKE ?;
+          SELECT name FROM outfits WHERE user_id = ? AND name LIKE ? AND id != ?;
         `,
-        [currentUserId, namePlaceholder]
+        [currentUserId, namePlaceholder, id || "<no-ID-new-outfit>"]
       );
       const existingOutfitNames = new Set(
         outfitRows.map(({ name }) => name.trim())
       );
 
-      // Then, get the unique name to use for this outfit: try the base name
-      // first, but, if it's taken, keep incrementing the "(1)" suffix until
-      // it's not.
-      let name = baseName;
+      // Then, get the unique name to use for this outfit: try the provided
+      // name first, but, if it's taken, add a "(1)" suffix and keep
+      // incrementing it until it's not.
+      let name = rawName;
       for (let i = 1; existingOutfitNames.has(name); i++) {
         name = `${baseName} (${i})`;
       }
@@ -197,15 +195,41 @@ const resolvers = {
       await db.beginTransaction();
       let newOutfitId;
       try {
-        const [result] = await db.execute(
-          `
-            INSERT INTO outfits
-              (name, pet_state_id, user_id, created_at, updated_at)
-              VALUES (?, ?, ?, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP());
-          `,
-          [name, petState.id, currentUserId]
-        );
-        newOutfitId = String(result.insertId);
+        // If this is a new outfit, INSERT it. Or, if it's an existing outfit,
+        // UPDATE it.
+        const [result] = id
+          ? await db.execute(
+              `
+              UPDATE outfits
+                SET name = ?, pet_state_id = ?,
+                  updated_at = CURRENT_TIMESTAMP()
+                WHERE id = ?;
+            `,
+              [name, petState.id, id]
+            )
+          : await db.execute(
+              `
+                INSERT INTO outfits
+                  (name, pet_state_id, user_id, created_at, updated_at)
+                  VALUES (?, ?, ?, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP());
+              `,
+              [name, petState.id, currentUserId]
+            );
+        newOutfitId = id || String(result.insertId);
+
+        // If this outfit is already saved, clear the item relationships. We'll
+        // re-insert them in the next query. (We're in a transaction, so this
+        // is safe: on error, we'll roll this back!)
+        //
+        // TODO: This delete-then-insert paradigm isn't super-performant,
+        //       performing the actual needed sync could be better. Keep an eye
+        //       on query perf!
+        if (id) {
+          await db.execute(
+            `DELETE FROM item_outfit_relationships WHERE outfit_id = ?;`,
+            [id]
+          );
+        }
 
         if (wornItemIds.length > 0 || closetedItemIds.length > 0) {
           const itemRowPlaceholders = [

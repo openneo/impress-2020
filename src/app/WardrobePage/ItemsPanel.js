@@ -258,7 +258,7 @@ function ItemZoneGroupSkeleton({ itemCount }) {
   );
 }
 
-function useOutfitSaving(outfitState) {
+function useOutfitSaving(outfitState, dispatchToOutfit) {
   const { isLoggedIn, id: currentUserId } = useCurrentUser();
   const history = useHistory();
   const toast = useToast();
@@ -272,9 +272,25 @@ function useOutfitSaving(outfitState) {
   const isNewOutfit = outfitState.id == null;
 
   // Whether this outfit's latest local changes have been saved to the server.
+  // And log it to the console!
   const latestVersionIsSaved =
     outfitState.savedOutfitState &&
-    outfitStatesAreEqual(outfitState, outfitState.savedOutfitState);
+    outfitStatesAreEqual(
+      outfitState.outfitStateWithoutExtras,
+      outfitState.savedOutfitState
+    );
+  React.useEffect(() => {
+    console.debug(
+      "[useOutfitSaving] Latest version is saved? %s\nCurrent: %o\nSaved: %o",
+      latestVersionIsSaved,
+      outfitState.outfitStateWithoutExtras,
+      outfitState.savedOutfitState
+    );
+  }, [
+    latestVersionIsSaved,
+    outfitState.outfitStateWithoutExtras,
+    outfitState.savedOutfitState,
+  ]);
 
   // Only logged-in users can save outfits - and they can only save new outfits,
   // or outfits they created.
@@ -347,6 +363,15 @@ function useOutfitSaving(outfitState) {
             },
           },
         });
+
+        // Also, send a `reset` action, to show whatever the server returned.
+        // This is important for suffix changes to `name`, but can also be
+        // relevant for graceful failure when a bug causes a change not to
+        // persist.
+        dispatchToOutfit({
+          type: "resetToSavedOutfitData",
+          savedOutfitData: outfit,
+        });
       },
     }
   );
@@ -360,8 +385,8 @@ function useOutfitSaving(outfitState) {
           speciesId: outfitState.speciesId,
           colorId: outfitState.colorId,
           pose: outfitState.pose,
-          wornItemIds: outfitState.wornItemIds,
-          closetedItemIds: outfitState.closetedItemIds,
+          wornItemIds: [...outfitState.wornItemIds],
+          closetedItemIds: [...outfitState.closetedItemIds],
         },
       })
         .then(({ data: { outfit } }) => {
@@ -416,7 +441,7 @@ function useOutfitSaving(outfitState) {
       !outfitStatesAreEqual(debouncedOutfitState, outfitState.savedOutfitState)
     ) {
       console.info(
-        "[useOutfitSaving] Auto-saving outfit from old state to new state",
+        "[useOutfitSaving] Auto-saving outfit\nSaved: %o\nCurrent (debounced): %o",
         outfitState.savedOutfitState,
         debouncedOutfitState
       );
@@ -452,7 +477,7 @@ function useOutfitSaving(outfitState) {
  * OutfitSavingIndicator shows a Save button, or the "Saved" or "Saving" state,
  * if the user can save this outfit. If not, this is empty!
  */
-function OutfitSavingIndicator({ outfitState }) {
+function OutfitSavingIndicator({ outfitState, dispatchToOutfit }) {
   const {
     canSaveOutfit,
     isNewOutfit,
@@ -460,7 +485,7 @@ function OutfitSavingIndicator({ outfitState }) {
     latestVersionIsSaved,
     saveError,
     saveOutfit,
-  } = useOutfitSaving(outfitState);
+  } = useOutfitSaving(outfitState, dispatchToOutfit);
 
   const errorTextColor = useColorModeValue("red.600", "red.400");
 
@@ -579,7 +604,10 @@ function OutfitHeading({ outfitState, dispatchToOutfit }) {
           </Box>
           <Box width="4" flex="1 0 auto" />
           <Box flex="0 0 auto">
-            <OutfitSavingIndicator outfitState={outfitState} />
+            <OutfitSavingIndicator
+              outfitState={outfitState}
+              dispatchToOutfit={dispatchToOutfit}
+            />
           </Box>
           <Box width="2" />
           <Menu placement="bottom-end">
