@@ -11,6 +11,8 @@ import {
   Wrap,
   WrapItem,
   useDisclosure,
+  UnorderedList,
+  ListItem,
 } from "@chakra-ui/react";
 import {
   ArrowBackIcon,
@@ -54,6 +56,10 @@ function PosePickerSupport({
             svgUrl
             imageUrl(size: SIZE_600)
             canvasMovieLibraryUrl
+          }
+          restrictedZones {
+            id
+            label @client
           }
 
           # For AppearanceLayerSupportModal to know the name
@@ -185,7 +191,7 @@ function PosePickerSupport({
               .map((layer) => [`${layer.zone.label} (${layer.zone.id})`, layer])
               .sort((a, b) => a[0].localeCompare(b[0]))
               .map(([text, layer]) => (
-                <WrapItem>
+                <WrapItem key={layer.id}>
                   <PetLayerSupportLink
                     outfitState={{ speciesId, colorId, pose }}
                     petAppearance={currentPetAppearance}
@@ -197,6 +203,23 @@ function PosePickerSupport({
                 </WrapItem>
               ))}
           </Wrap>
+        </MetadataValue>
+        <MetadataLabel>Restricts:</MetadataLabel>
+        <MetadataValue maxHeight="64" overflowY="auto">
+          {currentPetAppearance.restrictedZones.length > 1 ? (
+            <UnorderedList>
+              {currentPetAppearance.restrictedZones
+                .map((zone) => `${zone.label} (${zone.id})`)
+                .sort((a, b) => a[0].localeCompare(b[0]))
+                .map((zoneText) => (
+                  <ListItem>{zoneText}</ListItem>
+                ))}
+            </UnorderedList>
+          ) : (
+            <Box fontStyle="italic" opacity="0.8">
+              None
+            </Box>
+          )}
         </MetadataValue>
       </Metadata>
     </Box>
