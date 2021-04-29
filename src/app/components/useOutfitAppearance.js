@@ -156,27 +156,39 @@ export function getVisibleLayers(petAppearance, itemAppearances) {
       return false;
     }
 
-    // When a pet appearance restricts or occupies a zone, it makes items
-    // that occupy the zone incompatible, but *only* if the item is
-    // body-specific. We use this to disallow UCs from wearing certain
-    // body-specific Biology Effects, Statics, etc, while still allowing
-    // non-body-specific items in those zones! (I think this happens for some
-    // Invisible pet stuff, too?)
+    // When a pet appearance restricts or occupies a zone, or when the pet is
+    // Unconverted, it makes body-specific items incompatible. We use this to
+    // disallow UCs from wearing certain body-specific Biology Effects,
+    // Statics, etc, while still allowing non-body-specific items in those
+    // zones! (I think this happens for some Invisible pet stuff, too?)
+    //
+    // TODO: We shouldn't be *hiding* these zones, like we do with items; we
+    //       should be doing this way earlier, to prevent the item from even
+    //       showing up even in search results!
     //
     // NOTE: This can result in both pet layers and items occupying the same
-    //       zone, like Static! That's correct, and the item layer should be
-    //       on top! (Here, we implement it by placing item layers second in
-    //       the list, and depending on JS sort stability, and *then* depending
-    //       on the UI to respect that ordering when rendering them by depth.
-    //       Not great! 😅)
+    //       zone, like Static, so long as the item isn't body-specific! That's
+    //       correct, and the item layer should be on top! (Here, we implement
+    //       it by placing item layers second in the list, and rely on JS sort
+    //       stability, and *then* rely on the UI to respect that ordering when
+    //       rendering them by depth. Not great! 😅)
     //
-    // TODO: Hiding the layer is the *old* behavior. Move this way deeper in
-    //       the code to prevent these items from showing up in the first
-    //       place!
+    // NOTE: UCs used to implement their restrictions by listing specific
+    //       zones, but it seems that the logic has changed to just be about
+    //       UC-ness and body-specific-ness, and not necessarily involve the
+    //       set of restricted zones at all. (This matters because e.g. UCs
+    //       shouldn't show _any_ part of the Rainy Day Umbrella, but most UCs
+    //       don't restrict Right-Hand Item (Zone 49).) Still, I'm keeping the
+    //       zone restriction case running too, because I don't think it
+    //       _hurts_ anything, and I'm not confident enough in this conclusion.
+    //
+    // TODO: Do Invisibles follow this new rule like UCs, too? Or do they still
+    //       use zone restrictions?
     if (
       layer.source === "item" &&
       layer.bodyId !== "0" &&
-      petOccupiedOrRestrictedZoneIds.has(layer.zone.id)
+      (petAppearance.pose === "UNCONVERTED" ||
+        petOccupiedOrRestrictedZoneIds.has(layer.zone.id))
     ) {
       return false;
     }
@@ -257,6 +269,7 @@ export const itemAppearanceFragment = gql`
 export const petAppearanceFragmentForGetVisibleLayers = gql`
   fragment PetAppearanceForGetVisibleLayers on PetAppearance {
     id
+    pose
     layers {
       id
       zone {
