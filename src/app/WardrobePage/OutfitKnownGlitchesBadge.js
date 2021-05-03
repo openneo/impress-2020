@@ -162,15 +162,28 @@ function OutfitKnownGlitchesBadge({ appearance }) {
   // Check whether the pet is Invisible. If so, we'll show a blanket warning.
   if (petAppearance?.color?.id === "38") {
     glitchMessages.push(
-      // NOTE: This message assumes that the current pet appearance is the
-      //       best canonical one, but it's _possible_ to view Glitched
-      //       appearances even if we _do_ have a better one saved... but
-      //       only the Support UI ever takes you there.
       <Box key={`invisible-pet-warning`}>
         Invisible pets are affected by a number of glitches, including faces
         sometimes being visible on-site, and errors in the HTML5 conversion. If
         this pose looks incorrect, you can try another by clicking the emoji
         face to the right. But be aware that Neopets.com might look different!
+      </Box>
+    );
+  }
+
+  // Check if this is a Faerie Uni. If so, we'll explain the dithering horns.
+  console.log(petAppearance?.color?.id, petAppearance?.species?.id);
+  if (
+    petAppearance?.color?.id === "26" &&
+    petAppearance?.species?.id === "49"
+  ) {
+    glitchMessages.push(
+      <Box key={`faerie-uni-dithering-horn-warning`}>
+        The Faerie Uni is a "dithering" pet: its horn is sometimes blue, and
+        sometimes yellow. To help you design for both cases, we show the blue
+        horn with the feminine design, and the yellow horn with the masculine
+        design—but the pet's gender does not actually affect which horn you'll
+        get, and it will often change over time!
       </Box>
     );
   }

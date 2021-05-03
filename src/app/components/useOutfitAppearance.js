@@ -287,7 +287,11 @@ export const petAppearanceFragment = gql`
   fragment PetAppearanceForOutfitPreview on PetAppearance {
     id
     bodyId
+    pose # For Known Glitches UI
     isGlitched # For Known Glitches UI
+    species {
+      id # For Known Glitches UI
+    }
     color {
       id # For Known Glitches UI
     }
