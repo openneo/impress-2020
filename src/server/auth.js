@@ -48,7 +48,7 @@ async function getUserIdFromToken(token) {
 
   const subMatch = payload.sub.match(/auth0\|impress-([0-9]+)/);
   if (!subMatch) {
-    console.log("Unexpected auth token sub format", payload.sub);
+    console.error("Unexpected auth token sub format", payload.sub);
     return null;
   }
   const userId = subMatch[1];

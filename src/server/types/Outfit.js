@@ -235,7 +235,7 @@ const resolvers = {
         throw e;
       }
 
-      console.log(`Saved outfit ${newOutfitId}`);
+      console.info(`Saved outfit ${newOutfitId}`);
 
       return { id: newOutfitId };
     },

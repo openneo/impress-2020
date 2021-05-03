@@ -248,7 +248,7 @@ function useOutfitState() {
 }
 
 const outfitStateReducer = (apolloClient) => (baseState, action) => {
-  console.log("[Outfit state] Action:", action);
+  console.info("[Outfit state] Action:", action);
   switch (action.type) {
     case "rename":
       return produce(baseState, (state) => {

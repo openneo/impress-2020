@@ -22,7 +22,7 @@ async function saveModelingData(customPetData, petMetaData, context) {
 
   const modelingLogs = [];
   const addToModelingLogs = (entry) => {
-    console.log("[Modeling] " + JSON.stringify(entry, null, 4));
+    console.info("[Modeling] " + JSON.stringify(entry, null, 4));
     modelingLogs.push(entry);
   };
   context = { ...context, addToModelingLogs };

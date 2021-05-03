@@ -91,7 +91,7 @@ if (require.main === module) {
   const { ApolloServer } = require("apollo-server");
   const server = new ApolloServer(config);
   server.listen().then(({ url }) => {
-    console.log(`🚀  Server ready at ${url}`);
+    console.info(`🚀  Server ready at ${url}`);
   });
 }
 

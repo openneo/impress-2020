@@ -32,7 +32,7 @@ function WardrobePage() {
   // isn't very common, so this lil toast notification seems good enough!
   React.useEffect(() => {
     if (error) {
-      console.log(error);
+      console.error(error);
       toast({
         title: "We couldn't load this outfit 😖",
         description: "Please reload the page to try again. Sorry!",

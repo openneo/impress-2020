@@ -71,7 +71,20 @@
     "export-users-to-auth0": "ts-node --compiler=typescript-cached-transpile --transpile-only -r dotenv/config scripts/export-users-to-auth0.js"
   },
   "eslintConfig": {
-    "extends": "react-app"
+    "extends": "react-app",
+    "rules": {
+      "no-console": [
+        "error",
+        {
+          "allow": [
+            "debug",
+            "info",
+            "warn",
+            "error"
+          ]
+        }
+      ]
+    }
   },
   "browserslist": {
     "production": [

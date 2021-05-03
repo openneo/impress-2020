@@ -77,7 +77,7 @@ function WardrobeDevHacks() {
         data: { zone: { __ref: `Zone:${zone.id}` } },
       });
 
-      console.log(
+      console.info(
         `Updated layer ${layerId} to zone ${zone.id} (was ${layer?.zone?.id})`
       );
     },
@@ -171,7 +171,7 @@ function WardrobeDevHacks() {
         },
       });
 
-      console.log(
+      console.info(
         `Added restricted zone ${zone.id} to item ${itemId} ` +
           `(now it's zones ${[...restrictedZoneIds].join(", ")})`
       );
@@ -262,7 +262,7 @@ function WardrobeDevHacks() {
         },
       });
 
-      console.log(
+      console.info(
         `Removed restricted zone ${zone.id} from item ${itemId} ` +
           `(now it's zones ${[...restrictedZoneIds].join(", ")})`
       );

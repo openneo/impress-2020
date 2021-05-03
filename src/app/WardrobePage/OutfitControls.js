@@ -542,7 +542,7 @@ function useDownloadableImage(visibleLayers) {
       context.drawImage(image, 0, 0);
     }
 
-    console.log(
+    console.debug(
       "Generated image for download",
       layerIds,
       canvas.toDataURL("image/png")

@@ -490,7 +490,7 @@ async function loadAndCacheAssetManifest(db, layer) {
       `Expected to affect 1 asset, but affected ${result.affectedRows}`
     );
   }
-  console.log(
+  console.info(
     `Loaded and saved manifest for ${layer.type} ${layer.remoteId}. ` +
       `DTI ID: ${layer.id}. Exists?: ${Boolean(manifest)}`
   );

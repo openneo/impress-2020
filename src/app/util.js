@@ -288,7 +288,7 @@ export function useLocalStorage(key, initialValue) {
       const item = window.localStorage.getItem(key);
       return item ? JSON.parse(item) : initialValue;
     } catch (error) {
-      console.log(error);
+      console.error(error);
       return initialValue;
     }
   }, [key, initialValue]);
@@ -301,7 +301,7 @@ export function useLocalStorage(key, initialValue) {
       window.localStorage.setItem(key, JSON.stringify(value));
       storageListeners.forEach((l) => l());
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
