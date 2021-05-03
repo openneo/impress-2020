@@ -172,7 +172,6 @@ function OutfitKnownGlitchesBadge({ appearance }) {
   }
 
   // Check if this is a Faerie Uni. If so, we'll explain the dithering horns.
-  console.log(petAppearance?.color?.id, petAppearance?.species?.id);
   if (
     petAppearance?.color?.id === "26" &&
     petAppearance?.species?.id === "49"
