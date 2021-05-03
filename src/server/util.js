@@ -119,7 +119,7 @@ async function logToDiscord(body) {
     if (!res.ok) {
       const resText = await res.text();
       throw new Error(
-        `Discord returned ${res.status} ${res.statusText}: ` + `${resText}`
+        `Discord returned ${res.status} ${res.statusText}: ${resText}`
       );
     }
   } finally {

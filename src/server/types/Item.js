@@ -425,7 +425,7 @@ const resolvers = {
       { preferredSpeciesId, preferredColorId },
       { db }
     ) => {
-      const [rows, _] = await db.query(
+      const [rows] = await db.query(
         `
           SELECT pet_types.body_id, pet_types.species_id FROM pet_types
           INNER JOIN colors ON
@@ -476,7 +476,7 @@ const resolvers = {
       }));
     },
     compatibleBodies: async ({ id }, _, { db }) => {
-      const [rows, __] = await db.query(
+      const [rows] = await db.query(
         `
         SELECT DISTINCT swf_assets.body_id
           FROM items
@@ -494,7 +494,7 @@ const resolvers = {
       return bodies;
     },
     compatibleBodiesAndTheirZones: async ({ id }, _, { db }) => {
-      const [rows, __] = await db.query(
+      const [rows] = await db.query(
         `
           SELECT
             swf_assets.body_id AS bodyId,
@@ -525,7 +525,7 @@ const resolvers = {
     },
     allAppearances: async ({ id }, _, { db }) => {
       // HACK: Copy-pasted from `compatibleBodies`. Could be a loader?
-      const [rows, __] = await db.query(
+      const [rows] = await db.query(
         `
         SELECT DISTINCT swf_assets.body_id
           FROM items

@@ -5,7 +5,7 @@ import { normalizeRow } from "./util";
 const buildClosetListLoader = (db) =>
   new DataLoader(async (ids) => {
     const qs = ids.map((_) => "?").join(",");
-    const [rows, _] = await db.execute(
+    const [rows] = await db.execute(
       `SELECT * FROM closet_lists WHERE id IN (${qs})`,
       ids
     );
@@ -18,7 +18,7 @@ const buildClosetListLoader = (db) =>
 const buildColorLoader = (db) => {
   const colorLoader = new DataLoader(async (colorIds) => {
     const qs = colorIds.map((_) => "?").join(",");
-    const [rows, _] = await db.execute(
+    const [rows] = await db.execute(
       `SELECT * FROM colors WHERE id IN (${qs}) AND prank = 0`,
       colorIds
     );
@@ -34,7 +34,7 @@ const buildColorLoader = (db) => {
   });
 
   colorLoader.loadAll = async () => {
-    const [rows, _] = await db.execute(`SELECT * FROM colors WHERE prank = 0`);
+    const [rows] = await db.execute(`SELECT * FROM colors WHERE prank = 0`);
     const entities = rows.map(normalizeRow);
 
     for (const color of entities) {
@@ -50,7 +50,7 @@ const buildColorLoader = (db) => {
 const buildColorTranslationLoader = (db) =>
   new DataLoader(async (colorIds) => {
     const qs = colorIds.map((_) => "?").join(",");
-    const [rows, _] = await db.execute(
+    const [rows] = await db.execute(
       `SELECT * FROM color_translations
        WHERE color_id IN (${qs}) AND locale = "en"`,
       colorIds
@@ -69,7 +69,7 @@ const buildColorTranslationLoader = (db) =>
 const buildSpeciesLoader = (db) => {
   const speciesLoader = new DataLoader(async (speciesIds) => {
     const qs = speciesIds.map((_) => "?").join(",");
-    const [rows, _] = await db.execute(
+    const [rows] = await db.execute(
       `SELECT * FROM species WHERE id IN (${qs})`,
       speciesIds
     );
@@ -85,7 +85,7 @@ const buildSpeciesLoader = (db) => {
   });
 
   speciesLoader.loadAll = async () => {
-    const [rows, _] = await db.execute(`SELECT * FROM species`);
+    const [rows] = await db.execute(`SELECT * FROM species`);
     const entities = rows.map(normalizeRow);
 
     for (const species of entities) {
@@ -101,7 +101,7 @@ const buildSpeciesLoader = (db) => {
 const buildSpeciesTranslationLoader = (db) =>
   new DataLoader(async (speciesIds) => {
     const qs = speciesIds.map((_) => "?").join(",");
-    const [rows, _] = await db.execute(
+    const [rows] = await db.execute(
       `SELECT * FROM species_translations
        WHERE species_id IN (${qs}) AND locale = "en"`,
       speciesIds
@@ -140,7 +140,7 @@ const buildTradeMatchesLoader = (db) =>
         })
         .flat();
 
-      const [rows, _] = await db.query(
+      const [rows] = await db.query(
         `
           SET SESSION group_concat_max_len = 4096;
           SELECT
@@ -198,9 +198,7 @@ const buildTradeMatchesLoader = (db) =>
   );
 
 const loadAllPetTypes = (db) => async () => {
-  const [rows, _] = await db.execute(
-    `SELECT species_id, color_id FROM pet_types`
-  );
+  const [rows] = await db.execute(`SELECT species_id, color_id FROM pet_types`);
   const entities = rows.map(normalizeRow);
   return entities;
 };
@@ -208,7 +206,7 @@ const loadAllPetTypes = (db) => async () => {
 const buildItemLoader = (db) =>
   new DataLoader(async (ids) => {
     const qs = ids.map((_) => "?").join(",");
-    const [rows, _] = await db.execute(
+    const [rows] = await db.execute(
       `SELECT * FROM items WHERE id IN (${qs})`,
       ids
     );
@@ -226,7 +224,7 @@ const buildItemLoader = (db) =>
 const buildItemTranslationLoader = (db) =>
   new DataLoader(async (itemIds) => {
     const qs = itemIds.map((_) => "?").join(",");
-    const [rows, _] = await db.execute(
+    const [rows] = await db.execute(
       `SELECT * FROM item_translations WHERE item_id IN (${qs}) AND locale = "en"`,
       itemIds
     );
@@ -246,7 +244,7 @@ const buildItemByNameLoader = (db, loaders) =>
     async (names) => {
       const qs = names.map((_) => "?").join(", ");
       const normalizedNames = names.map((name) => name.trim().toLowerCase());
-      const [rows, _] = await db.execute(
+      const [rows] = await db.execute(
         {
           // NOTE: In our MySQL schema, this is a case-insensitive exact search.
           sql: `SELECT items.*, item_translations.* FROM item_translations
@@ -351,7 +349,7 @@ const buildItemSearchLoader = (db, loaders) =>
           ...currentUserValues,
         ];
 
-        const [[rows, _], [totalRows, __]] = await Promise.all([
+        const [[rows], [totalRows]] = await Promise.all([
           db.execute(
             `
               SELECT DISTINCT items.*, t.name FROM items
@@ -398,7 +396,7 @@ const buildNewestItemsLoader = (db, loaders) =>
       );
     }
 
-    const [rows, _] = await db.execute(
+    const [rows] = await db.execute(
       `SELECT * FROM items ORDER BY created_at DESC LIMIT 20;`
     );
 
@@ -420,7 +418,7 @@ const buildItemsThatNeedModelsLoader = (db) =>
       throw new Error(`this loader can only be loaded with the key "all"`);
     }
 
-    const [rows, _] = await db.query(
+    const [rows] = await db.query(
       `
         SELECT T_ITEMS.item_id,
           T_BODIES.color_id,
@@ -484,7 +482,7 @@ const buildItemsThatNeedModelsLoader = (db) =>
 const buildItemBodiesWithAppearanceDataLoader = (db) =>
   new DataLoader(async (itemIds) => {
     const qs = itemIds.map((_) => "?").join(",");
-    const [rows, _] = await db.execute(
+    const [rows] = await db.execute(
       // TODO: I'm not sure this ORDER BY clause will reliably get standard
       //       bodies to the top, it seems like it depends how DISTINCT works?
       `SELECT pet_types.body_id, pet_types.species_id, items.id AS item_id
@@ -514,7 +512,7 @@ const buildItemBodiesWithAppearanceDataLoader = (db) =>
 const buildItemAllOccupiedZonesLoader = (db) =>
   new DataLoader(async (itemIds) => {
     const qs = itemIds.map((_) => "?").join(", ");
-    const [rows, _] = await db.execute(
+    const [rows] = await db.execute(
       `SELECT items.id, GROUP_CONCAT(DISTINCT sa.zone_id) AS zone_ids FROM items
        INNER JOIN parents_swf_assets psa
          ON psa.parent_type = "Item" AND psa.parent_id = items.id
@@ -545,7 +543,7 @@ const buildItemTradesLoader = (db, loaders) =>
       const values = itemIdOwnedPairs
         .map(({ itemId, isOwned }) => [itemId, isOwned])
         .flat();
-      const [rows, _] = await db.execute(
+      const [rows] = await db.execute(
         {
           sql: `
             SELECT
@@ -628,7 +626,7 @@ const buildItemWakaValueLoader = () =>
 const buildPetTypeLoader = (db, loaders) =>
   new DataLoader(async (petTypeIds) => {
     const qs = petTypeIds.map((_) => "?").join(",");
-    const [rows, _] = await db.execute(
+    const [rows] = await db.execute(
       `SELECT * FROM pet_types WHERE id IN (${qs})`,
       petTypeIds
     );
@@ -657,7 +655,7 @@ const buildPetTypeBySpeciesAndColorLoader = (db, loaders) =>
         values.push(speciesId, colorId);
       }
 
-      const [rows, _] = await db.execute(
+      const [rows] = await db.execute(
         `SELECT * FROM pet_types WHERE ${conditions.join(" OR ")}`,
         values
       );
@@ -681,7 +679,7 @@ const buildPetTypeBySpeciesAndColorLoader = (db, loaders) =>
 const buildPetTypesForColorLoader = (db, loaders) =>
   new DataLoader(async (colorIds) => {
     const qs = colorIds.map((_) => "?").join(",");
-    const [rows, _] = await db.execute(
+    const [rows] = await db.execute(
       `SELECT * FROM pet_types WHERE color_id IN (${qs})`,
       colorIds
     );
@@ -704,7 +702,7 @@ const buildPetTypesForColorLoader = (db, loaders) =>
 const buildSwfAssetLoader = (db) =>
   new DataLoader(async (swfAssetIds) => {
     const qs = swfAssetIds.map((_) => "?").join(",");
-    const [rows, _] = await db.execute(
+    const [rows] = await db.execute(
       `SELECT * FROM swf_assets WHERE id IN (${qs})`,
       swfAssetIds
     );
@@ -719,7 +717,7 @@ const buildSwfAssetLoader = (db) =>
 const buildSwfAssetCountLoader = (db) =>
   new DataLoader(
     async (requests) => {
-      const [rows, _] = await db.execute(
+      const [rows] = await db.execute(
         `
           SELECT count(*) AS count, type,
             (manifest IS NOT NULL AND manifest != "") AS is_converted
@@ -759,7 +757,7 @@ const buildSwfAssetByRemoteIdLoader = (db) =>
       const values = typeAndRemoteIdPairs
         .map(({ type, remoteId }) => [type, remoteId])
         .flat();
-      const [rows, _] = await db.execute(
+      const [rows] = await db.execute(
         `SELECT * FROM swf_assets WHERE ${qs}`,
         values
       );
@@ -785,7 +783,7 @@ const buildItemSwfAssetLoader = (db, loaders) =>
         values.push(itemId, bodyId);
       }
 
-      const [rows, _] = await db.execute(
+      const [rows] = await db.execute(
         `SELECT sa.*, rel.parent_id FROM swf_assets sa
        INNER JOIN parents_swf_assets rel ON
          rel.parent_type = "Item" AND
@@ -813,7 +811,7 @@ const buildItemSwfAssetLoader = (db, loaders) =>
 const buildPetSwfAssetLoader = (db, loaders) =>
   new DataLoader(async (petStateIds) => {
     const qs = petStateIds.map((_) => "?").join(",");
-    const [rows, _] = await db.execute(
+    const [rows] = await db.execute(
       `SELECT sa.*, rel.parent_id FROM swf_assets sa
        INNER JOIN parents_swf_assets rel ON
          rel.parent_type = "PetState" AND
@@ -836,7 +834,7 @@ const buildPetSwfAssetLoader = (db, loaders) =>
 const buildNeopetsConnectionLoader = (db) =>
   new DataLoader(async (ids) => {
     const qs = ids.map((_) => "?").join(", ");
-    const [rows, _] = await db.execute(
+    const [rows] = await db.execute(
       `SELECT * FROM neopets_connections WHERE id IN (${qs})`,
       ids
     );
@@ -849,7 +847,7 @@ const buildNeopetsConnectionLoader = (db) =>
 const buildOutfitLoader = (db) =>
   new DataLoader(async (outfitIds) => {
     const qs = outfitIds.map((_) => "?").join(",");
-    const [rows, _] = await db.execute(
+    const [rows] = await db.execute(
       `SELECT * FROM outfits WHERE id IN (${qs})`,
       outfitIds
     );
@@ -862,7 +860,7 @@ const buildOutfitLoader = (db) =>
 const buildItemOutfitRelationshipsLoader = (db) =>
   new DataLoader(async (outfitIds) => {
     const qs = outfitIds.map((_) => "?").join(",");
-    const [rows, _] = await db.execute(
+    const [rows] = await db.execute(
       `SELECT * FROM item_outfit_relationships WHERE outfit_id IN (${qs})`,
       outfitIds
     );
@@ -877,7 +875,7 @@ const buildItemOutfitRelationshipsLoader = (db) =>
 const buildPetStateLoader = (db) =>
   new DataLoader(async (petStateIds) => {
     const qs = petStateIds.map((_) => "?").join(",");
-    const [rows, _] = await db.execute(
+    const [rows] = await db.execute(
       `SELECT * FROM pet_states WHERE id IN (${qs})`,
       petStateIds
     );
@@ -892,7 +890,7 @@ const buildPetStateLoader = (db) =>
 const buildPetStatesForPetTypeLoader = (db, loaders) =>
   new DataLoader(async (petTypeIds) => {
     const qs = petTypeIds.map((_) => "?").join(",");
-    const [rows, _] = await db.execute(
+    const [rows] = await db.execute(
       `SELECT * FROM pet_states
        WHERE pet_type_id IN (${qs})
        ORDER BY (mood_id IS NULL) ASC, mood_id ASC, female DESC,
@@ -928,7 +926,7 @@ const buildCanonicalPetStateForBodyLoader = (db, loaders) =>
           const bodyCondition = bodyId !== "0" ? `pet_types.body_id = ?` : `1`;
           const bodyValues = bodyId !== "0" ? [bodyId] : [];
 
-          const [rows, _] = await db.execute(
+          const [rows] = await db.execute(
             {
               sql: `
               SELECT pet_states.*, pet_types.* FROM pet_states
@@ -979,7 +977,7 @@ const buildPetStateByPetTypeAndAssetsLoader = (db, loaders) =>
       const values = petTypeIdAndAssetIdsPairs
         .map(({ petTypeId, swfAssetIds }) => [petTypeId, swfAssetIds])
         .flat();
-      const [rows, _] = await db.execute(
+      const [rows] = await db.execute(
         `SELECT * FROM pet_states WHERE ${qs}`,
         values
       );
@@ -1004,7 +1002,7 @@ const buildPetStateByPetTypeAndAssetsLoader = (db, loaders) =>
 const buildUserLoader = (db) =>
   new DataLoader(async (ids) => {
     const qs = ids.map((_) => "?").join(",");
-    const [rows, _] = await db.execute(
+    const [rows] = await db.execute(
       `SELECT * FROM users WHERE id IN (${qs})`,
       ids
     );
@@ -1022,7 +1020,7 @@ const buildUserLoader = (db) =>
 const buildUserByNameLoader = (db) =>
   new DataLoader(async (names) => {
     const qs = names.map((_) => "?").join(",");
-    const [rows, _] = await db.execute(
+    const [rows] = await db.execute(
       `SELECT * FROM users WHERE name IN (${qs})`,
       names
     );
@@ -1037,7 +1035,7 @@ const buildUserByNameLoader = (db) =>
 const buildUserByEmailLoader = (db) =>
   new DataLoader(async (emails) => {
     const qs = emails.map((_) => "?").join(",");
-    const [rows, _] = await db.execute(
+    const [rows] = await db.execute(
       {
         sql: `
           SELECT users.*, id_users.email FROM users
@@ -1060,7 +1058,7 @@ const buildUserByEmailLoader = (db) =>
 const buildUserClosetHangersLoader = (db) =>
   new DataLoader(async (userIds) => {
     const qs = userIds.map((_) => "?").join(",");
-    const [rows, _] = await db.execute(
+    const [rows] = await db.execute(
       `SELECT closet_hangers.*, item_translations.name as item_name FROM closet_hangers
        INNER JOIN items ON items.id = closet_hangers.item_id
        INNER JOIN item_translations ON
@@ -1079,7 +1077,7 @@ const buildUserClosetHangersLoader = (db) =>
 const buildUserClosetListsLoader = (db, loaders) =>
   new DataLoader(async (userIds) => {
     const qs = userIds.map((_) => "?").join(",");
-    const [rows, _] = await db.execute(
+    const [rows] = await db.execute(
       `SELECT * FROM closet_lists
        WHERE user_id IN (${qs})
        ORDER BY name`,
@@ -1099,7 +1097,7 @@ const buildUserClosetListsLoader = (db, loaders) =>
 const buildUserOutfitsLoader = (db, loaders) =>
   new DataLoader(async (userIds) => {
     const qs = userIds.map((_) => "?").join(",");
-    const [rows, _] = await db.execute(
+    const [rows] = await db.execute(
       `SELECT * FROM outfits
        WHERE user_id IN (${qs})
        ORDER BY name`,
@@ -1119,7 +1117,7 @@ const buildUserOutfitsLoader = (db, loaders) =>
 const buildUserLastTradeActivityLoader = (db) =>
   new DataLoader(async (userIds) => {
     const qs = userIds.map((_) => "?").join(",");
-    const [rows, _] = await db.execute(
+    const [rows] = await db.execute(
       // This query has a custom index: index_closet_hangers_for_last_trade_activity.
       // It's on (user_id, owned, list_id, updated_at). The intent is that this
       // will enable the query planner to find the max updated_at for each
@@ -1173,7 +1171,7 @@ const buildUserLastTradeActivityLoader = (db) =>
 const buildZoneLoader = (db) => {
   const zoneLoader = new DataLoader(async (ids) => {
     const qs = ids.map((_) => "?").join(",");
-    const [rows, _] = await db.execute(
+    const [rows] = await db.execute(
       `SELECT * FROM zones WHERE id IN (${qs})`,
       ids
     );
@@ -1189,7 +1187,7 @@ const buildZoneLoader = (db) => {
   });
 
   zoneLoader.loadAll = async () => {
-    const [rows, _] = await db.execute(`SELECT * FROM zones`);
+    const [rows] = await db.execute(`SELECT * FROM zones`);
     const entities = rows.map(normalizeRow);
 
     for (const zone of entities) {
@@ -1205,7 +1203,7 @@ const buildZoneLoader = (db) => {
 const buildZoneTranslationLoader = (db) =>
   new DataLoader(async (zoneIds) => {
     const qs = zoneIds.map((_) => "?").join(",");
-    const [rows, _] = await db.execute(
+    const [rows] = await db.execute(
       `SELECT * FROM zone_translations WHERE zone_id IN (${qs}) AND locale = "en"`,
       zoneIds
     );

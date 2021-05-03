@@ -211,7 +211,7 @@ const resolvers = {
 
   Body: {
     species: ({ id, species }) => {
-      if (id == "0") {
+      if (String(id) === "0") {
         return null;
       }
       if (species) {
@@ -223,7 +223,7 @@ const resolvers = {
       );
     },
     representsAllBodies: ({ id }) => {
-      return id == "0";
+      return String(id) === "0";
     },
     canonicalAppearance: async (
       { id, species },

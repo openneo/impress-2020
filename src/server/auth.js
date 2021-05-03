@@ -1,7 +1,6 @@
 import util from "util";
-
-const jwtVerify = util.promisify(require("jsonwebtoken").verify);
 import jwksClient from "jwks-rsa";
+const jwtVerify = util.promisify(require("jsonwebtoken").verify);
 
 const jwks = jwksClient({
   jwksUri: "https://openneo.us.auth0.com/.well-known/jwks.json",
@@ -9,10 +8,10 @@ const jwks = jwksClient({
 
 async function getJwtKey(header, callback) {
   jwks.getSigningKey(header.kid, (err, key) => {
+    const signingKey = key.publicKey || key.rsaPublicKey;
     if (err) {
       return callback(null, signingKey);
     }
-    const signingKey = key.publicKey || key.rsaPublicKey;
     callback(null, signingKey);
   });
 }

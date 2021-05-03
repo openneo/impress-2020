@@ -1,4 +1,3 @@
-import gql from "graphql-tag";
 import { getDbCalls } from "./query-tests/setup.js";
 import connectToDb from "./db";
 import { loadBodyName } from "./util";

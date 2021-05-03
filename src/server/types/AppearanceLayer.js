@@ -70,16 +70,6 @@ const typeDefs = gql`
     that our behavior _doesn't_ match official behavior.
     """
     knownGlitches: [AppearanceLayerKnownGlitch!]!
-
-    """
-    The zones that this layer restricts, if any. Note that, for item layers,
-    this is generally empty and the restriction is on the ItemAppearance, not
-    the individual layers. For pet layers, this is generally used for
-    Unconverted pets.
-
-    Deprecated, aggregated into PetAppearance for a simpler API.
-    """
-    restrictedZones: [Zone!]!
   }
 
   enum AppearanceLayerKnownGlitch {
@@ -170,10 +160,6 @@ const resolvers = {
     zone: async ({ id }, _, { swfAssetLoader }) => {
       const layer = await swfAssetLoader.load(id);
       return { id: layer.zoneId };
-    },
-    restrictedZones: async ({ id }, _, { swfAssetLoader }) => {
-      const layer = await swfAssetLoader.load(id);
-      return getRestrictedZoneIds(layer.zonesRestrict).map((id) => ({ id }));
     },
     swfUrl: async ({ id }, _, { swfAssetLoader }) => {
       const layer = await swfAssetLoader.load(id);

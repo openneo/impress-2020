@@ -1,5 +1,4 @@
 import util from "util";
-import fetch from "node-fetch";
 import { gql } from "apollo-server";
 import xmlrpc from "xmlrpc";
 import { getPoseFromPetState } from "../util";
@@ -118,7 +117,7 @@ const resolvers = {
         swfAssetByRemoteIdLoader,
       }
     ) => {
-      const [customPetData, petMetaData, __] = await Promise.all([
+      const [customPetData, petMetaData] = await Promise.all([
         loadCustomPetData(petName),
         loadPetMetaData(petName),
       ]);
