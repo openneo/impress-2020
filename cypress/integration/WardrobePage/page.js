@@ -9,12 +9,15 @@ export const getSaveOutfitButton = withTestId("wardrobe-save-outfit-button");
 export const getOutfitIsSavedIndicator = withTestId(
   "wardrobe-outfit-is-saved-indicator"
 );
+export const getOutfitIsSavingIndicator = withTestId(
+  "wardrobe-outfit-is-saving-indicator"
+);
 
 export function getPosePickerOption(label, options) {
   return cy.get(`input[aria-label="${CSS.escape(label)}"]`, options);
 }
 
-export function getOutfitPreview() {
+export function getOutfitPreview(options = { timeout: 15000 }) {
   // HACK: To return the screenshottable preview *area* (which is what this
   //       function is currently used for), we select the first img tag. That's
   //       because the app relies on CSS `object-fit` to get images to position
@@ -31,10 +34,7 @@ export function getOutfitPreview() {
   //       performs its snapshot within the window's natural area, rather than
   //       the simulated area that most tests run in.
   return cy
-    .get("[data-test-id=wardrobe-outfit-preview]:not([data-loading])", {
-      // A bit of an extra-long timeout, to await both server data and image data
-      timeout: 15000,
-    })
+    .get("[data-test-id=wardrobe-outfit-preview]:not([data-loading])", options)
     .get("img")
     .first();
 }
