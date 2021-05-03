@@ -9,14 +9,17 @@ export const getSaveOutfitButton = withTestId("wardrobe-save-outfit-button");
 export const getOutfitIsSavedIndicator = withTestId(
   "wardrobe-outfit-is-saved-indicator"
 );
+export const getOutfitIsSavingIndicator = withTestId(
+  "wardrobe-outfit-is-saving-indicator"
+);
 
 export function getPosePickerOption(label, options) {
   return cy.get(`input[aria-label="${CSS.escape(label)}"]`, options);
 }
 
-export function getOutfitPreview() {
-  return cy.get("[data-test-id=wardrobe-outfit-preview]:not([data-loading])", {
-    // A bit of an extra-long timeout, to await both server data and image data
-    timeout: 15000,
-  });
+export function getOutfitPreview(options = { timeout: 15000 }) {
+  return cy.get(
+    "[data-test-id=wardrobe-outfit-preview]:not([data-loading])",
+    options
+  );
 }
