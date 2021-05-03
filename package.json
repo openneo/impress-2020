@@ -71,7 +71,10 @@
     "export-users-to-auth0": "ts-node --compiler=typescript-cached-transpile --transpile-only -r dotenv/config scripts/export-users-to-auth0.js"
   },
   "eslintConfig": {
-    "extends": "react-app",
+    "extends": [
+      "react-app",
+      "plugin:cypress/recommended"
+    ],
     "rules": {
       "no-console": [
         "error",
@@ -106,6 +109,7 @@
     "cypress-plugin-snapshots": "^1.4.4",
     "dotenv-cli": "^3.1.0",
     "es6-promise-pool": "^2.5.0",
+    "eslint-plugin-cypress": "^2.11.2",
     "inquirer": "^7.3.3",
     "jest-image-snapshot": "^4.3.0",
     "prettier": "^2.0.5",
