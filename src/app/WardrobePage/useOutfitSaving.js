@@ -118,7 +118,7 @@ function useOutfitSaving(outfitState, dispatchToOutfit) {
         // tempting to do a full reset, in case the server knows something we
         // don't, but we don't want to clobber changes the user made since
         // starting the save!)
-        if (outfit.id === outfitState.id) {
+        if (outfit.id === outfitState.id && outfit.name !== outfitState.name) {
           dispatchToOutfit({
             type: "rename",
             outfitName: outfit.name,
@@ -145,7 +145,9 @@ function useOutfitSaving(outfitState, dispatchToOutfit) {
           // Navigate to the new saved outfit URL. Our Apollo cache should pick
           // up the data from this mutation response, and combine it with the
           // existing cached data, to make this smooth without any loading UI.
-          history.push(`/outfits/${outfit.id}`);
+          if (history.location.pathname !== `/outfits/${outfit.id}`) {
+            history.push(`/outfits/${outfit.id}`);
+          }
         })
         .catch((e) => {
           console.error(e);
