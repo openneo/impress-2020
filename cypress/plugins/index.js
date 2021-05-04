@@ -16,6 +16,8 @@ module.exports = (on, config) => {
 // Our screenshots from `cypress-plugin-snapshots` are affected by the actual
 // window size, not just the viewport size! To avoid downscaling outfit
 // previews, try to open the window at 1000x800 at minimum.
+//
+// Adapted from https://github.com/meinaart/cypress-plugin-snapshots/issues/104#issuecomment-636463370
 function ensureWindowSize(on) {
   const w = 1000;
   const h = 800;
