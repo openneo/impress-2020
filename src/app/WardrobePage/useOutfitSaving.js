@@ -113,15 +113,15 @@ function useOutfitSaving(outfitState, dispatchToOutfit) {
           },
         });
 
-        // Also, send a `reset` action, to show whatever the server returned.
-        // This is important for suffix changes to `name`, but can also be
-        // relevant for graceful failure when a bug causes a change not to
-        // persist. (But don't do it if it's not the current outfit anymore,
-        // we don't want laggy mutations to reset the outfit!)
+        // Also, send a `rename` action, if this is still the current outfit,
+        // and the server renamed it (e.g. "Untitled outfit (1)"). (It's
+        // tempting to do a full reset, in case the server knows something we
+        // don't, but we don't want to clobber changes the user made since
+        // starting the save!)
         if (outfit.id === outfitState.id) {
           dispatchToOutfit({
-            type: "resetToSavedOutfitData",
-            savedOutfitData: outfit,
+            type: "rename",
+            outfitName: outfit.name,
           });
         }
       },

@@ -165,7 +165,7 @@ const resolvers = {
       // Then, get the unique name to use for this outfit: try the provided
       // name first, but, if it's taken, add a "(1)" suffix and keep
       // incrementing it until it's not.
-      let name = rawName;
+      let name = rawName || "Untitled outfit";
       for (let i = 1; existingOutfitNames.has(name); i++) {
         name = `${baseName} (${i})`;
       }
