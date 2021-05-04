@@ -146,6 +146,7 @@ function OutfitControls({
               setFocusIsLocked(true);
             }
           }}
+          data-test-id="wardrobe-outfit-controls"
         >
           <Box gridArea="back" onClick={maybeUnlockFocus}>
             <BackButton outfitState={outfitState} />
@@ -297,6 +298,7 @@ function BackButton({ outfitState }) {
       icon={<ArrowBackIcon />}
       aria-label="Leave this outfit"
       d="inline-flex" // Not sure why <a> requires this to style right! ^^`
+      data-test-id="wardrobe-nav-back-button"
     />
   );
 }

@@ -92,4 +92,42 @@ describe("WardrobePage: Outfit saving", () => {
     cy.reload();
     page.getOutfitPreview({ timeout: 20000 }).toMatchImageSnapshot();
   });
+
+  it("prompts before navigating away from unsaved changes", () => {
+    // Create stub methods to reject navigation confirmation prompts. We need
+    // `confirm` for react-router's client-side nav, and `before:unload` for
+    // the browser's built-in full-page nav prompts.
+    const confirmStub = cy.stub().returns(false);
+    cy.on("window:confirm", confirmStub);
+    const beforeUnloadStub = cy.stub();
+    cy.on("window:before:unload", beforeUnloadStub);
+
+    cy.logInAs("dti-test");
+    cy.visit("/outfits/new?species=1&color=8");
+
+    // Give the outfit a unique timestamped name
+    const outfitName = `Cypress Test - Block Navigation - ${new Date().toISOString()}`;
+    page.getOutfitName({ timeout: 12000 }).click();
+    cy.focused().type(outfitName + "{enter}");
+
+    // Save the outfit, but don't wait for it to finish.
+    page.getSaveOutfitButton().click().should("have.attr", "data-loading");
+
+    // Click the big back button, and observe that it triggers a confirm prompt.
+    // We'll reject it. HACK: It's a bit flaky if you try the clicks
+    // immediately in sequence. Is there a better way to do this?
+    page.showOutfitControls();
+    cy.wait(100); // eslint-disable-line cypress/no-unnecessary-waiting
+    page.getNavBackButton().click();
+    cy.wrap(confirmStub).should("be.called");
+
+    // Try to reload the page, and observe that it would trigger the browser's
+    // built-in prompt, i.e., `defaultPrevented`. Cypress will automatically
+    // confirm the simulated prompt, and complete the reload.
+    cy.reload();
+    cy.wrap(beforeUnloadStub).should(
+      "be.calledWith",
+      Cypress.sinon.match((e) => e.defaultPrevented)
+    );
+  });
 });

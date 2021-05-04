@@ -1,6 +1,7 @@
 const withTestId = (testId) => (options) =>
   cy.get(`[data-test-id="${CSS.escape(testId)}"]`, options);
 
+export const getNavBackButton = withTestId("wardrobe-nav-back-button");
 export const getSpeciesSelect = withTestId("wardrobe-species-picker");
 export const getColorSelect = withTestId("wardrobe-color-picker");
 export const getPosePickerButton = withTestId("wardrobe-pose-picker");
@@ -37,4 +38,8 @@ export function getOutfitPreview(options = { timeout: 15000 }) {
     .get("[data-test-id=wardrobe-outfit-preview]:not([data-loading])", options)
     .get("img")
     .first();
+}
+
+export function showOutfitControls(options) {
+  return cy.get("[data-test-id=wardrobe-outfit-controls]", options).click();
 }
