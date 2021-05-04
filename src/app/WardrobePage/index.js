@@ -4,6 +4,7 @@ import { loadable } from "../util";
 
 import ItemsAndSearchPanels from "./ItemsAndSearchPanels";
 import SupportOnly from "./support/SupportOnly";
+import useOutfitSaving from "./useOutfitSaving";
 import useOutfitState, { OutfitStateContext } from "./useOutfitState";
 import { usePageTitle } from "../util";
 import WardrobePageLayout from "./WardrobePageLayout";
@@ -25,6 +26,11 @@ const WardrobeDevHacks = loadable(() => import("./WardrobeDevHacks"));
 function WardrobePage() {
   const toast = useToast();
   const { loading, error, outfitState, dispatchToOutfit } = useOutfitState();
+
+  // We manage outfit saving up here, rather than at the point of the UI where
+  // "Saving" indicators appear. That way, auto-saving still happens even when
+  // the indicator isn't on the page, e.g. when searching.
+  const outfitSaving = useOutfitSaving(outfitState, dispatchToOutfit);
 
   usePageTitle(outfitState.name || "Untitled outfit");
 
@@ -64,6 +70,7 @@ function WardrobePage() {
           <ItemsAndSearchPanels
             loading={loading}
             outfitState={outfitState}
+            outfitSaving={outfitSaving}
             dispatchToOutfit={dispatchToOutfit}
           />
         }

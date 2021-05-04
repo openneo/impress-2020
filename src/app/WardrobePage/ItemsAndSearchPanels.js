@@ -21,7 +21,7 @@ import SearchPanel from "./SearchPanel";
  * performing some wiring to help them interact with each other via simple
  * state and refs.
  */
-function ItemsAndSearchPanels({ loading, outfitState, dispatchToOutfit }) {
+function ItemsAndSearchPanels({ loading, outfitState, outfitSaving, dispatchToOutfit }) {
   const [searchQuery, setSearchQuery] = React.useState(emptySearchQuery);
   const scrollContainerRef = React.useRef();
   const searchQueryRef = React.useRef();
@@ -68,6 +68,7 @@ function ItemsAndSearchPanels({ loading, outfitState, dispatchToOutfit }) {
             <ItemsPanel
               loading={loading}
               outfitState={outfitState}
+              outfitSaving={outfitSaving}
               dispatchToOutfit={dispatchToOutfit}
             />
           </Box>
