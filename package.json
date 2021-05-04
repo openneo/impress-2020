@@ -77,7 +77,7 @@
     ],
     "rules": {
       "no-console": [
-        "error",
+        "warn",
         {
           "allow": [
             "debug",
