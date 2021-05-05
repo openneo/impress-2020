@@ -104,7 +104,7 @@ function ItemSearchPageResults({ query: latestQuery, offset }) {
 
     // When the query is empty, clear the debounced query immediately too! That
     // will give us fast feedback when the search field clears.
-    forceReset: searchQueryIsEmpty(latestQuery),
+    forceReset: () => searchQueryIsEmpty(latestQuery),
   });
 
   // NOTE: This query should always load ~instantly, from the client cache.
