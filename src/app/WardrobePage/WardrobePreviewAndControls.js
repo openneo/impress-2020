@@ -2,13 +2,14 @@ import React from "react";
 import { Box, DarkMode } from "@chakra-ui/react";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
+import * as Sentry from "@sentry/react";
 
 import OutfitThumbnail, {
   outfitThumbnailFragment,
   getOutfitThumbnailRenderSize,
 } from "../components/OutfitThumbnail";
 import { useOutfitPreview } from "../components/OutfitPreview";
-import { loadable } from "../util";
+import { loadable, MajorErrorMessage, TestErrorSender } from "../util";
 
 const OutfitControls = loadable(() => import("./OutfitControls"));
 
@@ -34,7 +35,8 @@ function WardrobePreviewAndControls({
   });
 
   return (
-    <>
+    <Sentry.ErrorBoundary fallback={MajorErrorMessage}>
+      <TestErrorSender />
       <Box position="absolute" top="0" bottom="0" left="0" right="0">
         <DarkMode>{preview}</DarkMode>
       </Box>
@@ -46,7 +48,7 @@ function WardrobePreviewAndControls({
           appearance={appearance}
         />
       </Box>
-    </>
+    </Sentry.ErrorBoundary>
   );
 }
 

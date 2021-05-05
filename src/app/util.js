@@ -1,7 +1,18 @@
 import React from "react";
-import { Box, Heading, useColorModeValue } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Grid,
+  Heading,
+  Link,
+  useColorModeValue,
+} from "@chakra-ui/react";
 import loadableLibrary from "@loadable/component";
 import * as Sentry from "@sentry/react";
+
+import ErrorGrundoImg from "./images/error-grundo.png";
+import ErrorGrundoImg2x from "./images/error-grundo@2x.png";
+import { WarningIcon } from "@chakra-ui/icons";
 
 /**
  * Delay hides its content at first, then shows it after the given delay.
@@ -374,4 +385,60 @@ export function loadable(load, options) {
 export function logAndCapture(e) {
   console.error(e);
   Sentry.captureException(e);
+}
+
+export function MajorErrorMessage({ error }) {
+  return (
+    <Flex justify="center" marginTop="8">
+      <Grid
+        templateAreas='"icon title" "icon description" "icon details"'
+        templateColumns="auto 1fr"
+        maxWidth="500px"
+        marginX="8"
+        columnGap="4"
+      >
+        <Box gridArea="icon" marginTop="2">
+          <Box
+            as="img"
+            src={ErrorGrundoImg}
+            srcSet={`${ErrorGrundoImg} 1x, ${ErrorGrundoImg2x} 2x`}
+            borderRadius="full"
+            boxShadow="md"
+            width="100px"
+            height="100px"
+            alt=""
+          />
+        </Box>
+        <Box gridArea="title" fontSize="lg" marginBottom="1">
+          Ah dang, I broke it 😖
+        </Box>
+        <Box gridArea="description" marginBottom="2">
+          There was an error displaying this page. I'll get info about it
+          automatically, but you can tell me more at{" "}
+          <Link href="mailto:matchu@openneo.net" color="green.400">
+            matchu@openneo.net
+          </Link>
+          !
+        </Box>
+        <Box gridArea="details" fontSize="xs" opacity="0.8">
+          <WarningIcon
+            marginRight="1.5"
+            marginTop="-2px"
+            aria-label="Error message"
+          />
+          "{error.message}"
+        </Box>
+      </Grid>
+    </Flex>
+  );
+}
+
+export function TestErrorSender() {
+  React.useEffect(() => {
+    if (window.location.href.includes("send-test-error-for-sentry")) {
+      throw new Error("Test error for Sentry");
+    }
+  });
+
+  return null;
 }

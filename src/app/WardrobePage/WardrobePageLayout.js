@@ -32,7 +32,12 @@ function WardrobePageLayout({ previewAndControls, itemsAndSearch }) {
         height="100%"
         width="100%"
       >
-        <Box gridArea="previewAndControls" bg="gray.900" position="relative">
+        <Box
+          gridArea="previewAndControls"
+          bg="gray.900"
+          color="gray.50"
+          position="relative"
+        >
           {previewAndControls}
         </Box>
         <Box gridArea="itemsAndSearch" bg={itemsAndSearchBackground}>

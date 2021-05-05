@@ -29,6 +29,7 @@ import {
   ErrorMessage,
   Heading1,
   Heading2,
+  TestErrorSender,
   useCommonStyles,
   useLocalStorage,
   usePageTitle,
@@ -50,12 +51,6 @@ function HomePage() {
   useSupportSetup();
 
   const [previewState, setPreviewState] = React.useState(null);
-
-  React.useEffect(() => {
-    if (window.location.href.includes("send-test-error-for-sentry")) {
-      throw new Error("Test error for Sentry");
-    }
-  });
 
   return (
     <Flex direction="column" align="center" textAlign="center" marginTop="8">
@@ -103,6 +98,7 @@ function HomePage() {
       <WIPCallout details="We started building this last year, but, well… what a year 😅 Anyway, this will eventually become the main site, at impress.openneo.net!">
         Maybe we'll rename it to Impress 2021… or maybe not! 🤔
       </WIPCallout>
+      <TestErrorSender />
     </Flex>
   );
 }
