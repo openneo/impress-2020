@@ -51,6 +51,7 @@
     "xmlrpc": "^1.3.2"
   },
   "scripts": {
+    "prepare": "husky install",
     "start": "TS_NODE_COMPILER=typescript-cached-transpile vercel dev",
     "dev": "yarn build-cached-data && REACT_APP_IMPRESS_LOG_IN_AS=$IMPRESS_LOG_IN_AS react-scripts start",
     "build": "yarn build-cached-data && react-scripts build",
@@ -89,6 +90,11 @@
       ]
     }
   },
+  "lint-staged": {
+    "*.{js,ts,tsx}": [
+      "eslint --max-warnings=0 --fix"
+    ]
+  },
   "browserslist": {
     "production": [
       ">0.2%",
@@ -110,8 +116,10 @@
     "dotenv-cli": "^3.1.0",
     "es6-promise-pool": "^2.5.0",
     "eslint-plugin-cypress": "^2.11.2",
+    "husky": "^6.0.0",
     "inquirer": "^7.3.3",
     "jest-image-snapshot": "^4.3.0",
+    "lint-staged": "^10.5.4",
     "prettier": "^2.0.5",
     "react-is": "^16.13.1",
     "ts-node": "^9.1.1",
