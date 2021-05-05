@@ -99,7 +99,14 @@ function useOutfitSaving(outfitState, dispatchToOutfit) {
         cache.modify({
           id: cache.identify(outfit.creator),
           fields: {
-            outfits: (existingOutfitRefs = []) => {
+            outfits: (existingOutfitRefs = [], { readField }) => {
+              const isAlreadyInList = existingOutfitRefs.some(
+                (ref) => readField("id", ref) === outfit.id
+              );
+              if (isAlreadyInList) {
+                return existingOutfitRefs;
+              }
+
               const newOutfitRef = cache.writeFragment({
                 data: outfit,
                 fragment: gql`
@@ -108,6 +115,7 @@ function useOutfitSaving(outfitState, dispatchToOutfit) {
                   }
                 `,
               });
+
               return [...existingOutfitRefs, newOutfitRef];
             },
           },
