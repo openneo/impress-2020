@@ -534,12 +534,10 @@ function FeedbackFormPitch() {
           flex={{ base: "0 0 auto", sm: "0 1 50%" }}
         >
           <Box as="h3" fontWeight="600">
-            New updates (Apr 1)
+            New updates (May 5)
           </Box>
           <UnorderedList>
-            <ListItem>Clearer NC/NP indicators</ListItem>
-            <ListItem>Lots of item bug fixes!</ListItem>
-            <ListItem>Focused on reliability 💛</ListItem>
+            <ListItem>Outfit saving! Try it out!!</ListItem>
             <ListItem>
               <Link
                 href="https://twitter.com/NeopetsDTI"
@@ -561,10 +559,9 @@ function FeedbackFormPitch() {
             Coming soon
           </Box>
           <UnorderedList>
-            <ListItem>Outfit saving</ListItem>
             <ListItem>Better item list pages</ListItem>
             <ListItem>
-              …a lot more things{" "}
+              …a lot of little things{" "}
               <span role="img" aria-label="Sweat smile emoji">
                 😅
               </span>
