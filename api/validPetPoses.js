@@ -71,19 +71,17 @@ export async function getValidPetPoses() {
 }
 
 async function getNumSpecies(db) {
-  const [rows, _] = await db.query(`SELECT count(*) FROM species`);
+  const [rows] = await db.query(`SELECT count(*) FROM species`);
   return rows[0]["count(*)"];
 }
 
 async function getNumColors(db) {
-  const [rows, _] = await db.query(
-    `SELECT count(*) FROM colors WHERE prank = 0`
-  );
+  const [rows] = await db.query(`SELECT count(*) FROM colors WHERE prank = 0`);
   return rows[0]["count(*)"];
 }
 
 async function getDistinctPetStates(db) {
-  const [rows, _] = await db.query(`
+  const [rows] = await db.query(`
     SELECT DISTINCT species_id, color_id, mood_id, female, unconverted
         FROM pet_states
     INNER JOIN pet_types ON pet_types.id = pet_states.pet_type_id
@@ -101,9 +99,11 @@ async function handle(req, res) {
   res.status(200).send(buffer);
 }
 
-export default async (req, res) => {
+async function handleWithBeeline(req, res) {
   beeline.withTrace(
     { name: "api/validPetPoses", operation_name: "api/validPetPoses" },
     () => handle(req, res)
   );
-};
+}
+
+export default handleWithBeeline;

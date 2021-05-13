@@ -46,9 +46,11 @@ async function handle(req, res) {
   return res.status(200).send();
 }
 
-export default async (req, res) => {
+async function handleWithBeeline(req, res) {
   beeline.withTrace(
     { name: "api/sendFeedback", operation_name: "api/sendFeedback" },
     () => handle(req, res)
   );
-};
+}
+
+export default handleWithBeeline;

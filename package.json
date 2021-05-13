@@ -87,6 +87,13 @@
             "error"
           ]
         }
+      ],
+      "import/first": "off",
+      "no-unused-vars": [
+        "warn",
+        {
+          "varsIgnorePattern": "^unused"
+        }
       ]
     }
   },

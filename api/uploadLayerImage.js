@@ -63,7 +63,7 @@ async function processImage(assetType, remoteId, size, imageData) {
   const key = `${assetType}/${id1}/${id2}/${id3}/${remoteId}/${size}x${size}.png`;
 
   await upload("impress-asset-images", key, imageData);
-  console.log(`Successfully uploaded ${key} to impress-asset-images`);
+  console.info(`Successfully uploaded ${key} to impress-asset-images`);
 }
 
 async function handle(req, res) {
@@ -170,9 +170,11 @@ async function handle(req, res) {
   res.status(200).send();
 }
 
-export default async (req, res) => {
+async function handleWithBeeline(req, res) {
   beeline.withTrace(
     { name: "api/uploadLayerImage", operation_name: "api/uploadLayerImage" },
     () => handle(req, res)
   );
-};
+}
+
+export default handleWithBeeline;

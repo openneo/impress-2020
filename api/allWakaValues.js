@@ -105,8 +105,8 @@ async function loadWakaValuesByIdOrName() {
   for (const [
     itemName,
     value = "",
-    notes = "",
-    marks = "",
+    unusedNotes = "",
+    unusedMarks = "",
     itemId = "",
   ] of rows) {
     const normalizedItemName = normalizeItemName(itemName);
@@ -130,9 +130,11 @@ function normalizeItemName(name) {
   );
 }
 
-export default async (req, res) => {
+async function handleWithBeeline(req, res) {
   beeline.withTrace(
     { name: "api/allWakaValues", operation_name: "api/allWakaValues" },
     () => handle(req, res)
   );
-};
+}
+
+export default handleWithBeeline;

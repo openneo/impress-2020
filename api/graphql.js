@@ -13,7 +13,7 @@ const { config } = require("../src/server");
 const server = new ApolloServer(config);
 const serverHandler = server.createHandler();
 
-export default async (req, res) => {
+async function handle(req, res) {
   await serverHandler(req, res);
 
   // As a sneaky trick, we require the Honeycomb trace to finish before the
@@ -22,4 +22,6 @@ export default async (req, res) => {
   // https://vercel.com/docs/platform/limits#streaming-responses
   await beeline.flush();
   res.end();
-};
+}
+
+export default handle;
