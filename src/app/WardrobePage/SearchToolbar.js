@@ -208,7 +208,6 @@ function SearchToolbar({
       }}
       getSuggestionValue={(zl) => zl}
       alwaysRenderSuggestions={true}
-      highlightFirstSuggestion={true}
       renderSuggestion={renderSuggestion}
       renderSuggestionsContainer={renderSuggestionsContainer}
       renderInputComponent={(inputProps) => (
@@ -292,6 +291,14 @@ function SearchToolbar({
             }
             onChange(emptySearchQuery);
             e.target.blur();
+          } else if (e.key === "Enter") {
+            // Pressing Enter doesn't actually submit because it's all on
+            // debounce, but it can be a declaration that the query is done, so
+            // filter suggestions should go away!
+            if (suggestions.length > 0) {
+              setSuggestions([]);
+              return;
+            }
           } else if (e.key === "ArrowDown") {
             if (suggestions.length > 0) {
               return;
