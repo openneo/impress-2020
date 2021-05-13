@@ -378,7 +378,7 @@ function useSearchResults(query, outfitState) {
   // Smooth over the data a bit, so that we can use key fields with confidence!
   const result = data?.itemSearch;
   const resultValue = result?.query;
-  const zoneStr = filterToZoneIds.sort().join(",");
+  const zoneStr = [...filterToZoneIds].sort().join(",");
   const resultZoneStr = (result?.zones || [])
     .map((z) => z.id)
     .sort()
