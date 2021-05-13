@@ -94,9 +94,9 @@ async function getDistinctPetStates(db) {
 async function handle(req, res) {
   const buffer = await getValidPetPoses();
 
-  // Cache for 1 hour. This will also cache at Vercel's CDN, so the function
-  // shouldn't even get run very often at all!
-  res.setHeader("Cache-Control", "max-age=3600");
+  // Cache for 1 hour, and allow the CDN cache to serve copies up to an
+  // additional week older while re-fetching in the background.
+  res.setHeader("Cache-Control", "max-age=3600, stale-while-revalidate=604800");
 
   res.status(200).send(buffer);
 }
