@@ -24,6 +24,7 @@ const typeDefs = gql`
 
 const resolvers = {
   Pet: {
+    id: ({ name }) => name,
     species: ({ customPetData }) => ({
       id: String(customPetData.custom_pet.species_id),
     }),
