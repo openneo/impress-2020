@@ -95,17 +95,19 @@ function SquareItemCardLayout({ name, thumbnailImage, minHeightNumLines = 2 }) {
 function ItemThumbnail({ item }) {
   const mdRadiusValue = useToken("radii", "md");
 
+  const colorScheme = item.isNc ? "purple" : item.isPb ? "orange" : "gray";
+
   const badgeBackground = useColorModeValue(
-    item.isNc ? "purple.100" : "gray.100",
-    item.isNc ? "purple.500" : "gray.500"
+    `${colorScheme}.100`,
+    `${colorScheme}.500`
   );
   const badgeColor = useColorModeValue(
-    item.isNc ? "purple.500" : "gray.500",
-    item.isNc ? "purple.100" : "gray.100"
+    `${colorScheme}.500`,
+    `${colorScheme}.100`
   );
   const thumbnailShadowColor = useColorModeValue(
-    item.isNc ? "purple.200" : "gray.200",
-    item.isNc ? "purple.600" : "gray.600"
+    `${colorScheme}.200`,
+    `${colorScheme}.600`
   );
 
   const [
@@ -158,7 +160,7 @@ function ItemThumbnail({ item }) {
                 color: ${badgeColorValue};
               `}
             >
-              {item.isNc ? "NC" : "NP"}
+              {item.isNc ? "NC" : item.isPb ? "PB" : "NP"}
             </div>
           )}
         </div>

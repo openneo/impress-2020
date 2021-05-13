@@ -145,6 +145,7 @@ function ItemSearchPageResults({ query: latestQuery, offset }) {
             name
             thumbnailUrl
             isNc
+            isPb
           }
         }
       }

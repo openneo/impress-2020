@@ -380,6 +380,7 @@ function NewItemsSectionContent() {
           name
           thumbnailUrl
           isNc
+          isPb
         }
       }
     `
