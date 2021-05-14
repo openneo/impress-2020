@@ -19,7 +19,7 @@ import {
 import { loadable } from "../util";
 
 import { petAppearanceFragment } from "../components/useOutfitAppearance";
-import getVisibleLayers from "../components/getVisibleLayers";
+import getVisibleLayers from "../../shared/getVisibleLayers";
 import { OutfitLayers } from "../components/OutfitPreview";
 import SupportOnly from "./support/SupportOnly";
 import useSupport from "./support/useSupport";

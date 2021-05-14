@@ -4,7 +4,7 @@ import { useQuery } from "@apollo/client";
 import getVisibleLayers, {
   itemAppearanceFragmentForGetVisibleLayers,
   petAppearanceFragmentForGetVisibleLayers,
-} from "./getVisibleLayers";
+} from "../../shared/getVisibleLayers";
 
 /**
  * useOutfitAppearance downloads the outfit's appearance data, and returns

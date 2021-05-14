@@ -5,7 +5,7 @@ import gql from "graphql-tag";
 import getVisibleLayers, {
   petAppearanceFragmentForGetVisibleLayers,
   itemAppearanceFragmentForGetVisibleLayers,
-} from "./getVisibleLayers";
+} from "../../shared/getVisibleLayers";
 
 function OutfitThumbnail({ petAppearance, itemAppearances, ...props }) {
   return (
