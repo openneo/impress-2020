@@ -2,11 +2,10 @@ import React from "react";
 import { Box } from "@chakra-ui/react";
 import gql from "graphql-tag";
 
-import {
-  getVisibleLayers,
+import getVisibleLayers, {
   petAppearanceFragmentForGetVisibleLayers,
   itemAppearanceFragmentForGetVisibleLayers,
-} from "./useOutfitAppearance";
+} from "./getVisibleLayers";
 
 function OutfitThumbnail({ petAppearance, itemAppearances, ...props }) {
   return (

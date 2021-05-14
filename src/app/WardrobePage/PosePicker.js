@@ -18,10 +18,8 @@ import {
 } from "@chakra-ui/react";
 import { loadable } from "../util";
 
-import {
-  getVisibleLayers,
-  petAppearanceFragment,
-} from "../components/useOutfitAppearance";
+import { petAppearanceFragment } from "../components/useOutfitAppearance";
+import getVisibleLayers from "../components/getVisibleLayers";
 import { OutfitLayers } from "../components/OutfitPreview";
 import SupportOnly from "./support/SupportOnly";
 import useSupport from "./support/useSupport";
