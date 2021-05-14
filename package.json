@@ -89,10 +89,12 @@
         }
       ],
       "import/first": "off",
-      "no-unused-vars": [
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": [
         "warn",
         {
-          "varsIgnorePattern": "^unused"
+          "varsIgnorePattern": "^unused",
+          "argsIgnorePattern": "^_+$|^e$"
         }
       ]
     }
@@ -131,6 +133,7 @@
     "react-is": "^16.13.1",
     "ts-node": "^9.1.1",
     "typescript-cached-transpile": "^0.0.6",
+    "typescript-eslint": "^0.0.1-alpha.0",
     "vercel": "^21.2.3"
   }
 }
