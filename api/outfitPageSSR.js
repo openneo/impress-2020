@@ -23,8 +23,6 @@ const beeline = require("honeycomb-beeline")({
 
 import escapeHtml from "escape-html";
 import fetch from "node-fetch";
-import { promises as fs } from "fs";
-import * as path from "path";
 
 import connectToDb from "../src/server/db";
 import { normalizeRow } from "../src/server/util";
@@ -112,22 +110,17 @@ async function loadOutfitData(id) {
 let cachedIndexPageHtml = null;
 async function loadIndexPageHtml() {
   if (cachedIndexPageHtml == null) {
-    if (process.env.NODE_ENV === "development") {
-      // In development, request a built version of index.html from the dev
-      // server, by visiting `/`.
-      const htmlFromDevServer = await fetch(
-        "http://localhost:3000/"
-      ).then((res) => res.text());
-      cachedIndexPageHtml = htmlFromDevServer;
-    } else {
-      // In production, read the build version of index.html from the local
-      // `build` directory.
-      const htmlFromFile = await fs.readFile(
-        path.join(__dirname, "../build/index.html"),
-        "utf8"
-      );
-      cachedIndexPageHtml = htmlFromFile;
-    }
+    // Request the same built copy of index.html that we're already serving at
+    // our homepage.
+    const homepageUrl = process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}/`
+      : process.env.NODE_ENV === "development"
+      ? "http://localhost:3000/"
+      : "https://impress-2020.openneo.net/";
+    const liveIndexPageHtml = await fetch(homepageUrl).then((res) =>
+      res.text()
+    );
+    cachedIndexPageHtml = liveIndexPageHtml;
   }
 
   return cachedIndexPageHtml;
