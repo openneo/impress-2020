@@ -29,6 +29,7 @@
     "canvas": "^2.6.1",
     "dataloader": "^2.0.0",
     "dompurify": "^2.2.0",
+    "escape-html": "^1.0.3",
     "framer-motion": "^4.1.11",
     "graphql": "^15.5.0",
     "honeycomb-beeline": "^2.2.0",
