@@ -76,7 +76,7 @@ async function handle(req, res) {
   const outfitUrl = `https://impress-2020.openneo.net/outfits/${encodeURIComponent(
     outfit.id
   )}`;
-  const imageUrl = `https://impress-2020.openneo.net/api/outfitImage?size=300&id=${encodeURIComponent(
+  const imageUrl = `https://impress-2020.openneo.net/api/outfitImage?size=600&id=${encodeURIComponent(
     outfit.id
   )}&updatedAt=${updatedAtTimestamp}`;
   const metaTags = `
