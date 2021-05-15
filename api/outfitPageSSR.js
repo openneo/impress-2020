@@ -27,12 +27,6 @@ import fetch from "node-fetch";
 import connectToDb from "../src/server/db";
 import { normalizeRow } from "../src/server/util";
 
-const DTI_HOST = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : process.env.NODE_ENV === "development"
-  ? "http://localhost:3000"
-  : "https://impress-2020.openneo.net";
-
 async function handle(req, res) {
   // Load index.html as our initial page content. If this fails, it probably
   // means something is misconfigured in a big way; we don't have a great way
@@ -82,8 +76,10 @@ async function handle(req, res) {
   const updatedAtTimestamp = Math.floor(
     new Date(outfit.updatedAt).getTime() / 1000
   );
-  const outfitUrl = `${DTI_HOST}/outfits/${encodeURIComponent(outfit.id)}`;
-  const imageUrl = `${DTI_HOST}/api/outfitImage?size=600&id=${encodeURIComponent(
+  const outfitUrl = `https://impress-2020.openneo.net/outfits/${encodeURIComponent(
+    outfit.id
+  )}`;
+  const imageUrl = `https://impress-2020.openneo.net/api/outfitImage?size=600&id=${encodeURIComponent(
     outfit.id
   )}&updatedAt=${updatedAtTimestamp}`;
   const metaTags = `
@@ -116,7 +112,12 @@ async function loadIndexPageHtml() {
   if (cachedIndexPageHtml == null) {
     // Request the same built copy of index.html that we're already serving at
     // our homepage.
-    const liveIndexPageHtml = await fetch(`${DTI_HOST}/`).then((res) =>
+    const homepageUrl = process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}/`
+      : process.env.NODE_ENV === "development"
+      ? "http://localhost:3000/"
+      : "https://impress-2020.openneo.net/";
+    const liveIndexPageHtml = await fetch(homepageUrl).then((res) =>
       res.text()
     );
     cachedIndexPageHtml = liveIndexPageHtml;
