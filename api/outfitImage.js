@@ -118,10 +118,11 @@ async function handle(req, res) {
   return res.send(image);
 }
 
-const GRAPHQL_ENDPOINT =
-  process.env.NODE_ENV === "development"
-    ? "http://localhost:3000/api/graphql"
-    : "https://impress-2020.openneo.net/api/graphql";
+const GRAPHQL_ENDPOINT = process.env.VERCEL_URL
+  ? `https://${process.env.VERCEL_URL}/api/graphql`
+  : process.env.NODE_ENV === "development"
+  ? "http://localhost:3000/api/graphql"
+  : "https://impress-2020.openneo.net/api/graphql";
 
 // NOTE: Unlike in-app views, we only load PNGs here. We expect this to
 //       generally perform better, and be pretty reliable now that TNT is
