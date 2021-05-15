@@ -2,7 +2,8 @@
  * /api/outfitImage returns an image of an outfit!
  *
  * Parameters:
- *   - size: Must be 150 or 300, to indicate the image size you'd like back.
+ *   - size: Must be "150", "300", or "600", to indicate the image size you'd
+ *           like back. (For example, "150" will return a 150x150 image.)
  *   - layerUrls: A comma-separated list of URLs to render, in order from
  *                bottom to top. This is a sorta "independent" render mode,
  *                not bound to any saved outfit. The URLs must match a known
@@ -41,14 +42,14 @@ import getVisibleLayers, {
 } from "../src/shared/getVisibleLayers";
 
 const VALID_LAYER_URLS = [
-  /^https:\/\/(impress-asset-images\.openneo\.net|impress-asset-images\.s3\.amazonaws\.com)\/(biology|object)\/[0-9]{3}\/[0-9]{3}\/[0-9]{3}\/[0-9]+\/(150|300)x(150|300)\.png(\?[a-zA-Z0-9_-]+)?$/,
+  /^https:\/\/(impress-asset-images\.openneo\.net|impress-asset-images\.s3\.amazonaws\.com)\/(biology|object)\/[0-9]{3}\/[0-9]{3}\/[0-9]{3}\/[0-9]+\/(150|300|600)x(150|300|600)\.png(\?[a-zA-Z0-9_-]+)?$/,
   /^http:\/\/images\.neopets\.com\/cp\/(bio|object|items)\/data\/[0-9]{3}\/[0-9]{3}\/[0-9]{3}\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+\.(svg|png)(\?.*)?$/,
 ];
 
 async function handle(req, res) {
   const size = parseInt(req.query.size);
-  if (size !== 150 && size !== 300) {
-    return reject(res, `Size must be 150 or 300`);
+  if (size !== 150 && size !== 300 && size !== 600) {
+    return reject(res, `Size must be 150, 300, or 600`);
   }
 
   let layerUrls;
