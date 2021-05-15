@@ -20,6 +20,7 @@ const beeline = require("honeycomb-beeline")({
 import escapeHtml from "escape-html";
 import fetch from "node-fetch";
 import { promises as fs } from "fs";
+import * as path from "path";
 
 import connectToDb from "../src/server/db";
 import { normalizeRow } from "../src/server/util";
@@ -108,12 +109,19 @@ let cachedIndexPageHtml = null;
 async function loadIndexPageHtml() {
   if (cachedIndexPageHtml == null) {
     if (process.env.NODE_ENV === "development") {
+      // In development, request a built version of index.html from the dev
+      // server, by visiting `/`.
       const htmlFromDevServer = await fetch(
         "http://localhost:3000/"
       ).then((res) => res.text());
       cachedIndexPageHtml = htmlFromDevServer;
     } else {
-      const htmlFromFile = await fs.readFile("../build/index.html", "utf8");
+      // In production, read the build version of index.html from the local
+      // `build` directory.
+      const htmlFromFile = await fs.readFile(
+        path.join(__dirname, "../build/index.html"),
+        "utf8"
+      );
       cachedIndexPageHtml = htmlFromFile;
     }
   }
