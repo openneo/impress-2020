@@ -5,6 +5,10 @@
  *
  * The route is configured in vercel.json, at the project root.
  *
+ * To be honest, we probably should have built Impress 2020 on Next.js, and
+ * then we'd be getting realistic server-side rendering across practically the
+ * whole app very cheaply. But this is a good hack for what we have!
+ *
  * TODO: We could add the basic outfit page layout and image preview, to use
  *       SSR to decrease time-to-first-content for the end-user, too…
  */
