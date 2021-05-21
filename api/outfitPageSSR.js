@@ -80,7 +80,7 @@ async function handle(req, res) {
     `https://impress-2020.openneo.net/outfits` +
     `/${encodeURIComponent(outfit.id)}`;
   const imageUrl =
-    `https://impress-2020.openneo.net/outfits` +
+    `https://impress-outfit-images.openneo.net/outfits` +
     `/${encodeURIComponent(outfit.id)}` +
     `/v/${encodeURIComponent(updatedAtTimestamp)}` +
     `/600.png`;
