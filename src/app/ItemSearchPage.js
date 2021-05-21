@@ -1,8 +1,8 @@
 import React from "react";
-import { Box, Button, Flex, Wrap, WrapItem } from "@chakra-ui/react";
+import { Box, Wrap, WrapItem } from "@chakra-ui/react";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
-import { Link, useHistory, useLocation, useParams } from "react-router-dom";
+import { useHistory, useLocation, useParams } from "react-router-dom";
 
 import SearchToolbar, {
   emptySearchQuery,
@@ -12,6 +12,7 @@ import SquareItemCard, {
   SquareItemCardSkeleton,
 } from "./components/SquareItemCard";
 import { Delay, ErrorMessage, useCommonStyles, useDebounce } from "./util";
+import PaginationToolbar from "./components/PaginationToolbar";
 
 function ItemSearchPage() {
   const [query, offset, setQuery] = useSearchQueryInUrl();
@@ -170,11 +171,11 @@ function ItemSearchPageResults({ query: latestQuery, offset }) {
   if (loading) {
     return (
       <Box>
-        <ItemSearchPagePagination isLoading marginBottom="6" />
+        <PaginationToolbar isLoading marginBottom="6" />
         <Delay>
           <ItemSearchPageResultsLoading />
         </Delay>
-        <ItemSearchPagePagination isLoading marginTop="4" />
+        <PaginationToolbar isLoading marginTop="4" />
       </Box>
     );
   }
@@ -202,8 +203,8 @@ function ItemSearchPageResults({ query: latestQuery, offset }) {
 
   return (
     <Box>
-      <ItemSearchPagePagination
-        numTotalItems={data.itemSearch.numTotalItems}
+      <PaginationToolbar
+        totalCount={data.itemSearch.numTotalItems}
         marginBottom="6"
       />
       <Wrap justify="center" spacing="4">
@@ -213,51 +214,11 @@ function ItemSearchPageResults({ query: latestQuery, offset }) {
           </WrapItem>
         ))}
       </Wrap>
-      <ItemSearchPagePagination
-        numTotalItems={data.itemSearch.numTotalItems}
+      <PaginationToolbar
+        totalCount={data.itemSearch.numTotalItems}
         marginTop="4"
       />
     </Box>
-  );
-}
-
-function ItemSearchPagePagination({ isLoading, numTotalItems, ...props }) {
-  const { search } = useLocation();
-
-  const currentOffset =
-    parseInt(new URLSearchParams(search).get("offset")) || 0;
-
-  const prevPageSearchParams = new URLSearchParams(search);
-  const prevPageOffset = currentOffset - 30;
-  prevPageSearchParams.set("offset", prevPageOffset);
-  const prevPageUrl = "?" + prevPageSearchParams.toString();
-  const prevPageIsDisabled = isLoading || prevPageOffset < 0;
-
-  const nextPageSearchParams = new URLSearchParams(search);
-  const nextPageOffset = currentOffset + 30;
-  nextPageSearchParams.set("offset", nextPageOffset);
-  const nextPageUrl = "?" + nextPageSearchParams.toString();
-  const nextPageIsDisabled = isLoading || nextPageOffset >= numTotalItems;
-
-  return (
-    <Flex justify="space-between" {...props}>
-      <Button
-        as={prevPageIsDisabled ? "button" : Link}
-        to={prevPageIsDisabled ? undefined : prevPageUrl}
-        _disabled={{ cursor: isLoading ? "wait" : "not-allowed", opacity: 0.4 }}
-        isDisabled={prevPageIsDisabled}
-      >
-        ← Prev
-      </Button>
-      <Button
-        as={nextPageIsDisabled ? "button" : Link}
-        to={nextPageIsDisabled ? undefined : nextPageUrl}
-        _disabled={{ cursor: isLoading ? "wait" : "not-allowed", opacity: 0.4 }}
-        isDisabled={nextPageIsDisabled}
-      >
-        Next →
-      </Button>
-    </Flex>
   );
 }
 
