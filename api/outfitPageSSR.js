@@ -76,12 +76,14 @@ async function handle(req, res) {
   const updatedAtTimestamp = Math.floor(
     new Date(outfit.updatedAt).getTime() / 1000
   );
-  const outfitUrl = `https://impress-2020.openneo.net/outfits/${encodeURIComponent(
-    outfit.id
-  )}`;
-  const imageUrl = `https://impress-2020.openneo.net/api/outfitImage?size=600&id=${encodeURIComponent(
-    outfit.id
-  )}&updatedAt=${updatedAtTimestamp}`;
+  const outfitUrl =
+    `https://impress-2020.openneo.net/outfits` +
+    `/${encodeURIComponent(outfit.id)}`;
+  const imageUrl =
+    `https://impress-2020.openneo.net/outfits` +
+    `/${encodeURIComponent(outfit.id)}` +
+    `/v/${encodeURIComponent(updatedAtTimestamp)}` +
+    `/600.png`;
   const metaTags = `
     <meta property="og:title" content="${escapeHtml(outfit.name)}">
     <meta property="og:type" content="website">
