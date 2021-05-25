@@ -392,7 +392,7 @@ export function MajorErrorMessage({ error }) {
     <Flex justify="center" marginTop="8">
       <Grid
         templateAreas='"icon title" "icon description" "icon details"'
-        templateColumns="auto 1fr"
+        templateColumns="auto minmax(0, 1fr)"
         maxWidth="500px"
         marginX="8"
         columnGap="4"
