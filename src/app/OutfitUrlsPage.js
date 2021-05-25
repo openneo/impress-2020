@@ -389,12 +389,14 @@ function BulkImageConverter() {
           />
           <Box gridArea="status" textAlign="right" justifySelf="end">
             {loading ? (
-              <Flex alignItems="center" opacity="0.8">
-                <Spinner size="xs" marginRight="1.5" />
-                <Box fontSize="sm">
-                  Found {outfitIds.length} outfit images, converting…
-                </Box>
-              </Flex>
+              <Delay ms={1000}>
+                <Flex alignItems="center" opacity="0.8">
+                  <Spinner size="xs" marginRight="1.5" />
+                  <Box fontSize="sm">
+                    Found {outfitIds.length} outfit images, converting…
+                  </Box>
+                </Flex>
+              </Delay>
             ) : error ? (
               <ErrorMessage fontSize="sm">
                 Error loading outfits. Try again?
