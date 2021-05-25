@@ -191,21 +191,15 @@ function OutfitControls({
               </Flex>
               <Box flex="0 0 auto">
                 <DarkMode>
-                  {
-                    <SpeciesColorPicker
-                      speciesId={outfitState.speciesId}
-                      colorId={outfitState.colorId}
-                      idealPose={outfitState.pose}
-                      onChange={onSpeciesColorChange}
-                      stateMustAlwaysBeValid
-                      speciesPickerProps={{
-                        "data-test-id": "wardrobe-species-picker",
-                      }}
-                      colorPickerProps={{
-                        "data-test-id": "wardrobe-color-picker",
-                      }}
-                    />
-                  }
+                  <SpeciesColorPicker
+                    speciesId={outfitState.speciesId}
+                    colorId={outfitState.colorId}
+                    idealPose={outfitState.pose}
+                    onChange={onSpeciesColorChange}
+                    stateMustAlwaysBeValid
+                    speciesTestId="wardrobe-species-picker"
+                    colorTestId="wardrobe-color-picker"
+                  />
                 </DarkMode>
               </Box>
               <Flex flex="1 1 0" align="center" pl="2">
