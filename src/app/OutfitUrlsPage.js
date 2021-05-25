@@ -272,31 +272,45 @@ function BulkImageConverter() {
         <Textarea
           fontFamily="monospace"
           fontSize="xs"
+          placeholder={`<table> <!-- Example input, paste your HTML here! -->
+  <tr>
+    <td><img src="https://openneo-uploads.s3.amazonaws.com/outfits/123/456/700/preview.png"></td>
+    <td><img src="https://openneo-uploads.s3.amazonaws.com/outfits/123/456/701/preview.png"></td>
+    <td><img src="https://openneo-uploads.s3.amazonaws.com/outfits/123/456/702/preview.png"></td>
+    ...`}
           value={inputHtml}
           onChange={(e) => setInputHtml(e.target.value)}
         />
       </FormControl>
       <FormControl gridArea="output">
-        <Flex alignItems="center">
-          <FormLabel fontSize="sm">
+        <Flex alignItems="center" marginBottom="2">
+          <FormLabel fontSize="sm" margin="0">
             Then, use this new HTML for your page instead:
           </FormLabel>
-          <Box flex="1 0 0" />
-          <Button size="xs" onClick={onCopy} marginLeft="4">
-            <Grid templateAreas="the-area">
-              <Box gridArea="the-area">{hasCopied ? "Copied!" : "Copy"}</Box>
-              {/* This invisible "Copied!" enforces a min size for the button
-               * content, so that the button never changes size. */}
-              <Box gridArea="the-area" aria-hidden visibility="hidden">
-                Copied!
-              </Box>
-            </Grid>
-          </Button>
+          <Box width="2" />
+          {outputHtml && (
+            <Button size="xs" onClick={onCopy}>
+              <Grid templateAreas="the-area">
+                <Box gridArea="the-area">{hasCopied ? "Copied!" : "Copy"}</Box>
+                {/* This invisible "Copied!" enforces a min size for the button
+                 * content, so that the button never changes size. */}
+                <Box gridArea="the-area" aria-hidden visibility="hidden">
+                  Copied!
+                </Box>
+              </Grid>
+            </Button>
+          )}
         </Flex>
         <Textarea
           isReadOnly
           fontFamily="monospace"
           fontSize="xs"
+          placeholder={`<table> <!-- Example output, your new HTML will appear here! -->
+  <tr>
+    <td><img src="https://impress-outfit-images.openneo.net/outfits/123456700/v/1234/600.png"></td>
+    <td><img src="https://impress-outfit-images.openneo.net/outfits/123456701/v/5678/600.png"></td>
+    <td><img src="https://impress-outfit-images.openneo.net/outfits/123456702/v/9012/600.png"></td>
+    ...`}
           value={outputHtml}
         />
       </FormControl>
