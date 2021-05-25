@@ -94,9 +94,22 @@ function OutfitUrlsPage() {
             $20/month could be better spent another way 😖
           </p>
           <p>
+            We haven't removed these images from Amazon yet, so old image URLs
+            will continue to work until <strong>at least July 1, 2021</strong>!
+            Then, we'll replace the old images with a short message and a link
+            to this page, so it's easy to learn what happened and fix things up.
+          </p>
+          <p>
             I'm truly sorry for breaking some of the lookups and petpages out
             there, and I hope this tool helps folks migrate to the new version
             quickly and easily! 🙏
+          </p>
+          <p>
+            Thanks again everyone for your constant support, we appreciate you
+            so so much!! 💖 And please let me know at{" "}
+            <a href="mailto:matchu@openneo.net">matchu@openneo.net</a> with any
+            thoughts you have—it's always great to hear from you, and it always
+            make things better 💕
           </p>
         </section>
       </VStack>
