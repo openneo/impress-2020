@@ -5,6 +5,7 @@ import {
   Box,
   Button,
   Center,
+  Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
@@ -17,6 +18,7 @@ import {
   TabPanel,
   TabPanels,
   Tabs,
+  Textarea,
   useBreakpointValue,
   useClipboard,
   useColorModeValue,
@@ -249,7 +251,57 @@ function SingleImageConverter() {
 }
 
 function BulkImageConverter() {
-  return <Box>TODO: Bulk image converter</Box>;
+  const [inputHtml, setInputHtml] = React.useState("");
+
+  const outputHtml = inputHtml
+    ? "<!-- TODO: Not implemented yet! -->\n" + inputHtml
+    : "";
+
+  const { onCopy, hasCopied } = useClipboard(outputHtml);
+
+  return (
+    <Grid
+      templateAreas={`
+        "input"
+        "output"
+      `}
+      rowGap="4"
+    >
+      <FormControl gridArea="input">
+        <FormLabel fontWeight="bold">Enter your lookup/petpage HTML</FormLabel>
+        <Textarea
+          fontFamily="monospace"
+          fontSize="xs"
+          value={inputHtml}
+          onChange={(e) => setInputHtml(e.target.value)}
+        />
+      </FormControl>
+      <FormControl gridArea="output">
+        <Flex alignItems="center">
+          <FormLabel fontSize="sm">
+            Then, use this new HTML for your page instead:
+          </FormLabel>
+          <Box flex="1 0 0" />
+          <Button size="xs" onClick={onCopy} marginLeft="4">
+            <Grid templateAreas="the-area">
+              <Box gridArea="the-area">{hasCopied ? "Copied!" : "Copy"}</Box>
+              {/* This invisible "Copied!" enforces a min size for the button
+               * content, so that the button never changes size. */}
+              <Box gridArea="the-area" aria-hidden visibility="hidden">
+                Copied!
+              </Box>
+            </Grid>
+          </Button>
+        </Flex>
+        <Textarea
+          isReadOnly
+          fontFamily="monospace"
+          fontSize="xs"
+          value={outputHtml}
+        />
+      </FormControl>
+    </Grid>
+  );
 }
 
 const S3_OUTFIT_URL_PATTERN = /^https?:\/\/openneo-uploads\.s3\.amazonaws\.com\/outfits\/([0-9]{3})\/([0-9]{3})\/([0-9]{3})\/(preview|medium_preview|small_preview)\.png$/;
