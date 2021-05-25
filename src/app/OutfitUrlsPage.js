@@ -235,6 +235,7 @@ function SingleImageConverter() {
         gridArea="preview"
         width={{ base: "100%", md: "150px" }}
         maxWidth={{ base: "300px", md: "150px" }}
+        maxHeight={{ base: "300px", md: "150px" }}
         ratio={1}
         background={previewBackground}
         borderRadius="md"
