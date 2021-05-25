@@ -156,7 +156,7 @@ function SingleImageConverter() {
     }
   );
 
-  const imageUrl = data?.outfit?.imageUrl;
+  const imageUrl = data?.outfit?.imageUrl || "";
 
   const previewBackground = useColorModeValue("gray.200", "whiteAlpha.300");
   const spinnerSize = useBreakpointValue({ base: "md", md: "sm" });
