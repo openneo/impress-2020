@@ -31,6 +31,7 @@ const typeDefs = gql`
 
   extend type Query {
     outfit(id: ID!): Outfit
+    outfits(ids: [ID!]!): [Outfit]!
   }
 
   extend type Mutation {
@@ -136,6 +137,11 @@ const resolvers = {
       }
 
       return { id };
+    },
+
+    outfits: async (_, { ids }, { outfitLoader }) => {
+      const outfits = await outfitLoader.loadMany(ids);
+      return outfits.map((outfit) => (outfit ? { id: outfit.id } : null));
     },
   },
 
