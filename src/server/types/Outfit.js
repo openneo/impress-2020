@@ -2,6 +2,12 @@ import { gql } from "apollo-server";
 import { getPoseFromPetState } from "../util";
 
 const typeDefs = gql`
+  enum OutfitImageSize {
+    SIZE_600
+    SIZE_300
+    SIZE_150
+  }
+
   type Outfit {
     id: ID!
     name: String
@@ -19,6 +25,8 @@ const typeDefs = gql`
     # This is a convenience field: you could query this from the combination of
     # petAppearance and wornItems, but this gets you it in one shot!
     itemAppearances: [ItemAppearance!]!
+
+    imageUrl(size: OutfitImageSize): String!
   }
 
   extend type Query {
@@ -102,6 +110,21 @@ const resolvers = {
     updatedAt: async ({ id }, _, { outfitLoader }) => {
       const outfit = await outfitLoader.load(id);
       return outfit.updatedAt.toISOString();
+    },
+    imageUrl: async ({ id }, { size = "SIZE_600" }, { outfitLoader }) => {
+      const outfit = await outfitLoader.load(id);
+
+      const updatedAtTimestamp = Math.floor(
+        new Date(outfit.updatedAt).getTime() / 1000
+      );
+      const sizeNum = size.split("_")[1];
+
+      return (
+        `https://impress-outfit-images.openneo.net/outfits` +
+        `/${encodeURIComponent(outfit.id)}` +
+        `/v/${encodeURIComponent(updatedAtTimestamp)}` +
+        `/${sizeNum}.png`
+      );
     },
   },
 
