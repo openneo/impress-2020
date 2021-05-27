@@ -18,7 +18,6 @@ import {
   PopoverBody,
   PopoverContent,
   PopoverTrigger,
-  Spinner,
   Tab,
   TabList,
   TabPanel,
@@ -30,8 +29,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 
-import { Delay, ErrorMessage, Heading1, Heading2, usePageTitle } from "./util";
-import { gql, useQuery } from "@apollo/client";
+import { ErrorMessage, Heading1, Heading2, usePageTitle } from "./util";
 import { CheckIcon, WarningIcon } from "@chakra-ui/icons";
 
 function OutfitUrlsPage() {
@@ -239,44 +237,13 @@ function SingleImageConverter() {
 function BulkImageConverter() {
   const [inputHtml, setInputHtml] = React.useState("");
 
-  const parsedUrls = parseManyS3OutfitUrlsFromHtml(inputHtml);
-  const outfitIds = parsedUrls.map((pu) => pu.outfitId);
-
-  // TODO: Do this query in batches for large pages?
-  const { loading, error, data } = useQuery(
-    gql`
-      query OutfitUrlsBulkImageConverter($outfitIds: [ID!]!) {
-        outfits(ids: $outfitIds) {
-          id
-          # Rather than send requests for different sizes separately, I'm just
-          # requesting them all and having the client choose, to simplify the
-          # query. gzip should compress it very efficiently!
-          imageUrl600: imageUrl(size: SIZE_600)
-          imageUrl300: imageUrl(size: SIZE_300)
-          imageUrl150: imageUrl(size: SIZE_150)
-        }
-      }
-    `,
-    {
-      variables: { outfitIds },
-      skip: outfitIds.length === 0,
-      onError: (e) => console.error(e),
-    }
-  );
-
-  const { outputHtml, numReplacements, replacementErrors } = React.useMemo(
+  const { outputHtml, numReplacements } = React.useMemo(
     () =>
-      inputHtml && data?.outfits
-        ? replaceS3OutfitUrlsInHtml(inputHtml, data.outfits)
-        : { outputHtml: "", numReplacements: 0, replacementErrors: [] },
-    [inputHtml, data?.outfits]
+      inputHtml
+        ? replaceS3OutfitUrlsInHtml(inputHtml)
+        : { outputHtml: "", numReplacements: 0 },
+    [inputHtml]
   );
-
-  React.useEffect(() => {
-    for (const replacementError of replacementErrors) {
-      console.error("Error replacing outfit URLs in HTML:", replacementError);
-    }
-  }, [replacementErrors]);
 
   const { onCopy, hasCopied } = useClipboard(outputHtml);
 
@@ -353,20 +320,7 @@ function BulkImageConverter() {
             value={outputHtml}
           />
           <Box gridArea="status" textAlign="right" justifySelf="end">
-            {loading ? (
-              <Delay ms={1000}>
-                <Flex alignItems="center" opacity="0.8">
-                  <Spinner size="xs" marginRight="1.5" />
-                  <Box fontSize="sm">
-                    Found {outfitIds.length} outfit images, converting…
-                  </Box>
-                </Flex>
-              </Delay>
-            ) : error ? (
-              <ErrorMessage fontSize="sm">
-                Error loading outfits. Try again?
-              </ErrorMessage>
-            ) : inputHtml && !outputHtml && outfitIds.length === 0 ? (
+            {outputHtml && numReplacements === 0 ? (
               <Popover trigger="hover">
                 <PopoverTrigger>
                   <Flex
@@ -399,52 +353,6 @@ function BulkImageConverter() {
                       The new format is:
                       <br />
                       https://impress-outfit-images.openneo.net/outfits/123456789/v/1020304050/600.png
-                    </Box>
-                  </PopoverBody>
-                </PopoverContent>
-              </Popover>
-            ) : outputHtml && replacementErrors.length > 0 ? (
-              <Popover trigger="hover">
-                <PopoverTrigger>
-                  <Flex
-                    as={
-                      replacementErrors.length > numReplacements
-                        ? ErrorMessage
-                        : undefined
-                    }
-                    alignItems="center"
-                    fontSize="sm"
-                    tabIndex="0"
-                    borderRadius="md"
-                    paddingX="2"
-                    marginRight="-2"
-                    _focus={{ outline: "0", boxShadow: "outline" }}
-                  >
-                    <WarningIcon marginRight="1.5" />
-                    <Box>
-                      Converted {numReplacements} outfit images, with{" "}
-                      {replacementErrors.length} errors
-                    </Box>
-                  </Flex>
-                </PopoverTrigger>
-                <PopoverContent width="50ch">
-                  <PopoverArrow />
-                  <PopoverBody>
-                    <Box fontSize="xs" textAlign="center">
-                      Errors are unusual at this point in the process. Sorry
-                      about this!
-                      <br />
-                      Sometimes this means the creator has deleted the outfit
-                      from DTI.
-                      <br />
-                      Email me at{" "}
-                      <a href="mailto:matchu@openneo.net">
-                        matchu@openneo.net
-                      </a>{" "}
-                      and I'll try to help!
-                      <br />
-                      We've left the {replacementErrors.length} erroring images
-                      unchanged for now.
                     </Box>
                   </PopoverBody>
                 </PopoverContent>
@@ -503,56 +411,16 @@ function convertS3OutfitUrl(url) {
   return `https://impress-outfit-images.openneo.net/outfits/${outfitId}/${size}.png`;
 }
 
-function parseManyS3OutfitUrlsFromHtml(html) {
-  const matches = html.match(S3_OUTFIT_URL_GLOBAL_PATTERN) || [];
-  return matches.map(parseS3OutfitUrl);
-}
-
-function replaceS3OutfitUrlsInHtml(html, outfits) {
-  const outfitsById = new Map();
-  for (const outfit of outfits) {
-    if (!outfit) {
-      continue;
-    }
-    outfitsById.set(outfit.id, outfit);
-  }
-
-  // Use the `replace` method to scan the HTML for matches, which will run this
-  // function on each match to decide what to replace it with. We'll count
-  // successes and log failures along the way!
+function replaceS3OutfitUrlsInHtml(html) {
+  // Use the `replace` method to scan the HTML for matches, and count the
+  // replacements as we go!
   let numReplacements = 0;
-  const replacementErrors = [];
   const outputHtml = html.replace(S3_OUTFIT_URL_GLOBAL_PATTERN, (match) => {
-    let newUrl;
-    try {
-      const { outfitId, size } = parseS3OutfitUrl(match);
-      const outfit = outfitsById.get(outfitId);
-      if (!outfit) {
-        throw new Error(`could not find outfit ${outfitId}`);
-      }
-
-      const sizeKey = `imageUrl` + size;
-
-      if (!(sizeKey in outfit)) {
-        throw new Error(
-          `outfit ${outfitId} has no image key ${sizeKey}: ${JSON.stringify(
-            outfit
-          )}`
-        );
-      }
-
-      newUrl = outfit[sizeKey];
-    } catch (e) {
-      e.message += ` (${match})`; // help us understand which URL failed!
-      replacementErrors.push(e);
-      return match;
-    }
-
     numReplacements++;
-    return newUrl;
+    return convertS3OutfitUrl(match);
   });
 
-  return { outputHtml, numReplacements, replacementErrors };
+  return { outputHtml, numReplacements };
 }
 
 export default OutfitUrlsPage;
