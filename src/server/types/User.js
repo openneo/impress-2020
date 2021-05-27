@@ -13,20 +13,26 @@ const typeDefs = gql`
     itemsTheyOwn: [Item!]!
     itemsTheyWant: [Item!]!
 
-    # These items represent potential trade matches. We use this as a preview
-    # in the trade list table.
+    """
+    These items represent potential trade matches. We use this as a preview
+    in the trade list table.
+    """
     itemsTheyOwnThatCurrentUserWants: [Item!]!
     itemsTheyWantThatCurrentUserOwns: [Item!]!
 
-    # When this user last updated any of their trade lists, as an ISO 8601
-    # timestamp.
+    """
+    When this user last updated any of their trade lists, as an ISO 8601
+    timestamp.
+    """
     lastTradeActivity: String!
 
-    # This user's outfits. Returns an empty list if the current user is not
-    # authorized to see them.
+    """
+    This user's outfits. Returns an empty list if the current user is not
+    authorized to see them.
+    """
     outfits: [Outfit!]!
 
-    # This user's email address. Requires the correct supportSecret to view.
+    "This user's email address. Requires the correct supportSecret to view."
     emailForSupportUsers(supportSecret: String!): String!
   }
 

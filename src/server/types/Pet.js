@@ -11,10 +11,14 @@ const typeDefs = gql`
     petAppearance: PetAppearance!
     wornItems: [Item!]!
 
-    species: Species! # to be deprecated? can use petAppearance? 🤔
-    color: Color! # to be deprecated? can use petAppearance? 🤔
-    pose: Pose! # to be deprecated? can use petAppearance? 🤔
-    items: [Item!]! # deprecated alias for wornItems
+    "to be deprecated? can use petAppearance? 🤔"
+    species: Species!
+    "to be deprecated? can use petAppearance? 🤔"
+    color: Color!
+    "to be deprecated? can use petAppearance? 🤔"
+    pose: Pose!
+    "deprecated alias for wornItems"
+    items: [Item!]!
   }
 
   extend type Query {

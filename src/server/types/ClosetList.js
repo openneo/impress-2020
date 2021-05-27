@@ -12,10 +12,15 @@ const typeDefs = gql`
     id: ID!
     name: String
 
-    # A user-customized description. May contain Markdown and limited HTML.
+    """
+    A user-customized description. May contain Markdown and limited HTML.
+    WARNING: If you're using this in an application, you MUST ensure that the
+             content is rendered safely! Do not render this as HTML unless you
+             are confident that you've sanitized it appropriately.
+    """
     description: String
 
-    # Whether this is a list of items they own, or items they want.
+    "Whether this is a list of items they own, or items they want."
     ownsOrWantsItems: OwnsOrWants!
 
     # Each user has a "default list" of items they own/want. When users click
@@ -30,8 +35,10 @@ const typeDefs = gql`
   }
 
   extend type Mutation {
-    # Edit the metadata of a closet list. Requires the current user to own the
-    # list, or for the correct supportSecret to be provided.
+    """
+    Edit the metadata of a closet list. Requires the current user to own the
+    list, or for the correct supportSecret to be provided.
+    """
     editClosetList(
       closetListId: ID!
       name: String!

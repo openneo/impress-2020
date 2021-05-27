@@ -15,101 +15,129 @@ const typeDefs = gql`
     thumbnailUrl: String!
     rarityIndex: Int!
 
-    # Whether this item comes from the NC Mall.
+    "Whether this item comes from the NC Mall."
     isNc: Boolean!
 
-    # Whether this item comes from a paintbrush.
+    "Whether this item comes from a paintbrush."
     isPb: Boolean!
 
-    # When this item was first added to DTI. ISO 8601 string, or null if the
-    # item was added so long ago that we don't have this field!
+    """
+    When this item was first added to DTI. ISO 8601 string, or null if the
+    item was added so long ago that we don't have this field!
+    """
     createdAt: String
 
-    # This item's capsule trade value as text, according to wakaguide.com, as a
-    # human-readable string. Will be null if the value is not known, or if
-    # there's an error connecting to the data source.
+    """
+    This item's capsule trade value as text, according to wakaguide.com, as a
+    human-readable string. Will be null if the value is not known, or if
+    there's an error connecting to the data source.
+    """
     wakaValueText: String @cacheControl(maxAge: ${oneHour})
 
     currentUserOwnsThis: Boolean! @cacheControl(scope: PRIVATE)
     currentUserWantsThis: Boolean! @cacheControl(scope: PRIVATE)
 
-    # How many users are offering/seeking this in their public trade lists.
-    # Excludes users that seem relatively inactive.
+    """
+    How many users are offering/seeking this in their public trade lists.
+    Excludes users that seem relatively inactive.
+    """
     numUsersOfferingThis: Int! @cacheControl(maxAge: ${oneHour})
     numUsersSeekingThis: Int! @cacheControl(maxAge: ${oneHour})
 
-    # The trades available for this item, grouped by offering vs seeking.
+    "The trades available for this item, grouped by offering vs seeking."
     tradesOffering: [ItemTrade!]! @cacheControl(maxAge: 0)
     tradesSeeking: [ItemTrade!]! @cacheControl(maxAge: 0)
 
-    # How this item appears on the given species/color combo. If it does not
-    # fit the pet, we'll return an empty ItemAppearance with no layers.
+    """
+    How this item appears on the given species/color combo. If it does not
+    fit the pet, we'll return an empty ItemAppearance with no layers.
+    """
     appearanceOn(speciesId: ID!, colorId: ID!): ItemAppearance! @cacheControl(maxAge: 1, staleWhileRevalidate: ${oneDay})
 
-    # This is set manually by Support users, when the pet is only for e.g.
-    # Maraquan pets, and our usual auto-detection isn't working. We provide
-    # this for the Support UI; it's not very helpful for most users, because it
-    # can be empty even if the item _has_ an auto-detected special color.
+    """
+    This is set manually by Support users, when the pet is only for e.g.
+    Maraquan pets, and our usual auto-detection isn't working. We provide
+    this for the Support UI; it's not very helpful for most users, because it
+    can be empty even if the item _has_ an auto-detected special color.
+    """
     manualSpecialColor: Color @cacheControl(maxAge: 0)
 
-    # This is set manually by Support users, when the item _seems_ to fit all
-    # pets the same because of its zones, but it actually doesn't - e.g.,
-    # the Dug Up Dirt Foreground actually looks different for each body. We
-    # provide this for the Support UI; it's not very helpful for most users,
-    # because it's only used at modeling time. This value does not change how
-    # layer data from this API should be interpreted!
+    """
+    This is set manually by Support users, when the item _seems_ to fit all
+    pets the same because of its zones, but it actually doesn't - e.g.,
+    the Dug Up Dirt Foreground actually looks different for each body. We
+    provide this for the Support UI; it's not very helpful for most users,
+    because it's only used at modeling time. This value does not change how
+    layer data from this API should be interpreted!
+    """
     explicitlyBodySpecific: Boolean! @cacheControl(maxAge: 0)
 
-    # This is set manually by Support users, when the item is from the NC Mall
-    # but isn't correctly labeled as r500 on Neopets.com. When this is true,
-    # it sets isNc to be true as well, regardless of rarityIndex.
+    """
+    This is set manually by Support users, when the item is from the NC Mall
+    but isn't correctly labeled as r500 on Neopets.com. When this is true,
+    it sets isNc to be true as well, regardless of rarityIndex.
+    """
     isManuallyNc: Boolean!
 
-    # Get the species that we need modeled for this item for the given color.
-    #
-    # NOTE: Most color IDs won't be accepted here. Either pass the ID of a
-    #       major special color like Baby (#6), or leave it blank for standard
-    #       bodies like Blue, Green, Red, etc.
+    """
+    Get the species that we need modeled for this item for the given color.
+    
+    NOTE: Most color IDs won't be accepted here. Either pass the ID of a
+          major special color like Baby (#6), or leave it blank for standard
+          bodies like Blue, Green, Red, etc.
+    """
     speciesThatNeedModels(colorId: ID): [Species!]! @cacheControl(maxAge: 1, staleWhileRevalidate: ${oneHour})
 
-    # Return a single ItemAppearance for this item. It'll be for the species
-    # with the smallest ID for which we have item appearance data, and a basic
-    # color. We use this on the item page, to initialize the preview section.
-    # (You can find out which species this is for by going through the body
-    # field on ItemAppearance!)
-    #
-    # There's also optional fields preferredSpeciesId and preferredColorId, to
-    # request a certain species or color if possible. We'll try to match each,
-    # with precedence to species first; then fall back to the canonical values.
-    #
-    # Note that the exact choice of color doesn't usually affect this field,
-    # because ItemAppearance is per-body rather than per-color. It's most
-    # relevant for special colors like Baby or Mutant. But the
-    # canonicalAppearance on the Body type _does_ use the preferred color more
-    # precisely!
+    """
+    Return a single ItemAppearance for this item. It'll be for the species
+    with the smallest ID for which we have item appearance data, and a basic
+    color. We use this on the item page, to initialize the preview section.
+    (You can find out which species this is for by going through the body
+    field on ItemAppearance!)
+    
+    There's also optional fields preferredSpeciesId and preferredColorId, to
+    request a certain species or color if possible. We'll try to match each,
+    with precedence to species first; then fall back to the canonical values.
+    
+    Note that the exact choice of color doesn't usually affect this field,
+    because ItemAppearance is per-body rather than per-color. It's most
+    relevant for special colors like Baby or Mutant. But the
+    canonicalAppearance on the Body type _does_ use the preferred color more
+    precisely!
+    """
     canonicalAppearance(preferredSpeciesId: ID, preferredColorId: ID): ItemAppearance @cacheControl(maxAge: 1, staleWhileRevalidate: ${oneWeek})
  
-    # All zones that this item occupies, for at least one body. That is, it's
-    # a union of zones for all of its appearances! We use this for overview
-    # info about the item.
+    """
+    All zones that this item occupies, for at least one body. That is, it's
+    a union of zones for all of its appearances! We use this for overview
+    info about the item.
+    """
     allOccupiedZones: [Zone!]! @cacheControl(maxAge: ${oneHour})
 
-    # The zones this item restricts. Turns out, even though we offer this on
-    # ItemAppearance for consistency, this is static across all appearances.
+    """
+    The zones this item restricts. Turns out, even though we offer this on
+    ItemAppearance for consistency, this is static across all appearances.
+    """
     restrictedZones: [Zone!]! @cacheControl(maxAge: ${oneHour}, staleWhileRevalidate: ${oneWeek})
 
-    # All bodies that this item is compatible with. Note that this might return
-    # the special representsAllPets body, e.g. if this is just a Background!
-    # Deprecated: Impress 2020 now uses compatibleBodiesAndTheirZones.
+    """
+    All bodies that this item is compatible with. Note that this might return
+    the special representsAllPets body, e.g. if this is just a Background!
+    Deprecated: Impress 2020 now uses compatibleBodiesAndTheirZones.
+    """
     compatibleBodies: [Body!]! @cacheControl(maxAge: 1, staleWhileRevalidate: ${oneWeek})
 
-    # All bodies that this item is compatible with, and the zones this item
-    # occupies for that body. Note that this might return the special
-    # representsAllPets body, e.g. if this is just a Background!
+    """
+    All bodies that this item is compatible with, and the zones this item
+    occupies for that body. Note that this might return the special
+    representsAllPets body, e.g. if this is just a Background!
+    """
     compatibleBodiesAndTheirZones: [BodyAndZones!]! @cacheControl(maxAge: 1, staleWhileRevalidate: ${oneWeek})
 
-    # All appearances for this item. Used in Support tools, to show and manage
-    # how this item fits every pet body.
+    """
+    All appearances for this item. Used in Support tools, to show and manage
+    how this item fits every pet body.
+    """
     allAppearances: [ItemAppearance!]!
   }
 
