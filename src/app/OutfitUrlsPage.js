@@ -31,12 +31,14 @@ import {
   VStack,
 } from "@chakra-ui/react";
 
-import { Delay, ErrorMessage, Heading1, Heading2 } from "./util";
+import { Delay, ErrorMessage, Heading1, Heading2, usePageTitle } from "./util";
 import HangerSpinner from "./components/HangerSpinner";
 import { gql, useQuery } from "@apollo/client";
 import { CheckIcon, WarningIcon } from "@chakra-ui/icons";
 
 function OutfitUrlsPage() {
+  usePageTitle("Changing our outfit URLs");
+
   return (
     <>
       <Heading1 marginBottom="4">Changing our outfit URLs</Heading1>
