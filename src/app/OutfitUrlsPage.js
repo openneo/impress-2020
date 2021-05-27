@@ -471,6 +471,9 @@ function BulkImageConverter() {
                       Errors are unusual at this point in the process. Sorry
                       about this!
                       <br />
+                      Sometimes this means the creator has deleted the outfit
+                      from DTI.
+                      <br />
                       Email me at{" "}
                       <a href="mailto:matchu@openneo.net">
                         matchu@openneo.net
