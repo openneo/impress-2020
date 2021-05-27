@@ -16,7 +16,7 @@ const typeDefs = gql`
     name: String!
     isStandard: Boolean!
 
-    # All SpeciesColorPairs of this color.
+    "All SpeciesColorPairs of this color."
     appliedToAllCompatibleSpecies: [SpeciesColorPair!]! @cacheControl(maxAge: 1, staleWhileRevalidate: ${oneDay})
   }
 
@@ -24,13 +24,17 @@ const typeDefs = gql`
     id: ID!
     name: String!
 
-    # A PetAppearance that has this species. Prefers Blue (or the optional
-    # preferredColorId), and happy poses.
+    """
+    A PetAppearance that has this species. Prefers Blue (or the optional
+    preferredColorId), and happy poses.
+    """
     canonicalAppearance(preferredColorId: ID): PetAppearance
 
-    # The bodyId for PetAppearances that use this species and a standard color.
-    # We use this to preload the standard body IDs, so that items stay when
-    # switching between standard colors.
+    """
+    The bodyId for PetAppearances that use this species and a standard color.
+    We use this to preload the standard body IDs, so that items stay when
+    switching between standard colors.
+    """
     standardBodyId: ID!
   }
 
