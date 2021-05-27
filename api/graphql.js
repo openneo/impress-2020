@@ -48,6 +48,14 @@ function deterministicSampler(traceId, sampleRate) {
 }
 
 async function handle(req, res) {
+  // CAREFUL! We here allow any website to use our GraphQL API, so our data can
+  // be more useful to the public. Using the * wildcard means that, in modern
+  // browsers, requests should be sent without credentials. Additionally, we
+  // don't store credentials in cookies; the client is responsible for setting
+  // an Authorization header. So, I don't think there's any CSRF danger here.
+  // But, let's be careful and make sure this continues to be true!
+  res.setHeader("Access-Control-Allow-Origin", "*");
+
   await serverHandler(req, res);
 
   // As a sneaky trick, we require the Honeycomb trace to finish before the
