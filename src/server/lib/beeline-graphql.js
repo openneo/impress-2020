@@ -9,6 +9,9 @@ const beelinePlugin = {
           name: operationName,
           operation_name: operationName,
         });
+        beeline.addTraceContext({
+          operation_name: operationName,
+        });
       },
       willSendResponse() {
         beeline.finishTrace(trace);
