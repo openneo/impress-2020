@@ -25,14 +25,12 @@ import {
   TabPanels,
   Tabs,
   Textarea,
-  useBreakpointValue,
   useClipboard,
   useColorModeValue,
   VStack,
 } from "@chakra-ui/react";
 
 import { Delay, ErrorMessage, Heading1, Heading2, usePageTitle } from "./util";
-import HangerSpinner from "./components/HangerSpinner";
 import { gql, useQuery } from "@apollo/client";
 import { CheckIcon, WarningIcon } from "@chakra-ui/icons";
 
@@ -141,42 +139,17 @@ function OutfitUrlConverter() {
 function SingleImageConverter() {
   const [inputUrl, setInputUrl] = React.useState("");
 
-  let parsedUrl;
+  let outputUrl;
   let parseError;
   try {
-    parsedUrl = parseS3OutfitUrl(inputUrl);
+    outputUrl = convertS3OutfitUrl(inputUrl);
   } catch (e) {
     parseError = e;
   }
 
-  const outfitId = parsedUrl?.outfitId;
-  const size = parsedUrl?.size;
-
-  const { loading, error: gqlError, data } = useQuery(
-    gql`
-      query OutfitUrlsSingleImageConverter(
-        $outfitId: ID!
-        $size: OutfitImageSize
-      ) {
-        outfit(id: $outfitId) {
-          id
-          imageUrl(size: $size)
-        }
-      }
-    `,
-    {
-      variables: { outfitId, size: `SIZE_${size}` },
-      skip: outfitId == null || size == null,
-      onError: (e) => console.error(e),
-    }
-  );
-
-  const imageUrl = data?.outfit?.imageUrl || "";
-
   const previewBackground = useColorModeValue("gray.200", "whiteAlpha.300");
-  const spinnerSize = useBreakpointValue({ base: "md", md: "sm" });
 
-  const { onCopy, hasCopied } = useClipboard(imageUrl);
+  const { onCopy, hasCopied } = useClipboard(outputUrl);
 
   return (
     <Grid
@@ -196,18 +169,14 @@ function SingleImageConverter() {
       rowGap="2"
       justifyItems="center"
     >
-      <FormControl gridArea="input" isInvalid={Boolean(parseError) || gqlError}>
+      <FormControl gridArea="input" isInvalid={Boolean(parseError)}>
         <FormLabel fontWeight="bold">Enter an outfit image URL</FormLabel>
         <Input
           placeholder="https://openneo-uploads.s3.amazonaws.com/outfits/123/456/789/preview.png"
           value={inputUrl}
           onChange={(e) => setInputUrl(e.target.value)}
         />
-        <FormErrorMessage>
-          {parseError?.message ||
-            (gqlError && `Error loading outfit data. Try again?`) ||
-            null}
-        </FormErrorMessage>
+        <FormErrorMessage>{parseError?.message || null}</FormErrorMessage>
       </FormControl>
       <FormControl gridArea="output">
         <FormLabel fontSize="sm">
@@ -215,11 +184,11 @@ function SingleImageConverter() {
         </FormLabel>
         <InputGroup size="sm">
           <Input
-            placeholder="https://impress-outfit-images.openneo.net/outfits/123456789/v/1020304050/600.png"
+            placeholder="https://impress-outfit-images.openneo.net/outfits/123456789/600.png"
             isReadOnly
-            value={imageUrl}
+            value={outputUrl}
           />
-          {imageUrl && (
+          {outputUrl && (
             <InputRightElement width="4rem" paddingRight="1">
               <Button
                 height="calc(100% - .5rem)"
@@ -246,17 +215,11 @@ function SingleImageConverter() {
         overflow="hidden"
       >
         <Center>
-          {loading ? (
-            <Delay ms={1000}>
-              <HangerSpinner size={spinnerSize} />
-            </Delay>
-          ) : imageUrl ? (
+          {outputUrl && (
             <Box
               as="img"
-              src={imageUrl}
+              src={outputUrl}
               alt="Outfit image preview"
-              width={size}
-              height={size}
               maxWidth="100%"
               maxHeight="100%"
               sx={{
@@ -266,7 +229,7 @@ function SingleImageConverter() {
                 },
               }}
             />
-          ) : null}
+          )}
         </Center>
       </AspectRatio>
     </Grid>
@@ -528,6 +491,16 @@ function parseS3OutfitUrl(url) {
   const size = S3_FILENAMES_TO_SIZES[match[4]];
 
   return { outfitId, size };
+}
+
+function convertS3OutfitUrl(url) {
+  const parsedUrl = parseS3OutfitUrl(url);
+  if (!parsedUrl) {
+    return null;
+  }
+
+  const { outfitId, size } = parsedUrl;
+  return `https://impress-outfit-images.openneo.net/outfits/${outfitId}/${size}.png`;
 }
 
 function parseManyS3OutfitUrlsFromHtml(html) {
