@@ -7,20 +7,22 @@
  *   - layerUrls: A comma-separated list of URLs to render, in order from
  *                bottom to top. This is a sorta "independent" render mode,
  *                not bound to any saved outfit. The URLs must match a known
- *                layer URL format.
+ *                layer URL format. This mode will return a long-term cache
+ *                header, so the client and our CDN cache can cache the
+ *                requested URL forever. (NOTE: The Vercel cache seems pretty
+ *                quick to eject them, though...)
  *   - id: Instead of `layerUrls`, you can instead provide an outfit ID, which
- *         will load the outfit data and render it directly.
- *   - updatedAt: If you provide an `id`, you must also provide `updatedAt`:
+ *         will load the outfit data and render it directly. By default, this
+ *         will return a 10-minute cache header, to keep individual users from
+ *         re-loading the image from scratch too often, while still keeping it
+ *         relatively fresh. (If you provide `updatedAt` too, we cache it for
+ *         longer!)
+ *   - updatedAt: If you provide an `id`, you may also provide `updatedAt`:
  *                the UNIX timestamp for when the outfit was last updated. This
- *                has no effect on output, but is very important for caching:
- *                we always return a long-term cache header, so our CDN cache
- *                will likely cache the requested URL forever. That way, outfit
- *                images will cache long-term, unless they're updated and the
- *                user requests a new URL. (This _does_ mean this API can no
- *                longer be used for simple embeds in e.g. petpages that
- *                auto-update to the latest version of the image… but I don't
- *                actually know if anyone does that? If we need a
- *                latest-version API, we can build that as a separate case.)
+ *                has no effect on image output, but it enables us to return a
+ *                long-term cache header, so the client and our CDN cache can
+ *                cache the requested URL forever. (NOTE: The Vercel cache
+ *                seems pretty quick to eject them, though...)
  */
 const beeline = require("honeycomb-beeline")({
   writeKey: process.env["HONEYCOMB_WRITE_KEY"],
@@ -54,16 +56,16 @@ async function handle(req, res) {
   }
 
   let layerUrls;
+  let isSafeToCacheLongTerm;
   if (req.query.layerUrls) {
     layerUrls = req.query.layerUrls.split(",");
-  } else if (req.query.id) {
-    if (!req.query.updatedAt) {
-      return reject(
-        res,
-        `updatedAt parameter is required, when id parameter is provided`
-      );
-    }
 
+    // When layerUrls are provided, it's always safe to cache long-term. We
+    // assume layer assets are immutable, and that TNT generally creates new
+    // IDs when they're not. (Or, if TNT's conversion strategy or our rendering
+    // strategy dramatically changes, we might add a cache-buster to the URL.)
+    isSafeToCacheLongTerm = true;
+  } else if (req.query.id) {
     const outfitId = req.query.id;
     try {
       layerUrls = await loadLayerUrlsForSavedOutfit(outfitId, size);
@@ -75,6 +77,10 @@ async function handle(req, res) {
         500
       );
     }
+
+    // When an outfit ID is provided, it's only safe to cache long-term if
+    // `updatedAt` is also provided.
+    isSafeToCacheLongTerm = Boolean(req.query.updatedAt);
   } else {
     return reject(res, `Missing required parameter: layerUrls`);
   }
@@ -95,18 +101,19 @@ async function handle(req, res) {
 
   const { image, status } = imageResult;
 
-  if (status === "success") {
-    // On success, we use very aggressive caching, on the assumption that
-    // layers are ~immutable too, and that our rendering algorithm will almost
-    // never change in a way that requires pushing changes. If it does, we
-    // should add a cache-buster to the URL!
-    //
-    // TODO: Maybe verify that there's a timestamp param in the ?id case?
-    res.setHeader("Cache-Control", "public, max-age=604800, immutable");
+  if (status === "success" && isSafeToCacheLongTerm) {
+    // This image is safe to cache long-term, so send a long-term cache header!
+    res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+    res.status(200);
+  } else if (status === "success") {
+    // This image rendered successfully, but isn't safe to cache long-term. We
+    // cache for a short period of time, instead, to avoid thrashing too hard
+    // on individual users, while still keeping it relatively fresh.
+    res.setHeader("Cache-Control", "public, max-age=600, immutable");
     res.status(200);
   } else {
     // On partial failure, we still send the image, but with a 500 status. We
-    // send a long-lived cache header, but in such a way that the user can
+    // send a one-week cache header, but in such a way that the user can
     // refresh the page to try again. (`private` means the CDN won't cache it,
     // and we don't send `immutable`, which would save it even across reloads.)
     // The 500 won't really affect the client, which will still show the image
