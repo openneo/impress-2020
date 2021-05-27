@@ -99,6 +99,7 @@ export const itemAppearanceFragmentForGetVisibleLayers = gql`
     id
     layers {
       id
+      bodyId
       zone {
         id
         depth
