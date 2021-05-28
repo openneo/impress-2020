@@ -2,7 +2,7 @@
   "routes": [
     {
       "src": "/outfits/(?<id>[^/]+)/(?<size>150|300|600).png",
-      "dest": "/api/outfitImage.js?size=$size&id=$id&updatedAt=$updatedAt"
+      "dest": "/api/outfitImage.js?size=$size&id=$id"
     },
     {
       "src": "/outfits/(?<id>[^/]+)/v/(?<updatedAt>[^/]+)/(?<size>150|300|600).png",
