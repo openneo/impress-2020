@@ -38,6 +38,7 @@ import fetch from "node-fetch";
 import gql from "graphql-tag";
 import { print as graphqlPrint } from "graphql/language/printer";
 
+import connectToDb from "../src/server/db";
 import { renderOutfitImage } from "../src/server/outfit-images";
 import getVisibleLayers, {
   petAppearanceFragmentForGetVisibleLayers,
@@ -56,16 +57,9 @@ async function handle(req, res) {
   }
 
   let layerUrls;
-  let isSafeToCacheLongTerm;
   if (req.query.layerUrls) {
     layerUrls = req.query.layerUrls.split(",");
-
-    // When layerUrls are provided, it's always safe to cache long-term. We
-    // assume layer assets are immutable, and that TNT generally creates new
-    // IDs when they're not. (Or, if TNT's conversion strategy or our rendering
-    // strategy dramatically changes, we might add a cache-buster to the URL.)
-    isSafeToCacheLongTerm = true;
-  } else if (req.query.id) {
+  } else if (req.query.id && req.query.updatedAt) {
     const outfitId = req.query.id;
     try {
       layerUrls = await loadLayerUrlsForSavedOutfit(outfitId, size);
@@ -77,10 +71,35 @@ async function handle(req, res) {
         500
       );
     }
+  } else if (req.query.id) {
+    // If there's an outfit ID, but no `updatedAt`, redirect to the URL with
+    // `updatedAt` added. (NOTE: Our Fastly config will try to handle this
+    // redirect internally, instead of making the user do a round-trip! That
+    // way, we load the version cached at the CDN instead of regenerating it,
+    // if possible.)
+    const outfitId = req.query.id;
+    let updatedAt;
+    try {
+      updatedAt = await loadUpdatedAtForSavedOutfit(outfitId);
+    } catch (e) {
+      return reject(
+        res,
+        `Error loading data for outfit ${outfitId}: ${e.message}`,
+        500
+      );
+    }
 
-    // When an outfit ID is provided, it's only safe to cache long-term if
-    // `updatedAt` is also provided.
-    isSafeToCacheLongTerm = Boolean(req.query.updatedAt);
+    const updatedAtTimestamp = Math.floor(updatedAt.getTime() / 1000);
+    const urlWithUpdatedAt =
+      `/outfits` +
+      `/${encodeURIComponent(outfitId)}` +
+      `/v/${encodeURIComponent(updatedAtTimestamp)}` +
+      `/${encodeURIComponent(req.query.size)}.png`;
+
+    // Cache this result for 10 minutes, so individual users don't wait on
+    // image reloads too much, but it's still always relatively fresh!
+    res.setHeader("Cache-Control", "public, max-age=600");
+    return res.redirect(urlWithUpdatedAt);
   } else {
     return reject(res, `Missing required parameter: layerUrls`);
   }
@@ -101,15 +120,10 @@ async function handle(req, res) {
 
   const { image, status } = imageResult;
 
-  if (status === "success" && isSafeToCacheLongTerm) {
-    // This image is safe to cache long-term, so send a long-term cache header!
+  if (status === "success") {
+    // This image is ready, and it either used `layerUrls` or `updatedAt`, so
+    // it shouldn't change much, if ever. Send a long-term cache header!
     res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
-    res.status(200);
-  } else if (status === "success") {
-    // This image rendered successfully, but isn't safe to cache long-term. We
-    // cache for a short period of time, instead, to avoid thrashing too hard
-    // on individual users, while still keeping it relatively fresh.
-    res.setHeader("Cache-Control", "public, max-age=600, immutable");
     res.status(200);
   } else {
     // On partial failure, we still send the image, but with a 500 status. We
@@ -184,6 +198,18 @@ async function loadLayerUrlsForSavedOutfit(outfitId, size) {
   return visibleLayers
     .sort((a, b) => a.depth - b.depth)
     .map((layer) => layer.imageUrl);
+}
+
+async function loadUpdatedAtForSavedOutfit(outfitId) {
+  const db = await connectToDb();
+  const [rows] = await db.query(`SELECT updated_at FROM outfits WHERE id = ?`, [
+    outfitId,
+  ]);
+  const row = rows[0];
+  if (!row) {
+    throw new Error(`outfit ${outfitId} not found`);
+  }
+  return row.updated_at;
 }
 
 function reject(res, message, status = 400) {
