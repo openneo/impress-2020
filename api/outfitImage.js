@@ -175,6 +175,10 @@ async function loadLayerUrlsForSavedOutfit(outfitId, size) {
     );
   }
 
+  if (!data.outfit) {
+    throw new Error(`outfit ${outfitId} not found`);
+  }
+
   const { petAppearance, itemAppearances } = data.outfit;
   const visibleLayers = getVisibleLayers(petAppearance, itemAppearances);
   return visibleLayers
