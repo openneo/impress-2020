@@ -438,12 +438,18 @@ const resolvers = {
       }
 
       const modeledSpeciesIds = row.modeledSpeciesIds.split(",");
-      // HACK: Needs to be updated if more species are added!
-      const allSpeciesIds = Array.from(
-        { length: row.supportsVandagyre ? 55 : 54 },
-        (_, i) => String(i + 1)
+      const allSpeciesIdsForThisColor = row.allSpeciesIdsForThisColor.split(
+        ","
       );
-      const unmodeledSpeciesIds = allSpeciesIds.filter(
+
+      let allModelableSpeciesIds = allSpeciesIdsForThisColor;
+      if (!row.supportsVandagyre) {
+        allModelableSpeciesIds = allModelableSpeciesIds.filter(
+          (s) => s !== "55"
+        );
+      }
+
+      const unmodeledSpeciesIds = allModelableSpeciesIds.filter(
         (id) => !modeledSpeciesIds.includes(id)
       );
       return unmodeledSpeciesIds.map((id) => ({ id }));

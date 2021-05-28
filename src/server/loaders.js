@@ -427,7 +427,11 @@ const buildItemsThatNeedModelsLoader = (db) =>
           GROUP_CONCAT(
             T_BODIES.species_id
             ORDER BY T_BODIES.species_id
-          ) AS modeled_species_ids
+          ) AS modeled_species_ids,
+          (
+            SELECT GROUP_CONCAT(DISTINCT species_id ORDER BY species_id)
+            FROM pet_types WHERE color_id = T_BODIES.color_id
+          ) AS all_species_ids_for_this_color
         FROM (
           -- NOTE: I found that extracting this as a separate query that runs
           --       first made things WAAAY faster. Less to join/group, I guess?
@@ -457,8 +461,8 @@ const buildItemsThatNeedModelsLoader = (db) =>
           modeled_species_count = 0
           -- Single species (probably just their item)
           OR modeled_species_count = 1
-          -- All species modeled
-          OR modeled_species_count = 55
+          -- All species modeled (that are compatible with this color)
+          OR modeled_species_ids = all_species_ids_for_this_color
           -- All species modeled except Vandagyre, for items that don't support it
           OR (NOT T_ITEMS.supports_vandagyre AND modeled_species_count = 54 AND modeled_species_ids = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54")
         )
