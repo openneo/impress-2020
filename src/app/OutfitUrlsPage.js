@@ -98,8 +98,8 @@ function OutfitUrlsPage() {
           </p>
           <p>
             We haven't removed these images from Amazon yet, so old image URLs
-            will continue to work until <strong>at least July 1, 2021</strong>!
-            Then, we'll replace the old images with a short message and a link
+            will continue to work until <strong>at least August 1, 2021</strong>
+            ! Then, we'll replace the old images with a short message and a link
             to this page, so it's easy to learn what happened and fix things up.
           </p>
           <p>
