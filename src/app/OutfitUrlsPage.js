@@ -401,6 +401,7 @@ function BulkImageConverter() {
 const S3_OUTFIT_URL_EXACT_PATTERN = /^https?:\/\/openneo-uploads\.s3\.amazonaws\.com\/outfits\/([0-9]{3})\/([0-9]{3})\/([0-9]{3})\/(preview|medium_preview|small_preview)\.png$/;
 const S3_OUTFIT_URL_GLOBAL_PATTERN = /https?:\/\/openneo-uploads\.s3\.amazonaws\.com\/outfits\/([0-9]{3})\/([0-9]{3})\/([0-9]{3})\/(preview|medium_preview|small_preview)\.png/g;
 const OUTFIT_PAGE_URL_EXACT_PATTERN = /^https?:\/\/impress(-2020)?\.openneo\.net\/outfits\/([0-9]+)(\?.*)?$/;
+const CONVERTED_OUTFIT_URL_EXACT_PATTERN = /^https?:\/\/impress-outfit-images\.openneo\.net\/outfits\/([0-9]+)\/(150|300|600)\.png$/;
 const S3_FILENAMES_TO_SIZES = {
   preview: 600,
   medium_preview: 300,
@@ -417,6 +418,14 @@ function parseS3OutfitUrl(url) {
     throw new UrlAlreadyConvertedError(
       `Outfit page links don't need to change!`,
       outfitPageMatch[2]
+    );
+  }
+
+  const convertedImageMatch = url.match(CONVERTED_OUTFIT_URL_EXACT_PATTERN);
+  if (convertedImageMatch) {
+    throw new UrlAlreadyConvertedError(
+      `This URL is already in the new format!`,
+      convertedImageMatch[1]
     );
   }
 
