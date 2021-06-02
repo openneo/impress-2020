@@ -60,7 +60,12 @@ function OutfitUrlsPage() {
           <p>
             Hi, friends! Sorry for the trouble 😓 In short, by switching to the
             new outfit URLs below, we'll decrease our hosting costs by
-            $20/month! 🙏
+            $30/month! 🙏
+          </p>
+          <p>
+            This change applies to <strong>image embeds</strong>, for{" "}
+            <code>img</code> tags in your lookups and petpages. Other kinds of
+            outfit links will stay the same!
           </p>
           <OutfitUrlConverter />
         </section>
@@ -83,13 +88,13 @@ function OutfitUrlsPage() {
           <p>
             So, we've moved our apps to a new, more cost-efficient way to share
             outfit images! But, until we delete the old images from Amazon S3
-            altogether, we're still paying $20/month <em>just</em> to support
+            altogether, we're still paying $30/month <em>just</em> to support
             the old <code>amazonaws.com</code> URLs.
           </p>
           <p>
             I looked hard for a way to redirect the old Amazon URLs to our new
             service, but it seems to not be possible, and it seems like
-            $20/month could be better spent another way 😖
+            $30/month could be better spent another way 😖
           </p>
           <p>
             We haven't removed these images from Amazon yet, so old image URLs
@@ -145,8 +150,19 @@ function SingleImageConverter() {
     parseError = e;
   }
 
-  const previewBackground = useColorModeValue("gray.200", "whiteAlpha.300");
+  const isAlreadyConverted = parseError instanceof UrlAlreadyConvertedError;
+  const isInvalid = parseError && !isAlreadyConverted;
+  if (isAlreadyConverted) {
+    outputUrl = inputUrl;
+  }
 
+  const previewImageUrl = isAlreadyConverted
+    ? buildNewOutfitUrl({ outfitId: parseError.outfitId, size: 300 })
+    : outputUrl?.endsWith("png")
+    ? outputUrl
+    : null;
+
+  const previewBackground = useColorModeValue("gray.200", "whiteAlpha.300");
   const { onCopy, hasCopied } = useClipboard(outputUrl);
 
   return (
@@ -167,7 +183,7 @@ function SingleImageConverter() {
       rowGap="2"
       justifyItems="center"
     >
-      <FormControl gridArea="input" isInvalid={Boolean(parseError)}>
+      <FormControl gridArea="input" isInvalid={isInvalid}>
         <FormLabel fontWeight="bold">Enter an outfit image URL</FormLabel>
         <Input
           placeholder="https://openneo-uploads.s3.amazonaws.com/outfits/123/456/789/preview.png"
@@ -177,14 +193,23 @@ function SingleImageConverter() {
         <FormErrorMessage>{parseError?.message || null}</FormErrorMessage>
       </FormControl>
       <FormControl gridArea="output">
-        <FormLabel fontSize="sm">
-          Then, use this new URL in your layouts instead:
-        </FormLabel>
+        <Flex marginBottom="2">
+          <FormLabel fontSize="sm" margin="0">
+            Then, use this new URL in your layouts instead:
+          </FormLabel>
+          <Box flex="1 0 auto" width="2" />
+          {isAlreadyConverted && (
+            <Flex alignItems="center" fontSize="sm" opacity="0.8">
+              <CheckIcon marginRight="1.5" />
+              <Box>{parseError.message}</Box>
+            </Flex>
+          )}
+        </Flex>
         <InputGroup size="sm">
           <Input
             placeholder="https://impress-outfit-images.openneo.net/outfits/123456789/600.png"
             isReadOnly
-            value={outputUrl}
+            value={outputUrl || ""}
           />
           {outputUrl && (
             <InputRightElement width="4rem" paddingRight="1">
@@ -213,10 +238,10 @@ function SingleImageConverter() {
         overflow="hidden"
       >
         <Center>
-          {outputUrl && (
+          {previewImageUrl && (
             <Box
               as="img"
-              src={outputUrl}
+              src={previewImageUrl}
               alt="Outfit image preview"
               maxWidth="100%"
               maxHeight="100%"
@@ -375,6 +400,7 @@ function BulkImageConverter() {
 // for finding multiple matches in large text.
 const S3_OUTFIT_URL_EXACT_PATTERN = /^https?:\/\/openneo-uploads\.s3\.amazonaws\.com\/outfits\/([0-9]{3})\/([0-9]{3})\/([0-9]{3})\/(preview|medium_preview|small_preview)\.png$/;
 const S3_OUTFIT_URL_GLOBAL_PATTERN = /https?:\/\/openneo-uploads\.s3\.amazonaws\.com\/outfits\/([0-9]{3})\/([0-9]{3})\/([0-9]{3})\/(preview|medium_preview|small_preview)\.png/g;
+const OUTFIT_PAGE_URL_EXACT_PATTERN = /^https?:\/\/impress(-2020)?\.openneo\.net\/outfits\/([0-9]+)(\?.*)?$/;
 const S3_FILENAMES_TO_SIZES = {
   preview: 600,
   medium_preview: 300,
@@ -386,7 +412,15 @@ function parseS3OutfitUrl(url) {
     return null;
   }
 
-  const match = S3_OUTFIT_URL_EXACT_PATTERN.exec(url);
+  const outfitPageMatch = url.match(OUTFIT_PAGE_URL_EXACT_PATTERN);
+  if (outfitPageMatch) {
+    throw new UrlAlreadyConvertedError(
+      `Outfit page links don't need to change!`,
+      outfitPageMatch[2]
+    );
+  }
+
+  const match = url.match(S3_OUTFIT_URL_EXACT_PATTERN);
   if (!match) {
     throw new Error(
       `This URL didn't match the expected pattern. Make sure it's formatted like this: https://openneo-uploads.s3.amazonaws.com/outfits/123/456/789/preview.png`
@@ -401,14 +435,17 @@ function parseS3OutfitUrl(url) {
   return { outfitId, size };
 }
 
+function buildNewOutfitUrl({ outfitId, size }) {
+  return `https://impress-outfit-images.openneo.net/outfits/${outfitId}/${size}.png`;
+}
+
 function convertS3OutfitUrl(url) {
   const parsedUrl = parseS3OutfitUrl(url);
   if (!parsedUrl) {
     return null;
   }
 
-  const { outfitId, size } = parsedUrl;
-  return `https://impress-outfit-images.openneo.net/outfits/${outfitId}/${size}.png`;
+  return buildNewOutfitUrl(parsedUrl);
 }
 
 function replaceS3OutfitUrlsInHtml(html) {
@@ -421,6 +458,13 @@ function replaceS3OutfitUrlsInHtml(html) {
   });
 
   return { outputHtml, numReplacements };
+}
+
+class UrlAlreadyConvertedError extends Error {
+  constructor(message, outfitId) {
+    super(message);
+    this.outfitId = outfitId;
+  }
 }
 
 export default OutfitUrlsPage;
