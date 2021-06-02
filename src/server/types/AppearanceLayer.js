@@ -28,6 +28,16 @@ const typeDefs = gql`
     remoteId: ID!
 
     zone: Zone!
+
+    """
+    This layer as a single PNG, if available.
+
+    This will sometimes be a Neopets.com URL, if there's an official PNG at the
+    requested size.
+
+    This might not be available at all, if there's no official PNG, and also
+    DTI Classic is still converting or failed to convert it from SWF.
+    """
     imageUrl(size: LayerImageSize): String
 
     """
