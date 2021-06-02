@@ -193,37 +193,52 @@ function SingleImageConverter() {
         <FormErrorMessage>{parseError?.message || null}</FormErrorMessage>
       </FormControl>
       <FormControl gridArea="output">
-        <Flex marginBottom="2">
-          <FormLabel fontSize="sm" margin="0">
+        <Grid
+          templateAreas={{
+            base: `
+              "header"
+              "input"
+              "status"
+            `,
+            md: `
+              "header status"
+              "input  input"
+            `,
+          }}
+          alignItems="center"
+          rowGap="2"
+        >
+          <FormLabel gridArea="header" fontSize="sm" margin="0">
             Then, use this new URL in your layouts instead:
           </FormLabel>
-          <Box flex="1 0 auto" width="2" />
-          {isAlreadyConverted && (
-            <Flex alignItems="center" fontSize="sm" opacity="0.8">
-              <CheckIcon marginRight="1.5" />
-              <Box>{parseError.message}</Box>
-            </Flex>
-          )}
-        </Flex>
-        <InputGroup size="sm">
-          <Input
-            placeholder="https://impress-outfit-images.openneo.net/outfits/123456789/600.png"
-            isReadOnly
-            value={outputUrl || ""}
-          />
-          {outputUrl && (
-            <InputRightElement width="4rem" paddingRight="1">
-              <Button
-                height="calc(100% - .5rem)"
-                size="xs"
-                minWidth="100%"
-                onClick={onCopy}
-              >
-                {hasCopied ? "Copied!" : "Copy"}
-              </Button>
-            </InputRightElement>
-          )}
-        </InputGroup>
+          <InputGroup gridArea="input" size="sm">
+            <Input
+              placeholder="https://impress-outfit-images.openneo.net/outfits/123456789/600.png"
+              isReadOnly
+              value={outputUrl || ""}
+            />
+            {outputUrl && (
+              <InputRightElement width="4rem" paddingRight="1">
+                <Button
+                  height="calc(100% - .5rem)"
+                  size="xs"
+                  minWidth="100%"
+                  onClick={onCopy}
+                >
+                  {hasCopied ? "Copied!" : "Copy"}
+                </Button>
+              </InputRightElement>
+            )}
+          </InputGroup>
+          <Box gridArea="status" textAlign="right" justifySelf="end">
+            {isAlreadyConverted && (
+              <Flex alignItems="center" fontSize="sm" opacity="0.8">
+                <CheckIcon marginRight="1.5" />
+                <Box>{parseError.message}</Box>
+              </Flex>
+            )}
+          </Box>
+        </Grid>
       </FormControl>
       <AspectRatio
         gridArea="preview"
