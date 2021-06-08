@@ -514,6 +514,20 @@ function ClosetList({ closetList, isCurrentUser, showHeading }) {
       });
   };
 
+  let tradeMatchingMode;
+  if (isCurrentUser) {
+    // On your own item list, it's not helpful to show your own trade matches!
+    tradeMatchingMode = "hide-all";
+  } else if (closetList.ownsOrWantsItems === "OWNS") {
+    tradeMatchingMode = "offering";
+  } else if (closetList.ownsOrWantsItems === "WANTS") {
+    tradeMatchingMode = "seeking";
+  } else {
+    throw new Error(
+      `unexpected ownsOrWantsItems value: ${closetList.ownsOrWantsItems}`
+    );
+  }
+
   return (
     <Box id={anchorId}>
       <Flex align="center" wrap="wrap" marginBottom="2">
@@ -605,12 +619,7 @@ function ClosetList({ closetList, isCurrentUser, showHeading }) {
               <ItemCard
                 item={item}
                 variant="grid"
-                // Owns/wants badges are great for trade list comparison... but
-                // we only show the relevant one for trade matching, and we
-                // hide them on your own list (because that would just be
-                // annoying!)
-                hideOwnsBadge={closetList.ownsOrWantsItems === "OWNS" || isCurrentUser}
-                hideWantsBadge={closetList.ownsOrWantsItems === "WANTS" || isCurrentUser}
+                tradeMatchingMode={tradeMatchingMode}
               />
             </WrapItem>
           ))}

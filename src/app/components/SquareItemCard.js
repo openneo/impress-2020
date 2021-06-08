@@ -11,12 +11,7 @@ import { Link } from "react-router-dom";
 import { safeImageUrl, useCommonStyles } from "../util";
 import { CheckIcon, StarIcon } from "@chakra-ui/icons";
 
-function SquareItemCard({
-  item,
-  hideOwnsBadge = false,
-  hideWantsBadge = false,
-  ...props
-}) {
+function SquareItemCard({ item, tradeMatchingMode = null, ...props }) {
   const outlineShadowValue = useToken("shadows", "outline");
 
   return (
@@ -45,8 +40,7 @@ function SquareItemCard({
             thumbnailImage={
               <ItemThumbnail
                 item={item}
-                hideOwnsBadge={hideOwnsBadge}
-                hideWantsBadge={hideWantsBadge}
+                tradeMatchingMode={tradeMatchingMode}
               />
             }
           />
@@ -104,7 +98,7 @@ function SquareItemCardLayout({ name, thumbnailImage, minHeightNumLines = 2 }) {
   );
 }
 
-function ItemThumbnail({ item, hideOwnsBadge, hideWantsBadge }) {
+function ItemThumbnail({ item, tradeMatchingMode }) {
   const kindColorScheme = item.isNc ? "purple" : item.isPb ? "orange" : "gray";
 
   const thumbnailShadowColor = useColorModeValue(
@@ -113,6 +107,33 @@ function ItemThumbnail({ item, hideOwnsBadge, hideWantsBadge }) {
   );
   const thumbnailShadowColorValue = useToken("colors", thumbnailShadowColor);
   const mdRadiusValue = useToken("radii", "md");
+
+  // Normally, we just show the owns/wants badges depending on whether the
+  // current user owns/wants it. But, in a trade list, we use trade-matching
+  // mode instead: only show the badge if it represents a viable trade, and add
+  // some extra flair to it, too!
+  let showOwnsBadge;
+  let showWantsBadge;
+  let showTradeMatchFlair;
+  if (tradeMatchingMode == null) {
+    showOwnsBadge = item.currentUserOwnsThis;
+    showWantsBadge = item.currentUserWantsThis;
+    showTradeMatchFlair = false;
+  } else if (tradeMatchingMode === "offering") {
+    showOwnsBadge = false;
+    showWantsBadge = item.currentUserWantsThis;
+    showTradeMatchFlair = true;
+  } else if (tradeMatchingMode === "seeking") {
+    showOwnsBadge = item.currentUserOwnsThis;
+    showWantsBadge = false;
+    showTradeMatchFlair = true;
+  } else if (tradeMatchingMode === "hide-all") {
+    showOwnsBadge = false;
+    showWantsBadge = false;
+    showTradeMatchFlair = false;
+  } else {
+    throw new Error(`unexpected tradeMatchingMode ${tradeMatchingMode}`);
+  }
 
   return (
     <ClassNames>
@@ -148,14 +169,48 @@ function ItemThumbnail({ item, hideOwnsBadge, hideWantsBadge }) {
               gap: 2px;
             `}
           >
-            {!hideOwnsBadge && item.currentUserOwnsThis && (
-              <ItemOwnsWantsBadge colorScheme="green" label="You own this">
+            {showOwnsBadge && (
+              <ItemOwnsWantsBadge
+                colorScheme="green"
+                label={
+                  showTradeMatchFlair
+                    ? "You own this, and they want it!"
+                    : "You own this"
+                }
+              >
                 <CheckIcon />
+                {showTradeMatchFlair && (
+                  <div
+                    className={css`
+                      margin-left: 0.25em;
+                      margin-right: 0.125rem;
+                    `}
+                  >
+                    Match
+                  </div>
+                )}
               </ItemOwnsWantsBadge>
             )}
-            {!hideWantsBadge && item.currentUserWantsThis && (
-              <ItemOwnsWantsBadge colorScheme="blue" label="You want this">
+            {showWantsBadge && (
+              <ItemOwnsWantsBadge
+                colorScheme="blue"
+                label={
+                  showTradeMatchFlair
+                    ? "You want this, and they own it!"
+                    : "You want this"
+                }
+              >
                 <StarIcon />
+                {showTradeMatchFlair && (
+                  <div
+                    className={css`
+                      margin-left: 0.25em;
+                      margin-right: 0.125rem;
+                    `}
+                  >
+                    Match
+                  </div>
+                )}
               </ItemOwnsWantsBadge>
             )}
           </div>
@@ -200,19 +255,21 @@ function ItemOwnsWantsBadge({ colorScheme, children, label }) {
           aria-label={label}
           title={label}
           className={css`
-            border-radius: 100%;
+            border-radius: 999px;
             height: 16px;
-            width: 16px;
+            min-width: 16px;
             font-size: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
             box-shadow: 0 0 2px ${badgeBackgroundValue};
+            /* Decrease the padding: I don't want to hit the edges, but I want
+             * to be a circle when possible! */
+            padding-left: 0.125rem;
+            padding-right: 0.125rem;
             /* Copied from Chakra <Badge> */
             white-space: nowrap;
             vertical-align: middle;
-            padding-left: 0.25rem;
-            padding-right: 0.25rem;
             text-transform: uppercase;
             font-size: 0.65rem;
             font-weight: 700;
