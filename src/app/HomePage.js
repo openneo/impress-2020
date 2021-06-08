@@ -336,16 +336,14 @@ function ItemsSearchField() {
         }
       }}
     >
-      <InputGroup
-        size="sm"
-        backgroundColor={query ? brightBackground : "transparent"}
-        _focusWithin={{ backgroundColor: brightBackground }}
-      >
+      <InputGroup size="sm">
         <InputLeftElement pointerEvents="none">
           <SearchIcon color="gray.400" />
         </InputLeftElement>
         <Input
           value={query}
+          backgroundColor={query ? brightBackground : "transparent"}
+          _focus={{ backgroundColor: brightBackground }}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search all items…"
           borderRadius="full"
