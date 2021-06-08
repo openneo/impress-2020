@@ -4,6 +4,7 @@ import { WarningTwoIcon } from "@chakra-ui/icons";
 import { FaBug } from "react-icons/fa";
 import { GlitchBadgeLayout, layerUsesHTML5 } from "../components/HTML5Badge";
 import getVisibleLayers from "../../shared/getVisibleLayers";
+import { useLocalStorage } from "../util";
 
 function OutfitKnownGlitchesBadge({ appearance }) {
   const glitchMessages = [];
@@ -99,19 +100,23 @@ function OutfitKnownGlitchesBadge({ appearance }) {
     }
   }
 
-  // Look for items with the OFFICIAL_SVG_IS_INCORRECT glitch.
-  for (const item of items) {
-    const itemHasOfficialSvgIsIncorrect = item.appearance.layers.some((l) =>
-      (l.knownGlitches || []).includes("OFFICIAL_SVG_IS_INCORRECT")
-    );
-    if (itemHasOfficialSvgIsIncorrect) {
-      glitchMessages.push(
-        <Box key={`official-svg-is-incorrect-for-item-${item.id}`}>
-          There's a glitch in the art for <i>{item.name}</i> that prevents us
-          from showing the full-scale SVG version of the image. Instead, we're
-          showing a PNG, which might look a bit blurry on larger screens.
-        </Box>
+  // Look for items with the OFFICIAL_SVG_IS_INCORRECT glitch. Only show this
+  // if hi-res mode is on, because otherwise it doesn't affect the user anyway!
+  const [hiResMode] = useLocalStorage("DTIHiResMode", false);
+  if (hiResMode) {
+    for (const item of items) {
+      const itemHasOfficialSvgIsIncorrect = item.appearance.layers.some((l) =>
+        (l.knownGlitches || []).includes("OFFICIAL_SVG_IS_INCORRECT")
       );
+      if (itemHasOfficialSvgIsIncorrect) {
+        glitchMessages.push(
+          <Box key={`official-svg-is-incorrect-for-item-${item.id}`}>
+            There's a glitch in the art for <i>{item.name}</i> that prevents us
+            from showing the SVG image for Hi-Res Mode. Instead, we're showing a
+            PNG, which might look a bit blurry on larger screens.
+          </Box>
+        );
+      }
     }
   }
 
