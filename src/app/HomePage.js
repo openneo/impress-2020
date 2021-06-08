@@ -379,12 +379,26 @@ function NewItemsSectionContent() {
           thumbnailUrl
           isNc
           isPb
+        }
+      }
+    `
+  );
+
+  const { data: userData } = useQuery(
+    gql`
+      query NewItemsSection_UserData {
+        newestItems {
+          id
           currentUserOwnsThis
           currentUserWantsThis
         }
       }
     `,
-    { context: { sendAuth: true } }
+    {
+      context: { sendAuth: true },
+      onError: (e) =>
+        console.error("Error loading NewItemsSection_UserData, skipping:", e),
+    }
   );
 
   if (loading) {
@@ -424,9 +438,16 @@ function NewItemsSectionContent() {
     );
   }
 
+  // Merge in the results from the user data query, if available.
+  const newestItems = data.newestItems.map((item) => {
+    const itemUserData =
+      (userData?.newestItems || []).find((i) => i.id === item.id) || {};
+    return { ...item, ...itemUserData };
+  });
+
   return (
     <ItemCardHStack>
-      {data.newestItems.map((item) => (
+      {newestItems.map((item) => (
         <SquareItemCard key={item.id} item={item} />
       ))}
     </ItemCardHStack>
