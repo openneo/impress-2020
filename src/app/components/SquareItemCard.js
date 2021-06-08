@@ -93,28 +93,14 @@ function SquareItemCardLayout({ name, thumbnailImage, minHeightNumLines = 2 }) {
 }
 
 function ItemThumbnail({ item }) {
-  const mdRadiusValue = useToken("radii", "md");
+  const kindColorScheme = item.isNc ? "purple" : item.isPb ? "orange" : "gray";
 
-  const colorScheme = item.isNc ? "purple" : item.isPb ? "orange" : "gray";
-
-  const badgeBackground = useColorModeValue(
-    `${colorScheme}.100`,
-    `${colorScheme}.500`
-  );
-  const badgeColor = useColorModeValue(
-    `${colorScheme}.500`,
-    `${colorScheme}.100`
-  );
   const thumbnailShadowColor = useColorModeValue(
-    `${colorScheme}.200`,
-    `${colorScheme}.600`
+    `${kindColorScheme}.200`,
+    `${kindColorScheme}.600`
   );
-
-  const [
-    badgeBackgroundValue,
-    badgeColorValue,
-    thumbnailShadowColorValue,
-  ] = useToken("colors", [badgeBackground, badgeColor, thumbnailShadowColor]);
+  const thumbnailShadowColorValue = useToken("colors", thumbnailShadowColor);
+  const mdRadiusValue = useToken("radii", "md");
 
   return (
     <ClassNames>
@@ -146,23 +132,53 @@ function ItemThumbnail({ item }) {
                 position: absolute;
                 bottom: -6px;
                 right: -3px;
-                /* Copied from Chakra <Badge> */
-                display: inline-block;
-                white-space: nowrap;
-                vertical-align: middle;
-                padding-left: 0.25rem;
-                padding-right: 0.25rem;
-                text-transform: uppercase;
-                font-size: 0.65rem;
-                border-radius: 0.125rem;
-                font-weight: 700;
-                background: ${badgeBackgroundValue};
-                color: ${badgeColorValue};
               `}
             >
-              {item.isNc ? "NC" : item.isPb ? "PB" : "NP"}
+              <ItemThumbnailKindBadge colorScheme={kindColorScheme}>
+                {item.isNc ? "NC" : item.isPb ? "PB" : "NP"}
+              </ItemThumbnailKindBadge>
             </div>
           )}
+        </div>
+      )}
+    </ClassNames>
+  );
+}
+
+function ItemThumbnailKindBadge({ colorScheme, children }) {
+  const badgeBackground = useColorModeValue(
+    `${colorScheme}.100`,
+    `${colorScheme}.500`
+  );
+  const badgeColor = useColorModeValue(
+    `${colorScheme}.500`,
+    `${colorScheme}.100`
+  );
+
+  const [badgeBackgroundValue, badgeColorValue] = useToken("colors", [
+    badgeBackground,
+    badgeColor,
+  ]);
+
+  return (
+    <ClassNames>
+      {({ css }) => (
+        <div
+          className={css`
+            /* Copied from Chakra <Badge> */
+            white-space: nowrap;
+            vertical-align: middle;
+            padding-left: 0.25rem;
+            padding-right: 0.25rem;
+            text-transform: uppercase;
+            font-size: 0.65rem;
+            border-radius: 0.125rem;
+            font-weight: 700;
+            background: ${badgeBackgroundValue};
+            color: ${badgeColorValue};
+          `}
+        >
+          {children}
         </div>
       )}
     </ClassNames>
