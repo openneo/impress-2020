@@ -9,8 +9,14 @@ import { ClassNames } from "@emotion/react";
 import { Link } from "react-router-dom";
 
 import { safeImageUrl, useCommonStyles } from "../util";
+import { CheckIcon, StarIcon } from "@chakra-ui/icons";
 
-function SquareItemCard({ item, ...props }) {
+function SquareItemCard({
+  item,
+  hideOwnsBadge = false,
+  hideWantsBadge = false,
+  ...props
+}) {
   const outlineShadowValue = useToken("shadows", "outline");
 
   return (
@@ -36,7 +42,13 @@ function SquareItemCard({ item, ...props }) {
         >
           <SquareItemCardLayout
             name={item.name}
-            thumbnailImage={<ItemThumbnail item={item} />}
+            thumbnailImage={
+              <ItemThumbnail
+                item={item}
+                hideOwnsBadge={hideOwnsBadge}
+                hideWantsBadge={hideWantsBadge}
+              />
+            }
           />
         </Link>
       )}
@@ -92,7 +104,7 @@ function SquareItemCardLayout({ name, thumbnailImage, minHeightNumLines = 2 }) {
   );
 }
 
-function ItemThumbnail({ item }) {
+function ItemThumbnail({ item, hideOwnsBadge, hideWantsBadge }) {
   const kindColorScheme = item.isNc ? "purple" : item.isPb ? "orange" : "gray";
 
   const thumbnailShadowColor = useColorModeValue(
@@ -126,6 +138,27 @@ function ItemThumbnail({ item }) {
             `}
             loading="lazy"
           />
+          <div
+            className={css`
+              position: absolute;
+              top: -6px;
+              left: -6px;
+              display: flex;
+              flex-direction: column;
+              gap: 2px;
+            `}
+          >
+            {!hideOwnsBadge && item.currentUserOwnsThis && (
+              <ItemOwnsWantsBadge colorScheme="green" label="You own this">
+                <CheckIcon />
+              </ItemOwnsWantsBadge>
+            )}
+            {!hideWantsBadge && item.currentUserWantsThis && (
+              <ItemOwnsWantsBadge colorScheme="blue" label="You want this">
+                <StarIcon />
+              </ItemOwnsWantsBadge>
+            )}
+          </div>
           {item.isNc != null && (
             <div
               className={css`
@@ -139,6 +172,55 @@ function ItemThumbnail({ item }) {
               </ItemThumbnailKindBadge>
             </div>
           )}
+        </div>
+      )}
+    </ClassNames>
+  );
+}
+
+function ItemOwnsWantsBadge({ colorScheme, children, label }) {
+  const badgeBackground = useColorModeValue(
+    `${colorScheme}.100`,
+    `${colorScheme}.500`
+  );
+  const badgeColor = useColorModeValue(
+    `${colorScheme}.500`,
+    `${colorScheme}.100`
+  );
+
+  const [badgeBackgroundValue, badgeColorValue] = useToken("colors", [
+    badgeBackground,
+    badgeColor,
+  ]);
+
+  return (
+    <ClassNames>
+      {({ css }) => (
+        <div
+          aria-label={label}
+          title={label}
+          className={css`
+            border-radius: 100%;
+            height: 16px;
+            width: 16px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 2px ${badgeBackgroundValue};
+            /* Copied from Chakra <Badge> */
+            white-space: nowrap;
+            vertical-align: middle;
+            padding-left: 0.25rem;
+            padding-right: 0.25rem;
+            text-transform: uppercase;
+            font-size: 0.65rem;
+            font-weight: 700;
+            background: ${badgeBackgroundValue};
+            color: ${badgeColorValue};
+          `}
+        >
+          {children}
         </div>
       )}
     </ClassNames>

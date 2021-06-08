@@ -379,9 +379,12 @@ function NewItemsSectionContent() {
           thumbnailUrl
           isNc
           isPb
+          currentUserOwnsThis
+          currentUserWantsThis
         }
       }
-    `
+    `,
+    { context: { sendAuth: true } }
   );
 
   if (loading) {

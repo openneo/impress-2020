@@ -602,7 +602,16 @@ function ClosetList({ closetList, isCurrentUser, showHeading }) {
         <Wrap spacing="4" justify="center">
           {sortedItems.map((item) => (
             <WrapItem key={item.id}>
-              <ItemCard item={item} variant="grid" />
+              <ItemCard
+                item={item}
+                variant="grid"
+                // Owns/wants badges are great for trade list comparison... but
+                // we only show the relevant one for trade matching, and we
+                // hide them on your own list (because that would just be
+                // annoying!)
+                hideOwnsBadge={closetList.ownsOrWantsItems === "OWNS" || isCurrentUser}
+                hideWantsBadge={closetList.ownsOrWantsItems === "WANTS" || isCurrentUser}
+              />
             </WrapItem>
           ))}
         </Wrap>
