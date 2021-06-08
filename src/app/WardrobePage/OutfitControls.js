@@ -5,10 +5,20 @@ import {
   Button,
   DarkMode,
   Flex,
+  FormControl,
+  FormHelperText,
+  FormLabel,
+  HStack,
   IconButton,
   ListItem,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
   Portal,
   Stack,
+  Switch,
   Tooltip,
   UnorderedList,
   useClipboard,
@@ -17,8 +27,10 @@ import {
 import {
   ArrowBackIcon,
   CheckIcon,
+  ChevronDownIcon,
   DownloadIcon,
   LinkIcon,
+  SettingsIcon,
 } from "@chakra-ui/icons";
 import { MdPause, MdPlayArrow } from "react-icons/md";
 import { Link } from "react-router-dom";
@@ -151,13 +163,20 @@ function OutfitControls({
           <Box gridArea="back" onClick={maybeUnlockFocus}>
             <BackButton outfitState={outfitState} />
           </Box>
-          {showAnimationControls && (
-            <Box gridArea="play-pause" display="flex" justifyContent="center">
-              <DarkMode>
-                <PlayPauseButton />
-              </DarkMode>
-            </Box>
-          )}
+
+          <Box
+            gridArea="play-pause"
+            // HACK: Better visual centering with other controls
+            paddingTop="0.3rem"
+          >
+            <HStack spacing="2" align="center" justify="center">
+              {showAnimationControls && <PlayPauseButton />}
+              <SettingsButton
+                onLockFocus={onLockFocus}
+                onUnlockFocus={onUnlockFocus}
+              />
+            </HStack>
+          </Box>
           <Stack
             gridArea="sharing"
             alignSelf="flex-end"
@@ -379,7 +398,6 @@ function PlayPauseButton() {
           <PlayPauseButtonContent
             isPaused={isPaused}
             setIsPaused={setIsPaused}
-            marginTop="0.3rem" // to center-align with buttons (not sure on amt?)
             ref={buttonRef}
           />
           {blinkInState.type === "started" && (
@@ -432,35 +450,94 @@ function PlayPauseButton() {
 const PlayPauseButtonContent = React.forwardRef(
   ({ isPaused, setIsPaused, ...props }, ref) => {
     return (
-      <Button
+      <TranslucentButton
         ref={ref}
         leftIcon={isPaused ? <MdPause /> : <MdPlayArrow />}
-        size="sm"
-        color="gray.100"
-        variant="outline"
-        borderColor="gray.200"
-        borderRadius="full"
-        backgroundColor="blackAlpha.600"
-        boxShadow="md"
-        position="absolute"
-        _hover={{
-          backgroundColor: "gray.600",
-          borderColor: "gray.50",
-          color: "gray.50",
-        }}
-        _focus={{
-          backgroundColor: "gray.600",
-          borderColor: "gray.50",
-          color: "gray.50",
-        }}
         onClick={() => setIsPaused(!isPaused)}
         {...props}
       >
         {isPaused ? <>Paused</> : <>Playing</>}
-      </Button>
+      </TranslucentButton>
     );
   }
 );
+
+function SettingsButton({ onLockFocus, onUnlockFocus }) {
+  return (
+    <Popover onOpen={onLockFocus} onClose={onUnlockFocus}>
+      <PopoverTrigger>
+        <TranslucentButton size="xs" aria-label="Settings">
+          <SettingsIcon />
+          <Box width="1" />
+          <ChevronDownIcon />
+        </TranslucentButton>
+      </PopoverTrigger>
+      <Portal>
+        <PopoverContent width="25ch">
+          <PopoverArrow />
+          <PopoverBody>
+            <HiResModeSetting />
+          </PopoverBody>
+        </PopoverContent>
+      </Portal>
+    </Popover>
+  );
+}
+
+function HiResModeSetting() {
+  const [hiResMode, setHiResMode] = useLocalStorage("DTIHiResMode", false);
+
+  return (
+    <FormControl>
+      <Flex>
+        <Box>
+          <FormLabel htmlFor="hi-res-mode-setting" fontSize="sm" margin="0">
+            Hi-res mode (SVG)
+          </FormLabel>
+          <FormHelperText marginTop="0" fontSize="xs">
+            Crisper at higher resolutions, but not always accurate
+          </FormHelperText>
+        </Box>
+        <Box width="2" />
+        <Switch
+          id="hi-res-mode-setting"
+          size="sm"
+          marginTop="0.1rem"
+          isChecked={hiResMode}
+          onChange={(e) => setHiResMode(e.target.checked)}
+        />
+      </Flex>
+    </FormControl>
+  );
+}
+
+const TranslucentButton = React.forwardRef(({ children, ...props }, ref) => {
+  return (
+    <Button
+      ref={ref}
+      size="sm"
+      color="gray.100"
+      variant="outline"
+      borderColor="gray.200"
+      borderRadius="full"
+      backgroundColor="blackAlpha.600"
+      boxShadow="md"
+      _hover={{
+        backgroundColor: "gray.600",
+        borderColor: "gray.50",
+        color: "gray.50",
+      }}
+      _focus={{
+        backgroundColor: "gray.600",
+        borderColor: "gray.50",
+        color: "gray.50",
+      }}
+      {...props}
+    >
+      {children}
+    </Button>
+  );
+});
 
 /**
  * ControlButton is a UI helper to render the cute round buttons we use in
@@ -493,6 +570,8 @@ function ControlButton({ icon, "aria-label": ariaLabel, ...props }) {
  * image URL.
  */
 function useDownloadableImage(visibleLayers) {
+  const [hiResMode] = useLocalStorage("DTIHiResMode", false);
+
   const [downloadImageUrl, setDownloadImageUrl] = React.useState(null);
   const [preparedForLayerIds, setPreparedForLayerIds] = React.useState([]);
   const toast = useToast();
@@ -511,8 +590,12 @@ function useDownloadableImage(visibleLayers) {
 
     setDownloadImageUrl(null);
 
+    // NOTE: You could argue that we may as well just always use PNGs here,
+    //       regardless of hi-res mode… but using the same src will help both
+    //       performance (can use cached SVG), and predictability (image will
+    //       look like what you see here).
     const imagePromises = visibleLayers.map((layer) =>
-      loadImage(getBestImageUrlForLayer(layer))
+      loadImage(getBestImageUrlForLayer(layer, { hiResMode }))
     );
 
     let images;
@@ -545,7 +628,7 @@ function useDownloadableImage(visibleLayers) {
     );
     setDownloadImageUrl(canvas.toDataURL("image/png"));
     setPreparedForLayerIds(layerIds);
-  }, [preparedForLayerIds, visibleLayers, toast]);
+  }, [preparedForLayerIds, visibleLayers, toast, hiResMode]);
 
   return [downloadImageUrl, prepareDownload];
 }

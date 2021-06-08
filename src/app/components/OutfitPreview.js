@@ -124,6 +124,8 @@ export function OutfitLayers({
   isPaused = true,
   ...props
 }) {
+  const [hiResMode] = useLocalStorage("DTIHiResMode", false);
+
   const containerRef = React.useRef(null);
   const [canvasSize, setCanvasSize] = React.useState(0);
   const [loadingDelayHasPassed, setLoadingDelayHasPassed] = React.useState(
@@ -230,13 +232,16 @@ export function OutfitLayers({
                   ) : (
                     <Box
                       as="img"
-                      src={getBestImageUrlForLayer(layer).src}
+                      src={getBestImageUrlForLayer(layer, { hiResMode }).src}
                       // The crossOrigin prop isn't strictly necessary for loading
                       // here (<img> tags are always allowed through CORS), but
                       // this means we make the same request that the Download
                       // button makes, so it can use the cached version of this
                       // image instead of requesting it again with crossOrigin!
-                      crossOrigin={getBestImageUrlForLayer(layer).crossOrigin}
+                      crossOrigin={
+                        getBestImageUrlForLayer(layer, { hiResMode })
+                          .crossOrigin
+                      }
                       alt=""
                       objectFit="contain"
                       maxWidth="100%"
@@ -306,8 +311,8 @@ export function FullScreenCenter({ children, ...otherProps }) {
   );
 }
 
-export function getBestImageUrlForLayer(layer) {
-  if (layer.svgUrl) {
+export function getBestImageUrlForLayer(layer, { hiResMode = false } = {}) {
+  if (hiResMode && layer.svgUrl) {
     return { src: safeImageUrl(layer.svgUrl), crossOrigin: "anonymous" };
   } else {
     return { src: safeImageUrl(layer.imageUrl), crossOrigin: "anonymous" };
