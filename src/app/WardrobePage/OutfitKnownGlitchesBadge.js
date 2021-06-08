@@ -13,34 +13,39 @@ function OutfitKnownGlitchesBadge({ appearance }) {
   // Look for UC/Invisible/etc incompatibilities that we hid, that we should
   // just mark Incompatible someday instead; or with correctly partially-hidden
   // art.
-  for (const item of items) {
-    // HACK: We use `getVisibleLayers` with just this pet appearance and item
-    //       appearance, to run the logic for which layers are compatible with
-    //       this pet. But `getVisibleLayers` does other things too, so it's
-    //       plausible that this could do not quite what we want in some cases!
-    const allItemLayers = item.appearance.layers;
-    const compatibleItemLayers = getVisibleLayers(petAppearance, [
-      item.appearance,
-    ]).filter((l) => l.source === "item");
+  //
+  // NOTE: This particular glitch is checking for the *absence* of layers, so
+  //       we skip it if we're still loading!
+  if (!appearance.loading) {
+    for (const item of items) {
+      // HACK: We use `getVisibleLayers` with just this pet appearance and item
+      //       appearance, to run the logic for which layers are compatible with
+      //       this pet. But `getVisibleLayers` does other things too, so it's
+      //       plausible that this could do not quite what we want in some cases!
+      const allItemLayers = item.appearance.layers;
+      const compatibleItemLayers = getVisibleLayers(petAppearance, [
+        item.appearance,
+      ]).filter((l) => l.source === "item");
 
-    if (compatibleItemLayers.length === 0) {
-      glitchMessages.push(
-        <Box key={`total-uc-conflict-for-item-${item.id}`}>
-          <i>{item.name}</i> isn't actually compatible with this special pet.
-          We're hiding the item art, which is outdated behavior, and we should
-          instead be treating it as entirely incompatible. Fixing this is in our
-          todo list, sorry for the confusing UI!
-        </Box>
-      );
-    } else if (compatibleItemLayers.length < allItemLayers.length) {
-      glitchMessages.push(
-        <Box key={`partial-uc-conflict-for-item-${item.id}`}>
-          <i>{item.name}</i>'s compatibility with this pet is complicated, but
-          we believe this is how it looks: some zones are visible, and some
-          zones are hidden. If this isn't quite right, please email me at
-          matchu@openneo.net and let me know!
-        </Box>
-      );
+      if (compatibleItemLayers.length === 0) {
+        glitchMessages.push(
+          <Box key={`total-uc-conflict-for-item-${item.id}`}>
+            <i>{item.name}</i> isn't actually compatible with this special pet.
+            We're hiding the item art, which is outdated behavior, and we should
+            instead be treating it as entirely incompatible. Fixing this is in
+            our todo list, sorry for the confusing UI!
+          </Box>
+        );
+      } else if (compatibleItemLayers.length < allItemLayers.length) {
+        glitchMessages.push(
+          <Box key={`partial-uc-conflict-for-item-${item.id}`}>
+            <i>{item.name}</i>'s compatibility with this pet is complicated, but
+            we believe this is how it looks: some zones are visible, and some
+            zones are hidden. If this isn't quite right, please email me at
+            matchu@openneo.net and let me know!
+          </Box>
+        );
+      }
     }
   }
 
