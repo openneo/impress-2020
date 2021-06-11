@@ -325,6 +325,8 @@ export function getBestImageUrlForLayer(layer, { hiResMode = false } = {}) {
  * all the new layers are ready, then show them all at once!
  */
 export function usePreloadLayers(layers) {
+  const [hiResMode] = useLocalStorage("DTIHiResMode", false);
+
   const [error, setError] = React.useState(null);
   const [loadedLayers, setLoadedLayers] = React.useState([]);
   const [layersHaveAnimations, setLayersHaveAnimations] = React.useState(false);
@@ -360,10 +362,12 @@ export function usePreloadLayers(layers) {
             })
           );
         } else {
-          return loadImage(getBestImageUrlForLayer(layer)).then((image) => ({
-            type: "image",
-            image,
-          }));
+          return loadImage(getBestImageUrlForLayer(layer, { hiResMode })).then(
+            (image) => ({
+              type: "image",
+              image,
+            })
+          );
         }
       });
 
@@ -404,7 +408,7 @@ export function usePreloadLayers(layers) {
     return () => {
       canceled = true;
     };
-  }, [layers, loadedLayers.length, loading]);
+  }, [layers, loadedLayers.length, loading, hiResMode]);
 
   return { loading, error, loadedLayers, layersHaveAnimations };
 }
