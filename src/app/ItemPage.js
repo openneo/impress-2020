@@ -528,30 +528,40 @@ function ItemPageOutfitPreview({ itemId }) {
     null
   );
 
-  const setPetStateFromUserAction = (newPetState) => {
-    setPetState(newPetState);
+  const setPetStateFromUserAction = React.useCallback(
+    (newPetState) =>
+      setPetState((prevPetState) => {
+        // When the user _intentionally_ chooses a species or color, save it in
+        // local storage for next time. (This won't update when e.g. their
+        // preferred species or color isn't available for this item, so we update
+        // to the canonical species or color automatically.)
+        //
+        // Re the "ifs", I have no reason to expect null to come in here, but,
+        // since this is touching client-persisted data, I want it to be even more
+        // reliable than usual!
+        if (
+          newPetState.speciesId &&
+          newPetState.speciesId !== prevPetState.speciesId
+        ) {
+          setPreferredSpeciesId(newPetState.speciesId);
+        }
+        if (
+          newPetState.colorId &&
+          newPetState.colorId !== prevPetState.colorId
+        ) {
+          if (colorIsBasic(newPetState.colorId)) {
+            // When the user chooses a basic color, don't index on it specifically,
+            // and instead reset to use default colors.
+            setPreferredColorId(null);
+          } else {
+            setPreferredColorId(newPetState.colorId);
+          }
+        }
 
-    // When the user _intentionally_ chooses a species or color, save it in
-    // local storage for next time. (This won't update when e.g. their
-    // preferred species or color isn't available for this item, so we update
-    // to the canonical species or color automatically.)
-    //
-    // Re the "ifs", I have no reason to expect null to come in here, but,
-    // since this is touching client-persisted data, I want it to be even more
-    // reliable than usual!
-    if (newPetState.speciesId && newPetState.speciesId !== petState.speciesId) {
-      setPreferredSpeciesId(newPetState.speciesId);
-    }
-    if (newPetState.colorId && newPetState.colorId !== petState.colorId) {
-      if (colorIsBasic(newPetState.colorId)) {
-        // When the user chooses a basic color, don't index on it specifically,
-        // and instead reset to use default colors.
-        setPreferredColorId(null);
-      } else {
-        setPreferredColorId(newPetState.colorId);
-      }
-    }
-  };
+        return newPetState;
+      }),
+    [setPreferredColorId, setPreferredSpeciesId]
+  );
 
   // We don't need to reload this query when preferred species/color change, so
   // cache their initial values here to use as query arguments.
@@ -694,6 +704,21 @@ function ItemPageOutfitPreview({ itemId }) {
   const isCompatible = itemLayers.length > 0;
   const usesHTML5 = itemLayers.every(layerUsesHTML5);
 
+  const onChange = React.useCallback(
+    ({ speciesId, colorId }) => {
+      const validPoses = getValidPoses(valids, speciesId, colorId);
+      const pose = getClosestPose(validPoses, idealPose);
+      setPetStateFromUserAction({
+        speciesId,
+        colorId,
+        pose,
+        isValid: true,
+        appearanceId: null,
+      });
+    },
+    [valids, idealPose, setPetStateFromUserAction]
+  );
+
   const borderColor = useColorModeValue("green.700", "green.400");
   const errorColor = useColorModeValue("red.600", "red.400");
 
@@ -824,17 +849,7 @@ function ItemPageOutfitPreview({ itemId }) {
           selectedColorId={petState.colorId}
           compatibleBodies={compatibleBodies}
           couldProbablyModelMoreData={couldProbablyModelMoreData}
-          onChange={({ speciesId, colorId }) => {
-            const validPoses = getValidPoses(valids, speciesId, colorId);
-            const pose = getClosestPose(validPoses, idealPose);
-            setPetStateFromUserAction({
-              speciesId,
-              colorId,
-              pose,
-              isValid: true,
-              appearanceId: null,
-            });
-          }}
+          onChange={onChange}
           isLoading={loadingGQL || loadingValids}
         />
       </Box>
@@ -1087,195 +1102,197 @@ function SpeciesFacesPicker({
   );
 }
 
-function SpeciesFaceOption({
-  speciesId,
-  speciesName,
-  colorId,
-  neopetsImageHash,
-  isSelected,
-  bodyIsCompatible,
-  isValid,
-  couldProbablyModelMoreData,
-  onChange,
-  isLoading,
-}) {
-  const selectedBorderColor = useColorModeValue("green.600", "green.400");
-  const selectedBackgroundColor = useColorModeValue("green.200", "green.600");
-  const focusBorderColor = "blue.400";
-  const focusBackgroundColor = "blue.100";
-  const [
-    selectedBorderColorValue,
-    selectedBackgroundColorValue,
-    focusBorderColorValue,
-    focusBackgroundColorValue,
-  ] = useToken("colors", [
-    selectedBorderColor,
-    selectedBackgroundColor,
-    focusBorderColor,
-    focusBackgroundColor,
-  ]);
-  const xlShadow = useToken("shadows", "xl");
+const SpeciesFaceOption = React.memo(
+  ({
+    speciesId,
+    speciesName,
+    colorId,
+    neopetsImageHash,
+    isSelected,
+    bodyIsCompatible,
+    isValid,
+    couldProbablyModelMoreData,
+    onChange,
+    isLoading,
+  }) => {
+    const selectedBorderColor = useColorModeValue("green.600", "green.400");
+    const selectedBackgroundColor = useColorModeValue("green.200", "green.600");
+    const focusBorderColor = "blue.400";
+    const focusBackgroundColor = "blue.100";
+    const [
+      selectedBorderColorValue,
+      selectedBackgroundColorValue,
+      focusBorderColorValue,
+      focusBackgroundColorValue,
+    ] = useToken("colors", [
+      selectedBorderColor,
+      selectedBackgroundColor,
+      focusBorderColor,
+      focusBackgroundColor,
+    ]);
+    const xlShadow = useToken("shadows", "xl");
 
-  const [labelIsHovered, setLabelIsHovered] = React.useState(false);
-  const [inputIsFocused, setInputIsFocused] = React.useState(false);
+    const [labelIsHovered, setLabelIsHovered] = React.useState(false);
+    const [inputIsFocused, setInputIsFocused] = React.useState(false);
 
-  const isDisabled = isLoading || !isValid || !bodyIsCompatible;
-  const isHappy = isLoading || (isValid && bodyIsCompatible);
-  const emotionId = isHappy ? "1" : "2";
-  const cursor = isLoading ? "wait" : isDisabled ? "not-allowed" : "pointer";
+    const isDisabled = isLoading || !isValid || !bodyIsCompatible;
+    const isHappy = isLoading || (isValid && bodyIsCompatible);
+    const emotionId = isHappy ? "1" : "2";
+    const cursor = isLoading ? "wait" : isDisabled ? "not-allowed" : "pointer";
 
-  let disabledExplanation = null;
-  if (isLoading) {
-    // If we're still loading, don't try to explain anything yet!
-  } else if (!isValid) {
-    disabledExplanation = "(Can't be this color)";
-  } else if (!bodyIsCompatible) {
-    disabledExplanation = couldProbablyModelMoreData
-      ? "(Item needs models)"
-      : "(Not compatible)";
-  }
+    let disabledExplanation = null;
+    if (isLoading) {
+      // If we're still loading, don't try to explain anything yet!
+    } else if (!isValid) {
+      disabledExplanation = "(Can't be this color)";
+    } else if (!bodyIsCompatible) {
+      disabledExplanation = couldProbablyModelMoreData
+        ? "(Item needs models)"
+        : "(Not compatible)";
+    }
 
-  const tooltipLabel = (
-    <div style={{ textAlign: "center" }}>
-      {speciesName}
-      {disabledExplanation && (
-        <div style={{ fontStyle: "italic", fontSize: "0.75em" }}>
-          {disabledExplanation}
-        </div>
-      )}
-    </div>
-  );
+    const tooltipLabel = (
+      <div style={{ textAlign: "center" }}>
+        {speciesName}
+        {disabledExplanation && (
+          <div style={{ fontStyle: "italic", fontSize: "0.75em" }}>
+            {disabledExplanation}
+          </div>
+        )}
+      </div>
+    );
 
-  // NOTE: Because we render quite a few of these, avoiding using Chakra
-  //       elements like Box helps with render performance!
-  return (
-    <ClassNames>
-      {({ css }) => (
-        <DeferredTooltip
-          label={tooltipLabel}
-          placement="top"
-          gutter={-10}
-          // We track hover and focus state manually for the tooltip, so that
-          // keyboard nav to switch between options causes the tooltip to
-          // follow. (By default, the tooltip appears on the first tab focus,
-          // but not when you _change_ options!)
-          isOpen={labelIsHovered || inputIsFocused}
-        >
-          <label
-            style={{ cursor }}
-            onMouseEnter={() => setLabelIsHovered(true)}
-            onMouseLeave={() => setLabelIsHovered(false)}
+    // NOTE: Because we render quite a few of these, avoiding using Chakra
+    //       elements like Box helps with render performance!
+    return (
+      <ClassNames>
+        {({ css }) => (
+          <DeferredTooltip
+            label={tooltipLabel}
+            placement="top"
+            gutter={-10}
+            // We track hover and focus state manually for the tooltip, so that
+            // keyboard nav to switch between options causes the tooltip to
+            // follow. (By default, the tooltip appears on the first tab focus,
+            // but not when you _change_ options!)
+            isOpen={labelIsHovered || inputIsFocused}
           >
-            <input
-              type="radio"
-              aria-label={speciesName}
-              name="species-faces-picker"
-              value={speciesId}
-              checked={isSelected}
-              // It's possible to get this selected via the SpeciesColorPicker,
-              // even if this would normally be disabled. If so, make this
-              // option enabled, so keyboard users can focus and change it.
-              disabled={isDisabled && !isSelected}
-              onChange={() => onChange({ speciesId, colorId })}
-              onFocus={() => setInputIsFocused(true)}
-              onBlur={() => setInputIsFocused(false)}
-              className={css`
-                /* Copied from Chakra's <VisuallyHidden /> */
-                border: 0px;
-                clip: rect(0px, 0px, 0px, 0px);
-                height: 1px;
-                width: 1px;
-                margin: -1px;
-                padding: 0px;
-                overflow: hidden;
-                white-space: nowrap;
-                position: absolute;
-              `}
-            />
-            <div
-              className={css`
-                overflow: hidden;
-                transition: all 0.2s;
-                position: relative;
-
-                input:checked + & {
-                  background: ${selectedBackgroundColorValue};
-                  border-radius: 6px;
-                  box-shadow: ${xlShadow},
-                    ${selectedBorderColorValue} 0 0 2px 2px;
-                  transform: scale(1.2);
-                  z-index: 1;
-                }
-
-                input:focus + & {
-                  background: ${focusBackgroundColorValue};
-                  box-shadow: ${xlShadow}, ${focusBorderColorValue} 0 0 0 3px;
-                }
-              `}
+            <label
+              style={{ cursor }}
+              onMouseEnter={() => setLabelIsHovered(true)}
+              onMouseLeave={() => setLabelIsHovered(false)}
             >
-              <CrossFadeImage
-                src={`https://pets.neopets-asset-proxy.openneo.net/cp/${neopetsImageHash}/${emotionId}/1.png`}
-                srcSet={
-                  `https://pets.neopets-asset-proxy.openneo.net/cp/${neopetsImageHash}/${emotionId}/1.png 1x, ` +
-                  `https://pets.neopets-asset-proxy.openneo.net/cp/${neopetsImageHash}/${emotionId}/6.png 2x`
-                }
-                alt={speciesName}
-                width={55}
-                height={55}
-                data-is-loading={isLoading}
-                data-is-disabled={isDisabled}
+              <input
+                type="radio"
+                aria-label={speciesName}
+                name="species-faces-picker"
+                value={speciesId}
+                checked={isSelected}
+                // It's possible to get this selected via the SpeciesColorPicker,
+                // even if this would normally be disabled. If so, make this
+                // option enabled, so keyboard users can focus and change it.
+                disabled={isDisabled && !isSelected}
+                onChange={() => onChange({ speciesId, colorId })}
+                onFocus={() => setInputIsFocused(true)}
+                onBlur={() => setInputIsFocused(false)}
                 className={css`
-                  filter: saturate(90%);
-                  opacity: 0.9;
-                  transition: all 0.2s;
-
-                  &[data-is-disabled="true"] {
-                    filter: saturate(0%);
-                    opacity: 0.6;
-                  }
-
-                  &[data-is-loading="true"] {
-                    animation: 0.8s linear 0s infinite alternate none running
-                      pulse;
-                  }
-
-                  input:checked + * &[data-body-is-disabled="false"] {
-                    opacity: 1;
-                    filter: saturate(110%);
-                  }
-
-                  input:checked + * &[data-body-is-disabled="true"] {
-                    opacity: 0.85;
-                  }
-
-                  @keyframes pulse {
-                    from {
-                      opacity: 0.5;
-                    }
-                    to {
-                      opacity: 1;
-                    }
-                  }
-
-                  /* Alt text for when the image fails to load! We hide it
-                     * while still loading though! */
-                  font-size: 0.75rem;
-                  text-align: center;
-                  &:-moz-loading {
-                    visibility: hidden;
-                  }
-                  &:-moz-broken {
-                    padding: 0.5rem;
-                  }
+                  /* Copied from Chakra's <VisuallyHidden /> */
+                  border: 0px;
+                  clip: rect(0px, 0px, 0px, 0px);
+                  height: 1px;
+                  width: 1px;
+                  margin: -1px;
+                  padding: 0px;
+                  overflow: hidden;
+                  white-space: nowrap;
+                  position: absolute;
                 `}
               />
-            </div>
-          </label>
-        </DeferredTooltip>
-      )}
-    </ClassNames>
-  );
-}
+              <div
+                className={css`
+                  overflow: hidden;
+                  transition: all 0.2s;
+                  position: relative;
+
+                  input:checked + & {
+                    background: ${selectedBackgroundColorValue};
+                    border-radius: 6px;
+                    box-shadow: ${xlShadow},
+                      ${selectedBorderColorValue} 0 0 2px 2px;
+                    transform: scale(1.2);
+                    z-index: 1;
+                  }
+
+                  input:focus + & {
+                    background: ${focusBackgroundColorValue};
+                    box-shadow: ${xlShadow}, ${focusBorderColorValue} 0 0 0 3px;
+                  }
+                `}
+              >
+                <CrossFadeImage
+                  src={`https://pets.neopets-asset-proxy.openneo.net/cp/${neopetsImageHash}/${emotionId}/1.png`}
+                  srcSet={
+                    `https://pets.neopets-asset-proxy.openneo.net/cp/${neopetsImageHash}/${emotionId}/1.png 1x, ` +
+                    `https://pets.neopets-asset-proxy.openneo.net/cp/${neopetsImageHash}/${emotionId}/6.png 2x`
+                  }
+                  alt={speciesName}
+                  width={55}
+                  height={55}
+                  data-is-loading={isLoading}
+                  data-is-disabled={isDisabled}
+                  className={css`
+                    filter: saturate(90%);
+                    opacity: 0.9;
+                    transition: all 0.2s;
+
+                    &[data-is-disabled="true"] {
+                      filter: saturate(0%);
+                      opacity: 0.6;
+                    }
+
+                    &[data-is-loading="true"] {
+                      animation: 0.8s linear 0s infinite alternate none running
+                        pulse;
+                    }
+
+                    input:checked + * &[data-body-is-disabled="false"] {
+                      opacity: 1;
+                      filter: saturate(110%);
+                    }
+
+                    input:checked + * &[data-body-is-disabled="true"] {
+                      opacity: 0.85;
+                    }
+
+                    @keyframes pulse {
+                      from {
+                        opacity: 0.5;
+                      }
+                      to {
+                        opacity: 1;
+                      }
+                    }
+
+                    /* Alt text for when the image fails to load! We hide it
+                     * while still loading though! */
+                    font-size: 0.75rem;
+                    text-align: center;
+                    &:-moz-loading {
+                      visibility: hidden;
+                    }
+                    &:-moz-broken {
+                      padding: 0.5rem;
+                    }
+                  `}
+                />
+              </div>
+            </label>
+          </DeferredTooltip>
+        )}
+      </ClassNames>
+    );
+  }
+);
 
 function ItemZonesInfo({ compatibleBodiesAndTheirZones, restrictedZones }) {
   // Reorganize the body-and-zones data, into zone-and-bodies data. Also, we're

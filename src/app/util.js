@@ -309,15 +309,18 @@ export function useLocalStorage(key, initialValue) {
 
   const [storedValue, setStoredValue] = React.useState(loadValue);
 
-  const setValue = (value) => {
-    try {
-      setStoredValue(value);
-      window.localStorage.setItem(key, JSON.stringify(value));
-      storageListeners.forEach((l) => l());
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  const setValue = React.useCallback(
+    (value) => {
+      try {
+        setStoredValue(value);
+        window.localStorage.setItem(key, JSON.stringify(value));
+        storageListeners.forEach((l) => l());
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    [key]
+  );
 
   const reloadValue = React.useCallback(() => {
     setStoredValue(loadValue());
