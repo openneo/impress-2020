@@ -248,9 +248,11 @@ export function useFetch(url, { responseType, skip, ...fetchOptions }) {
     throw new Error(`unsupported responseType ${responseType}`);
   }
 
-  const [loading, setLoading] = React.useState(skip ? false : true);
-  const [error, setError] = React.useState(null);
-  const [data, setData] = React.useState(null);
+  const [response, setResponse] = React.useState({
+    loading: skip ? false : true,
+    error: null,
+    data: null,
+  });
 
   // We expect this to be a simple object, so this helps us only re-send the
   // fetch when the options have actually changed, rather than e.g. a new copy
@@ -271,18 +273,14 @@ export function useFetch(url, { responseType, skip, ...fetchOptions }) {
         }
 
         const arrayBuffer = await res.arrayBuffer();
-        setLoading(false);
-        setError(null);
-        setData(arrayBuffer);
+        setResponse({ loading: false, error: null, data: arrayBuffer });
       })
       .catch((error) => {
         if (canceled) {
           return;
         }
 
-        setLoading(false);
-        setError(error);
-        setData(null);
+        setResponse({ loading: false, error, data: null });
       });
 
     return () => {
@@ -290,7 +288,7 @@ export function useFetch(url, { responseType, skip, ...fetchOptions }) {
     };
   }, [skip, url, fetchOptionsAsJson]);
 
-  return { loading, error, data };
+  return response;
 }
 
 /**
