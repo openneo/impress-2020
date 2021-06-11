@@ -241,14 +241,14 @@ export function usePageTitle(title, { skip = false } = {}) {
  *
  * Our limited API is designed to match the `use-http` library!
  */
-export function useFetch(url, { responseType, ...fetchOptions }) {
+export function useFetch(url, { responseType, skip, ...fetchOptions }) {
   // Just trying to be clear about what you'll get back ^_^` If we want to
   // fetch non-binary data later, extend this and get something else from res!
   if (responseType !== "arrayBuffer") {
     throw new Error(`unsupported responseType ${responseType}`);
   }
 
-  const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = React.useState(skip ? false : true);
   const [error, setError] = React.useState(null);
   const [data, setData] = React.useState(null);
 
@@ -258,6 +258,10 @@ export function useFetch(url, { responseType, ...fetchOptions }) {
   const fetchOptionsAsJson = JSON.stringify(fetchOptions);
 
   React.useEffect(() => {
+    if (skip) {
+      return;
+    }
+
     let canceled = false;
 
     fetch(url, JSON.parse(fetchOptionsAsJson))
@@ -284,7 +288,7 @@ export function useFetch(url, { responseType, ...fetchOptions }) {
     return () => {
       canceled = true;
     };
-  }, [url, fetchOptionsAsJson]);
+  }, [skip, url, fetchOptionsAsJson]);
 
   return { loading, error, data };
 }
