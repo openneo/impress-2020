@@ -392,16 +392,18 @@ export function logAndCapture(e) {
   Sentry.captureException(e);
 }
 
-export function MajorErrorMessage({ error, variant = "unexpected" }) {
+export function MajorErrorMessage({ error = null, variant = "unexpected" }) {
   // If this is a GraphQL Bad Request error, show the message of the first
   // error the server returned. Otherwise, just use the normal error message!
   const message =
-    error?.networkError?.result?.errors?.[0]?.message || error.message;
+    error?.networkError?.result?.errors?.[0]?.message || error?.message || null;
 
   // Log the detailed error to the console, so we can have a good debug
   // experience without the parent worrying about it!
   React.useEffect(() => {
-    console.error(error);
+    if (error) {
+      console.error(error);
+    }
   }, [error]);
 
   return (
@@ -428,6 +430,7 @@ export function MajorErrorMessage({ error, variant = "unexpected" }) {
         <Box gridArea="title" fontSize="lg" marginBottom="1">
           {variant === "unexpected" && <>Ah dang, I broke it 😖</>}
           {variant === "network" && <>Oops, it didn't work, sorry 😖</>}
+          {variant === "not-found" && <>Oops, page not found 😖</>}
         </Box>
         <Box gridArea="description" marginBottom="2">
           {variant === "unexpected" && (
@@ -451,15 +454,28 @@ export function MajorErrorMessage({ error, variant = "unexpected" }) {
               !
             </>
           )}
+          {variant === "not-found" && (
+            <>
+              We couldn't find this page. Maybe it's been deleted? Check the URL
+              and try again—and if you keep having trouble, please tell me more
+              at{" "}
+              <Link href="mailto:matchu@openneo.net" color="green.400">
+                matchu@openneo.net
+              </Link>
+              !
+            </>
+          )}
         </Box>
-        <Box gridArea="details" fontSize="xs" opacity="0.8">
-          <WarningIcon
-            marginRight="1.5"
-            marginTop="-2px"
-            aria-label="Error message"
-          />
-          "{message}"
-        </Box>
+        {message && (
+          <Box gridArea="details" fontSize="xs" opacity="0.8">
+            <WarningIcon
+              marginRight="1.5"
+              marginTop="-2px"
+              aria-label="Error message"
+            />
+            "{message}"
+          </Box>
+        )}
       </Grid>
     </Flex>
   );
