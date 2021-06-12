@@ -392,7 +392,18 @@ export function logAndCapture(e) {
   Sentry.captureException(e);
 }
 
-export function MajorErrorMessage({ error }) {
+export function MajorErrorMessage({ error, variant = "unexpected" }) {
+  // If this is a GraphQL Bad Request error, show the message of the first
+  // error the server returned. Otherwise, just use the normal error message!
+  const message =
+    error?.networkError?.result?.errors?.[0]?.message || error.message;
+
+  // Log the detailed error to the console, so we can have a good debug
+  // experience without the parent worrying about it!
+  React.useEffect(() => {
+    console.error(error);
+  }, [error]);
+
   return (
     <Flex justify="center" marginTop="8">
       <Grid
@@ -415,15 +426,31 @@ export function MajorErrorMessage({ error }) {
           />
         </Box>
         <Box gridArea="title" fontSize="lg" marginBottom="1">
-          Ah dang, I broke it 😖
+          {variant === "unexpected" && <>Ah dang, I broke it 😖</>}
+          {variant === "network" && <>Oops, it didn't work, sorry 😖</>}
         </Box>
         <Box gridArea="description" marginBottom="2">
-          There was an error displaying this page. I'll get info about it
-          automatically, but you can tell me more at{" "}
-          <Link href="mailto:matchu@openneo.net" color="green.400">
-            matchu@openneo.net
-          </Link>
-          !
+          {variant === "unexpected" && (
+            <>
+              There was an error displaying this page. I'll get info about it
+              automatically, but you can tell me more at{" "}
+              <Link href="mailto:matchu@openneo.net" color="green.400">
+                matchu@openneo.net
+              </Link>
+              !
+            </>
+          )}
+          {variant === "network" && (
+            <>
+              There was an error displaying this page. Check your internet
+              connection and try again—and if you keep having trouble, please
+              tell me more at{" "}
+              <Link href="mailto:matchu@openneo.net" color="green.400">
+                matchu@openneo.net
+              </Link>
+              !
+            </>
+          )}
         </Box>
         <Box gridArea="details" fontSize="xs" opacity="0.8">
           <WarningIcon
@@ -431,7 +458,7 @@ export function MajorErrorMessage({ error }) {
             marginTop="-2px"
             aria-label="Error message"
           />
-          "{error.message}"
+          "{message}"
         </Box>
       </Grid>
     </Flex>
