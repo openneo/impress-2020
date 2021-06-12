@@ -28,7 +28,6 @@ function WIPCallout({
       paddingRight="4"
       paddingY="1"
       fontSize={size === "sm" ? "xs" : "sm"}
-      {...props}
     >
       <Box
         as="img"
@@ -61,6 +60,8 @@ function WIPCallout({
       </Tooltip>
     );
   }
+
+  content = <Box {...props}>{content}</Box>;
 
   return content;
 }

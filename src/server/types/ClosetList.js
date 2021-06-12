@@ -32,6 +32,15 @@ const typeDefs = gql`
     isDefaultList: Boolean!
 
     items: [Item!]!
+
+    # The user that created this list.
+    creator: User!
+  }
+
+  extend type Query {
+    # The closet list with the given ID. Will be null if it doesn't exist, or
+    # if you're not allowed to see it.
+    closetList(id: ID!): ClosetList
   }
 
   extend type Mutation {
@@ -93,22 +102,51 @@ const resolvers = {
       return Boolean(isDefaultList);
     },
 
-    items: ({ items }) => {
+    items: async (
+      { id, items: precomputedItems },
+      _,
+      { itemLoader, closetHangersForListLoader }
+    ) => {
       // HACK: When called from User.js, for fetching all of a user's lists at
-      //       once, this is provided in the returned object. This was before
-      //       we separated out the ClosetList resolvers at all! But I'm not
-      //       bothering to port it, because it would mean writing a new
-      //       loader, and we don't yet have any endpoints that actually need
-      //       this.
-      if (items) {
-        return items;
+      //       once, this is provided in the returned object. Just use it!
+      // TODO: Might be better to prime the loader with this instead?
+      if (precomputedItems) {
+        return precomputedItems;
       }
 
-      throw new Error(
-        `TODO: Not implemented, we still duplicate / bulk-implement some of ` +
-          `the list resolver stuff in User.js. Break that out into real ` +
-          `ClosetList loaders and resolvers!`
-      );
+      // TODO: Support the not-in-a-list case!
+      const closetHangers = await closetHangersForListLoader.load(id);
+      const itemIds = closetHangers.map((h) => h.itemId);
+      const items = await itemLoader.loadMany(itemIds);
+
+      return items.map(({ id }) => ({ id }));
+    },
+
+    creator: async ({ id, isDefaultList, userId }, _, { closetListLoader }) => {
+      if (isDefaultList) {
+        return { id: userId };
+      }
+
+      const closetList = await closetListLoader.load(id);
+      return { id: closetList.userId };
+    },
+  },
+
+  Query: {
+    closetList: async (_, { id, currentUserId }, { closetListLoader }) => {
+      // TODO: Accept the `not-in-a-list` case too!
+      const closetList = await closetListLoader.load(id);
+      if (!closetList) {
+        return null;
+      }
+
+      const canView =
+        closetList.userId === currentUserId || closetList.visibility >= 1;
+      if (!canView) {
+        return null;
+      }
+
+      return { id };
     },
   },
 

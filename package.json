@@ -45,6 +45,7 @@
     "react-dom": "^17.0.1",
     "react-icons": "^4.2.0",
     "react-router-dom": "^5.1.2",
+    "react-router-hash-link": "^2.4.3",
     "react-scripts": "^4.0.1",
     "react-transition-group": "^4.3.0",
     "simple-markdown": "^0.7.2",

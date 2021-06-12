@@ -32,7 +32,7 @@ import {
   StarIcon,
 } from "@chakra-ui/icons";
 import gql from "graphql-tag";
-import { useHistory, useParams } from "react-router-dom";
+import { Link, useHistory, useParams } from "react-router-dom";
 import { useQuery, useLazyQuery, useMutation } from "@apollo/client";
 import SimpleMarkdown from "simple-markdown";
 import DOMPurify from "dompurify";
@@ -76,10 +76,9 @@ function UserItemsPage() {
               thumbnailUrl
               currentUserOwnsThis
               currentUserWantsThis
-              allOccupiedZones {
-                id
-                label @client
-              }
+            }
+            creator {
+              id
             }
           }
         }
@@ -550,7 +549,13 @@ function ClosetList({ closetList, isCurrentUser, showHeading }) {
               lineHeight="1.2" // to match Input
               paddingY="2px" // to account for Input border/padding
             >
-              {closetList.name}
+              {closetList.isDefaultList ? closetList.name : <Box
+                as={Link}
+                to={buildClosetListPath(closetList)}
+                _hover={{ textDecoration: "underline" }}
+              >
+                {closetList.name}
+              </Box>}
             </Heading3>
           ))}
         <Box flex="1 0 auto" width="4" />
@@ -629,6 +634,23 @@ function ClosetList({ closetList, isCurrentUser, showHeading }) {
       )}
     </Box>
   );
+}
+
+function buildClosetListPath(closetList) {
+  let ownsOrWants;
+  if (closetList.ownsOrWantsItems === "OWNS") {
+    ownsOrWants = "owns";
+  } else if (closetList.ownsOrWantsItems === "WANTS") {
+    ownsOrWants = "wants";
+  } else {
+    throw new Error(
+      `unexpected ownsOrWantsItems value: ${closetList.ownsOrWantsItems}`
+    );
+  }
+
+  const idString = closetList.isDefaultList ? "not-in-a-list" : closetList.id;
+
+  return `/user/${closetList.creator.id}/lists/${ownsOrWants}/${idString}`;
 }
 
 const unsafeMarkdownRules = {

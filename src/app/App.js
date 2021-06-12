@@ -35,6 +35,7 @@ const SupportPetAppearancesPage = loadable(() =>
   import("./SupportPetAppearancesPage")
 );
 const UserItemsPage = loadable(() => import("./UserItemsPage"));
+const UserItemListPage = loadable(() => import("./UserItemListPage"));
 const UserOutfitsPage = loadable(() => import("./UserOutfitsPage"));
 const WardrobePage = loadable(() => import("./WardrobePage"), {
   fallback: <WardrobePageLayout />,
@@ -134,6 +135,11 @@ function App() {
               </Route>
               <Route path="/outfits/:id">
                 <WardrobePage />
+              </Route>
+              <Route path="/user/:userId/lists/:ownsOrWants(owns|wants)/:listId">
+                <PageLayout>
+                  <UserItemListPage />
+                </PageLayout>
               </Route>
               <Route path="/user/:userId/lists">
                 <PageLayout>

@@ -15,6 +15,21 @@ const buildClosetListLoader = (db) =>
     return ids.map((id) => entities.find((e) => e.id === id));
   });
 
+const buildClosetHangersForListLoader = (db) =>
+  new DataLoader(async (closetListIds) => {
+    const qs = closetListIds.map((_) => "?").join(",");
+    const [rows] = await db.execute(
+      `SELECT * FROM closet_hangers WHERE list_id IN (${qs})`,
+      closetListIds
+    );
+
+    const entities = rows.map(normalizeRow);
+
+    return closetListIds.map((closetListId) =>
+      entities.filter((e) => e.listId === closetListId)
+    );
+  });
+
 const buildColorLoader = (db) => {
   const colorLoader = new DataLoader(async (colorIds) => {
     const qs = colorIds.map((_) => "?").join(",");
@@ -1227,6 +1242,7 @@ function buildLoaders(db) {
   loaders.loadAllPetTypes = loadAllPetTypes(db);
 
   loaders.closetListLoader = buildClosetListLoader(db);
+  loaders.closetHangersForListLoader = buildClosetHangersForListLoader(db);
   loaders.colorLoader = buildColorLoader(db);
   loaders.colorTranslationLoader = buildColorTranslationLoader(db);
   loaders.itemLoader = buildItemLoader(db);
