@@ -620,7 +620,7 @@ function AppearanceLayerSupportModalRemoveButton({
   );
 }
 
-const SWF_URL_PATTERN = /^http:\/\/images\.neopets\.com\/cp\/(bio|items)\/swf\/(.+?)_([a-z0-9]+)\.swf$/;
+const SWF_URL_PATTERN = /^https?:\/\/images\.neopets\.com\/cp\/(bio|items)\/swf\/(.+?)_([a-z0-9]+)\.swf$/;
 
 function convertSwfUrlToPossibleManifestUrls(swfUrl) {
   const match = new URL(swfUrl, "http://images.neopets.com")
