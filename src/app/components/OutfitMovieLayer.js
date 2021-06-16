@@ -165,12 +165,32 @@ function OutfitMovieLayer({
       return;
     }
 
-    const intervalId = setInterval(
-      () => updateStage(),
-      1000 / library.properties.fps
-    );
+    let lastFpsLoggedAtInMs = performance.now();
+    let numFramesSinceLastLogged = 0;
+    const intervalId = setInterval(() => {
+      updateStage();
+
+      numFramesSinceLastLogged++;
+
+      const now = performance.now();
+      const timeSinceLastFpsLoggedAtInMs = now - lastFpsLoggedAtInMs;
+      const timeSinceLastFpsLoggedAtInSec = timeSinceLastFpsLoggedAtInMs / 1000;
+
+      if (timeSinceLastFpsLoggedAtInSec > 2) {
+        const fps = numFramesSinceLastLogged / timeSinceLastFpsLoggedAtInSec;
+        const roundedFps = Math.round(fps * 100) / 100;
+
+        console.debug(
+          `[OutfitMovieLayer] FPS: ${roundedFps} (Target: ${library.properties.fps}, ${numFramesSinceLastLogged}, ${timeSinceLastFpsLoggedAtInSec}) (${libraryUrl})`
+        );
+
+        lastFpsLoggedAtInMs = now;
+        numFramesSinceLastLogged = 0;
+      }
+    }, 1000 / library.properties.fps);
+
     return () => clearInterval(intervalId);
-  }, [stage, updateStage, movieClip, library, isPaused]);
+  }, [libraryUrl, stage, updateStage, movieClip, library, isPaused]);
 
   // This effect keeps the `movieClip` scaled correctly, based on the canvas
   // size and the `library`'s natural size declaration. (If the canvas size
