@@ -112,7 +112,7 @@ function ColorModeButton() {
 
 function useClassicDTIUrl() {
   const itemPageMatch = useRouteMatch("/items/:itemId");
-  const userItemsPageMatch = useRouteMatch("/user/:userId/items");
+  const userItemsPageMatch = useRouteMatch("/user/:userId/lists");
   const modelingPageMatch = useRouteMatch("/modeling");
 
   if (itemPageMatch) {

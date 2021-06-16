@@ -205,7 +205,7 @@ const resolvers = {
                     },
                   ],
                   timestamp: new Date().toISOString(),
-                  url: `https://impress-2020.openneo.net/user/${user.id}/items#list-${closetListId}`,
+                  url: `https://impress-2020.openneo.net/user/${user.id}/lists#list-${closetListId}`,
                 },
               ],
             });

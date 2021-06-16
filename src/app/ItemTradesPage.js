@@ -251,7 +251,7 @@ function ItemTradesTable({
                 trades.map((trade) => (
                   <ItemTradesTableRow
                     key={trade.id}
-                    href={`/user/${trade.user.id}/items#list-${trade.closetList.id}`}
+                    href={`/user/${trade.user.id}/lists#list-${trade.closetList.id}`}
                     username={trade.user.username}
                     listName={trade.closetList.name}
                     lastTradeActivity={trade.user.lastTradeActivity}

@@ -313,7 +313,7 @@ function UserSearchForm() {
           return;
         }
 
-        history.push(`/user/${user.id}/items`);
+        history.push(`/user/${user.id}/lists`);
       },
       onError: (error) => {
         console.error(error);
@@ -549,13 +549,17 @@ function ClosetList({ closetList, isCurrentUser, showHeading }) {
               lineHeight="1.2" // to match Input
               paddingY="2px" // to account for Input border/padding
             >
-              {closetList.isDefaultList ? closetList.name : <Box
-                as={Link}
-                to={buildClosetListPath(closetList)}
-                _hover={{ textDecoration: "underline" }}
-              >
-                {closetList.name}
-              </Box>}
+              {closetList.isDefaultList ? (
+                closetList.name
+              ) : (
+                <Box
+                  as={Link}
+                  to={buildClosetListPath(closetList)}
+                  _hover={{ textDecoration: "underline" }}
+                >
+                  {closetList.name}
+                </Box>
+              )}
             </Heading3>
           ))}
         <Box flex="1 0 auto" width="4" />

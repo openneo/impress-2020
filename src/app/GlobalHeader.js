@@ -128,7 +128,7 @@ function UserNavBarSection() {
         )}
         <NavLinksList>
           {id && (
-            <NavLinkItem as={Link} to={`/user/${id}/items`}>
+            <NavLinkItem as={Link} to={`/user/${id}/lists`}>
               Lists
             </NavLinkItem>
           )}
