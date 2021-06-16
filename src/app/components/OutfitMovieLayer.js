@@ -10,6 +10,7 @@ function OutfitMovieLayer({
   height,
   isPaused = false,
   onLoad = null,
+  onLowFps = null,
 }) {
   const [stage, setStage] = React.useState(null);
   const [library, setLibrary] = React.useState(null);
@@ -165,6 +166,8 @@ function OutfitMovieLayer({
       return;
     }
 
+    const targetFps = library.properties.fps;
+
     let lastFpsLoggedAtInMs = performance.now();
     let numFramesSinceLastLogged = 0;
     const intervalId = setInterval(() => {
@@ -181,16 +184,20 @@ function OutfitMovieLayer({
         const roundedFps = Math.round(fps * 100) / 100;
 
         console.debug(
-          `[OutfitMovieLayer] FPS: ${roundedFps} (Target: ${library.properties.fps}, ${numFramesSinceLastLogged}, ${timeSinceLastFpsLoggedAtInSec}) (${libraryUrl})`
+          `[OutfitMovieLayer] FPS: ${roundedFps} (Target: ${targetFps}) (${libraryUrl})`
         );
+
+        if (onLowFps && fps < 2) {
+          onLowFps(fps);
+        }
 
         lastFpsLoggedAtInMs = now;
         numFramesSinceLastLogged = 0;
       }
-    }, 1000 / library.properties.fps);
+    }, 1000 / targetFps);
 
     return () => clearInterval(intervalId);
-  }, [libraryUrl, stage, updateStage, movieClip, library, isPaused]);
+  }, [libraryUrl, stage, updateStage, movieClip, library, isPaused, onLowFps]);
 
   // This effect keeps the `movieClip` scaled correctly, based on the canvas
   // size and the `library`'s natural size declaration. (If the canvas size

@@ -1,5 +1,12 @@
 import React from "react";
-import { Box, DarkMode, Flex, Text, useColorModeValue } from "@chakra-ui/react";
+import {
+  Box,
+  DarkMode,
+  Flex,
+  Text,
+  useColorModeValue,
+  useToast,
+} from "@chakra-ui/react";
 import LRU from "lru-cache";
 import { WarningIcon } from "@chakra-ui/icons";
 import { ClassNames } from "@emotion/react";
@@ -54,6 +61,9 @@ export function useOutfitPreview({
   onChangeHasAnimations = null,
   ...props
 }) {
+  const [isPaused, setIsPaused] = useLocalStorage("DTIOutfitIsPaused", true);
+  const toast = useToast();
+
   const appearance = useOutfitAppearance({
     speciesId,
     colorId,
@@ -70,7 +80,26 @@ export function useOutfitPreview({
     layersHaveAnimations,
   } = usePreloadLayers(visibleLayers);
 
-  const [isPaused] = useLocalStorage("DTIOutfitIsPaused", true);
+  const onLowFps = React.useCallback(
+    (fps) => {
+      setIsPaused(true);
+      console.warn(`[OutfitPreview] Pausing due to low FPS: ${fps}`);
+
+      if (!toast.isActive("low-fps-warning")) {
+        toast({
+          id: "low-fps-warning",
+          status: "warning",
+          title: "Sorry, the animation was lagging, so we paused it! 😖",
+          description:
+            "We do this to help make sure your machine doesn't lag too much! " +
+            "You can unpause the preview to try again.",
+          duration: null,
+          isClosable: true,
+        });
+      }
+    },
+    [setIsPaused, toast]
+  );
 
   React.useEffect(() => {
     if (onChangeHasAnimations) {
@@ -100,6 +129,7 @@ export function useOutfitPreview({
         loadingDelayMs={loadingDelayMs}
         spinnerVariant={spinnerVariant}
         onChangeHasAnimations={onChangeHasAnimations}
+        onLowFps={onLowFps}
         doTransitions
         isPaused={isPaused}
         {...props}
@@ -122,6 +152,7 @@ export function OutfitLayers({
   spinnerVariant = "overlay",
   doTransitions = false,
   isPaused = true,
+  onLowFps = null,
   ...props
 }) {
   const [hiResMode] = useLocalStorage("DTIHiResMode", false);
@@ -228,6 +259,7 @@ export function OutfitLayers({
                       width={canvasSize}
                       height={canvasSize}
                       isPaused={isPaused}
+                      onLowFps={onLowFps}
                     />
                   ) : (
                     <Box
