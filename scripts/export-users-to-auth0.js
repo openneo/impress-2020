@@ -12,6 +12,11 @@
 // For now, we can run this whenever we want to make it _possible_ to log in
 // with Auth0, even if things will be potentially out of sync, because traffic
 // to Impress 2020 is just testers now anyway!
+//
+// The --upsert command will additionally *update* Auth0's copy of users, not
+// just insert. I think I tried to do this early on and it used to reject
+// upserts with custom password hashes? But now it seems to work! But I have it
+// as a opt-in flag for now, in case I'm forgetting something 😅
 const { argv } = require("yargs");
 const { ManagementClient } = require("auth0");
 const inquirer = require("inquirer");
@@ -76,7 +81,7 @@ async function main() {
     if (i < users.length) {
       const batchStart = i;
       i += 1000;
-      console.log(`Starting batch ${batchStart + 1}-${batchStart + 1000}`);
+      console.info(`Starting batch ${batchStart + 1}-${batchStart + 1000}`);
 
       const usersBatch = users.slice(batchStart, batchStart + 1000);
       const usersBatchJson = JSON.stringify(usersBatch.map(formatUserForAuth0));
@@ -94,7 +99,7 @@ async function main() {
     console.error(e);
   }
 
-  console.log(`Sent ${users.length} users for import.`);
+  console.info(`Sent ${users.length} users for import.`);
 }
 
 async function runAuth0ImportJob(usersBatchJson, connectionId, batchStart) {
@@ -102,8 +107,9 @@ async function runAuth0ImportJob(usersBatchJson, connectionId, batchStart) {
     connection_id: connectionId,
     users_json: usersBatchJson,
     send_completion_email: false, // we're watching the script!
+    upsert: Boolean(argv.upsert),
   });
-  console.log(
+  console.info(
     `[Batch ${batchStart + 1}] Created import job ${job.id}. Waiting...`
   );
 
@@ -113,21 +119,21 @@ async function runAuth0ImportJob(usersBatchJson, connectionId, batchStart) {
   }
 
   if (job.status !== "completed") {
-    console.log(
+    console.info(
       `[Batch ${batchStart + 1}] Unexpected job status: ${job.status}`
     );
     return;
   }
 
   const errorGroups = await auth0.jobs.errors({ id: job.id });
-  console.log(
+  console.info(
     `[Batch ${batchStart + 1}] Import job completed, ` +
       `${errorGroups.length} failed`
   );
 
   for (const { user, errors } of errorGroups) {
     for (const error of errors) {
-      console.log(
+      console.info(
         `[Batch ${batchStart + 1}] User ${user.user_id} (${user.email}): ` +
           `${error.message}`
       );
