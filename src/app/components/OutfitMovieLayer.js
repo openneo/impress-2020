@@ -320,9 +320,13 @@ export async function loadMovieLibrary(librarySrc) {
   await Promise.all(manifestImages.values());
 
   // Finally, once we have the images loaded, the library object expects us to
-  // mutate it (!) to give it the actual sprite sheet objects based on the
-  // loaded images. That's how the MovieClip's objects will access the loaded
-  // versions!
+  // mutate it (!) to give it the actual image and sprite sheet objects from
+  // the loaded images. That's how the MovieClip's internal JS objects will
+  // access the loaded data!
+  const images = composition.getImages();
+  for (const [id, image] of manifestImages.entries()) {
+    images[id] = await image;
+  }
   const spriteSheets = composition.getSpriteSheet();
   for (const { name, frames } of library.ssMetadata) {
     const image = await manifestImages.get(name);
