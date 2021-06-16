@@ -58,6 +58,8 @@ async function handle(req, res) {
     return sendHtml(res, initialHtml, 404);
   }
 
+  const outfitName = outfit.name || "Untitled outfit";
+
   // Okay, now let's rewrite the HTML to include some outfit data!
   //
   // WARNING!!!
@@ -69,7 +71,7 @@ async function handle(req, res) {
   // Add the outfit name to the title.
   html = html.replace(
     /<title>(.*)<\/title>/,
-    `<title>${escapeHtml(outfit.name)} | Dress to Impress</title>`
+    `<title>${escapeHtml(outfitName)} | Dress to Impress</title>`
   );
 
   // Add sharing meta tags just before the </head> tag.
@@ -85,7 +87,7 @@ async function handle(req, res) {
     `/v/${encodeURIComponent(updatedAtTimestamp)}` +
     `/600.png`;
   const metaTags = `
-    <meta property="og:title" content="${escapeHtml(outfit.name)}">
+    <meta property="og:title" content="${escapeHtml(outfitName)}">
     <meta property="og:type" content="website">
     <meta property="og:image" content="${escapeHtml(imageUrl)}">
     <meta property="og:url" content="${escapeHtml(outfitUrl)}">
