@@ -205,6 +205,8 @@ export function OutfitLayers({
           pos="relative"
           height="100%"
           width="100%"
+          maxWidth="600px"
+          maxHeight="600px"
           // Create a stacking context, so the z-indexed layers don't escape!
           zIndex="0"
           ref={containerRef}

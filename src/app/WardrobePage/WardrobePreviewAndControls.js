@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, DarkMode } from "@chakra-ui/react";
+import { Box, Center, DarkMode } from "@chakra-ui/react";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
 import * as Sentry from "@sentry/react";
@@ -37,9 +37,9 @@ function WardrobePreviewAndControls({
   return (
     <Sentry.ErrorBoundary fallback={MajorErrorMessage}>
       <TestErrorSender />
-      <Box position="absolute" top="0" bottom="0" left="0" right="0">
+      <Center position="absolute" top="0" bottom="0" left="0" right="0">
         <DarkMode>{preview}</DarkMode>
-      </Box>
+      </Center>
       <Box position="absolute" top="0" bottom="0" left="0" right="0">
         <OutfitControls
           outfitState={outfitState}
