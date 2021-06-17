@@ -16,7 +16,6 @@ import OutfitMovieLayer, {
   buildMovieClip,
   hasAnimations,
   loadMovieLibrary,
-  useEaselDependenciesLoader,
 } from "./OutfitMovieLayer";
 import HangerSpinner from "./HangerSpinner";
 import { loadImage, safeImageUrl, useLocalStorage } from "../util";
@@ -163,13 +162,10 @@ export function OutfitLayers({
     false
   );
 
-  const { loading: loadingEasel } = useEaselDependenciesLoader();
-  const loadingAnything = loading || loadingEasel;
-
   // When we start in a loading state, or re-enter a loading state, start the
   // loading delay timer.
   React.useEffect(() => {
-    if (loadingAnything) {
+    if (loading) {
       setLoadingDelayHasPassed(false);
       const t = setTimeout(
         () => setLoadingDelayHasPassed(true),
@@ -177,7 +173,7 @@ export function OutfitLayers({
       );
       return () => clearTimeout(t);
     }
-  }, [loadingDelayMs, loadingAnything]);
+  }, [loadingDelayMs, loading]);
 
   React.useLayoutEffect(() => {
     function computeAndSaveCanvasSize() {
@@ -291,7 +287,7 @@ export function OutfitLayers({
             // also use a timeout to delay the fade-in by 0.5s, but don't delay the
             // fade-out at all. (The timeout was an awkward choice, it was hard to
             // find a good CSS way to specify this delay well!)
-            opacity={loadingAnything && loadingDelayHasPassed ? 1 : 0}
+            opacity={loading && loadingDelayHasPassed ? 1 : 0}
             transition="opacity 0.2s"
           >
             {spinnerVariant === "overlay" && (

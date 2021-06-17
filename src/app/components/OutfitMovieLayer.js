@@ -4,6 +4,12 @@ import { useToast } from "@chakra-ui/react";
 
 import { loadImage, logAndCapture, safeImageUrl } from "../util";
 
+// Import EaselJS and TweenJS directly into the `window` object! The bundled
+// scripts are built to attach themselves to `window.createjs`, and
+// `window.createjs` is where the Neopets movie libraries expects to find them!
+require("imports-loader?wrapper=window!easeljs/lib/easeljs");
+require("imports-loader?wrapper=window!tweenjs/lib/tweenjs");
+
 function OutfitMovieLayer({
   libraryUrl,
   width,
@@ -18,8 +24,6 @@ function OutfitMovieLayer({
   const canvasRef = React.useRef(null);
   const hasShownErrorMessageRef = React.useRef(false);
   const toast = useToast();
-
-  const loadingDeps = useEaselDependenciesLoader();
 
   // Set the canvas's internal dimensions to be higher, if the device has high
   // DPI like retina. But we'll keep the layout width/height as expected!
@@ -63,7 +67,7 @@ function OutfitMovieLayer({
   React.useLayoutEffect(() => {
     const canvas = canvasRef.current;
 
-    if (loadingDeps || !canvas) {
+    if (!canvas) {
       return;
     }
 
@@ -101,15 +105,11 @@ function OutfitMovieLayer({
         canvas.height = 0;
       }
     };
-  }, [loadingDeps, libraryUrl, toast]);
+  }, [libraryUrl, toast]);
 
   // This effect gives us the `library` and `movieClip`, based on the incoming
   // `libraryUrl`.
   React.useEffect(() => {
-    if (loadingDeps) {
-      return;
-    }
-
     let canceled = false;
 
     loadMovieLibrary(libraryUrl)
@@ -132,7 +132,7 @@ function OutfitMovieLayer({
       setLibrary(null);
       setMovieClip(null);
     };
-  }, [loadingDeps, libraryUrl]);
+  }, [libraryUrl]);
 
   // This effect puts the `movieClip` on the `stage`, when both are ready.
   React.useEffect(() => {
@@ -228,55 +228,6 @@ function OutfitMovieLayer({
       style={{ width: width, height: height }}
     />
   );
-}
-
-/**
- * useEaselDependenciesLoader loads the CreateJS scripts we use in OutfitCanvas.
- * We load it as part of OutfitCanvas, but callers can also use this to preload
- * the scripts and track loading progress.
- */
-export function useEaselDependenciesLoader() {
-  // NOTE: I couldn't find an official NPM source for this that worked with
-  //       Webpack, and I didn't want to rely on random people's ports, and I
-  //       couldn't get a bundled version to work quite right. So we load
-  //       createjs async!
-  const loadingEaselJS = useScriptTag(
-    "https://code.createjs.com/1.0.0/easeljs.min.js"
-  );
-  const loadingTweenJS = useScriptTag(
-    "https://code.createjs.com/1.0.0/tweenjs.min.js"
-  );
-  const loadingDeps = loadingEaselJS || loadingTweenJS;
-
-  return loadingDeps;
-}
-
-function useScriptTag(src) {
-  const [loading, setLoading] = React.useState(true);
-
-  React.useEffect(() => {
-    const existingScript = document.querySelector(
-      `script[src=${CSS.escape(src)}]`
-    );
-    if (existingScript) {
-      setLoading(false);
-      return;
-    }
-
-    let canceled = false;
-    loadScriptTag(src).then(() => {
-      if (!canceled) {
-        setLoading(false);
-      }
-    });
-
-    return () => {
-      canceled = true;
-      setLoading(true);
-    };
-  }, [src, setLoading]);
-
-  return loading;
 }
 
 function loadScriptTag(src) {
