@@ -118,7 +118,11 @@ function ItemPageDescription({ description, isEmbedded }) {
 
   return (
     <Box width="100%" alignSelf="flex-start">
-      {description || (
+      {description ? (
+        description
+      ) : description === "" ? (
+        <i>(This item has no description.)</i>
+      ) : (
         <Box
           maxWidth="40em"
           minHeight={numDescriptionLines * 1.5 + "em"}
