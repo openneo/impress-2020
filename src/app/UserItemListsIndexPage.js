@@ -265,6 +265,12 @@ function UserItemListsIndexPage() {
                       ? "hidden"
                       : "list-item"
                   }
+                  // For default lists, we don't have a separate page, we just
+                  // inline them all here. This is a less-nice experience, but it
+                  // simplifies the single-list page a lot to not have to care,
+                  // and for now we just kinda expect that people who care about
+                  // trade lists enough will group them into lists so it's nbd!
+                  maxNumItemsToShow={!closetList.isDefaultList ? 14 : null}
                 />
               ))}
             </VStack>
@@ -292,6 +298,12 @@ function UserItemListsIndexPage() {
                     ? "hidden"
                     : "list-item"
                 }
+                // For default lists, we don't have a separate page, we just
+                // inline them all here. This is a less-nice experience, but it
+                // simplifies the single-list page a lot to not have to care,
+                // and for now we just kinda expect that people who care about
+                // trade lists enough will group them into lists so it's nbd!
+                maxNumItemsToShow={!closetList.isDefaultList ? 14 : null}
               />
             ))}
           </VStack>

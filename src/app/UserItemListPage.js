@@ -134,6 +134,7 @@ export function ClosetList({
   closetList,
   isCurrentUser,
   headingVariant = "list-item",
+  maxNumItemsToShow = null,
 }) {
   const { isSupportUser, supportSecret } = useSupport();
   const toast = useToast();
@@ -350,12 +351,7 @@ export function ClosetList({
       <ClosetListContents
         closetList={closetList}
         isCurrentUser={isCurrentUser}
-        // For default lists, we don't have a separate page, we just inline
-        // them all here. This is a less-nice experience, but it simplifies
-        // the single-list page a lot to not have to care, and for now we just
-        // kinda expect that people who care about trade lists enough will
-        // group them into lists so it's nbd! ^_^`
-        maxNumItemsToShow={!closetList.isDefaultList ? 14 : null}
+        maxNumItemsToShow={maxNumItemsToShow}
       />
     </Box>
   );
