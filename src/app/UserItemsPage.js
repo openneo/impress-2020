@@ -651,9 +651,7 @@ function buildClosetListPath(closetList) {
     );
   }
 
-  const idString = closetList.isDefaultList ? "not-in-a-list" : closetList.id;
-
-  return `/user/${closetList.creator.id}/lists/${ownsOrWants}/${idString}`;
+  return `/user/${closetList.creator.id}/lists/${ownsOrWants}/${closetList.id}`;
 }
 
 function UserSupportMenu({ children, user }) {
