@@ -9,13 +9,14 @@ import {
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
+import { ChevronRightIcon } from "@chakra-ui/icons";
 import { Heading1, MajorErrorMessage } from "./util";
 import { gql, useQuery } from "@apollo/client";
 import { Link, useParams } from "react-router-dom";
 import { HashLink } from "react-router-hash-link";
 
 import HangerSpinner from "./components/HangerSpinner";
-import { ChevronRightIcon } from "@chakra-ui/icons";
+import MarkdownAndSafeHTML from "./components/MarkdownAndSafeHTML";
 import ItemCard from "./components/ItemCard";
 import WIPCallout from "./components/WIPCallout";
 
@@ -28,6 +29,7 @@ function UserItemListPage() {
         closetList(id: $listId) {
           id
           name
+          description
           ownsOrWantsItems
           creator {
             id
@@ -43,7 +45,7 @@ function UserItemListPage() {
         }
       }
     `,
-    { variables: { listId } }
+    { variables: { listId }, context: { sendAuth: true } }
   );
 
   if (loading) {
@@ -102,49 +104,20 @@ function UserItemListPage() {
         />
       </Flex>
       <Box height="6" />
-      {/* TODO: Description */}
+      {closetList.description && (
+        <MarkdownAndSafeHTML>{closetList.description}</MarkdownAndSafeHTML>
+      )}
       <ClosetListContents closetList={closetList} />
     </Box>
   );
 }
 
 function ClosetListContents({ closetList }) {
-  const isCurrentUser = false; // TODO
+  const sortedItems = [...closetList.items].sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
 
-  // TODO: A lot of this is duplicated from UserItemsPage, find shared
-  //       abstractions!
-  const hasYouWantThisBadge = (item) =>
-    !isCurrentUser &&
-    closetList.ownsOrWantsItems === "OWNS" &&
-    item.currentUserWantsThis;
-  const hasYouOwnThisBadge = (item) =>
-    !isCurrentUser &&
-    closetList.ownsOrWantsItems === "WANTS" &&
-    item.currentUserOwnsThis;
-  const hasAnyTradeBadge = (item) =>
-    hasYouOwnThisBadge(item) || hasYouWantThisBadge(item);
-
-  const sortedItems = [...closetList.items].sort((a, b) => {
-    // This is a cute sort hack. We sort first by, bringing "You own/want
-    // this!" to the top, and then sorting by name _within_ those two groups.
-    const aName = `${hasAnyTradeBadge(a) ? "000" : "999"} ${a.name}`;
-    const bName = `${hasAnyTradeBadge(b) ? "000" : "999"} ${b.name}`;
-    return aName.localeCompare(bName);
-  });
-
-  let tradeMatchingMode;
-  if (isCurrentUser) {
-    // On your own item list, it's not helpful to show your own trade matches!
-    tradeMatchingMode = "hide-all";
-  } else if (closetList.ownsOrWantsItems === "OWNS") {
-    tradeMatchingMode = "offering";
-  } else if (closetList.ownsOrWantsItems === "WANTS") {
-    tradeMatchingMode = "seeking";
-  } else {
-    throw new Error(
-      `unexpected ownsOrWantsItems value: ${closetList.ownsOrWantsItems}`
-    );
-  }
+  const tradeMatchingMode = "hide-all"; // TODO
 
   return (
     <Box>

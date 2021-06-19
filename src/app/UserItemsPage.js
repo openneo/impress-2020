@@ -34,12 +34,11 @@ import {
 import gql from "graphql-tag";
 import { Link, useHistory, useParams } from "react-router-dom";
 import { useQuery, useLazyQuery, useMutation } from "@apollo/client";
-import SimpleMarkdown from "simple-markdown";
-import DOMPurify from "dompurify";
 
 import HangerSpinner from "./components/HangerSpinner";
 import { Heading1, Heading2, Heading3 } from "./util";
 import ItemCard from "./components/ItemCard";
+import MarkdownAndSafeHTML from "./components/MarkdownAndSafeHTML";
 import SupportOnly from "./WardrobePage/support/SupportOnly";
 import useSupport from "./WardrobePage/support/useSupport";
 import useCurrentUser from "./components/useCurrentUser";
@@ -655,81 +654,6 @@ function buildClosetListPath(closetList) {
   const idString = closetList.isDefaultList ? "not-in-a-list" : closetList.id;
 
   return `/user/${closetList.creator.id}/lists/${ownsOrWants}/${idString}`;
-}
-
-const unsafeMarkdownRules = {
-  autolink: SimpleMarkdown.defaultRules.autolink,
-  br: SimpleMarkdown.defaultRules.br,
-  em: SimpleMarkdown.defaultRules.em,
-  escape: SimpleMarkdown.defaultRules.escape,
-  link: SimpleMarkdown.defaultRules.link,
-  list: SimpleMarkdown.defaultRules.list,
-  newline: SimpleMarkdown.defaultRules.newline,
-  paragraph: SimpleMarkdown.defaultRules.paragraph,
-  strong: SimpleMarkdown.defaultRules.strong,
-  u: SimpleMarkdown.defaultRules.u,
-
-  // DANGER: We override Markdown's `text` rule to _not_ escape HTML. This is
-  // intentional, to allow users to embed some limited HTML. DOMPurify is
-  // responsible for sanitizing the HTML afterward. Do not use these rules
-  // without sanitizing!!
-  text: {
-    ...SimpleMarkdown.defaultRules.text,
-    html: (node) => node.content,
-  },
-};
-const markdownParser = SimpleMarkdown.parserFor(unsafeMarkdownRules);
-const unsafeMarkdownOutput = SimpleMarkdown.htmlFor(
-  SimpleMarkdown.ruleOutput(unsafeMarkdownRules, "html")
-);
-
-function MarkdownAndSafeHTML({ children }) {
-  const htmlAndMarkdown = children;
-
-  const unsafeHtml = unsafeMarkdownOutput(markdownParser(htmlAndMarkdown));
-
-  const sanitizedHtml = DOMPurify.sanitize(unsafeHtml, {
-    ALLOWED_TAGS: [
-      "b",
-      "i",
-      "u",
-      "strong",
-      "em",
-      "a",
-      "p",
-      "div",
-      "br",
-      "ol",
-      "ul",
-      "li",
-    ],
-    ALLOWED_ATTR: ["href", "class"],
-    // URL must either start with an approved host (external link), or with a
-    // slash or hash (internal link).
-    ALLOWED_URI_REGEXP: /^https?:\/\/(impress\.openneo\.net|impress-2020\.openneo\.net|www\.neopets\.com|neopets\.com|items\.jellyneo\.net)\/|^[/#]/,
-  });
-
-  return (
-    <ClassNames>
-      {({ css }) => (
-        <Box
-          dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
-          className={css`
-            .paragraph,
-            ol,
-            ul {
-              margin-bottom: 1em;
-            }
-
-            ol,
-            ul {
-              margin-left: 2em;
-            }
-          `}
-        />
-      )}
-    </ClassNames>
-  );
 }
 
 function UserSupportMenu({ children, user }) {
