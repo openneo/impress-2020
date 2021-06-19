@@ -494,7 +494,13 @@ function ClosetItemList({ items, tradeMatchingMode }) {
                         key={key}
                         style={style}
                         spacing="4"
+                        align="flex-top"
                         justify="center"
+                        // We need to provide some extra space up top, so that
+                        // the virtualized row (which has overflow: hidden)
+                        // doesn't cut off overflowing effects like trade match
+                        // shadows.
+                        paddingTop="2"
                       >
                         {itemsForRow.map(renderItem)}
                       </HStack>
