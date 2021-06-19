@@ -608,7 +608,12 @@ function ClosetList({ closetList, isCurrentUser, showHeading }) {
       <ClosetListContents
         closetList={closetList}
         isCurrentUser={isCurrentUser}
-        maxNumItemsToShow={14}
+        // For default lists, we don't have a separate page, we just inline
+        // them all here. This is a less-nice experience, but it simplifies
+        // the single-list page a lot to not have to care, and for now we just
+        // kinda expect that people who care about trade lists enough will
+        // group them into lists so it's nbd! ^_^`
+        maxNumItemsToShow={!closetList.isDefaultList ? 14 : null}
       />
     </Box>
   );
