@@ -158,6 +158,18 @@ function OutfitControls({
               setFocusIsLocked(true);
             }
           }}
+          onContextMenuCapture={() => {
+            if (!toast.isActive("outfit-controls-context-menu-hint")) {
+              toast({
+                id: "outfit-controls-context-menu-hint",
+                title:
+                  "By the way, to save this image, use the Download button!",
+                description: "It's in the top right of the preview area.",
+                duration: 10000,
+                isClosable: true,
+              });
+            }
+          }}
           data-test-id="wardrobe-outfit-controls"
         >
           <Box gridArea="back" onClick={maybeUnlockFocus}>
