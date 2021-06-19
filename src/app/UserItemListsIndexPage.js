@@ -52,14 +52,14 @@ const BadgeButton = React.forwardRef((props, ref) => (
   <Badge as="button" ref={ref} {...props} />
 ));
 
-function UserItemsPage() {
+function UserItemListsIndexPage() {
   const { userId } = useParams();
   const currentUser = useCurrentUser();
   const isCurrentUser = currentUser.id === userId;
 
   const { loading, error, data } = useQuery(
     gql`
-      query UserItemsPage($userId: ID!) {
+      query UserItemListsIndexPage($userId: ID!) {
         user(id: $userId) {
           id
           username
@@ -314,7 +314,7 @@ function UserSearchForm() {
       query UserSearchForm($name: String!) {
         userByName(name: $name) {
           id
-          # Consider preloading UserItemsPage fields here, too?
+          # Consider preloading UserItemListsIndexPage fields here, too?
         }
       }
     `,
@@ -348,7 +348,7 @@ function UserSearchForm() {
       query UserSearchFormByEmail($email: String!, $supportSecret: String!) {
         userByEmail(email: $email, supportSecret: $supportSecret) {
           id
-          # Consider preloading UserItemsPage fields here, too?
+          # Consider preloading UserItemListsIndexPage fields here, too?
         }
       }
     `,
@@ -724,4 +724,4 @@ function UserSupportMenu({ children, user }) {
   );
 }
 
-export default UserItemsPage;
+export default UserItemListsIndexPage;

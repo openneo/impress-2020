@@ -34,7 +34,9 @@ const PrivacyPolicyPage = loadable(() => import("./PrivacyPolicyPage"));
 const SupportPetAppearancesPage = loadable(() =>
   import("./SupportPetAppearancesPage")
 );
-const UserItemsPage = loadable(() => import("./UserItemsPage"));
+const UserItemListsIndexPage = loadable(() =>
+  import("./UserItemListsIndexPage")
+);
 const UserItemListPage = loadable(() => import("./UserItemListPage"));
 const UserOutfitsPage = loadable(() => import("./UserOutfitsPage"));
 const WardrobePage = loadable(() => import("./WardrobePage"), {
@@ -143,7 +145,7 @@ function App() {
               </Route>
               <Route path="/user/:userId/lists">
                 <PageLayout>
-                  <UserItemsPage />
+                  <UserItemListsIndexPage />
                 </PageLayout>
               </Route>
               <Route path="/your-outfits">

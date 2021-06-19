@@ -112,7 +112,7 @@ function ColorModeButton() {
 
 function useClassicDTIUrl() {
   const itemPageMatch = useRouteMatch("/items/:itemId");
-  const userItemsPageMatch = useRouteMatch("/user/:userId/lists");
+  const userItemListsIndexPageMatch = useRouteMatch("/user/:userId/lists");
   const modelingPageMatch = useRouteMatch("/modeling");
 
   if (itemPageMatch) {
@@ -120,8 +120,8 @@ function useClassicDTIUrl() {
     return `https://impress.openneo.net/items/${itemId}`;
   }
 
-  if (userItemsPageMatch) {
-    const { userId } = userItemsPageMatch.params;
+  if (userItemListsIndexPageMatch) {
+    const { userId } = userItemListsIndexPageMatch.params;
     return `https://impress.openneo.net/user/${userId}/closet`;
   }
 
