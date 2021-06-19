@@ -10,7 +10,7 @@ import {
   WrapItem,
 } from "@chakra-ui/react";
 import { ArrowForwardIcon, ChevronRightIcon } from "@chakra-ui/icons";
-import { Heading1, MajorErrorMessage } from "./util";
+import { Heading1, MajorErrorMessage, usePageTitle } from "./util";
 import { gql, useQuery } from "@apollo/client";
 import { Link, useParams } from "react-router-dom";
 import { HashLink } from "react-router-hash-link";
@@ -51,6 +51,10 @@ function UserItemListPage() {
     { variables: { listId }, context: { sendAuth: true } }
   );
 
+  const closetList = data?.closetList;
+
+  usePageTitle(closetList?.name);
+
   if (loading) {
     return (
       <Center>
@@ -63,7 +67,6 @@ function UserItemListPage() {
     return <MajorErrorMessage error={error} variant="network" />;
   }
 
-  const closetList = data?.closetList;
   if (!closetList) {
     return <MajorErrorMessage variant="not-found" />;
   }

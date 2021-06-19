@@ -36,7 +36,7 @@ import { Link, useHistory, useParams } from "react-router-dom";
 import { useQuery, useLazyQuery, useMutation } from "@apollo/client";
 
 import HangerSpinner from "./components/HangerSpinner";
-import { Heading1, Heading2, Heading3 } from "./util";
+import { Heading1, Heading2, Heading3, usePageTitle } from "./util";
 import MarkdownAndSafeHTML from "./components/MarkdownAndSafeHTML";
 import SupportOnly from "./WardrobePage/support/SupportOnly";
 import useSupport from "./WardrobePage/support/useSupport";
@@ -85,6 +85,16 @@ function UserItemsPage() {
     `,
     { variables: { userId }, context: { sendAuth: true } }
   );
+
+  let pageTitleText;
+  if (isCurrentUser) {
+    pageTitleText = "Your lists";
+  } else if (data?.user) {
+    pageTitleText = `${data?.user?.username}'s lists`;
+  } else {
+    pageTitleText = null;
+  }
+  usePageTitle(pageTitleText);
 
   if (loading) {
     return (
@@ -150,9 +160,7 @@ function UserItemsPage() {
         <Box>
           <Flex align="center" wrap="wrap-reverse">
             <Box>
-              <Heading1>
-                {isCurrentUser ? "Your items" : `${data.user.username}'s items`}
-              </Heading1>
+              <Heading1>{pageTitleText}</Heading1>
               <Wrap spacing="2" opacity="0.7">
                 {data.user.contactNeopetsUsername && (
                   <WrapItem>
