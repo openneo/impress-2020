@@ -42,7 +42,11 @@ import SupportOnly from "./WardrobePage/support/SupportOnly";
 import useSupport from "./WardrobePage/support/useSupport";
 import useCurrentUser from "./components/useCurrentUser";
 import WIPCallout from "./components/WIPCallout";
-import { ClosetListContents, buildClosetListPath } from "./UserItemListPage";
+import {
+  ClosetListContents,
+  NeopetsStarIcon,
+  buildClosetListPath,
+} from "./UserItemListPage";
 
 const BadgeButton = React.forwardRef((props, ref) => (
   <Badge as="button" ref={ref} {...props} />
@@ -712,28 +716,6 @@ function UserSupportMenu({ children, user }) {
         </MenuList>
       </Portal>
     </Menu>
-  );
-}
-
-function NeopetsStarIcon(props) {
-  // Converted from the Neopets favicon with https://www.vectorizer.io/.
-  return (
-    <Box {...props}>
-      <svg
-        version="1.0"
-        xmlns="http://www.w3.org/2000/svg"
-        width="1.2em"
-        height="1.2em"
-        viewBox="0 0 160 160"
-        preserveAspectRatio="xMidYMid meet"
-      >
-        <path
-          fill="currentColor"
-          fill-rule="evenodd"
-          d="M85 129 L60 108 40 119 C11 135,7 132,24 108 L39 86 23 68 L6 50 32 50 L58 50 73 29 L88 8 94 29 L101 50 128 50 L155 50 131 68 L107 86 113 118 C121 155,118 156,85 129 "
-        />
-      </svg>
-    </Box>
   );
 }
 

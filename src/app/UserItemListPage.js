@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  Badge,
   Box,
   Breadcrumb,
   BreadcrumbItem,
@@ -9,7 +10,11 @@ import {
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
-import { ArrowForwardIcon, ChevronRightIcon } from "@chakra-ui/icons";
+import {
+  ArrowForwardIcon,
+  ChevronRightIcon,
+  EmailIcon,
+} from "@chakra-ui/icons";
 import { Heading1, MajorErrorMessage, usePageTitle } from "./util";
 import { gql, useQuery } from "@apollo/client";
 import { Link, useParams } from "react-router-dom";
@@ -35,6 +40,7 @@ function UserItemListPage() {
           creator {
             id
             username
+            contactNeopetsUsername
           }
           items {
             id
@@ -107,6 +113,34 @@ function UserItemListPage() {
       </Breadcrumb>
       <Box height="1" />
       <Heading1>{closetList.name}</Heading1>
+      <Wrap spacing="2" opacity="0.7">
+        {closetList.creator?.contactNeopetsUsername && (
+          <WrapItem>
+            <Badge
+              as="a"
+              href={`http://www.neopets.com/userlookup.phtml?user=${closetList.creator.contactNeopetsUsername}`}
+              display="flex"
+              alignItems="center"
+            >
+              <NeopetsStarIcon marginRight="1" />
+              {closetList.creator.contactNeopetsUsername}
+            </Badge>
+          </WrapItem>
+        )}
+        {closetList.creator?.contactNeopetsUsername && (
+          <WrapItem>
+            <Badge
+              as="a"
+              href={`http://www.neopets.com/neomessages.phtml?type=send&recipient=${closetList.creator.contactNeopetsUsername}`}
+              display="flex"
+              alignItems="center"
+            >
+              <EmailIcon marginRight="1" />
+              Neomail
+            </Badge>
+          </WrapItem>
+        )}
+      </Wrap>
       <Box height="6" />
       {closetList.description && (
         <MarkdownAndSafeHTML>{closetList.description}</MarkdownAndSafeHTML>
@@ -217,6 +251,28 @@ export function buildClosetListPath(closetList) {
   }
 
   return `/user/${closetList.creator.id}/lists/${ownsOrWants}/${closetList.id}`;
+}
+
+export function NeopetsStarIcon(props) {
+  // Converted from the Neopets favicon with https://www.vectorizer.io/.
+  return (
+    <Box {...props}>
+      <svg
+        version="1.0"
+        xmlns="http://www.w3.org/2000/svg"
+        width="1.2em"
+        height="1.2em"
+        viewBox="0 0 160 160"
+        preserveAspectRatio="xMidYMid meet"
+      >
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
+          d="M85 129 L60 108 40 119 C11 135,7 132,24 108 L39 86 23 68 L6 50 32 50 L58 50 73 29 L88 8 94 29 L101 50 128 50 L155 50 131 68 L107 86 113 118 C121 155,118 156,85 129 "
+        />
+      </svg>
+    </Box>
+  );
 }
 
 export default UserItemListPage;
