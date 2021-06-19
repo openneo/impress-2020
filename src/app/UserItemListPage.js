@@ -329,12 +329,13 @@ export function ClosetList({
         </Wrap>
       )}
       <Box height="2" />
-      {closetList.description && (
+      {(closetList.description || isEditing) && (
         <Box marginBottom="2">
           {isEditing ? (
             <Textarea
               value={editableDescription}
               onChange={(e) => setEditableDescription(e.target.value)}
+              placeholder="This is my list! I'm looking for…"
               // Shift left by our own padding/border, for alignment with the
               // original title
               paddingX="0.75rem"
