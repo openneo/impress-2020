@@ -16,6 +16,9 @@ const typePolicies = {
           toReference({ __typename: "Zone", id: z.id }, true)
         );
       },
+      closetList: (_, { args, toReference }) => {
+        return toReference({ __typename: "ClosetList", id: args.id }, true);
+      },
       items: (_, { args, toReference }) => {
         return args.ids.map((id) =>
           toReference({ __typename: "Item", id }, true)
