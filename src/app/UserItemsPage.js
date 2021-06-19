@@ -42,7 +42,7 @@ import SupportOnly from "./WardrobePage/support/SupportOnly";
 import useSupport from "./WardrobePage/support/useSupport";
 import useCurrentUser from "./components/useCurrentUser";
 import WIPCallout from "./components/WIPCallout";
-import { ClosetListContents } from "./UserItemListPage";
+import { ClosetListContents, buildClosetListPath } from "./UserItemListPage";
 
 const BadgeButton = React.forwardRef((props, ref) => (
   <Badge as="button" ref={ref} {...props} />
@@ -590,24 +590,10 @@ function ClosetList({ closetList, isCurrentUser, showHeading }) {
       <ClosetListContents
         closetList={closetList}
         isCurrentUser={isCurrentUser}
+        maxNumItemsToShow={14}
       />
     </Box>
   );
-}
-
-function buildClosetListPath(closetList) {
-  let ownsOrWants;
-  if (closetList.ownsOrWantsItems === "OWNS") {
-    ownsOrWants = "owns";
-  } else if (closetList.ownsOrWantsItems === "WANTS") {
-    ownsOrWants = "wants";
-  } else {
-    throw new Error(
-      `unexpected ownsOrWantsItems value: ${closetList.ownsOrWantsItems}`
-    );
-  }
-
-  return `/user/${closetList.creator.id}/lists/${ownsOrWants}/${closetList.id}`;
 }
 
 function UserSupportMenu({ children, user }) {

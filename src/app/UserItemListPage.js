@@ -9,7 +9,7 @@ import {
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
-import { ChevronRightIcon } from "@chakra-ui/icons";
+import { ArrowForwardIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { Heading1, MajorErrorMessage } from "./util";
 import { gql, useQuery } from "@apollo/client";
 import { Link, useParams } from "react-router-dom";
@@ -18,7 +18,6 @@ import { HashLink } from "react-router-hash-link";
 import HangerSpinner from "./components/HangerSpinner";
 import MarkdownAndSafeHTML from "./components/MarkdownAndSafeHTML";
 import ItemCard from "./components/ItemCard";
-import WIPCallout from "./components/WIPCallout";
 import useCurrentUser from "./components/useCurrentUser";
 
 function UserItemListPage() {
@@ -104,13 +103,7 @@ function UserItemListPage() {
         </BreadcrumbItem>
       </Breadcrumb>
       <Box height="1" />
-      <Flex wrap="wrap">
-        <Heading1>{closetList.name}</Heading1>
-        <WIPCallout
-          marginLeft="auto"
-          details="We're planning to make this the detail view for each list, and then your lists page will be a easy-to-scan summary!"
-        />
-      </Flex>
+      <Heading1>{closetList.name}</Heading1>
       <Box height="6" />
       {closetList.description && (
         <MarkdownAndSafeHTML>{closetList.description}</MarkdownAndSafeHTML>
@@ -123,7 +116,11 @@ function UserItemListPage() {
   );
 }
 
-export function ClosetListContents({ closetList, isCurrentUser }) {
+export function ClosetListContents({
+  closetList,
+  isCurrentUser,
+  maxNumItemsToShow = null,
+}) {
   const isTradeMatch = (item) =>
     !isCurrentUser &&
     ((closetList.ownsOrWantsItems === "OWNS" && item.currentUserWantsThis) ||
@@ -136,6 +133,13 @@ export function ClosetListContents({ closetList, isCurrentUser }) {
     const bName = `${isTradeMatch(b) ? "000" : "999"} ${b.name}`;
     return aName.localeCompare(bName);
   });
+
+  let itemsToShow = sortedItems;
+  if (maxNumItemsToShow != null) {
+    itemsToShow = itemsToShow.slice(0, maxNumItemsToShow);
+  }
+
+  const numMoreItems = Math.max(sortedItems.length - itemsToShow.length, 0);
 
   let tradeMatchingMode;
   if (isCurrentUser) {
@@ -153,9 +157,9 @@ export function ClosetListContents({ closetList, isCurrentUser }) {
 
   return (
     <Box>
-      {sortedItems.length > 0 ? (
+      {itemsToShow.length > 0 ? (
         <Wrap spacing="4" justify="center">
-          {sortedItems.map((item) => (
+          {itemsToShow.map((item) => (
             <WrapItem key={item.id}>
               <ItemCard
                 item={item}
@@ -168,8 +172,48 @@ export function ClosetListContents({ closetList, isCurrentUser }) {
       ) : (
         <Box fontStyle="italic">This list is empty!</Box>
       )}
+      {numMoreItems > 0 && (
+        <Box
+          as={Link}
+          to={buildClosetListPath(closetList)}
+          display="flex"
+          width="100%"
+          alignItems="center"
+          justifyContent="center"
+          marginTop="6"
+          fontStyle="italic"
+          textAlign="center"
+          role="group"
+        >
+          <Flex
+            align="center"
+            borderBottom="1px solid transparent"
+            _groupHover={{ borderBottomColor: "currentColor" }}
+            _groupFocus={{ borderBottomColor: "currentColor" }}
+          >
+            <Box>Show {numMoreItems} more items</Box>
+            <Box width="1" />
+            <ArrowForwardIcon />
+          </Flex>
+        </Box>
+      )}
     </Box>
   );
+}
+
+export function buildClosetListPath(closetList) {
+  let ownsOrWants;
+  if (closetList.ownsOrWantsItems === "OWNS") {
+    ownsOrWants = "owns";
+  } else if (closetList.ownsOrWantsItems === "WANTS") {
+    ownsOrWants = "wants";
+  } else {
+    throw new Error(
+      `unexpected ownsOrWantsItems value: ${closetList.ownsOrWantsItems}`
+    );
+  }
+
+  return `/user/${closetList.creator.id}/lists/${ownsOrWants}/${closetList.id}`;
 }
 
 export default UserItemListPage;
