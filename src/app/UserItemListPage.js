@@ -19,9 +19,11 @@ import HangerSpinner from "./components/HangerSpinner";
 import MarkdownAndSafeHTML from "./components/MarkdownAndSafeHTML";
 import ItemCard from "./components/ItemCard";
 import WIPCallout from "./components/WIPCallout";
+import useCurrentUser from "./components/useCurrentUser";
 
 function UserItemListPage() {
   const { listId } = useParams();
+  const currentUser = useCurrentUser();
 
   const { loading, error, data } = useQuery(
     gql`
@@ -41,6 +43,8 @@ function UserItemListPage() {
             isPb
             name
             thumbnailUrl
+            currentUserOwnsThis
+            currentUserWantsThis
           }
         }
       }
@@ -66,6 +70,10 @@ function UserItemListPage() {
   }
 
   const { creator, ownsOrWantsItems } = closetList;
+
+  // NOTE: `currentUser` should have resolved by now, because the GraphQL query
+  //       sends authorization, which requires the current user to load first!
+  const isCurrentUser = currentUser.id === creator.id;
 
   let linkBackText;
   let linkBackPath;
@@ -107,17 +115,41 @@ function UserItemListPage() {
       {closetList.description && (
         <MarkdownAndSafeHTML>{closetList.description}</MarkdownAndSafeHTML>
       )}
-      <ClosetListContents closetList={closetList} />
+      <ClosetListContents
+        closetList={closetList}
+        isCurrentUser={isCurrentUser}
+      />
     </Box>
   );
 }
 
-function ClosetListContents({ closetList }) {
-  const sortedItems = [...closetList.items].sort((a, b) =>
-    a.name.localeCompare(b.name)
-  );
+function ClosetListContents({ closetList, isCurrentUser }) {
+  const isTradeMatch = (item) =>
+    !isCurrentUser &&
+    ((closetList.ownsOrWantsItems === "OWNS" && item.currentUserWantsThis) ||
+      (closetList.ownsOrWantsItems === "WANTS" && item.currentUserOwnsThis));
 
-  const tradeMatchingMode = "hide-all"; // TODO
+  const sortedItems = [...closetList.items].sort((a, b) => {
+    // This is a cute sort hack. We sort first by, bringing trade matches to
+    // the top, and then sorting by name _within_ those two groups.
+    const aName = `${isTradeMatch(a) ? "000" : "999"} ${a.name}`;
+    const bName = `${isTradeMatch(b) ? "000" : "999"} ${b.name}`;
+    return aName.localeCompare(bName);
+  });
+
+  let tradeMatchingMode;
+  if (isCurrentUser) {
+    // On your own item list, it's not helpful to show your own trade matches!
+    tradeMatchingMode = "hide-all";
+  } else if (closetList.ownsOrWantsItems === "OWNS") {
+    tradeMatchingMode = "offering";
+  } else if (closetList.ownsOrWantsItems === "WANTS") {
+    tradeMatchingMode = "seeking";
+  } else {
+    throw new Error(
+      `unexpected ownsOrWantsItems value: ${closetList.ownsOrWantsItems}`
+    );
+  }
 
   return (
     <Box>
