@@ -262,16 +262,7 @@ export function OutfitLayers({
                   ) : (
                     <Box
                       as="img"
-                      src={getBestImageUrlForLayer(layer, { hiResMode }).src}
-                      // The crossOrigin prop isn't strictly necessary for loading
-                      // here (<img> tags are always allowed through CORS), but
-                      // this means we make the same request that the Download
-                      // button makes, so it can use the cached version of this
-                      // image instead of requesting it again with crossOrigin!
-                      crossOrigin={
-                        getBestImageUrlForLayer(layer, { hiResMode })
-                          .crossOrigin
-                      }
+                      src={getBestImageUrlForLayer(layer, { hiResMode })}
                       alt=""
                       objectFit="contain"
                       maxWidth="100%"
@@ -341,11 +332,14 @@ export function FullScreenCenter({ children, ...otherProps }) {
   );
 }
 
-export function getBestImageUrlForLayer(layer, { hiResMode = false } = {}) {
+export function getBestImageUrlForLayer(
+  layer,
+  { hiResMode = false, crossOrigin = null } = {}
+) {
   if (hiResMode && layer.svgUrl) {
-    return { src: safeImageUrl(layer.svgUrl), crossOrigin: "anonymous" };
+    return safeImageUrl(layer.svgUrl, { crossOrigin });
   } else {
-    return { src: safeImageUrl(layer.imageUrl), crossOrigin: "anonymous" };
+    return safeImageUrl(layer.imageUrl, { crossOrigin });
   }
 }
 
@@ -392,12 +386,12 @@ export function usePreloadLayers(layers) {
             })
           );
         } else {
-          return loadImage(getBestImageUrlForLayer(layer, { hiResMode })).then(
-            (image) => ({
-              type: "image",
-              image,
-            })
-          );
+          return loadImage({
+            src: getBestImageUrlForLayer(layer, { hiResMode }),
+          }).then((image) => ({
+            type: "image",
+            image,
+          }));
         }
       });
 
