@@ -271,7 +271,13 @@ function UserItemsPage() {
             </VStack>
           </Box>
 
-          <Heading2 id="wanted-items" marginTop="10" marginBottom="2">
+          <Box
+            borderTop="1px solid currentColor"
+            marginTop="16"
+            marginBottom="6"
+          />
+
+          <Heading2 id="wanted-items" marginBottom="2">
             {isCurrentUser
               ? "Items you want"
               : `Items ${data.user.username} wants`}
