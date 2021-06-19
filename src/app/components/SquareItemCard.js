@@ -14,6 +14,26 @@ import { CheckIcon, StarIcon } from "@chakra-ui/icons";
 function SquareItemCard({ item, tradeMatchingMode = null, ...props }) {
   const outlineShadowValue = useToken("shadows", "outline");
 
+  const tradeMatchOwnShadowColor = useColorModeValue("green.500", "green.200");
+  const tradeMatchWantShadowColor = useColorModeValue("blue.400", "blue.200");
+  const [
+    tradeMatchOwnShadowColorValue,
+    tradeMatchWantShadowColorValue,
+  ] = useToken("colors", [tradeMatchOwnShadowColor, tradeMatchWantShadowColor]);
+
+  // When this is a trade match, give it an extra colorful shadow highlight so
+  // it stands out! (They'll generally be sorted to the front anyway, but this
+  // make it easier to scan a user's lists page, and to learn how the sorting
+  // works!)
+  let tradeMatchShadow;
+  if (tradeMatchingMode === "offering" && item.currentUserWantsThis) {
+    tradeMatchShadow = `0 0 6px ${tradeMatchWantShadowColorValue}`;
+  } else if (tradeMatchingMode === "seeking" && item.currentUserOwnsThis) {
+    tradeMatchShadow = `0 0 6px ${tradeMatchOwnShadowColorValue}`;
+  } else {
+    tradeMatchShadow = null;
+  }
+
   return (
     <ClassNames>
       {({ css }) => (
@@ -43,6 +63,7 @@ function SquareItemCard({ item, tradeMatchingMode = null, ...props }) {
                 tradeMatchingMode={tradeMatchingMode}
               />
             }
+            boxShadow={tradeMatchShadow}
           />
         </Link>
       )}
@@ -50,7 +71,12 @@ function SquareItemCard({ item, tradeMatchingMode = null, ...props }) {
   );
 }
 
-function SquareItemCardLayout({ name, thumbnailImage, minHeightNumLines = 2 }) {
+function SquareItemCardLayout({
+  name,
+  thumbnailImage,
+  minHeightNumLines = 2,
+  boxShadow = null,
+}) {
   const { brightBackground } = useCommonStyles();
   const brightBackgroundValue = useToken("colors", brightBackground);
   const theme = useTheme();
@@ -66,7 +92,7 @@ function SquareItemCardLayout({ name, thumbnailImage, minHeightNumLines = 2 }) {
             flex-direction: column;
             align-items: center;
             text-align: center;
-            box-shadow: ${theme.shadows.md};
+            box-shadow: ${boxShadow || theme.shadows.md};
             border-radius: ${theme.radii.md};
             padding: ${theme.space["3"]};
             width: calc(80px + 2em);
