@@ -25,6 +25,11 @@ import {
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { Link, useParams } from "react-router-dom";
 import { HashLink } from "react-router-hash-link";
+import {
+  List as VirtualizedList,
+  AutoSizer,
+  WindowScroller,
+} from "react-virtualized";
 
 import { Heading1, Heading3, MajorErrorMessage, usePageTitle } from "./util";
 import HangerSpinner from "./components/HangerSpinner";
@@ -399,17 +404,10 @@ export function ClosetListContents({
   return (
     <Box>
       {itemsToShow.length > 0 ? (
-        <Wrap spacing="4" justify="center">
-          {itemsToShow.map((item) => (
-            <WrapItem key={item.id}>
-              <ItemCard
-                item={item}
-                variant="grid"
-                tradeMatchingMode={tradeMatchingMode}
-              />
-            </WrapItem>
-          ))}
-        </Wrap>
+        <ClosetItemList
+          items={itemsToShow}
+          tradeMatchingMode={tradeMatchingMode}
+        />
       ) : (
         <Box fontStyle="italic">This list is empty!</Box>
       )}
@@ -439,6 +437,79 @@ export function ClosetListContents({
         </Box>
       )}
     </Box>
+  );
+}
+
+// HACK: Measured by hand from <SquareItemCard />, plus 16px padding.
+const ITEM_CARD_WIDTH = 112 + 16;
+const ITEM_CARD_HEIGHT = 171 + 16;
+
+function ClosetItemList({ items, tradeMatchingMode }) {
+  const renderItem = (item) => (
+    <ItemCard
+      key={item.id}
+      item={item}
+      variant="grid"
+      tradeMatchingMode={tradeMatchingMode}
+    />
+  );
+
+  // For small lists, we don't bother to virtualize, because it slows down
+  // scrolling! (This helps a lot on the lists index page.)
+  if (items.length < 30) {
+    return (
+      <Wrap spacing="4" justify="center">
+        {items.map((item) => (
+          <WrapItem key={item.id}>{renderItem(item)}</WrapItem>
+        ))}
+      </Wrap>
+    );
+  }
+
+  return (
+    <WindowScroller>
+      {({ height, isScrolling, onChildScroll, scrollTop, registerChild }) => (
+        <AutoSizer disableHeight>
+          {({ width }) => {
+            const numItemsPerRow = Math.floor(width / ITEM_CARD_WIDTH);
+            const numRows = Math.ceil(items.length / numItemsPerRow);
+
+            return (
+              <div ref={registerChild}>
+                <VirtualizedList
+                  autoHeight
+                  height={height}
+                  width={width}
+                  rowCount={numRows}
+                  rowHeight={ITEM_CARD_HEIGHT}
+                  rowRenderer={({ index: rowIndex, key, style }) => {
+                    const firstItemIndex = rowIndex * numItemsPerRow;
+                    const itemsForRow = items.slice(
+                      firstItemIndex,
+                      firstItemIndex + numItemsPerRow
+                    );
+
+                    return (
+                      <HStack
+                        key={key}
+                        style={style}
+                        spacing="4"
+                        justify="center"
+                      >
+                        {itemsForRow.map(renderItem)}
+                      </HStack>
+                    );
+                  }}
+                  isScrolling={isScrolling}
+                  onScroll={onChildScroll}
+                  scrollTop={scrollTop}
+                />
+              </div>
+            );
+          }}
+        </AutoSizer>
+      )}
+    </WindowScroller>
   );
 }
 
