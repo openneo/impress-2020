@@ -5,25 +5,34 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
+  Button,
   Center,
   Flex,
+  HStack,
+  Input,
+  Textarea,
+  useToast,
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
 import {
   ArrowForwardIcon,
+  CheckIcon,
   ChevronRightIcon,
+  EditIcon,
   EmailIcon,
 } from "@chakra-ui/icons";
-import { Heading1, MajorErrorMessage, usePageTitle } from "./util";
-import { gql, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import { Link, useParams } from "react-router-dom";
 import { HashLink } from "react-router-hash-link";
 
+import { Heading1, Heading3, MajorErrorMessage, usePageTitle } from "./util";
 import HangerSpinner from "./components/HangerSpinner";
 import MarkdownAndSafeHTML from "./components/MarkdownAndSafeHTML";
 import ItemCard from "./components/ItemCard";
 import useCurrentUser from "./components/useCurrentUser";
+import useSupport from "./WardrobePage/support/useSupport";
+import WIPCallout from "./components/WIPCallout";
 
 function UserItemListPage() {
   const { listId } = useParams();
@@ -112,42 +121,240 @@ function UserItemListPage() {
         </BreadcrumbItem>
       </Breadcrumb>
       <Box height="1" />
-      <Heading1>{closetList.name}</Heading1>
-      <Wrap spacing="2" opacity="0.7">
-        {closetList.creator?.contactNeopetsUsername && (
-          <WrapItem>
-            <Badge
-              as="a"
-              href={`http://www.neopets.com/userlookup.phtml?user=${closetList.creator.contactNeopetsUsername}`}
-              display="flex"
-              alignItems="center"
+      <ClosetList
+        closetList={closetList}
+        isCurrentUser={isCurrentUser}
+        headingVariant="top-level"
+      />
+    </Box>
+  );
+}
+
+export function ClosetList({
+  closetList,
+  isCurrentUser,
+  headingVariant = "list-item",
+}) {
+  const { isSupportUser, supportSecret } = useSupport();
+  const toast = useToast();
+
+  // When this mounts, scroll it into view if it matches the location hash.
+  // This works around the fact that, while the browser tries to do this
+  // natively on page load, the list might not be mounted yet!
+  const anchorId = `list-${closetList.id}`;
+  React.useEffect(() => {
+    if (document.location.hash === "#" + anchorId) {
+      document.getElementById(anchorId).scrollIntoView();
+    }
+  }, [anchorId]);
+
+  const [
+    sendSaveChangesMutation,
+    { loading: loadingSaveChanges },
+  ] = useMutation(
+    gql`
+      mutation ClosetList_Edit(
+        $closetListId: ID!
+        $name: String!
+        $description: String!
+        # Support users can edit any list, if they provide the secret. If you're
+        # editing your own list, this will be empty, and that's okay.
+        $supportSecret: String
+      ) {
+        editClosetList(
+          closetListId: $closetListId
+          name: $name
+          description: $description
+          supportSecret: $supportSecret
+        ) {
+          id
+          name
+          description
+        }
+      }
+    `,
+    { context: { sendAuth: true } }
+  );
+
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [editableName, setEditableName] = React.useState(closetList.name);
+  const [editableDescription, setEditableDescription] = React.useState(
+    closetList.description
+  );
+  const hasChanges =
+    editableName !== closetList.name ||
+    editableDescription !== closetList.description;
+  const onSaveChanges = () => {
+    if (!hasChanges) {
+      setIsEditing(false);
+      return;
+    }
+
+    sendSaveChangesMutation({
+      variables: {
+        closetListId: closetList.id,
+        name: editableName,
+        description: editableDescription,
+        supportSecret,
+      },
+    })
+      .then(() => {
+        setIsEditing(false);
+        toast({
+          status: "success",
+          title: "Changes saved!",
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+        toast({
+          status: "error",
+          title: "Sorry, we couldn't save this list 😖",
+          description: "Check your connection and try again.",
+        });
+      });
+  };
+
+  const Heading = headingVariant === "top-level" ? Heading1 : Heading3;
+
+  return (
+    <Box id={anchorId}>
+      <Flex align="center" wrap="wrap">
+        {headingVariant !== "hidden" &&
+          (isEditing ? (
+            <Heading
+              as={Input}
+              value={editableName}
+              onChange={(e) => setEditableName(e.target.value)}
+              maxWidth="20ch"
+              // Shift left by our own padding/border, for alignment with the
+              // original title
+              paddingX="0.75rem"
+              marginLeft="calc(-0.75rem - 1px)"
+              boxShadow="sm"
+              lineHeight="1.2"
+              // HACK: Idk, the height stuff is really getting away from me,
+              //       this is close enough :/
+              height="1.2em"
+            />
+          ) : (
+            <Heading
+              fontStyle={closetList.isDefaultList ? "italic" : "normal"}
+              lineHeight="1.2" // to match Input
+              paddingY="2px" // to account for Input border/padding
             >
-              <NeopetsStarIcon marginRight="1" />
-              {closetList.creator.contactNeopetsUsername}
-            </Badge>
-          </WrapItem>
-        )}
-        {closetList.creator?.contactNeopetsUsername && (
-          <WrapItem>
-            <Badge
-              as="a"
-              href={`http://www.neopets.com/neomessages.phtml?type=send&recipient=${closetList.creator.contactNeopetsUsername}`}
+              {closetList.isDefaultList || headingVariant === "top-level" ? (
+                closetList.name
+              ) : (
+                <Box
+                  as={Link}
+                  to={buildClosetListPath(closetList)}
+                  _hover={{ textDecoration: "underline" }}
+                >
+                  {closetList.name}
+                </Box>
+              )}
+            </Heading>
+          ))}
+        <Box flex="1 0 auto" width="4" />
+        {(isCurrentUser || isSupportUser) &&
+          !closetList.isDefaultList &&
+          (isEditing ? (
+            <>
+              <WIPCallout
+                size="sm"
+                details="To edit the items, head back to Classic DTI!"
+                marginY="2"
+              >
+                WIP: Can only edit text for now!
+              </WIPCallout>
+              <Box width="4" />
+              <HStack spacing="2" marginLeft="auto" marginY="1">
+                <Button size="sm" onClick={() => setIsEditing(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  display="flex"
+                  align="center"
+                  size="sm"
+                  colorScheme="green"
+                  onClick={onSaveChanges}
+                  isLoading={loadingSaveChanges}
+                >
+                  <CheckIcon marginRight="1" />
+                  Save changes
+                </Button>
+              </HStack>
+            </>
+          ) : (
+            <Button
               display="flex"
-              alignItems="center"
+              align="center"
+              size="sm"
+              onClick={() => setIsEditing(true)}
             >
-              <EmailIcon marginRight="1" />
-              Neomail
-            </Badge>
-          </WrapItem>
-        )}
-      </Wrap>
-      <Box height="6" />
+              <EditIcon marginRight="1" />
+              Edit
+            </Button>
+          ))}
+      </Flex>
+      {headingVariant === "top-level" && (
+        <Wrap spacing="2" opacity="0.7" marginBottom="2">
+          {closetList.creator?.contactNeopetsUsername && (
+            <WrapItem>
+              <Badge
+                as="a"
+                href={`http://www.neopets.com/userlookup.phtml?user=${closetList.creator.contactNeopetsUsername}`}
+                display="flex"
+                alignItems="center"
+              >
+                <NeopetsStarIcon marginRight="1" />
+                {closetList.creator.contactNeopetsUsername}
+              </Badge>
+            </WrapItem>
+          )}
+          {closetList.creator?.contactNeopetsUsername && (
+            <WrapItem>
+              <Badge
+                as="a"
+                href={`http://www.neopets.com/neomessages.phtml?type=send&recipient=${closetList.creator.contactNeopetsUsername}`}
+                display="flex"
+                alignItems="center"
+              >
+                <EmailIcon marginRight="1" />
+                Neomail
+              </Badge>
+            </WrapItem>
+          )}
+        </Wrap>
+      )}
+      <Box height="2" />
       {closetList.description && (
-        <MarkdownAndSafeHTML>{closetList.description}</MarkdownAndSafeHTML>
+        <Box marginBottom="2">
+          {isEditing ? (
+            <Textarea
+              value={editableDescription}
+              onChange={(e) => setEditableDescription(e.target.value)}
+              // Shift left by our own padding/border, for alignment with the
+              // original title
+              paddingX="0.75rem"
+              marginLeft="calc(-0.75rem - 1px)"
+              boxShadow="sm"
+            />
+          ) : (
+            <MarkdownAndSafeHTML>{closetList.description}</MarkdownAndSafeHTML>
+          )}
+        </Box>
       )}
       <ClosetListContents
         closetList={closetList}
         isCurrentUser={isCurrentUser}
+        // For default lists, we don't have a separate page, we just inline
+        // them all here. This is a less-nice experience, but it simplifies
+        // the single-list page a lot to not have to care, and for now we just
+        // kinda expect that people who care about trade lists enough will
+        // group them into lists so it's nbd! ^_^`
+        maxNumItemsToShow={!closetList.isDefaultList ? 14 : null}
       />
     </Box>
   );

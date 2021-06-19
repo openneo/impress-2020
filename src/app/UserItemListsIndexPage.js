@@ -19,9 +19,6 @@ import {
   WrapItem,
   VStack,
   useToast,
-  Button,
-  Textarea,
-  HStack,
 } from "@chakra-ui/react";
 import {
   ArrowForwardIcon,
@@ -32,21 +29,15 @@ import {
   StarIcon,
 } from "@chakra-ui/icons";
 import gql from "graphql-tag";
-import { Link, useHistory, useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import { useQuery, useLazyQuery, useMutation } from "@apollo/client";
 
 import HangerSpinner from "./components/HangerSpinner";
-import { Heading1, Heading2, Heading3, usePageTitle } from "./util";
-import MarkdownAndSafeHTML from "./components/MarkdownAndSafeHTML";
+import { Heading1, Heading2, usePageTitle } from "./util";
 import SupportOnly from "./WardrobePage/support/SupportOnly";
 import useSupport from "./WardrobePage/support/useSupport";
 import useCurrentUser from "./components/useCurrentUser";
-import WIPCallout from "./components/WIPCallout";
-import {
-  ClosetListContents,
-  NeopetsStarIcon,
-  buildClosetListPath,
-} from "./UserItemListPage";
+import { ClosetList, NeopetsStarIcon } from "./UserItemListPage";
 
 const BadgeButton = React.forwardRef((props, ref) => (
   <Badge as="button" ref={ref} {...props} />
@@ -269,7 +260,11 @@ function UserItemListsIndexPage() {
                   key={closetList.id}
                   closetList={closetList}
                   isCurrentUser={isCurrentUser}
-                  showHeading={listsOfOwnedItems.length > 1}
+                  headingVariant={
+                    closetList.isDefaultList && listsOfOwnedItems.length === 1
+                      ? "hidden"
+                      : "list-item"
+                  }
                 />
               ))}
             </VStack>
@@ -292,7 +287,11 @@ function UserItemListsIndexPage() {
                 key={closetList.id}
                 closetList={closetList}
                 isCurrentUser={isCurrentUser}
-                showHeading={listsOfWantedItems.length > 1}
+                headingVariant={
+                  closetList.isDefaultList && listsOfWantedItems.length === 1
+                    ? "hidden"
+                    : "list-item"
+                }
               />
             ))}
           </VStack>
@@ -426,195 +425,6 @@ function UserSearchForm() {
           />
         </InputRightElement>
       </InputGroup>
-    </Box>
-  );
-}
-
-function ClosetList({ closetList, isCurrentUser, showHeading }) {
-  const { isSupportUser, supportSecret } = useSupport();
-  const toast = useToast();
-
-  // When this mounts, scroll it into view if it matches the location hash.
-  // This works around the fact that, while the browser tries to do this
-  // natively on page load, the list might not be mounted yet!
-  const anchorId = `list-${closetList.id}`;
-  React.useEffect(() => {
-    if (document.location.hash === "#" + anchorId) {
-      document.getElementById(anchorId).scrollIntoView();
-    }
-  }, [anchorId]);
-
-  const [
-    sendSaveChangesMutation,
-    { loading: loadingSaveChanges },
-  ] = useMutation(
-    gql`
-      mutation ClosetList_Edit(
-        $closetListId: ID!
-        $name: String!
-        $description: String!
-        # Support users can edit any list, if they provide the secret. If you're
-        # editing your own list, this will be empty, and that's okay.
-        $supportSecret: String
-      ) {
-        editClosetList(
-          closetListId: $closetListId
-          name: $name
-          description: $description
-          supportSecret: $supportSecret
-        ) {
-          id
-          name
-          description
-        }
-      }
-    `,
-    { context: { sendAuth: true } }
-  );
-
-  const [isEditing, setIsEditing] = React.useState(false);
-  const [editableName, setEditableName] = React.useState(closetList.name);
-  const [editableDescription, setEditableDescription] = React.useState(
-    closetList.description
-  );
-  const hasChanges =
-    editableName !== closetList.name ||
-    editableDescription !== closetList.description;
-  const onSaveChanges = () => {
-    if (!hasChanges) {
-      setIsEditing(false);
-      return;
-    }
-
-    sendSaveChangesMutation({
-      variables: {
-        closetListId: closetList.id,
-        name: editableName,
-        description: editableDescription,
-        supportSecret,
-      },
-    })
-      .then(() => {
-        setIsEditing(false);
-        toast({
-          status: "success",
-          title: "Changes saved!",
-        });
-      })
-      .catch((err) => {
-        console.error(err);
-        toast({
-          status: "error",
-          title: "Sorry, we couldn't save this list 😖",
-          description: "Check your connection and try again.",
-        });
-      });
-  };
-
-  return (
-    <Box id={anchorId}>
-      <Flex align="center" wrap="wrap" marginBottom="2">
-        {showHeading &&
-          (isEditing ? (
-            <Heading3
-              as={Input}
-              value={editableName}
-              onChange={(e) => setEditableName(e.target.value)}
-              maxWidth="20ch"
-              // Shift left by our own padding/border, for alignment with the
-              // original title
-              paddingX="0.75rem"
-              marginLeft="calc(-0.75rem - 1px)"
-              boxShadow="sm"
-            />
-          ) : (
-            <Heading3
-              fontStyle={closetList.isDefaultList ? "italic" : "normal"}
-              lineHeight="1.2" // to match Input
-              paddingY="2px" // to account for Input border/padding
-            >
-              {closetList.isDefaultList ? (
-                closetList.name
-              ) : (
-                <Box
-                  as={Link}
-                  to={buildClosetListPath(closetList)}
-                  _hover={{ textDecoration: "underline" }}
-                >
-                  {closetList.name}
-                </Box>
-              )}
-            </Heading3>
-          ))}
-        <Box flex="1 0 auto" width="4" />
-        {(isCurrentUser || isSupportUser) &&
-          !closetList.isDefaultList &&
-          (isEditing ? (
-            <>
-              <WIPCallout
-                size="sm"
-                details="To edit the items, head back to Classic DTI!"
-                marginY="2"
-              >
-                WIP: Can only edit text for now!
-              </WIPCallout>
-              <Box width="4" />
-              <HStack spacing="2" marginLeft="auto" marginY="1">
-                <Button size="sm" onClick={() => setIsEditing(false)}>
-                  Cancel
-                </Button>
-                <Button
-                  display="flex"
-                  align="center"
-                  size="sm"
-                  colorScheme="green"
-                  onClick={onSaveChanges}
-                  isLoading={loadingSaveChanges}
-                >
-                  <CheckIcon marginRight="1" />
-                  Save changes
-                </Button>
-              </HStack>
-            </>
-          ) : (
-            <Button
-              display="flex"
-              align="center"
-              size="sm"
-              onClick={() => setIsEditing(true)}
-            >
-              <EditIcon marginRight="1" />
-              Edit
-            </Button>
-          ))}
-      </Flex>
-      {closetList.description && (
-        <Box marginBottom="2">
-          {isEditing ? (
-            <Textarea
-              value={editableDescription}
-              onChange={(e) => setEditableDescription(e.target.value)}
-              // Shift left by our own padding/border, for alignment with the
-              // original title
-              paddingX="0.75rem"
-              marginLeft="calc(-0.75rem - 1px)"
-              boxShadow="sm"
-            />
-          ) : (
-            <MarkdownAndSafeHTML>{closetList.description}</MarkdownAndSafeHTML>
-          )}
-        </Box>
-      )}
-      <ClosetListContents
-        closetList={closetList}
-        isCurrentUser={isCurrentUser}
-        // For default lists, we don't have a separate page, we just inline
-        // them all here. This is a less-nice experience, but it simplifies
-        // the single-list page a lot to not have to care, and for now we just
-        // kinda expect that people who care about trade lists enough will
-        // group them into lists so it's nbd! ^_^`
-        maxNumItemsToShow={!closetList.isDefaultList ? 14 : null}
-      />
     </Box>
   );
 }
