@@ -37,12 +37,12 @@ import { useQuery, useLazyQuery, useMutation } from "@apollo/client";
 
 import HangerSpinner from "./components/HangerSpinner";
 import { Heading1, Heading2, Heading3 } from "./util";
-import ItemCard from "./components/ItemCard";
 import MarkdownAndSafeHTML from "./components/MarkdownAndSafeHTML";
 import SupportOnly from "./WardrobePage/support/SupportOnly";
 import useSupport from "./WardrobePage/support/useSupport";
 import useCurrentUser from "./components/useCurrentUser";
 import WIPCallout from "./components/WIPCallout";
+import { ClosetListContents } from "./UserItemListPage";
 
 const BadgeButton = React.forwardRef((props, ref) => (
   <Badge as="button" ref={ref} {...props} />
@@ -416,25 +416,6 @@ function ClosetList({ closetList, isCurrentUser, showHeading }) {
   const { isSupportUser, supportSecret } = useSupport();
   const toast = useToast();
 
-  const hasYouWantThisBadge = (item) =>
-    !isCurrentUser &&
-    closetList.ownsOrWantsItems === "OWNS" &&
-    item.currentUserWantsThis;
-  const hasYouOwnThisBadge = (item) =>
-    !isCurrentUser &&
-    closetList.ownsOrWantsItems === "WANTS" &&
-    item.currentUserOwnsThis;
-  const hasAnyTradeBadge = (item) =>
-    hasYouOwnThisBadge(item) || hasYouWantThisBadge(item);
-
-  const sortedItems = [...closetList.items].sort((a, b) => {
-    // This is a cute sort hack. We sort first by, bringing "You own/want
-    // this!" to the top, and then sorting by name _within_ those two groups.
-    const aName = `${hasAnyTradeBadge(a) ? "000" : "999"} ${a.name}`;
-    const bName = `${hasAnyTradeBadge(b) ? "000" : "999"} ${b.name}`;
-    return aName.localeCompare(bName);
-  });
-
   // When this mounts, scroll it into view if it matches the location hash.
   // This works around the fact that, while the browser tries to do this
   // natively on page load, the list might not be mounted yet!
@@ -511,20 +492,6 @@ function ClosetList({ closetList, isCurrentUser, showHeading }) {
         });
       });
   };
-
-  let tradeMatchingMode;
-  if (isCurrentUser) {
-    // On your own item list, it's not helpful to show your own trade matches!
-    tradeMatchingMode = "hide-all";
-  } else if (closetList.ownsOrWantsItems === "OWNS") {
-    tradeMatchingMode = "offering";
-  } else if (closetList.ownsOrWantsItems === "WANTS") {
-    tradeMatchingMode = "seeking";
-  } else {
-    throw new Error(
-      `unexpected ownsOrWantsItems value: ${closetList.ownsOrWantsItems}`
-    );
-  }
 
   return (
     <Box id={anchorId}>
@@ -620,21 +587,10 @@ function ClosetList({ closetList, isCurrentUser, showHeading }) {
           )}
         </Box>
       )}
-      {sortedItems.length > 0 ? (
-        <Wrap spacing="4" justify="center">
-          {sortedItems.map((item) => (
-            <WrapItem key={item.id}>
-              <ItemCard
-                item={item}
-                variant="grid"
-                tradeMatchingMode={tradeMatchingMode}
-              />
-            </WrapItem>
-          ))}
-        </Wrap>
-      ) : (
-        <Box fontStyle="italic">This list is empty!</Box>
-      )}
+      <ClosetListContents
+        closetList={closetList}
+        isCurrentUser={isCurrentUser}
+      />
     </Box>
   );
 }

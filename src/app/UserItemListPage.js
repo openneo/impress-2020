@@ -123,7 +123,7 @@ function UserItemListPage() {
   );
 }
 
-function ClosetListContents({ closetList, isCurrentUser }) {
+export function ClosetListContents({ closetList, isCurrentUser }) {
   const isTradeMatch = (item) =>
     !isCurrentUser &&
     ((closetList.ownsOrWantsItems === "OWNS" && item.currentUserWantsThis) ||
