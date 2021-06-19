@@ -607,7 +607,13 @@ function useDownloadableImage(visibleLayers) {
     //       performance (can use cached SVG), and predictability (image will
     //       look like what you see here).
     const imagePromises = visibleLayers.map((layer) =>
-      loadImage(getBestImageUrlForLayer(layer, { hiResMode }))
+      loadImage({
+        src: getBestImageUrlForLayer(layer, {
+          hiResMode,
+          crossOrigin: "anonymous",
+        }),
+        crossOrigin: "anonymous",
+      })
     );
 
     let images;

@@ -115,7 +115,7 @@ export function useCommonStyles() {
 /**
  * safeImageUrl returns an HTTPS-safe image URL for Neopets assets!
  */
-export function safeImageUrl(urlString) {
+export function safeImageUrl(urlString, { crossOrigin = null } = {}) {
   if (urlString == null) {
     return urlString;
   }
@@ -141,12 +141,18 @@ export function safeImageUrl(urlString) {
     return "https://impress-2020.openneo.net/__error__URL-was-not-parseable__";
   }
 
+  // Rewrite Neopets URLs to their HTTPS equivalents, or to our proxy if we
+  // need CORS headers.
   if (url.origin === "http://images.neopets.com") {
     url.protocol = "https:";
-    url.host = "images.neopets-asset-proxy.openneo.net";
+    if (crossOrigin) {
+      url.host = "images.neopets-asset-proxy.openneo.net";
+    }
   } else if (url.origin === "http://pets.neopets.com") {
     url.protocol = "https:";
-    url.host = "pets.neopets-asset-proxy.openneo.net";
+    if (crossOrigin) {
+      url.host = "pets.neopets-asset-proxy.openneo.net";
+    }
   }
 
   if (url.protocol !== "https:") {

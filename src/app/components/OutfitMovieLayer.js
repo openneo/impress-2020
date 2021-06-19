@@ -290,7 +290,9 @@ export async function loadMovieLibrary(librarySrc) {
     library.properties.manifest.map(({ id, src }) => [
       id,
       loadImage({
-        src: safeImageUrl(librarySrcDir + "/" + src),
+        src: safeImageUrl(librarySrcDir + "/" + src, {
+          crossOrigin: "anonymous",
+        }),
         crossOrigin: "anonymous",
       }),
     ])
