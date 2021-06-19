@@ -133,7 +133,7 @@ const resolvers = {
   },
 
   Query: {
-    closetList: async (_, { id, currentUserId }, { closetListLoader }) => {
+    closetList: async (_, { id }, { currentUserId, closetListLoader }) => {
       // TODO: Accept the `not-in-a-list` case too!
       const closetList = await closetListLoader.load(id);
       if (!closetList) {
