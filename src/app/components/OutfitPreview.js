@@ -359,7 +359,7 @@ export function usePreloadLayers(layers) {
 
   // NOTE: This condition would need to change if we started loading one at a
   // time, or if the error case would need to show a partial state!
-  const loading = loadedLayers !== layers;
+  const loading = layers.length > 0 && loadedLayers !== layers;
 
   React.useEffect(() => {
     // HACK: Don't clear the preview when we have zero layers, because it
