@@ -233,24 +233,28 @@ function OutfitMovieLayer({
 
   return (
     <Grid templateAreas="single-shared-area">
-      {!movieIsLoaded && (
-        // While the movie is loading, we show our image version as a
-        // placeholder, because it generally loads much faster.
-        // TODO: Show a loading indicator for this partially-loaded state?
-        <Box
-          as="img"
-          src={safeImageUrl(placeholderImageUrl)}
-          width={width}
-          height={height}
-          gridArea="single-shared-area"
-          onLoad={callOnLoadIfNotYetCalled}
-        />
-      )}
       <canvas
         ref={canvasRef}
         width={internalWidth}
         height={internalHeight}
-        style={{ width: width, height: height, gridArea: "single-shared-area" }}
+        style={{
+          width: width,
+          height: height,
+          gridArea: "single-shared-area",
+        }}
+      />
+      {/* While the movie is loading, we show our image version as a
+       *  placeholder, because it generally loads much faster.
+       *  TODO: Show a loading indicator for this partially-loaded state? */}
+      <Box
+        as="img"
+        src={safeImageUrl(placeholderImageUrl)}
+        width={width}
+        height={height}
+        gridArea="single-shared-area"
+        opacity={movieIsLoaded ? 0 : 1}
+        transition="opacity 0.2s"
+        onLoad={callOnLoadIfNotYetCalled}
       />
     </Grid>
   );
