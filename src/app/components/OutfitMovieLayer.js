@@ -1,6 +1,6 @@
 import React from "react";
 import LRU from "lru-cache";
-import { useToast } from "@chakra-ui/react";
+import { Box, Grid, useToast } from "@chakra-ui/react";
 
 import { loadImage, logAndCapture, safeImageUrl } from "../util";
 
@@ -14,6 +14,7 @@ function OutfitMovieLayer({
   libraryUrl,
   width,
   height,
+  placeholderImageUrl = null,
   isPaused = false,
   onLoad = null,
   onLowFps = null,
@@ -21,6 +22,8 @@ function OutfitMovieLayer({
   const [stage, setStage] = React.useState(null);
   const [library, setLibrary] = React.useState(null);
   const [movieClip, setMovieClip] = React.useState(null);
+  const [unusedHasCalledOnLoad, setHasCalledOnLoad] = React.useState(false);
+  const [movieIsLoaded, setMovieIsLoaded] = React.useState(false);
   const canvasRef = React.useRef(null);
   const hasShownErrorMessageRef = React.useRef(false);
   const toast = useToast();
@@ -29,6 +32,15 @@ function OutfitMovieLayer({
   // DPI like retina. But we'll keep the layout width/height as expected!
   const internalWidth = width * window.devicePixelRatio;
   const internalHeight = height * window.devicePixelRatio;
+
+  const callOnLoadIfNotYetCalled = React.useCallback(() => {
+    setHasCalledOnLoad((alreadyHasCalledOnLoad) => {
+      if (!alreadyHasCalledOnLoad) {
+        onLoad();
+      }
+      return true;
+    });
+  }, [onLoad]);
 
   const updateStage = React.useCallback(() => {
     if (!stage) {
@@ -147,12 +159,11 @@ function OutfitMovieLayer({
     updateStage();
 
     // This is when we trigger `onLoad`: once we're actually showing it!
-    if (onLoad) {
-      onLoad();
-    }
+    callOnLoadIfNotYetCalled();
+    setMovieIsLoaded(true);
 
     return () => stage.removeChild(movieClip);
-  }, [stage, updateStage, movieClip, onLoad]);
+  }, [stage, updateStage, movieClip, callOnLoadIfNotYetCalled]);
 
   // This effect updates the `stage` according to the `library`'s framerate,
   // but only if there's actual animation to do - i.e., there's more than one
@@ -221,12 +232,27 @@ function OutfitMovieLayer({
   }, [stage, updateStage, library, movieClip, internalWidth, internalHeight]);
 
   return (
-    <canvas
-      ref={canvasRef}
-      width={internalWidth}
-      height={internalHeight}
-      style={{ width: width, height: height }}
-    />
+    <Grid templateAreas="single-shared-area">
+      {!movieIsLoaded && (
+        // While the movie is loading, we show our image version as a
+        // placeholder, because it generally loads much faster.
+        // TODO: Show a loading indicator for this partially-loaded state?
+        <Box
+          as="img"
+          src={safeImageUrl(placeholderImageUrl)}
+          width={width}
+          height={height}
+          gridArea="single-shared-area"
+          onLoad={callOnLoadIfNotYetCalled}
+        />
+      )}
+      <canvas
+        ref={canvasRef}
+        width={internalWidth}
+        height={internalHeight}
+        style={{ width: width, height: height, gridArea: "single-shared-area" }}
+      />
+    </Grid>
   );
 }
 
