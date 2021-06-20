@@ -352,7 +352,8 @@ export function useLocalStorage(key, initialValue) {
   return [storedValue, setValue];
 }
 
-export function loadImage({ src, crossOrigin = null }) {
+export function loadImage(rawSrc, { crossOrigin = null } = {}) {
+  const src = safeImageUrl(rawSrc, { crossOrigin });
   const image = new Image();
   const promise = new Promise((resolve, reject) => {
     image.onload = () => resolve(image);

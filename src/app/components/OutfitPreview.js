@@ -262,7 +262,9 @@ export function OutfitLayers({
                   ) : (
                     <Box
                       as="img"
-                      src={getBestImageUrlForLayer(layer, { hiResMode })}
+                      src={safeImageUrl(
+                        getBestImageUrlForLayer(layer, { hiResMode })
+                      )}
                       alt=""
                       objectFit="contain"
                       maxWidth="100%"
@@ -332,14 +334,11 @@ export function FullScreenCenter({ children, ...otherProps }) {
   );
 }
 
-export function getBestImageUrlForLayer(
-  layer,
-  { hiResMode = false, crossOrigin = null } = {}
-) {
+export function getBestImageUrlForLayer(layer, { hiResMode = false } = {}) {
   if (hiResMode && layer.svgUrl) {
-    return safeImageUrl(layer.svgUrl, { crossOrigin });
+    return layer.svgUrl;
   } else {
-    return safeImageUrl(layer.imageUrl, { crossOrigin });
+    return layer.imageUrl;
   }
 }
 
@@ -386,12 +385,12 @@ export function usePreloadLayers(layers) {
             })
           );
         } else {
-          return loadImage({
-            src: getBestImageUrlForLayer(layer, { hiResMode }),
-          }).then((image) => ({
-            type: "image",
-            image,
-          }));
+          return loadImage(getBestImageUrlForLayer(layer, { hiResMode })).then(
+            (image) => ({
+              type: "image",
+              image,
+            })
+          );
         }
       });
 
