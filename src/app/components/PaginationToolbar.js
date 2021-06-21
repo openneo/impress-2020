@@ -19,13 +19,20 @@ function PaginationToolbar({ isLoading, totalCount, ...props }) {
   const prevPageOffset = currentOffset - PER_PAGE;
   prevPageSearchParams.set("offset", prevPageOffset);
   const prevPageUrl = "?" + prevPageSearchParams.toString();
-  const prevPageIsDisabled = isLoading || prevPageOffset < 0;
 
   const nextPageSearchParams = new URLSearchParams(search);
   const nextPageOffset = currentOffset + PER_PAGE;
   nextPageSearchParams.set("offset", nextPageOffset);
   const nextPageUrl = "?" + nextPageSearchParams.toString();
-  const nextPageIsDisabled = isLoading || nextPageOffset >= totalCount;
+
+  // We disable the buttons if we don't know how many total items there are,
+  // and therefore don't know how far navigation can go. We'll additionally
+  // show a loading spinner if `isLoading` is true. (But it's possible the
+  // buttons might be enabled, even if `isLoading` is true, because maybe
+  // something _else_ is loading. `isLoading` is designed to tell us whether
+  // waiting _might_ give us the data we need!)
+  const prevPageIsDisabled = totalCount == null || prevPageOffset < 0;
+  const nextPageIsDisabled = totalCount == null || nextPageOffset >= totalCount;
 
   const goToPageNumber = React.useCallback(
     (newPageNumber) => {
