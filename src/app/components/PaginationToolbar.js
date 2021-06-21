@@ -1,11 +1,12 @@
 import React from "react";
-import { Box, Button, Flex } from "@chakra-ui/react";
-import { Link, useLocation } from "react-router-dom";
+import { Box, Button, Flex, Select } from "@chakra-ui/react";
+import { Link, useHistory, useLocation } from "react-router-dom";
 
 const PER_PAGE = 30;
 
 function PaginationToolbar({ isLoading, totalCount, ...props }) {
   const { search } = useLocation();
+  const history = useHistory();
 
   const currentOffset =
     parseInt(new URLSearchParams(search).get("offset")) || 0;
@@ -26,6 +27,18 @@ function PaginationToolbar({ isLoading, totalCount, ...props }) {
   const nextPageUrl = "?" + nextPageSearchParams.toString();
   const nextPageIsDisabled = isLoading || nextPageOffset >= totalCount;
 
+  const goToPageNumber = React.useCallback(
+    (newPageNumber) => {
+      const newPageIndex = newPageNumber - 1;
+      const newPageOffset = newPageIndex * PER_PAGE;
+
+      const newPageSearchParams = new URLSearchParams(search);
+      newPageSearchParams.set("offset", newPageOffset);
+      history.push({ search: newPageSearchParams.toString() });
+    },
+    [search, history]
+  );
+
   return (
     <Flex align="center" justify="space-between" {...props}>
       <Button
@@ -37,9 +50,18 @@ function PaginationToolbar({ isLoading, totalCount, ...props }) {
         ← Prev
       </Button>
       {numTotalPages && (
-        <Box>
-          Page {currentPageNumber} of {numTotalPages}
-        </Box>
+        <Flex align="center">
+          <Box flex="0 0 auto">Page</Box>
+          <Box width="1" />
+          <PageNumberSelect
+            currentPageNumber={currentPageNumber}
+            numTotalPages={numTotalPages}
+            onChange={goToPageNumber}
+            marginBottom="-2px"
+          />
+          <Box width="1" />
+          <Box flex="0 0 auto">of {numTotalPages}</Box>
+        </Flex>
       )}
       <Button
         as={nextPageIsDisabled ? "button" : Link}
@@ -50,6 +72,37 @@ function PaginationToolbar({ isLoading, totalCount, ...props }) {
         Next →
       </Button>
     </Flex>
+  );
+}
+
+function PageNumberSelect({
+  currentPageNumber,
+  numTotalPages,
+  onChange,
+  ...props
+}) {
+  const allPageNumbers = Array.from({ length: numTotalPages }, (_, i) => i + 1);
+
+  const handleChange = React.useCallback(
+    (e) => onChange(Number(e.target.value)),
+    [onChange]
+  );
+
+  return (
+    <Select
+      value={currentPageNumber}
+      onChange={handleChange}
+      width="7ch"
+      variant="flushed"
+      textAlign="center"
+      {...props}
+    >
+      {allPageNumbers.map((pageNumber) => (
+        <option key={pageNumber} value={pageNumber}>
+          {pageNumber}
+        </option>
+      ))}
+    </Select>
   );
 }
 
