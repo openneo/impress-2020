@@ -4,6 +4,7 @@ import { useToast } from "@chakra-ui/react";
 import { loadable } from "../util";
 
 import ItemsAndSearchPanels from "./ItemsAndSearchPanels";
+import SearchFooter from "./SearchFooter";
 import SupportOnly from "./support/SupportOnly";
 import useOutfitSaving from "./useOutfitSaving";
 import useOutfitState, { OutfitStateContext } from "./useOutfitState";
@@ -104,7 +105,7 @@ function WardrobePage() {
             dispatchToOutfit={dispatchToOutfit}
           />
         }
-        itemsAndSearch={
+        itemsAndMaybeSearchPanel={
           <ItemsAndSearchPanels
             loading={loading}
             outfitState={outfitState}
@@ -112,6 +113,7 @@ function WardrobePage() {
             dispatchToOutfit={dispatchToOutfit}
           />
         }
+        searchFooter={<SearchFooter />}
       />
     </OutfitStateContext.Provider>
   );

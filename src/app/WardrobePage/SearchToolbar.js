@@ -53,6 +53,7 @@ function SearchToolbar({
   showItemsLabel = false,
   background = null,
   boxShadow = null,
+  ...props
 }) {
   const [suggestions, setSuggestions] = React.useState([]);
   const [advancedSearchIsOpen, setAdvancedSearchIsOpen] = React.useState(false);
@@ -182,139 +183,144 @@ function SearchToolbar({
   const focusBorderColor = useColorModeValue("green.600", "green.400");
 
   return (
-    <Autosuggest
-      suggestions={advancedSearchIsOpen ? allSuggestions : suggestions}
-      onSuggestionsFetchRequested={({ value }) => {
-        // HACK: I'm not sure why, but apparently this gets called with value
-        //       set to the _chosen suggestion_ after choosing it? Has that
-        //       always happened? Idk? Let's just, gate around it, I guess?
-        if (typeof value === "string") {
-          setSuggestions(getSuggestions(value, query, zoneLabels, isLoggedIn));
-        }
-      }}
-      onSuggestionSelected={(e, { suggestion }) => {
-        onChange({
-          ...query,
-          // If the suggestion was from typing, remove the last word of the
-          // query value. Or, if it was from Advanced Search, leave it alone!
-          value: advancedSearchIsOpen
-            ? query.value
-            : removeLastWord(query.value),
-          filterToZoneLabel: suggestion.zoneLabel || query.filterToZoneLabel,
-          filterToItemKind: suggestion.itemKind || query.filterToItemKind,
-          filterToCurrentUserOwnsOrWants:
-            suggestion.userOwnsOrWants || query.filterToCurrentUserOwnsOrWants,
-        });
-      }}
-      getSuggestionValue={(zl) => zl}
-      alwaysRenderSuggestions={true}
-      renderSuggestion={renderSuggestion}
-      renderSuggestionsContainer={renderSuggestionsContainer}
-      renderInputComponent={(inputProps) => (
-        <InputGroup boxShadow={boxShadow} borderRadius="md">
-          {queryFilterText ? (
-            <InputLeftAddon>
-              <SearchIcon color="gray.400" marginRight="3" />
-              <Box fontSize="sm">{queryFilterText}</Box>
-            </InputLeftAddon>
-          ) : (
-            <InputLeftElement>
-              <SearchIcon color="gray.400" />
-            </InputLeftElement>
-          )}
-          <Input
-            background={background}
-            autoFocus={autoFocus}
-            {...inputProps}
-          />
-          <InputRightElement
-            width="auto"
-            justifyContent="flex-end"
-            paddingRight="2px"
-            paddingY="2px"
-          >
-            {!searchQueryIsEmpty(query) && (
-              <Tooltip label="Clear">
+    <Box {...props}>
+      <Autosuggest
+        suggestions={advancedSearchIsOpen ? allSuggestions : suggestions}
+        onSuggestionsFetchRequested={({ value }) => {
+          // HACK: I'm not sure why, but apparently this gets called with value
+          //       set to the _chosen suggestion_ after choosing it? Has that
+          //       always happened? Idk? Let's just, gate around it, I guess?
+          if (typeof value === "string") {
+            setSuggestions(
+              getSuggestions(value, query, zoneLabels, isLoggedIn)
+            );
+          }
+        }}
+        onSuggestionSelected={(e, { suggestion }) => {
+          onChange({
+            ...query,
+            // If the suggestion was from typing, remove the last word of the
+            // query value. Or, if it was from Advanced Search, leave it alone!
+            value: advancedSearchIsOpen
+              ? query.value
+              : removeLastWord(query.value),
+            filterToZoneLabel: suggestion.zoneLabel || query.filterToZoneLabel,
+            filterToItemKind: suggestion.itemKind || query.filterToItemKind,
+            filterToCurrentUserOwnsOrWants:
+              suggestion.userOwnsOrWants ||
+              query.filterToCurrentUserOwnsOrWants,
+          });
+        }}
+        getSuggestionValue={(zl) => zl}
+        alwaysRenderSuggestions={true}
+        renderSuggestion={renderSuggestion}
+        renderSuggestionsContainer={renderSuggestionsContainer}
+        renderInputComponent={(inputProps) => (
+          <InputGroup boxShadow={boxShadow} borderRadius="md">
+            {queryFilterText ? (
+              <InputLeftAddon>
+                <SearchIcon color="gray.400" marginRight="3" />
+                <Box fontSize="sm">{queryFilterText}</Box>
+              </InputLeftAddon>
+            ) : (
+              <InputLeftElement>
+                <SearchIcon color="gray.400" />
+              </InputLeftElement>
+            )}
+            <Input
+              background={background}
+              autoFocus={autoFocus}
+              {...inputProps}
+            />
+            <InputRightElement
+              width="auto"
+              justifyContent="flex-end"
+              paddingRight="2px"
+              paddingY="2px"
+            >
+              {!searchQueryIsEmpty(query) && (
+                <Tooltip label="Clear">
+                  <IconButton
+                    icon={<CloseIcon fontSize="0.6em" />}
+                    color="gray.400"
+                    variant="ghost"
+                    height="100%"
+                    marginLeft="1"
+                    aria-label="Clear search"
+                    onClick={() => {
+                      setSuggestions([]);
+                      onChange(emptySearchQuery);
+                    }}
+                  />
+                </Tooltip>
+              )}
+              <Tooltip label="Advanced search">
                 <IconButton
-                  icon={<CloseIcon fontSize="0.6em" />}
+                  icon={
+                    advancedSearchIsOpen ? (
+                      <ChevronUpIcon fontSize="1.5em" />
+                    ) : (
+                      <ChevronDownIcon fontSize="1.5em" />
+                    )
+                  }
                   color="gray.400"
                   variant="ghost"
                   height="100%"
-                  marginLeft="1"
-                  aria-label="Clear search"
-                  onClick={() => {
-                    setSuggestions([]);
-                    onChange(emptySearchQuery);
-                  }}
+                  aria-label="Open advanced search"
+                  onClick={() => setAdvancedSearchIsOpen((isOpen) => !isOpen)}
                 />
               </Tooltip>
-            )}
-            <Tooltip label="Advanced search">
-              <IconButton
-                icon={
-                  advancedSearchIsOpen ? (
-                    <ChevronUpIcon fontSize="1.5em" />
-                  ) : (
-                    <ChevronDownIcon fontSize="1.5em" />
-                  )
-                }
-                color="gray.400"
-                variant="ghost"
-                height="100%"
-                aria-label="Open advanced search"
-                onClick={() => setAdvancedSearchIsOpen((isOpen) => !isOpen)}
-              />
-            </Tooltip>
-          </InputRightElement>
-        </InputGroup>
-      )}
-      inputProps={{
-        placeholder: "Search all items…",
-        focusBorderColor: focusBorderColor,
-        value: query.value || "",
-        ref: searchQueryRef,
-        minWidth: 0,
-        "data-test-id": "item-search-input",
-        onChange: (e, { newValue, method }) => {
-          // The Autosuggest tries to change the _entire_ value of the element
-          // when navigating suggestions, which isn't actually what we want.
-          // Only accept value changes that are typed by the user!
-          if (method === "type") {
-            onChange({ ...query, value: newValue });
-          }
-        },
-        onKeyDown: (e) => {
-          if (e.key === "Escape") {
-            if (suggestions.length > 0) {
-              setSuggestions([]);
-              return;
+            </InputRightElement>
+          </InputGroup>
+        )}
+        inputProps={{
+          placeholder: "Search all items…",
+          focusBorderColor: focusBorderColor,
+          value: query.value || "",
+          ref: searchQueryRef,
+          minWidth: 0,
+          "data-test-id": "item-search-input",
+          onChange: (e, { newValue, method }) => {
+            // The Autosuggest tries to change the _entire_ value of the element
+            // when navigating suggestions, which isn't actually what we want.
+            // Only accept value changes that are typed by the user!
+            if (method === "type") {
+              onChange({ ...query, value: newValue });
             }
-            onChange(emptySearchQuery);
-            e.target.blur();
-          } else if (e.key === "Enter") {
-            // Pressing Enter doesn't actually submit because it's all on
-            // debounce, but it can be a declaration that the query is done, so
-            // filter suggestions should go away!
-            if (suggestions.length > 0) {
-              setSuggestions([]);
-              return;
+          },
+          onKeyDown: (e) => {
+            if (e.key === "Escape") {
+              if (suggestions.length > 0) {
+                setSuggestions([]);
+                return;
+              }
+              onChange(emptySearchQuery);
+              e.target.blur();
+            } else if (e.key === "Enter") {
+              // Pressing Enter doesn't actually submit because it's all on
+              // debounce, but it can be a declaration that the query is done, so
+              // filter suggestions should go away!
+              if (suggestions.length > 0) {
+                setSuggestions([]);
+                return;
+              }
+            } else if (e.key === "ArrowDown") {
+              if (suggestions.length > 0) {
+                return;
+              }
+              onMoveFocusDownToResults(e);
+            } else if (e.key === "Backspace" && e.target.selectionStart === 0) {
+              onChange({
+                ...query,
+                filterToItemKind: null,
+                filterToZoneLabel: null,
+                filterToCurrentUserOwnsOrWants: null,
+              });
             }
-          } else if (e.key === "ArrowDown") {
-            if (suggestions.length > 0) {
-              return;
-            }
-            onMoveFocusDownToResults(e);
-          } else if (e.key === "Backspace" && e.target.selectionStart === 0) {
-            onChange({
-              ...query,
-              filterToItemKind: null,
-              filterToZoneLabel: null,
-              filterToCurrentUserOwnsOrWants: null,
-            });
-          }
-        },
-      }}
-    />
+          },
+        }}
+      />
+    </Box>
   );
 }
 

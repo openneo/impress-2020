@@ -1,8 +1,15 @@
 import React from "react";
-import { Box, Grid, useColorModeValue } from "@chakra-ui/react";
+import { Box, Grid, useColorModeValue, useToken } from "@chakra-ui/react";
+import { useCommonStyles } from "../util";
 
-function WardrobePageLayout({ previewAndControls, itemsAndSearch }) {
+function WardrobePageLayout({
+  previewAndControls = null,
+  itemsAndMaybeSearchPanel = null,
+  searchFooter = null,
+}) {
   const itemsAndSearchBackground = useColorModeValue("white", "gray.900");
+  const searchBackground = useCommonStyles().bodyBackground;
+  const searchShadowColorValue = useToken("colors", "gray.400");
 
   return (
     <Box
@@ -18,12 +25,13 @@ function WardrobePageLayout({ previewAndControls, itemsAndSearch }) {
       <Grid
         templateAreas={{
           base: `"previewAndControls"
-                 "itemsAndSearch"`,
-          md: `"previewAndControls itemsAndSearch"`,
+                 "itemsAndMaybeSearchPanel"`,
+          md: `"previewAndControls itemsAndMaybeSearchPanel"
+               "searchFooter searchFooter"`,
         }}
         templateRows={{
           base: "minmax(100px, 45%) minmax(300px, 55%)",
-          md: "100%",
+          md: "minmax(300px, 1fr) auto",
         }}
         templateColumns={{
           base: "100%",
@@ -40,8 +48,15 @@ function WardrobePageLayout({ previewAndControls, itemsAndSearch }) {
         >
           {previewAndControls}
         </Box>
-        <Box gridArea="itemsAndSearch" bg={itemsAndSearchBackground}>
-          {itemsAndSearch}
+        <Box gridArea="itemsAndMaybeSearchPanel" bg={itemsAndSearchBackground}>
+          {itemsAndMaybeSearchPanel}
+        </Box>
+        <Box
+          gridArea="searchFooter"
+          bg={searchBackground}
+          boxShadow={`0 0 8px ${searchShadowColorValue}`}
+        >
+          {searchFooter}
         </Box>
       </Grid>
     </Box>
