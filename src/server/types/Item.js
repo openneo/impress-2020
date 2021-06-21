@@ -194,16 +194,20 @@ const typeDefs = gql`
     item(id: ID!): Item
     items(ids: [ID!]!): [Item!]!
 
-    # Find items by name. Exact match, except for some tweaks, like
-    # case-insensitivity and trimming extra whitespace. Null if not found.
-    #
-    # NOTE: These aren't used in DTI at time of writing; they're a courtesy API
-    #       for the /r/Neopets Discord bot's outfit preview command!
+    """
+    Find items by name. Exact match, except for some tweaks, like
+    case-insensitivity and trimming extra whitespace. Null if not found.
+    
+    NOTE: These aren't used in DTI at time of writing; they're a courtesy API
+          for the /r/Neopets Discord bot's outfit preview command!
+    """
     itemByName(name: String!): Item
     itemsByName(names: [String!]!): [Item]!
 
-    # Search for items with fuzzy matching.
-    # Deprecated: Prefer itemSearchV2 instead! (A lot is not yet ported tho!)
+    """
+    Search for items with fuzzy matching.
+    Deprecated: Prefer itemSearchV2 instead!
+    """
     itemSearch(
       query: String!
       fitsPet: FitsPetSearchFilter
@@ -214,7 +218,9 @@ const typeDefs = gql`
       limit: Int
     ): ItemSearchResult!
 
-    # Search for items with fuzzy matching.
+    """
+    Search for items with fuzzy matching.
+    """
     itemSearchV2(
       query: String!
       fitsPet: FitsPetSearchFilter
@@ -223,8 +229,10 @@ const typeDefs = gql`
       zoneIds: [ID!]
     ): ItemSearchResultV2!
 
-    # Deprecated: an alias for itemSearch, but with speciesId and colorId
-    # required, serving the same purpose as fitsPet in itemSearch.
+    """
+    Deprecated: an alias for itemSearch, but with speciesId and colorId
+    required, serving the same purpose as fitsPet in itemSearch.
+    """
     itemSearchToFit(
       query: String!
       itemKind: ItemKindSearchFilter
@@ -236,14 +244,18 @@ const typeDefs = gql`
       limit: Int
     ): ItemSearchResult!
 
-    # Get the 20 items most recently added to our database.
+    """
+    Get the 20 items most recently added to our database.
+    """
     newestItems: [Item!]! @cacheControl(maxAge: ${oneHour}, staleWhileRevalidate: ${oneDay})
 
-    # Get items that need models for the given color.
-    #
-    # NOTE: Most color IDs won't be accepted here. Either pass the ID of a
-    #       major special color like Baby (#6), or leave it blank for standard
-    #       bodies like Blue, Green, Red, etc.
+    """
+    Get items that need models for the given color.
+    
+    NOTE: Most color IDs won't be accepted here. Either pass the ID of a
+          major special color like Baby (#6), or leave it blank for standard
+          bodies like Blue, Green, Red, etc.
+    """
     itemsThatNeedModels(colorId: ID): [Item!]! @cacheControl(maxAge: 1, staleWhileRevalidate: ${oneHour})
   }
 

@@ -295,20 +295,18 @@ function useSearchResults(query, outfitState) {
         $colorId: ID!
         $offset: Int!
       ) {
-        itemSearch(
+        itemSearch: itemSearchV2(
           query: $query
           fitsPet: $fitsPet
           itemKind: $itemKind
           currentUserOwnsOrWants: $currentUserOwnsOrWants
           zoneIds: $zoneIds
-          offset: $offset
-          limit: 50
         ) {
           query
           zones {
             id
           }
-          items {
+          items(offset: $offset, limit: 50) {
             # TODO: De-dupe this from useOutfitState?
             id
             name
