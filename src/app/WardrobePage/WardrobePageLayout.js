@@ -19,15 +19,15 @@ function WardrobePageLayout({ previewAndControls, itemsAndSearch }) {
         templateAreas={{
           base: `"previewAndControls"
                  "itemsAndSearch"`,
-          lg: `"previewAndControls itemsAndSearch"`,
+          md: `"previewAndControls itemsAndSearch"`,
         }}
         templateRows={{
           base: "minmax(100px, 45%) minmax(300px, 55%)",
-          lg: "100%",
+          md: "100%",
         }}
         templateColumns={{
           base: "100%",
-          lg: "50% 50%",
+          md: "50% 50%",
         }}
         height="100%"
         width="100%"
