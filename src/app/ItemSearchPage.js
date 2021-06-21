@@ -11,7 +11,7 @@ import SearchToolbar, {
 import SquareItemCard, {
   SquareItemCardSkeleton,
 } from "./components/SquareItemCard";
-import { Delay, ErrorMessage, useCommonStyles, useDebounce } from "./util";
+import { Delay, MajorErrorMessage, useCommonStyles, useDebounce } from "./util";
 import PaginationToolbar from "./components/PaginationToolbar";
 
 function ItemSearchPage() {
@@ -183,12 +183,7 @@ function ItemSearchPageResults({ query: latestQuery, offset }) {
   }
 
   if (error) {
-    return (
-      <ErrorMessage>
-        Oops, we couldn't load the search results. Check your connection and try
-        again!
-      </ErrorMessage>
-    );
+    return <MajorErrorMessage error={error} variant="network" />;
   }
 
   if (data.itemSearch.items.length === 0) {
