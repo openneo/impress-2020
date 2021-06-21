@@ -557,11 +557,11 @@ function FeedbackFormPitch() {
           flex={{ base: "0 0 auto", sm: "0 1 50%" }}
         >
           <Box as="h3" fontWeight="600">
-            New updates (June 18)
+            New updates (June 21)
           </Box>
           <UnorderedList>
+            <ListItem>Faster outfit editing</ListItem>
             <ListItem>Better item list pages</ListItem>
-            <ListItem>Fixing lots of broken items</ListItem>
             <ListItem>Outfit saving! Try it out!!</ListItem>
             <ListItem>
               <Link
@@ -584,6 +584,7 @@ function FeedbackFormPitch() {
             Coming soon
           </Box>
           <UnorderedList>
+            <ListItem>Better outfit editing on large screens</ListItem>
             <ListItem>Item list editing</ListItem>
             <ListItem>
               …a lot of little things{" "}
