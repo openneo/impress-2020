@@ -132,16 +132,14 @@ function ItemSearchPageResults({ query: latestQuery, offset }) {
         $zoneIds: [ID!]!
         $offset: Int!
       ) {
-        itemSearch(
+        itemSearch: itemSearchV2(
           query: $query
           itemKind: $itemKind
           currentUserOwnsOrWants: $currentUserOwnsOrWants
           zoneIds: $zoneIds
-          offset: $offset
-          limit: 30
         ) {
           numTotalItems
-          items {
+          items(offset: $offset, limit: 30) {
             id
             name
             thumbnailUrl
@@ -163,6 +161,9 @@ function ItemSearchPageResults({ query: latestQuery, offset }) {
       },
       context: { sendAuth: true },
       skip: searchQueryIsEmpty(query),
+      // This will give us the cached numTotalItems while we wait for the
+      // next item page!
+      returnPartialData: true,
     }
   );
 
@@ -170,23 +171,11 @@ function ItemSearchPageResults({ query: latestQuery, offset }) {
     return null;
   }
 
-  if (loading) {
-    return (
-      <Box>
-        <PaginationToolbar isLoading marginBottom="6" />
-        <Delay>
-          <ItemSearchPageResultsLoading />
-        </Delay>
-        <PaginationToolbar isLoading marginTop="4" />
-      </Box>
-    );
-  }
-
   if (error) {
     return <MajorErrorMessage error={error} variant="network" />;
   }
 
-  if (data.itemSearch.items.length === 0) {
+  if (data?.itemSearch?.numTotalItems === 0) {
     return (
       <Box>
         We couldn't find any matching items{" "}
@@ -198,21 +187,33 @@ function ItemSearchPageResults({ query: latestQuery, offset }) {
     );
   }
 
+  const items = data?.itemSearch?.items || [];
+  const numTotalItems = data?.itemSearch?.numTotalItems || null;
+
   return (
     <Box>
       <PaginationToolbar
-        totalCount={data.itemSearch.numTotalItems}
+        totalCount={numTotalItems}
+        isLoading={loading}
         marginBottom="6"
       />
-      <Wrap justify="center" spacing="4">
-        {data.itemSearch.items.map((item) => (
-          <WrapItem key={item.id}>
-            <SquareItemCard item={item} />
-          </WrapItem>
-        ))}
-      </Wrap>
+      {items.length > 0 && (
+        <Wrap justify="center" spacing="4">
+          {items.map((item) => (
+            <WrapItem key={item.id}>
+              <SquareItemCard item={item} />
+            </WrapItem>
+          ))}
+        </Wrap>
+      )}
+      {loading && items.length === 0 && (
+        <Delay>
+          <ItemSearchPageResultsLoading />
+        </Delay>
+      )}
       <PaginationToolbar
-        totalCount={data.itemSearch.numTotalItems}
+        totalCount={numTotalItems}
+        isLoading={loading}
         marginTop="4"
       />
     </Box>
