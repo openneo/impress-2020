@@ -178,6 +178,7 @@ const typeDefs = gql`
   # TODO: I guess I didn't add the NC/NP/PB filter to this. Does that cause
   #       bugs in comparing results on the client?
   type ItemSearchResultV2 {
+    id: ID!
     query: String!
     zones: [Zone!]!
     items(offset: Int, limit: Int): [Item!]!
@@ -735,7 +736,22 @@ const resolvers = {
         }
         bodyId = petType.bodyId;
       }
-      return { query, bodyId, itemKind, currentUserOwnsOrWants, zoneIds };
+
+      // These are the fields that define the search! We provide them to the
+      // ItemSearchResultV2 resolvers, and also stringify them into an `id` for
+      // caching the search result. (We define the ID for caching here, rather
+      // than in the resolver or with a custom cache key on the client, to
+      // make it hard for the ID and relevant search fields to get out of sync!)
+      const fields = {
+        query,
+        bodyId,
+        itemKind,
+        currentUserOwnsOrWants,
+        zoneIds,
+      };
+      const id = JSON.stringify(fields);
+
+      return { id, ...fields };
     },
     itemSearchToFit: async (
       _,

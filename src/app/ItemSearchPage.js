@@ -138,6 +138,7 @@ function ItemSearchPageResults({ query: latestQuery, offset }) {
           currentUserOwnsOrWants: $currentUserOwnsOrWants
           zoneIds: $zoneIds
         ) {
+          id
           numTotalItems
           items(offset: $offset, limit: 30) {
             id
