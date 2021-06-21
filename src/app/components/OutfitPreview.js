@@ -380,10 +380,7 @@ export function usePreloadLayers(layers) {
       for (const layer of layers) {
         const imageAssetPromise = loadImage(
           getBestImageUrlForLayer(layer, { hiResMode })
-        ).then((image) => ({
-          type: "image",
-          image,
-        }));
+        );
         imageAssetPromises.push(imageAssetPromise);
 
         if (layer.canvasMovieLibraryUrl) {
@@ -393,7 +390,6 @@ export function usePreloadLayers(layers) {
           const movieAssetPromise = loadMovieLibrary(
             layer.canvasMovieLibraryUrl
           ).then((library) => ({
-            type: "movie",
             library,
             libraryUrl: layer.canvasMovieLibraryUrl,
           }));
@@ -422,7 +418,7 @@ export function usePreloadLayers(layers) {
           setError(e);
 
           // Cancel any remaining promises, if cancelable.
-          minimalAssetPromises.forEach((p) => p.cancel && p.cancel());
+          imageAssetPromises.forEach((p) => p.cancel && p.cancel());
           movieAssetPromises.forEach((p) => p.cancel && p.cancel());
         });
 

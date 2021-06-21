@@ -355,10 +355,16 @@ export function useLocalStorage(key, initialValue) {
 export function loadImage(rawSrc, { crossOrigin = null } = {}) {
   const src = safeImageUrl(rawSrc, { crossOrigin });
   const image = new Image();
+  let canceled = false;
   const promise = new Promise((resolve, reject) => {
-    image.onload = () => resolve(image);
-    image.onerror = () =>
+    image.onload = () => {
+      if (canceled) return;
+      resolve(image);
+    };
+    image.onerror = () => {
+      if (canceled) return;
       reject(new Error(`Failed to load image: ${JSON.stringify(src)}`));
+    };
     if (crossOrigin) {
       image.crossOrigin = crossOrigin;
     }
@@ -366,6 +372,7 @@ export function loadImage(rawSrc, { crossOrigin = null } = {}) {
   });
   promise.cancel = () => {
     image.src = "";
+    canceled = true;
   };
   return promise;
 }
