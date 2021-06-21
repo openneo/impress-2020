@@ -167,12 +167,20 @@ const typeDefs = gql`
   }
 
   # TODO: I guess I didn't add the NC/NP/PB filter to this. Does that cause
-  #       bugs in comparing results on the client? (Also, should we just throw
-  #       this out for a better merge function?)
+  #       bugs in comparing results on the client?
   type ItemSearchResult {
     query: String!
     zones: [Zone!]!
     items: [Item!]!
+    numTotalItems: Int!
+  }
+
+  # TODO: I guess I didn't add the NC/NP/PB filter to this. Does that cause
+  #       bugs in comparing results on the client?
+  type ItemSearchResultV2 {
+    query: String!
+    zones: [Zone!]!
+    items(offset: Int, limit: Int): [Item!]!
     numTotalItems: Int!
   }
 
@@ -195,6 +203,7 @@ const typeDefs = gql`
     itemsByName(names: [String!]!): [Item]!
 
     # Search for items with fuzzy matching.
+    # Deprecated: Prefer itemSearchV2 instead! (A lot is not yet ported tho!)
     itemSearch(
       query: String!
       fitsPet: FitsPetSearchFilter
@@ -204,6 +213,15 @@ const typeDefs = gql`
       offset: Int
       limit: Int
     ): ItemSearchResult!
+
+    # Search for items with fuzzy matching.
+    itemSearchV2(
+      query: String!
+      fitsPet: FitsPetSearchFilter
+      itemKind: ItemKindSearchFilter
+      currentUserOwnsOrWants: OwnsOrWants
+      zoneIds: [ID!]
+    ): ItemSearchResultV2!
 
     # Deprecated: an alias for itemSearch, but with speciesId and colorId
     # required, serving the same purpose as fitsPet in itemSearch.
@@ -642,7 +660,12 @@ const resolvers = {
         offset,
         limit,
       },
-      { itemSearchLoader, petTypeBySpeciesAndColorLoader, currentUserId }
+      {
+        itemSearchNumTotalItemsLoader,
+        itemSearchItemsLoader,
+        petTypeBySpeciesAndColorLoader,
+        currentUserId,
+      }
     ) => {
       let bodyId = null;
       if (fitsPet) {
@@ -658,18 +681,49 @@ const resolvers = {
         }
         bodyId = petType.bodyId;
       }
-      const [items, numTotalItems] = await itemSearchLoader.load({
-        query: query.trim(),
-        bodyId,
-        itemKind,
-        currentUserOwnsOrWants,
-        currentUserId,
-        zoneIds,
-        offset,
-        limit,
-      });
+      const [items, numTotalItems] = await Promise.all([
+        itemSearchItemsLoader.load({
+          query: query.trim(),
+          bodyId,
+          itemKind,
+          currentUserOwnsOrWants,
+          currentUserId,
+          zoneIds,
+          offset,
+          limit,
+        }),
+        itemSearchNumTotalItemsLoader.load({
+          query: query.trim(),
+          bodyId,
+          itemKind,
+          currentUserOwnsOrWants,
+          currentUserId,
+          zoneIds,
+        }),
+      ]);
       const zones = zoneIds.map((id) => ({ id }));
       return { query, zones, items, numTotalItems };
+    },
+    itemSearchV2: async (
+      _,
+      { query, fitsPet, itemKind, currentUserOwnsOrWants, zoneIds = [] },
+      { petTypeBySpeciesAndColorLoader }
+    ) => {
+      let bodyId = null;
+      if (fitsPet) {
+        const petType = await petTypeBySpeciesAndColorLoader.load({
+          speciesId: fitsPet.speciesId,
+          colorId: fitsPet.colorId,
+        });
+        if (!petType) {
+          throw new Error(
+            `pet type not found: speciesId=${fitsPet.speciesId}, ` +
+              `colorId: ${fitsPet.colorId}`
+          );
+        }
+        bodyId = petType.bodyId;
+      }
+      return { query, bodyId, itemKind, currentUserOwnsOrWants, zoneIds };
     },
     itemSearchToFit: async (
       _,
@@ -724,6 +778,44 @@ const resolvers = {
       const itemIds = (speciesIdsByItemIds && speciesIdsByItemIds.keys()) || [];
       return Array.from(itemIds, (id) => ({ id }));
     },
+  },
+
+  ItemSearchResultV2: {
+    numTotalItems: async (
+      { query, bodyId, itemKind, currentUserOwnsOrWants, zoneIds },
+      { offset, limit },
+      { currentUserId, itemSearchNumTotalItemsLoader }
+    ) => {
+      const numTotalItems = await itemSearchNumTotalItemsLoader.load({
+        query: query.trim(),
+        bodyId,
+        itemKind,
+        currentUserOwnsOrWants,
+        currentUserId,
+        zoneIds,
+        offset,
+        limit,
+      });
+      return numTotalItems;
+    },
+    items: async (
+      { query, bodyId, itemKind, currentUserOwnsOrWants, zoneIds },
+      { offset, limit },
+      { currentUserId, itemSearchItemsLoader }
+    ) => {
+      const items = await itemSearchItemsLoader.load({
+        query: query.trim(),
+        bodyId,
+        itemKind,
+        currentUserOwnsOrWants,
+        currentUserId,
+        zoneIds,
+        offset,
+        limit,
+      });
+      return items.map(({ id }) => ({ id }));
+    },
+    zones: ({ zoneIds }) => zoneIds.map((id) => ({ id })),
   },
 
   Mutation: {

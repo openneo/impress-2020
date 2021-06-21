@@ -297,7 +297,110 @@ const itemSearchKindConditions = {
   PB: `description LIKE "%This item is part of a deluxe paint brush set!%"`,
 };
 
-const buildItemSearchLoader = (db, loaders) =>
+function buildItemSearchConditions({
+  query,
+  bodyId,
+  itemKind,
+  currentUserOwnsOrWants,
+  currentUserId,
+  zoneIds,
+}) {
+  // Split the query into words, and search for each word as a substring
+  // of the name.
+  const words = query.split(/\s+/);
+  const wordMatchersForMysql = words.map(
+    (word) => "%" + word.replace(/_%/g, "\\$0") + "%"
+  );
+  const matcherPlaceholders = words.map((_) => "t.name LIKE ?").join(" AND ");
+
+  const itemKindCondition = itemSearchKindConditions[itemKind] || "1";
+  const bodyIdCondition = bodyId
+    ? "(swf_assets.body_id = ? OR swf_assets.body_id = 0)"
+    : "1";
+  const bodyIdValues = bodyId ? [bodyId] : [];
+  const zoneIdsCondition =
+    zoneIds.length > 0
+      ? `swf_assets.zone_id IN (${zoneIds.map((_) => "?").join(", ")})`
+      : "1";
+  const currentUserJoin = currentUserOwnsOrWants
+    ? `INNER JOIN closet_hangers ch ON ch.item_id = items.id`
+    : "";
+  const currentUserCondition = currentUserOwnsOrWants
+    ? `ch.user_id = ? AND ch.owned = ?`
+    : "1";
+  const currentUserValues = currentUserOwnsOrWants
+    ? [currentUserId, currentUserOwnsOrWants === "OWNS" ? "1" : "0"]
+    : [];
+
+  const queryJoins = `
+          INNER JOIN item_translations t ON t.item_id = items.id
+          INNER JOIN parents_swf_assets rel
+              ON rel.parent_type = "Item" AND rel.parent_id = items.id
+          INNER JOIN swf_assets ON rel.swf_asset_id = swf_assets.id
+          ${currentUserJoin}
+        `;
+
+  const queryConditions = `
+          (${matcherPlaceholders}) AND t.locale = "en" AND
+          (${bodyIdCondition}) AND (${zoneIdsCondition}) AND
+          (${itemKindCondition}) AND (${currentUserCondition})
+        `;
+  const queryConditionValues = [
+    ...wordMatchersForMysql,
+    ...bodyIdValues,
+    ...zoneIds,
+    ...currentUserValues,
+  ];
+
+  return { queryJoins, queryConditions, queryConditionValues };
+}
+
+const buildItemSearchNumTotalItemsLoader = (db) =>
+  new DataLoader(async (queries) => {
+    // This isn't actually optimized as a batch query, we're just using a
+    // DataLoader API consistency with our other loaders!
+    const queryPromises = queries.map(
+      async ({
+        query,
+        bodyId,
+        itemKind,
+        currentUserOwnsOrWants,
+        currentUserId,
+        zoneIds = [],
+      }) => {
+        const {
+          queryJoins,
+          queryConditions,
+          queryConditionValues,
+        } = buildItemSearchConditions({
+          query,
+          bodyId,
+          itemKind,
+          currentUserOwnsOrWants,
+          currentUserId,
+          zoneIds,
+        });
+
+        const [totalRows] = await db.execute(
+          `
+            SELECT count(DISTINCT items.id) AS numTotalItems FROM items
+            ${queryJoins}
+            WHERE ${queryConditions}
+          `,
+          queryConditionValues
+        );
+
+        const { numTotalItems } = totalRows[0];
+        return numTotalItems;
+      }
+    );
+
+    const responses = await Promise.all(queryPromises);
+
+    return responses;
+  });
+
+const buildItemSearchItemsLoader = (db, loaders) =>
   new DataLoader(async (queries) => {
     // This isn't actually optimized as a batch query, we're just using a
     // DataLoader API consistency with our other loaders!
@@ -315,84 +418,37 @@ const buildItemSearchLoader = (db, loaders) =>
         const actualOffset = offset || 0;
         const actualLimit = Math.min(limit || 30, 30);
 
-        // Split the query into words, and search for each word as a substring
-        // of the name.
-        const words = query.split(/\s+/);
-        const wordMatchersForMysql = words.map(
-          (word) => "%" + word.replace(/_%/g, "\\$0") + "%"
+        const {
+          queryJoins,
+          queryConditions,
+          queryConditionValues,
+        } = buildItemSearchConditions({
+          query,
+          bodyId,
+          itemKind,
+          currentUserOwnsOrWants,
+          currentUserId,
+          zoneIds,
+        });
+
+        const [rows] = await db.execute(
+          `
+            SELECT DISTINCT items.*, t.name FROM items
+            ${queryJoins}
+            WHERE ${queryConditions}
+            ORDER BY t.name
+            LIMIT ? OFFSET ?
+          `,
+          [...queryConditionValues, actualLimit, actualOffset]
         );
-        const matcherPlaceholders = words
-          .map((_) => "t.name LIKE ?")
-          .join(" AND ");
-
-        const itemKindCondition = itemSearchKindConditions[itemKind] || "1";
-        const bodyIdCondition = bodyId
-          ? "(swf_assets.body_id = ? OR swf_assets.body_id = 0)"
-          : "1";
-        const bodyIdValues = bodyId ? [bodyId] : [];
-        const zoneIdsCondition =
-          zoneIds.length > 0
-            ? `swf_assets.zone_id IN (${zoneIds.map((_) => "?").join(", ")})`
-            : "1";
-        const currentUserJoin = currentUserOwnsOrWants
-          ? `INNER JOIN closet_hangers ch ON ch.item_id = items.id`
-          : "";
-        const currentUserCondition = currentUserOwnsOrWants
-          ? `ch.user_id = ? AND ch.owned = ?`
-          : "1";
-        const currentUserValues = currentUserOwnsOrWants
-          ? [currentUserId, currentUserOwnsOrWants === "OWNS" ? "1" : "0"]
-          : [];
-
-        const queryJoins = `
-          INNER JOIN item_translations t ON t.item_id = items.id
-          INNER JOIN parents_swf_assets rel
-              ON rel.parent_type = "Item" AND rel.parent_id = items.id
-          INNER JOIN swf_assets ON rel.swf_asset_id = swf_assets.id
-          ${currentUserJoin}
-        `;
-
-        const queryConditions = `
-          (${matcherPlaceholders}) AND t.locale = "en" AND
-          (${bodyIdCondition}) AND (${zoneIdsCondition}) AND
-          (${itemKindCondition}) AND (${currentUserCondition})
-        `;
-        const queryConditionValues = [
-          ...wordMatchersForMysql,
-          ...bodyIdValues,
-          ...zoneIds,
-          ...currentUserValues,
-        ];
-
-        const [[rows], [totalRows]] = await Promise.all([
-          db.execute(
-            `
-              SELECT DISTINCT items.*, t.name FROM items
-              ${queryJoins}
-              WHERE ${queryConditions}
-              ORDER BY t.name
-              LIMIT ? OFFSET ?
-            `,
-            [...queryConditionValues, actualLimit, actualOffset]
-          ),
-          db.execute(
-            `
-              SELECT count(DISTINCT items.id) AS numTotalItems FROM items
-              ${queryJoins}
-              WHERE ${queryConditions}
-            `,
-            queryConditionValues
-          ),
-        ]);
 
         const entities = rows.map(normalizeRow);
-        const { numTotalItems } = totalRows[0];
 
         for (const item of entities) {
           loaders.itemLoader.prime(item.id, item);
         }
 
-        return [entities, numTotalItems];
+        return entities;
       }
     );
 
@@ -1248,7 +1304,10 @@ function buildLoaders(db) {
   loaders.itemLoader = buildItemLoader(db);
   loaders.itemTranslationLoader = buildItemTranslationLoader(db);
   loaders.itemByNameLoader = buildItemByNameLoader(db, loaders);
-  loaders.itemSearchLoader = buildItemSearchLoader(db, loaders);
+  loaders.itemSearchNumTotalItemsLoader = buildItemSearchNumTotalItemsLoader(
+    db
+  );
+  loaders.itemSearchItemsLoader = buildItemSearchItemsLoader(db, loaders);
   loaders.newestItemsLoader = buildNewestItemsLoader(db, loaders);
   loaders.itemsThatNeedModelsLoader = buildItemsThatNeedModelsLoader(db);
   loaders.itemBodiesWithAppearanceDataLoader = buildItemBodiesWithAppearanceDataLoader(
