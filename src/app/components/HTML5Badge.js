@@ -120,6 +120,8 @@ export function GlitchBadgeLayout({
         transition="all 0.2s"
         tabIndex="0"
         _focus={{ outline: "none", boxShadow: "outline" }}
+        // For consistency between the HTML5Badge & OutfitKnownGlitchesBadge
+        minHeight="30px"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onFocus={() => setIsFocused(true)}

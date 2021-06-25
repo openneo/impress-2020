@@ -176,19 +176,24 @@ function OutfitControls({
             <BackButton outfitState={outfitState} />
           </Box>
 
-          <Box
+          <Flex
             gridArea="play-pause"
             // HACK: Better visual centering with other controls
             paddingTop="0.3rem"
+            direction="column"
+            align="center"
           >
+            {showAnimationControls && <PlayPauseButton />}
+            <Box height="2" />
             <HStack spacing="2" align="center" justify="center">
-              {showAnimationControls && <PlayPauseButton />}
+              <OutfitHTML5Badge appearance={appearance} />
+              <OutfitKnownGlitchesBadge appearance={appearance} />
               <SettingsButton
                 onLockFocus={onLockFocus}
                 onUnlockFocus={onUnlockFocus}
               />
             </HStack>
-          </Box>
+          </Flex>
           <Stack
             gridArea="sharing"
             alignSelf="flex-end"
@@ -215,11 +220,7 @@ function OutfitControls({
                 paddingRight="3"
                 align="center"
                 justify="flex-end"
-              >
-                <OutfitHTML5Badge appearance={appearance} />
-                <Box width="2" />
-                <OutfitKnownGlitchesBadge appearance={appearance} />
-              </Flex>
+              />
               <Box flex="0 0 auto">
                 <DarkMode>
                   <SpeciesColorPicker
