@@ -417,6 +417,14 @@ async function loadAndCacheAssetDataFromManifest(db, layer) {
     (ad) => new URL(ad.path, "http://images.neopets.com")
   );
 
+  // Now, we search the asset URLs for the *last* asset matching each filetype.
+  // (This is because sometimes there will be older and newer animations in the
+  // same file, and the newer one comes second, I guess!)
+  //
+  // NOTE: I'm not sure how reliable this actually is. I wonder if the more
+  //       correct behavior is to like... play all of them? 😳
+  assetUrls.reverse();
+
   const jsAssetUrl = assetUrls.find(
     // NOTE: Sometimes the path ends with a ?v= query string, so we need
     //       to use `extname` to find the real extension!
