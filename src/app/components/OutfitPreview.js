@@ -387,12 +387,15 @@ export function usePreloadLayers(layers) {
           // Start preloading the movie. But we won't block on it! The blocking
           // request will still be the image, which we'll show as a
           // placeholder, which should usually be noticeably faster!
-          const movieAssetPromise = loadMovieLibrary(
+          const movieLibraryPromise = loadMovieLibrary(
             layer.canvasMovieLibraryUrl
-          ).then((library) => ({
+          );
+          const movieAssetPromise = movieLibraryPromise.then((library) => ({
             library,
             libraryUrl: layer.canvasMovieLibraryUrl,
           }));
+          movieAssetPromise.libraryUrl = layer.canvasMovieLibraryUrl;
+          movieAssetPromise.cancel = () => movieLibraryPromise.cancel();
           movieAssetPromises.push(movieAssetPromise);
 
           // The minimal asset for the movie case is *either* the image *or*
@@ -439,7 +442,11 @@ export function usePreloadLayers(layers) {
           (alreadyHasAnimations) => alreadyHasAnimations || assetHasAnimations
         );
       };
-      movieAssetPromises.forEach((p) => p.then(checkHasAnimations));
+      movieAssetPromises.forEach((p) =>
+        p.then(checkHasAnimations).catch((e) => {
+          console.error(`Error preloading movie library ${p.libraryUrl}:`, e);
+        })
+      );
     };
 
     loadAssets();

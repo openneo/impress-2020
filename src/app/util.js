@@ -356,9 +356,12 @@ export function loadImage(rawSrc, { crossOrigin = null } = {}) {
   const src = safeImageUrl(rawSrc, { crossOrigin });
   const image = new Image();
   let canceled = false;
+  let resolved = false;
+
   const promise = new Promise((resolve, reject) => {
     image.onload = () => {
       if (canceled) return;
+      resolved = true;
       resolve(image);
     };
     image.onerror = () => {
@@ -370,10 +373,21 @@ export function loadImage(rawSrc, { crossOrigin = null } = {}) {
     }
     image.src = src;
   });
+
   promise.cancel = () => {
+    // NOTE: To keep `cancel` a safe and unsurprising call, we don't cancel
+    //       resolved images. That's because our approach to cancelation
+    //       mutates the Image object we already returned, which could be
+    //       surprising if the caller is using the Image and expected the
+    //       `cancel` call to only cancel any in-flight network requests.
+    //       (e.g. we cancel a DTI movie when it unloads from the page, but
+    //       it might stick around in the movie cache, and we want those images
+    //       to still work!)
+    if (resolved) return;
     image.src = "";
     canceled = true;
   };
+
   return promise;
 }
 
