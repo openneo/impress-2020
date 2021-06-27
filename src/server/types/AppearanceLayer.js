@@ -417,15 +417,12 @@ async function loadAndCacheAssetDataFromManifest(db, layer) {
     (ad) => new URL(ad.path, "http://images.neopets.com")
   );
 
-  // Now, we search the asset URLs for the *last* asset matching each filetype.
-  // (This is because sometimes there will be older and newer animations in the
-  // same file, and the newer one comes second, I guess!)
-  //
-  // NOTE: I'm not sure how reliable this actually is. I wonder if the more
-  //       correct behavior is to like... play all of them? 😳
-  assetUrls.reverse();
-
-  const jsAssetUrl = assetUrls.find(
+  // In the case of JS assets, we want the *last* one in the list, because
+  // sometimes older broken movies are included in the manifest too. In
+  // practice, they generally seem to appear later, but I don't know how
+  // reliable that actually is. (For PNGs though, we *must* return the first,
+  // see the comments there.)
+  const jsAssetUrl = [...assetUrls].reverse().find(
     // NOTE: Sometimes the path ends with a ?v= query string, so we need
     //       to use `extname` to find the real extension!
     // TODO: There's a file_ext field in the full manifest, but it's not
@@ -443,6 +440,10 @@ async function loadAndCacheAssetDataFromManifest(db, layer) {
     (url) => path.extname(url.pathname) === ".svg"
   );
 
+  // NOTE: Unlike movies, we *must* use the first PNG and not the last, because
+  //       sometimes reference art is included in the manifest as later PNGs.
+  //       I wish I understood the underlying logic here, I'm not sure how
+  //       reliable this is!
   const pngAssetUrl = assetUrls.find(
     // NOTE: Sometimes the path ends with a ?v= query string, so we need
     //       to use `extname` to find the real extension!
