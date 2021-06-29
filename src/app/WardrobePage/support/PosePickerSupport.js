@@ -206,7 +206,7 @@ function PosePickerSupport({
         </MetadataValue>
         <MetadataLabel>Restricts:</MetadataLabel>
         <MetadataValue maxHeight="64" overflowY="auto">
-          {currentPetAppearance.restrictedZones.length > 1 ? (
+          {currentPetAppearance.restrictedZones.length > 0 ? (
             <UnorderedList>
               {currentPetAppearance.restrictedZones
                 .map((zone) => `${zone.label} (${zone.id})`)
