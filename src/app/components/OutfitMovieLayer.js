@@ -19,6 +19,7 @@ function OutfitMovieLayer({
   onLoad = null,
   onError = null,
   onLowFps = null,
+  canvasProps = {},
 }) {
   const [stage, setStage] = React.useState(null);
   const [library, setLibrary] = React.useState(null);
@@ -36,7 +37,7 @@ function OutfitMovieLayer({
 
   const callOnLoadIfNotYetCalled = React.useCallback(() => {
     setHasCalledOnLoad((alreadyHasCalledOnLoad) => {
-      if (!alreadyHasCalledOnLoad) {
+      if (!alreadyHasCalledOnLoad && onLoad) {
         onLoad();
       }
       return true;
@@ -248,20 +249,24 @@ function OutfitMovieLayer({
           height: height,
           gridArea: "single-shared-area",
         }}
+        data-is-loaded={movieIsLoaded}
+        {...canvasProps}
       />
       {/* While the movie is loading, we show our image version as a
        *  placeholder, because it generally loads much faster.
        *  TODO: Show a loading indicator for this partially-loaded state? */}
-      <Box
-        as="img"
-        src={safeImageUrl(placeholderImageUrl)}
-        width={width}
-        height={height}
-        gridArea="single-shared-area"
-        opacity={movieIsLoaded ? 0 : 1}
-        transition="opacity 0.2s"
-        onLoad={callOnLoadIfNotYetCalled}
-      />
+      {placeholderImageUrl && (
+        <Box
+          as="img"
+          src={safeImageUrl(placeholderImageUrl)}
+          width={width}
+          height={height}
+          gridArea="single-shared-area"
+          opacity={movieIsLoaded ? 0 : 1}
+          transition="opacity 0.2s"
+          onLoad={callOnLoadIfNotYetCalled}
+        />
+      )}
     </Grid>
   );
 }

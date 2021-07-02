@@ -20,6 +20,9 @@ import { loadable } from "./util";
 
 const ConversionPage = loadable(() => import("./ConversionPage"));
 const HomePage = loadable(() => import("./HomePage"));
+const InternalAssetImagePage = loadable(() =>
+  import("./InternalAssetImagePage")
+);
 const ItemSearchPage = loadable(() => import("./ItemSearchPage"));
 const ItemPage = loadable(() => import("./ItemPage"));
 const ItemTradesOfferingPage = loadable(() =>
@@ -177,6 +180,9 @@ function App() {
                 <PageLayout>
                   <SupportPetAppearancesPage />
                 </PageLayout>
+              </Route>
+              <Route path="/internal/assetImage">
+                <InternalAssetImagePage />
               </Route>
               <Route path="/">
                 <PageLayout hideHomeLink>

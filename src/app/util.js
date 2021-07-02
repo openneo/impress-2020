@@ -141,14 +141,20 @@ export function safeImageUrl(urlString, { crossOrigin = null } = {}) {
     return "https://impress-2020.openneo.net/__error__URL-was-not-parseable__";
   }
 
-  // Rewrite Neopets URLs to their HTTPS equivalents, or to our proxy if we
-  // need CORS headers.
-  if (url.origin === "http://images.neopets.com") {
+  // Rewrite Neopets URLs to their HTTPS equivalents, and additionally to our
+  // proxy if we need CORS headers.
+  if (
+    url.origin === "http://images.neopets.com" ||
+    url.origin === "https://images.neopets.com"
+  ) {
     url.protocol = "https:";
     if (crossOrigin) {
       url.host = "images.neopets-asset-proxy.openneo.net";
     }
-  } else if (url.origin === "http://pets.neopets.com") {
+  } else if (
+    url.origin === "http://pets.neopets.com" ||
+    url.origin === "https://pets.neopets.com"
+  ) {
     url.protocol = "https:";
     if (crossOrigin) {
       url.host = "pets.neopets-asset-proxy.openneo.net";
