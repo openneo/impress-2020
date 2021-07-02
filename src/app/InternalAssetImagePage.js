@@ -2,6 +2,8 @@ import React from "react";
 import { Box, Center } from "@chakra-ui/react";
 import { useLocation } from "react-router-dom";
 import * as Sentry from "@sentry/react";
+import { Global, css } from "@emotion/react";
+
 import OutfitMovieLayer from "./components/OutfitMovieLayer";
 
 /**
@@ -20,6 +22,15 @@ function InternalAssetImagePage() {
       >
         <InternalAssetImagePageContent />
       </Sentry.ErrorBoundary>
+      <Global
+        // We remove the default body background, so that the headless browser
+        // can take the screenshot with transparency.
+        styles={css`
+          body {
+            background: transparent;
+          }
+        `}
+      />
     </Box>
   );
 }

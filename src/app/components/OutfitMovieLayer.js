@@ -285,7 +285,7 @@ function loadScriptTag(src) {
     };
     script.onerror = (e) => {
       if (canceled) return;
-      reject(e);
+      reject(new Error(`Failed to load script: ${JSON.stringify(src)}`));
     };
     script.src = src;
     document.body.appendChild(script);
