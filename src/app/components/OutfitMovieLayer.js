@@ -17,6 +17,7 @@ function OutfitMovieLayer({
   placeholderImageUrl = null,
   isPaused = false,
   onLoad = null,
+  onError = null,
   onLowFps = null,
 }) {
   const [stage, setStage] = React.useState(null);
@@ -138,15 +139,8 @@ function OutfitMovieLayer({
       })
       .catch((e) => {
         console.error(`Error loading outfit movie layer: ${libraryUrl}`, e);
-        if (!toast.isActive("use-preload-layers-movie-failed")) {
-          toast({
-            id: "use-preload-layers-movie-failed",
-            status: "warning",
-            title: "Oops, we couldn't load one of these animations.",
-            description: "We'll show a static image version instead.",
-            duration: null,
-            isClosable: true,
-          });
+        if (onError) {
+          onError(e);
         }
       });
 
@@ -156,7 +150,7 @@ function OutfitMovieLayer({
       setLibrary(null);
       setMovieClip(null);
     };
-  }, [libraryUrl, toast]);
+  }, [libraryUrl, onError]);
 
   // This effect puts the `movieClip` on the `stage`, when both are ready.
   React.useEffect(() => {

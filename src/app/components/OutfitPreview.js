@@ -79,14 +79,27 @@ export function useOutfitPreview({
     layersHaveAnimations,
   } = usePreloadLayers(visibleLayers);
 
+  const onMovieError = React.useCallback(() => {
+    if (!toast.isActive("outfit-preview-on-movie-error")) {
+      toast({
+        id: "outfit-preview-on-movie-error",
+        status: "warning",
+        title: "Oops, we couldn't load one of these animations.",
+        description: "We'll show a static image version instead.",
+        duration: null,
+        isClosable: true,
+      });
+    }
+  }, [toast]);
+
   const onLowFps = React.useCallback(
     (fps) => {
       setIsPaused(true);
       console.warn(`[OutfitPreview] Pausing due to low FPS: ${fps}`);
 
-      if (!toast.isActive("low-fps-warning")) {
+      if (!toast.isActive("outfit-preview-on-low-fps")) {
         toast({
-          id: "low-fps-warning",
+          id: "outfit-preview-on-low-fps",
           status: "warning",
           title: "Sorry, the animation was lagging, so we paused it! 😖",
           description:
@@ -128,6 +141,7 @@ export function useOutfitPreview({
         loadingDelayMs={loadingDelayMs}
         spinnerVariant={spinnerVariant}
         onChangeHasAnimations={onChangeHasAnimations}
+        onMovieError={onMovieError}
         onLowFps={onLowFps}
         doTransitions
         isPaused={isPaused}
@@ -151,6 +165,7 @@ export function OutfitLayers({
   spinnerVariant = "overlay",
   doTransitions = false,
   isPaused = true,
+  onMovieError = null,
   onLowFps = null,
   ...props
 }) {
@@ -260,6 +275,7 @@ export function OutfitLayers({
                       width={canvasSize}
                       height={canvasSize}
                       isPaused={isPaused}
+                      onError={onMovieError}
                       onLowFps={onLowFps}
                     />
                   ) : (
