@@ -453,7 +453,12 @@ export function buildMovieClip(library, libraryUrl) {
  */
 export function hasAnimations(createjsNode) {
   return (
+    // Some nodes have simple animation frames.
     createjsNode.totalFrames > 1 ||
+    // Tweens are a form of animation that can happen separately from frames.
+    // They expect timer ticks to happen, and they change the scene accordingly.
+    createjsNode?.timeline?.tweens?.length >= 1 ||
+    // And some nodes have _children_ that are animated.
     (createjsNode.children || []).some(hasAnimations)
   );
 }
