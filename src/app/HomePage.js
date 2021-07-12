@@ -375,7 +375,19 @@ function NewItemsSectionContent() {
   const { loading, error, data } = useQuery(
     gql`
       query NewItemsSection {
-        newestItems {
+        newestItems: items(
+          ids: [
+            "81546"
+            "35082"
+            "75149"
+            "81797"
+            "58741"
+            "78953"
+            "82427"
+            "82727"
+            "82726"
+          ]
+        ) {
           id
           name
           thumbnailUrl
@@ -488,6 +500,9 @@ function NewItemsSectionContent() {
 }
 
 function ItemModelingSummary({ item }) {
+  // NOTE: To test this logic, I like to swap out `newestItems` in the query:
+  //       `newestItems: items(ids: ["81546", "35082", "75149", "81797", "58741", "78953", "82427", "82727", "82726"])`
+
   if (item.speciesThatNeedModels.length > 0) {
     return (
       <Box fontSize="xs" fontStyle="italic" fontWeight="600" opacity="0.8">
@@ -507,9 +522,19 @@ function ItemModelingSummary({ item }) {
     );
   }
 
+  // HACK: The Maraquan Mynci and the Blue Mynci have the same body, so to test
+  //       whether something is *meant* for standard colors, we check for more
+  //       than
+  const standardBodies = bodies.filter(
+    (b) => b.canonicalAppearance.color.isStandard
+  );
+  const isMeantForStandardBodies = standardBodies.length >= 2;
+
   const colors = bodies.map((b) => b.canonicalAppearance.color);
   const specialColor = colors.find((c) => !c.isStandard);
-  if (specialColor && bodies.length === 1) {
+  const hasSpecialColorOnly = !isMeantForStandardBodies && specialColor != null;
+
+  if (hasSpecialColorOnly && bodies.length === 1) {
     return (
       <Box fontSize="xs" fontStyle="italic" opacity="0.8">
         {specialColor.name} {bodies[0].species.name} only
@@ -525,7 +550,7 @@ function ItemModelingSummary({ item }) {
     );
   }
 
-  if (specialColor) {
+  if (hasSpecialColorOnly) {
     return (
       <Box fontSize="xs" fontStyle="italic" opacity="0.8">
         {specialColor.name} only
