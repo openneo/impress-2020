@@ -559,28 +559,12 @@ const resolvers = {
       const bodies = bodyIds.map((id) => ({ id }));
       return bodies;
     },
-    compatibleBodiesAndTheirZones: async ({ id }, _, { db }) => {
-      const [rows] = await db.query(
-        `
-          SELECT
-            swf_assets.body_id AS bodyId,
-            (SELECT species_id FROM pet_types WHERE body_id = bodyId LIMIT 1)
-              AS speciesId,
-            GROUP_CONCAT(DISTINCT swf_assets.zone_id) AS zoneIds
-          FROM items
-          INNER JOIN parents_swf_assets ON
-            items.id = parents_swf_assets.parent_id AND
-              parents_swf_assets.parent_type = "Item"
-          INNER JOIN swf_assets ON
-            parents_swf_assets.swf_asset_id = swf_assets.id
-          WHERE items.id = ?
-          GROUP BY swf_assets.body_id
-          -- We have some invalid data where the asset has a body ID that
-          -- matches no pet type. Huh! Well, ignore those bodies!
-          HAVING speciesId IS NOT NULL OR bodyId = 0;
-        `,
-        [id]
-      );
+    compatibleBodiesAndTheirZones: async (
+      { id },
+      _,
+      { itemCompatibleBodiesAndTheirZonesLoader }
+    ) => {
+      const rows = await itemCompatibleBodiesAndTheirZonesLoader.load(id);
       return rows.map((row) => ({
         body: {
           id: row.bodyId,

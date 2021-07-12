@@ -657,6 +657,37 @@ const buildItemAllOccupiedZonesLoader = (db) =>
     });
   });
 
+const buildItemCompatibleBodiesAndTheirZonesLoader = (db) =>
+  new DataLoader(async (itemIds) => {
+    const qs = itemIds.map((_) => "?").join(", ");
+    const [rows] = await db.query(
+      `
+        SELECT
+          items.id as itemId,
+          swf_assets.body_id AS bodyId,
+          (SELECT species_id FROM pet_types WHERE body_id = bodyId LIMIT 1)
+            AS speciesId,
+          GROUP_CONCAT(DISTINCT swf_assets.zone_id) AS zoneIds
+        FROM items
+        INNER JOIN parents_swf_assets ON
+          items.id = parents_swf_assets.parent_id AND
+            parents_swf_assets.parent_type = "Item"
+        INNER JOIN swf_assets ON
+          parents_swf_assets.swf_asset_id = swf_assets.id
+        WHERE items.id IN (${qs})
+        GROUP BY items.id, swf_assets.body_id
+        -- We have some invalid data where the asset has a body ID that
+        -- matches no pet type. Huh! Well, ignore those bodies!
+        HAVING speciesId IS NOT NULL OR bodyId = 0;
+      `,
+      itemIds
+    );
+
+    const entities = rows.map(normalizeRow);
+
+    return itemIds.map((itemId) => entities.filter((e) => e.itemId === itemId));
+  });
+
 const buildItemTradesLoader = (db, loaders) =>
   new DataLoader(
     async (itemIdOwnedPairs) => {
@@ -1368,6 +1399,9 @@ function buildLoaders(db) {
     db
   );
   loaders.itemAllOccupiedZonesLoader = buildItemAllOccupiedZonesLoader(db);
+  loaders.itemCompatibleBodiesAndTheirZonesLoader = buildItemCompatibleBodiesAndTheirZonesLoader(
+    db
+  );
   loaders.itemTradesLoader = buildItemTradesLoader(db, loaders);
   loaders.itemWakaValueLoader = buildItemWakaValueLoader();
   loaders.petTypeLoader = buildPetTypeLoader(db, loaders);

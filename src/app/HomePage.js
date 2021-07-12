@@ -385,6 +385,24 @@ function NewItemsSectionContent() {
             id
             name
           }
+          compatibleBodiesAndTheirZones {
+            body {
+              id
+              representsAllBodies
+              species {
+                id
+                name
+              }
+              canonicalAppearance {
+                id
+                color {
+                  id
+                  name
+                  isStandard
+                }
+              }
+            }
+          }
         }
       }
     `
@@ -478,9 +496,46 @@ function ItemModelingSummary({ item }) {
     );
   }
 
+  const bodies = item.compatibleBodiesAndTheirZones.map((bz) => bz.body);
+
+  const fitsAllPets = bodies.some((b) => b.representsAllBodies);
+  if (fitsAllPets) {
+    return (
+      <Box fontSize="xs" fontStyle="italic" opacity="0.8">
+        For all pets
+      </Box>
+    );
+  }
+
+  const colors = bodies.map((b) => b.canonicalAppearance.color);
+  const specialColor = colors.find((c) => !c.isStandard);
+  if (specialColor && bodies.length === 1) {
+    return (
+      <Box fontSize="xs" fontStyle="italic" opacity="0.8">
+        {specialColor.name} {bodies[0].species.name} only
+      </Box>
+    );
+  }
+
+  if (bodies.length === 1) {
+    return (
+      <Box fontSize="xs" fontStyle="italic" opacity="0.8">
+        {bodies[0].species.name} only
+      </Box>
+    );
+  }
+
+  if (specialColor) {
+    return (
+      <Box fontSize="xs" fontStyle="italic" opacity="0.8">
+        {specialColor.name} only
+      </Box>
+    );
+  }
+
   return (
     <Box fontSize="xs" fontStyle="italic" opacity="0.8">
-      Fully modeled!
+      For all species
     </Box>
   );
 }
