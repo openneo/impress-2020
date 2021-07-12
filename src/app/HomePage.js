@@ -375,19 +375,7 @@ function NewItemsSectionContent() {
   const { loading, error, data } = useQuery(
     gql`
       query NewItemsSection {
-        newestItems: items(
-          ids: [
-            "81546"
-            "35082"
-            "75149"
-            "81797"
-            "58741"
-            "78953"
-            "82427"
-            "82727"
-            "82726"
-          ]
-        ) {
+        newestItems {
           id
           name
           thumbnailUrl
