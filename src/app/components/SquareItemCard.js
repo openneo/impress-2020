@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  Box,
   Skeleton,
   useColorModeValue,
   useTheme,
@@ -11,7 +12,12 @@ import { Link } from "react-router-dom";
 import { safeImageUrl, useCommonStyles } from "../util";
 import { CheckIcon, StarIcon } from "@chakra-ui/icons";
 
-function SquareItemCard({ item, tradeMatchingMode = null, ...props }) {
+function SquareItemCard({
+  item,
+  tradeMatchingMode = null,
+  footer = null,
+  ...props
+}) {
   const outlineShadowValue = useToken("shadows", "outline");
 
   const tradeMatchOwnShadowColor = useColorModeValue("green.500", "green.200");
@@ -64,6 +70,7 @@ function SquareItemCard({ item, tradeMatchingMode = null, ...props }) {
               />
             }
             boxShadow={tradeMatchShadow}
+            footer={footer}
           />
         </Link>
       )}
@@ -74,6 +81,7 @@ function SquareItemCard({ item, tradeMatchingMode = null, ...props }) {
 function SquareItemCardLayout({
   name,
   thumbnailImage,
+  footer,
   minHeightNumLines = 2,
   boxShadow = null,
 }) {
@@ -118,6 +126,7 @@ function SquareItemCardLayout({
           >
             {name}
           </div>
+          {footer && <Box marginTop="2">{footer}</Box>}
         </div>
       )}
     </ClassNames>
@@ -350,7 +359,7 @@ function ItemThumbnailKindBadge({ colorScheme, children }) {
   );
 }
 
-export function SquareItemCardSkeleton({ minHeightNumLines }) {
+export function SquareItemCardSkeleton({ minHeightNumLines, footer = null }) {
   return (
     <SquareItemCardLayout
       name={
@@ -363,6 +372,7 @@ export function SquareItemCardSkeleton({ minHeightNumLines }) {
       }
       thumbnailImage={<Skeleton width="80px" height="80px" />}
       minHeightNumLines={minHeightNumLines}
+      footer={footer}
     />
   );
 }

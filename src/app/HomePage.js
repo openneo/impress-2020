@@ -379,6 +379,10 @@ function NewItemsSectionContent() {
           thumbnailUrl
           isNc
           isPb
+          speciesThatNeedModels {
+            id
+            name
+          }
         }
       }
     `
@@ -402,29 +406,30 @@ function NewItemsSectionContent() {
   );
 
   if (loading) {
+    const footer = <Box fontSize="xs" height="1em" />;
     return (
       <Delay>
         <ItemCardHStack>
-          <SquareItemCardSkeleton />
-          <SquareItemCardSkeleton minHeightNumLines={3} />
-          <SquareItemCardSkeleton />
-          <SquareItemCardSkeleton />
-          <SquareItemCardSkeleton minHeightNumLines={3} />
-          <SquareItemCardSkeleton />
-          <SquareItemCardSkeleton minHeightNumLines={3} />
-          <SquareItemCardSkeleton />
-          <SquareItemCardSkeleton />
-          <SquareItemCardSkeleton />
-          <SquareItemCardSkeleton />
-          <SquareItemCardSkeleton minHeightNumLines={3} />
-          <SquareItemCardSkeleton />
-          <SquareItemCardSkeleton />
-          <SquareItemCardSkeleton minHeightNumLines={3} />
-          <SquareItemCardSkeleton />
-          <SquareItemCardSkeleton minHeightNumLines={3} />
-          <SquareItemCardSkeleton />
-          <SquareItemCardSkeleton />
-          <SquareItemCardSkeleton />
+          <SquareItemCardSkeleton footer={footer} />
+          <SquareItemCardSkeleton footer={footer} minHeightNumLines={3} />
+          <SquareItemCardSkeleton footer={footer} />
+          <SquareItemCardSkeleton footer={footer} />
+          <SquareItemCardSkeleton footer={footer} minHeightNumLines={3} />
+          <SquareItemCardSkeleton footer={footer} />
+          <SquareItemCardSkeleton footer={footer} minHeightNumLines={3} />
+          <SquareItemCardSkeleton footer={footer} />
+          <SquareItemCardSkeleton footer={footer} />
+          <SquareItemCardSkeleton footer={footer} />
+          <SquareItemCardSkeleton footer={footer} />
+          <SquareItemCardSkeleton footer={footer} minHeightNumLines={3} />
+          <SquareItemCardSkeleton footer={footer} />
+          <SquareItemCardSkeleton footer={footer} />
+          <SquareItemCardSkeleton footer={footer} minHeightNumLines={3} />
+          <SquareItemCardSkeleton footer={footer} />
+          <SquareItemCardSkeleton footer={footer} minHeightNumLines={3} />
+          <SquareItemCardSkeleton footer={footer} />
+          <SquareItemCardSkeleton footer={footer} />
+          <SquareItemCardSkeleton footer={footer} />
         </ItemCardHStack>
       </Delay>
     );
@@ -448,7 +453,26 @@ function NewItemsSectionContent() {
   return (
     <ItemCardHStack>
       {newestItems.map((item) => (
-        <SquareItemCard key={item.id} item={item} />
+        <SquareItemCard
+          key={item.id}
+          item={item}
+          footer={
+            item.speciesThatNeedModels.length > 0 ? (
+              <Box
+                fontSize="xs"
+                fontStyle="italic"
+                fontWeight="600"
+                opacity="0.8"
+              >
+                Need {item.speciesThatNeedModels.length}1 models
+              </Box>
+            ) : (
+              <Box fontSize="xs" fontStyle="italic" opacity="0.8">
+                Fully modeled!
+              </Box>
+            )
+          }
+        />
       ))}
     </ItemCardHStack>
   );

@@ -480,7 +480,100 @@ const buildNewestItemsLoader = (db, loaders) =>
     return [entities];
   });
 
-const buildItemsThatNeedModelsLoader = (db) =>
+async function runItemModelingQuery(db, filterToItemIds) {
+  let itemIdsCondition;
+  let itemIdsValues;
+  if (filterToItemIds === "all") {
+    // For all items, we use the condition `1`, which matches everything.
+    itemIdsCondition = "1";
+    itemIdsValues = [];
+  } else {
+    // Or, to filter to certain items, we add their IDs to the WHERE clause.
+    const qs = filterToItemIds.map((_) => "?").join(", ");
+    itemIdsCondition = `(item_id IN (${qs}))`;
+    itemIdsValues = filterToItemIds;
+  }
+
+  return await db.execute(
+    `
+      SELECT T_ITEMS.item_id,
+        T_BODIES.color_id,
+        T_ITEMS.supports_vandagyre,
+        COUNT(*) AS modeled_species_count,
+        GROUP_CONCAT(
+          T_BODIES.species_id
+          ORDER BY T_BODIES.species_id
+        ) AS modeled_species_ids,
+        (
+          SELECT GROUP_CONCAT(DISTINCT species_id ORDER BY species_id)
+          FROM pet_types WHERE color_id = T_BODIES.color_id
+        ) AS all_species_ids_for_this_color
+      FROM (
+        -- NOTE: I found that extracting this as a separate query that runs
+        --       first made things WAAAY faster. Less to join/group, I guess?
+        SELECT DISTINCT items.id AS item_id,
+          swf_assets.body_id AS body_id,
+          -- Vandagyre was added on 2014-11-14, so we add some buffer here.
+          -- TODO: Some later Dyeworks items don't support Vandagyre.
+          -- Add a manual db flag?
+          items.created_at >= "2014-12-01" AS supports_vandagyre
+        FROM items
+        INNER JOIN parents_swf_assets psa ON psa.parent_type = "Item"
+          AND psa.parent_id = items.id
+        INNER JOIN swf_assets ON swf_assets.id = psa.swf_asset_id
+        INNER JOIN item_translations it ON it.item_id = items.id AND it.locale = "en"
+        WHERE items.modeling_status_hint IS NULL AND it.name NOT LIKE "%MME%"
+          AND ${itemIdsCondition}
+        ORDER BY item_id
+      ) T_ITEMS
+      INNER JOIN (
+        SELECT DISTINCT body_id, species_id, color_id
+        FROM pet_types
+        WHERE color_id IN (6, 8, 44, 46)
+        ORDER BY body_id, species_id
+      ) T_BODIES ON T_ITEMS.body_id = T_BODIES.body_id
+      GROUP BY T_ITEMS.item_id, T_BODIES.color_id
+      HAVING NOT (
+        -- No species (either an All Bodies item, or a Capsule type thing)
+        modeled_species_count = 0
+        -- Single species (probably just their item)
+        OR modeled_species_count = 1
+        -- All species modeled (that are compatible with this color)
+        OR modeled_species_ids = all_species_ids_for_this_color
+        -- All species modeled except Vandagyre, for items that don't support it
+        OR (NOT T_ITEMS.supports_vandagyre AND modeled_species_count = 54 AND modeled_species_ids = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54")
+      )
+      ORDER BY T_ITEMS.item_id;
+    `,
+    [...itemIdsValues]
+  );
+}
+
+const buildSpeciesThatNeedModelsForItemLoader = (db) =>
+  new DataLoader(
+    async (colorIdAndItemIdPairs) => {
+      // Get the requested item IDs, ignoring color for now. Remove duplicates.
+      let itemIds = colorIdAndItemIdPairs.map(({ itemId }) => itemId);
+      itemIds = [...new Set(itemIds)];
+
+      // Run the big modeling query, but filtered to specifically these items.
+      // The filter happens very early in the query, so it runs way faster than
+      // the full modeling query.
+      const [rows] = await runItemModelingQuery(db, itemIds);
+
+      const entities = rows.map(normalizeRow);
+
+      // Finally, the query returned a row for each item combined with each
+      // color built into the query (well, no row when no models needed!). So,
+      // find the right row for each color/item pair, or possibly null!
+      return colorIdAndItemIdPairs.map(({ colorId, itemId }) =>
+        entities.find((e) => e.itemId === itemId && e.colorId === colorId)
+      );
+    },
+    { cacheKeyFn: ({ colorId, itemId }) => `${colorId}-${itemId}` }
+  );
+
+const buildItemsThatNeedModelsLoader = (db, loaders) =>
   new DataLoader(async (keys) => {
     // Essentially, I want to take easy advantage of DataLoader's caching, for
     // this query that can only run one way ^_^` There might be a better way to
@@ -489,62 +582,17 @@ const buildItemsThatNeedModelsLoader = (db) =>
       throw new Error(`this loader can only be loaded with the key "all"`);
     }
 
-    const [rows] = await db.query(
-      `
-        SELECT T_ITEMS.item_id,
-          T_BODIES.color_id,
-          T_ITEMS.supports_vandagyre,
-          COUNT(*) AS modeled_species_count,
-          GROUP_CONCAT(
-            T_BODIES.species_id
-            ORDER BY T_BODIES.species_id
-          ) AS modeled_species_ids,
-          (
-            SELECT GROUP_CONCAT(DISTINCT species_id ORDER BY species_id)
-            FROM pet_types WHERE color_id = T_BODIES.color_id
-          ) AS all_species_ids_for_this_color
-        FROM (
-          -- NOTE: I found that extracting this as a separate query that runs
-          --       first made things WAAAY faster. Less to join/group, I guess?
-          SELECT DISTINCT items.id AS item_id,
-            swf_assets.body_id AS body_id,
-            -- Vandagyre was added on 2014-11-14, so we add some buffer here.
-            -- TODO: Some later Dyeworks items don't support Vandagyre.
-            -- Add a manual db flag?
-            items.created_at >= "2014-12-01" AS supports_vandagyre
-          FROM items
-          INNER JOIN parents_swf_assets psa ON psa.parent_type = "Item"
-            AND psa.parent_id = items.id
-          INNER JOIN swf_assets ON swf_assets.id = psa.swf_asset_id
-          INNER JOIN item_translations it ON it.item_id = items.id AND it.locale = "en"
-          WHERE items.modeling_status_hint IS NULL AND it.name NOT LIKE "%MME%"
-          ORDER BY item_id
-        ) T_ITEMS
-        INNER JOIN (
-          SELECT DISTINCT body_id, species_id, color_id
-          FROM pet_types
-          WHERE color_id IN (6, 8, 44, 46)
-          ORDER BY body_id, species_id
-        ) T_BODIES ON T_ITEMS.body_id = T_BODIES.body_id
-        GROUP BY T_ITEMS.item_id, T_BODIES.color_id
-        HAVING NOT (
-          -- No species (either an All Bodies item, or a Capsule type thing)
-          modeled_species_count = 0
-          -- Single species (probably just their item)
-          OR modeled_species_count = 1
-          -- All species modeled (that are compatible with this color)
-          OR modeled_species_ids = all_species_ids_for_this_color
-          -- All species modeled except Vandagyre, for items that don't support it
-          OR (NOT T_ITEMS.supports_vandagyre AND modeled_species_count = 54 AND modeled_species_ids = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54")
-        )
-        ORDER BY T_ITEMS.item_id;
-      `
-    );
+    const [rows] = await runItemModelingQuery(db, "all");
 
     const entities = rows.map(normalizeRow);
 
     const result = new Map();
     for (const { colorId, itemId, ...entity } of entities) {
+      loaders.speciesThatNeedModelsForItemLoader.prime(
+        { colorId, itemId },
+        entity
+      );
+
       if (!result.has(colorId)) {
         result.set(colorId, new Map());
       }
@@ -1309,7 +1357,13 @@ function buildLoaders(db) {
   );
   loaders.itemSearchItemsLoader = buildItemSearchItemsLoader(db, loaders);
   loaders.newestItemsLoader = buildNewestItemsLoader(db, loaders);
-  loaders.itemsThatNeedModelsLoader = buildItemsThatNeedModelsLoader(db);
+  loaders.speciesThatNeedModelsForItemLoader = buildSpeciesThatNeedModelsForItemLoader(
+    db
+  );
+  loaders.itemsThatNeedModelsLoader = buildItemsThatNeedModelsLoader(
+    db,
+    loaders
+  );
   loaders.itemBodiesWithAppearanceDataLoader = buildItemBodiesWithAppearanceDataLoader(
     db
   );

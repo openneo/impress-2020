@@ -457,13 +457,14 @@ const resolvers = {
     speciesThatNeedModels: async (
       { id },
       { colorId = "8" }, // Blue
-      { itemsThatNeedModelsLoader }
+      { speciesThatNeedModelsForItemLoader }
     ) => {
-      const speciesIdsByColorIdAndItemId = await itemsThatNeedModelsLoader.load(
-        "all"
-      );
-      const speciesIdsByItemId = speciesIdsByColorIdAndItemId.get(colorId);
-      const row = speciesIdsByItemId && speciesIdsByItemId.get(id);
+      // NOTE: If we're running this in the context of `itemsThatNeedModels`,
+      //       this loader should already be primed, no extra query!
+      const row = await speciesThatNeedModelsForItemLoader.load({
+        itemId: id,
+        colorId,
+      });
       if (!row) {
         return [];
       }
