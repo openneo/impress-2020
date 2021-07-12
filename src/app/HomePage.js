@@ -4,6 +4,7 @@ import gql from "graphql-tag";
 import {
   Box,
   Button,
+  Center,
   Flex,
   HStack,
   IconButton,
@@ -13,6 +14,7 @@ import {
   InputRightElement,
   Link,
   ListItem,
+  Skeleton,
   Textarea,
   UnorderedList,
   useColorModeValue,
@@ -406,7 +408,11 @@ function NewItemsSectionContent() {
   );
 
   if (loading) {
-    const footer = <Box fontSize="xs" height="1em" />;
+    const footer = (
+      <Center fontSize="xs" height="1.5em">
+        <Skeleton height="4px" width="100%" />
+      </Center>
+    );
     return (
       <Delay>
         <ItemCardHStack>
@@ -456,25 +462,26 @@ function NewItemsSectionContent() {
         <SquareItemCard
           key={item.id}
           item={item}
-          footer={
-            item.speciesThatNeedModels.length > 0 ? (
-              <Box
-                fontSize="xs"
-                fontStyle="italic"
-                fontWeight="600"
-                opacity="0.8"
-              >
-                Need {item.speciesThatNeedModels.length}1 models
-              </Box>
-            ) : (
-              <Box fontSize="xs" fontStyle="italic" opacity="0.8">
-                Fully modeled!
-              </Box>
-            )
-          }
+          footer={<ItemModelingSummary item={item} />}
         />
       ))}
     </ItemCardHStack>
+  );
+}
+
+function ItemModelingSummary({ item }) {
+  if (item.speciesThatNeedModels.length > 0) {
+    return (
+      <Box fontSize="xs" fontStyle="italic" fontWeight="600" opacity="0.8">
+        Need {item.speciesThatNeedModels.length}1 models
+      </Box>
+    );
+  }
+
+  return (
+    <Box fontSize="xs" fontStyle="italic" opacity="0.8">
+      Fully modeled!
+    </Box>
   );
 }
 

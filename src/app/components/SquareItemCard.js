@@ -126,7 +126,11 @@ function SquareItemCardLayout({
           >
             {name}
           </div>
-          {footer && <Box marginTop="2">{footer}</Box>}
+          {footer && (
+            <Box marginTop="2" width="100%">
+              {footer}
+            </Box>
+          )}
         </div>
       )}
     </ClassNames>
