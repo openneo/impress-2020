@@ -16,6 +16,7 @@ import {
   ListItem,
   Skeleton,
   Textarea,
+  Tooltip,
   UnorderedList,
   useColorModeValue,
   useTheme,
@@ -505,7 +506,7 @@ function ItemModelingSummary({ item }) {
   if (fitsAllPets) {
     return (
       <Box fontSize="xs" fontStyle="italic" opacity="0.8">
-        For all pets
+        Fits all pets
       </Box>
     );
   }
@@ -548,7 +549,19 @@ function ItemModelingSummary({ item }) {
 
   return (
     <Box fontSize="xs" fontStyle="italic" opacity="0.8">
-      For all species
+      Fits all{" "}
+      <Tooltip
+        label={
+          <Box fontSize="xs" textAlign="center">
+            Not special colors like Baby, Maraquan, or Mutant.
+          </Box>
+        }
+      >
+        <Box display="inline-block" borderBottom="1px dotted" tabIndex="0">
+          basic
+        </Box>
+      </Tooltip>{" "}
+      pets
     </Box>
   );
 }
