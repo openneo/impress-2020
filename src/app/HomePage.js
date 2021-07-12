@@ -491,7 +491,7 @@ function ItemModelingSummary({ item }) {
   if (item.speciesThatNeedModels.length > 0) {
     return (
       <Box fontSize="xs" fontStyle="italic" fontWeight="600" opacity="0.8">
-        Need {item.speciesThatNeedModels.length}1 models
+        Need {item.speciesThatNeedModels.length} models
       </Box>
     );
   }
