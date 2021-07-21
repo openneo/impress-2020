@@ -58,6 +58,12 @@ const typePolicies = {
         // it! This helps for fast loading when switching between standard
         // colors.
         const { speciesId, colorId } = args;
+        console.debug(
+          "[appearanceOn] seeking cached appearance",
+          speciesId,
+          colorId,
+          readField("id")
+        );
         const speciesStandardBodyId = readField(
           "standardBodyId",
           toReference({ __typename: "Species", id: speciesId })
@@ -71,16 +77,22 @@ const typePolicies = {
           // be loading them, depending on the page? Either way, return
           // `undefined`, meaning we don't know how to serve this from cache.
           // This will cause us to start loading it from the server.
+          console.debug("[appearanceOn] species/colors not loaded yet");
           return undefined;
         }
 
         if (colorIsStandard) {
           const itemId = readField("id");
+          console.debug(
+            "[appearanceOn] standard color, will read:",
+            `item-${itemId}-body-${speciesStandardBodyId}`
+          );
           return toReference({
             __typename: "ItemAppearance",
             id: `item-${itemId}-body-${speciesStandardBodyId}`,
           });
         } else {
+          console.debug("[appearanceOn] non-standard color, failure");
           // This isn't a standard color, so we don't support special
           // cross-color caching for it. Return `undefined`, meaning we don't
           // know how to serve this from cache. This will cause us to start
