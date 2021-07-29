@@ -308,10 +308,25 @@ function buildItemSearchConditions({
   // Split the query into words, and search for each word as a substring
   // of the name.
   const words = query.split(/\s+/);
-  const wordMatchersForMysql = words.map(
-    (word) => "%" + word.replace(/_%/g, "\\$0") + "%"
-  );
-  const matcherPlaceholders = words.map((_) => "t.name LIKE ?").join(" AND ");
+  const wordMatchConditions = [];
+  const wordMatchValues = [];
+  for (let word of words) {
+    // If the word starts with `-`, remove `-` and treat the filter as negative.
+    const isNegative = word.startsWith("-");
+    if (isNegative) {
+      word = word.substr(1);
+    }
+    if (!word) {
+      continue;
+    }
+
+    const condition = isNegative ? "t.name NOT LIKE ?" : "t.name LIKE ?";
+    const matcher = "%" + word.replace(/_%/g, "\\$0") + "%";
+
+    wordMatchConditions.push(condition);
+    wordMatchValues.push(matcher);
+  }
+  const wordMatchCondition = wordMatchConditions.join(" AND ") || "1";
 
   const itemKindCondition = itemSearchKindConditions[itemKind] || "1";
   const bodyIdCondition = bodyId
@@ -333,20 +348,20 @@ function buildItemSearchConditions({
     : [];
 
   const queryJoins = `
-          INNER JOIN item_translations t ON t.item_id = items.id
-          INNER JOIN parents_swf_assets rel
-              ON rel.parent_type = "Item" AND rel.parent_id = items.id
-          INNER JOIN swf_assets ON rel.swf_asset_id = swf_assets.id
-          ${currentUserJoin}
-        `;
+    INNER JOIN item_translations t ON t.item_id = items.id
+    INNER JOIN parents_swf_assets rel
+        ON rel.parent_type = "Item" AND rel.parent_id = items.id
+    INNER JOIN swf_assets ON rel.swf_asset_id = swf_assets.id
+    ${currentUserJoin}
+  `;
 
   const queryConditions = `
-          (${matcherPlaceholders}) AND t.locale = "en" AND
-          (${bodyIdCondition}) AND (${zoneIdsCondition}) AND
-          (${itemKindCondition}) AND (${currentUserCondition})
-        `;
+    (${wordMatchCondition}) AND (${bodyIdCondition}) AND
+    (${zoneIdsCondition}) AND (${itemKindCondition}) AND
+    (${currentUserCondition}) AND t.locale = "en"
+  `;
   const queryConditionValues = [
-    ...wordMatchersForMysql,
+    ...wordMatchValues,
     ...bodyIdValues,
     ...zoneIds,
     ...currentUserValues,
