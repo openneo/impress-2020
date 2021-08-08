@@ -20,6 +20,7 @@ import {
   ExternalLinkIcon,
   ChevronRightIcon,
   QuestionIcon,
+  WarningTwoIcon,
 } from "@chakra-ui/icons";
 import { gql, useMutation } from "@apollo/client";
 
@@ -163,12 +164,16 @@ function ItemPageBadges({ item, isEmbedded }) {
             item.wakaValueText !== undefined
           }
         >
-          {item.wakaValueText && (
+          {shouldShowWaka() && item.wakaValueText && (
             <>
               {/* For hover-y devices, use a hover popover over the badge. */}
               <Box sx={{ "@media (hover: none)": { display: "none" } }}>
                 <WakaPopover trigger="hover">
-                  <LinkBadge href="http://www.neopets.com/~waka">
+                  <LinkBadge
+                    href="http://www.neopets.com/~waka"
+                    colorScheme="yellow"
+                  >
+                    <WarningTwoIcon marginRight="1" />
                     Waka: {item.wakaValueText}
                   </LinkBadge>
                 </WakaPopover>
@@ -178,7 +183,11 @@ function ItemPageBadges({ item, isEmbedded }) {
                 sx={{ "@media (hover: hover)": { display: "none" } }}
                 align="center"
               >
-                <LinkBadge href="http://www.neopets.com/~waka">
+                <LinkBadge
+                  href="http://www.neopets.com/~waka"
+                  colorScheme="yellow"
+                >
+                  <WarningTwoIcon marginRight="1" />
                   Waka: {item.wakaValueText}
                 </LinkBadge>
                 <WakaPopover>
@@ -439,21 +448,46 @@ function WakaPopover({ children, ...props }) {
           <PopoverArrow />
           <PopoverBody fontSize="sm">
             <p>
-              Waka is a community resource that tracks the approximate value of
-              NC items, based on real-world trades.
+              <strong>
+                The Waka Guide for NC trade values is closing down!
+              </strong>{" "}
+              We're sad to see them go, but excited that the team gets to move
+              onto the next phase in their life 💖
             </p>
             <Box height="1em" />
             <p>
-              The Waka Team aims to maintain the accuracy of the guide as fully
-              as possible, but please remember values are often changing and
-              with certain difficult-to-find or popular items it doesn't hurt to
-              make a value check!
+              The Waka guide was last updated August 7, 2021, so this value
+              might not be accurate anymore. Consider checking in with the
+              Neoboards!
+            </p>
+            <Box height="1em" />
+            <p>
+              Thanks again to the Waka team for letting us experiment with
+              sharing their trade values here. Best wishes for everything to
+              come! 💜
             </p>
           </PopoverBody>
         </PopoverContent>
       </Portal>
     </Popover>
   );
+}
+
+// August 21, 2021. (The month uses 0-indexing, but nothing else does! 🙃)
+const STOP_SHOWING_WAKA_AFTER = new Date(2021, 7, 21, 0, 0, 0, 0);
+
+/**
+ * shouldShowWaka returns true if, according to the browser, it's not yet
+ * August 21, 2021. It starts returning false at midnight on Aug 21.
+ *
+ * That way, our Waka deprecation message is on an auto-timer. After Aug 21,
+ * it's safe to remove all Waka UI code, and the Waka API endpoint and GraphQL
+ * fields. (It might be kind to return a placeholder string for the GraphQL
+ * case!)
+ */
+function shouldShowWaka() {
+  const now = new Date();
+  return now < STOP_SHOWING_WAKA_AFTER;
 }
 
 export default ItemPageLayout;
