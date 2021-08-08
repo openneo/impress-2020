@@ -7,6 +7,7 @@ require("honeycomb-beeline")({
       ? "Dress to Impress (2020)"
       : "Dress to Impress (2020, dev)",
   serviceName: "impress-2020-build-process",
+  enabledInstrumentations: [],
 });
 const fs = require("fs").promises;
 const path = require("path");
@@ -15,7 +16,6 @@ const { ApolloServer } = require("apollo-server");
 const { createTestClient } = require("apollo-server-testing");
 const gql = require("graphql-tag");
 
-const connectToDb = require("../src/server/db");
 const { config } = require("../src/server");
 
 const cachedDataPath = path.join(__dirname, "..", "src", "app", "cached-data");
@@ -51,7 +51,7 @@ async function main() {
     "utf8"
   );
 
-  console.log(`📚 Wrote zones to ${path.relative(process.cwd(), filePath)}`);
+  console.info(`📚 Wrote zones to ${path.relative(process.cwd(), filePath)}`);
 }
 
 main()
