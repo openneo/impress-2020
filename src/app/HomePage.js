@@ -386,6 +386,18 @@ function NewItemsSectionContent() {
             id
             name
           }
+          babySpeciesThatNeedModels: speciesThatNeedModels(colorId: "6") {
+            id
+            name
+          }
+          maraquanSpeciesThatNeedModels: speciesThatNeedModels(colorId: "44") {
+            id
+            name
+          }
+          mutantSpeciesThatNeedModels: speciesThatNeedModels(colorId: "46") {
+            id
+            name
+          }
           compatibleBodiesAndTheirZones {
             body {
               id
@@ -492,10 +504,16 @@ function ItemModelingSummary({ item }) {
   // NOTE: To test this logic, I like to swap out `newestItems` in the query:
   //       `newestItems: items(ids: ["81546", "35082", "75149", "81797", "58741", "78953", "82427", "82727", "82726"])`
 
-  if (item.speciesThatNeedModels.length > 0) {
+  const numModelsNeeded =
+    item.speciesThatNeedModels.length +
+    item.babySpeciesThatNeedModels.length +
+    item.maraquanSpeciesThatNeedModels.length +
+    item.mutantSpeciesThatNeedModels.length;
+
+  if (numModelsNeeded > 0) {
     return (
       <Box fontSize="xs" fontStyle="italic" fontWeight="600" opacity="0.8">
-        Need {item.speciesThatNeedModels.length} models
+        Need {numModelsNeeded} models
       </Box>
     );
   }
