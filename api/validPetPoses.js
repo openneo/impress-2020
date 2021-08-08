@@ -5,7 +5,7 @@ const beeline = require("honeycomb-beeline")({
       ? "Dress to Impress (2020)"
       : "Dress to Impress (2020, dev)",
   serviceName: "impress-2020-gql-server",
-  enabledInstrumentations: [],
+  disableInstrumentationOnLoad: true,
 });
 import connectToDb from "../src/server/db";
 import { getPoseFromPetState, normalizeRow } from "../src/server/util";
