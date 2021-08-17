@@ -145,6 +145,20 @@ function reject(res, message, status = 400) {
   return res.status(status).send(message);
 }
 
+// Polyfill Promise.any for older Node: https://github.com/ungap/promise-any
+Promise.any =
+  Promise.any ||
+  function ($) {
+    return new Promise(function (D, E, A, L) {
+      A = [];
+      L = $.map(function ($, i) {
+        return Promise.resolve($).then(D, function (O) {
+          return ((A[i] = O), --L) || E({ errors: A });
+        });
+      }).length;
+    });
+  };
+
 async function handleWithBeeline(req, res) {
   beeline.withTrace(
     { name: "api/assetImage", operation_name: "api/assetImage" },
