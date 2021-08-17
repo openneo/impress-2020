@@ -17,7 +17,7 @@ const beeline = require("honeycomb-beeline")({
   serviceName: "impress-2020-gql-server",
 });
 
-const { chromium } = require("playwright");
+const playwright = require("playwright-aws-lambda");
 
 // To render the image, we load the /internal/assetImage page in the web app,
 // a simple page specifically designed for this API endpoint!
@@ -35,7 +35,7 @@ const ASSET_IMAGE_PAGE_BASE_URL = process.env.VERCEL_URL
 let BROWSER;
 async function getBrowser() {
   if (!BROWSER) {
-    BROWSER = await chromium.launch();
+    BROWSER = await playwright.launchChromium();
   }
   return BROWSER;
 }
