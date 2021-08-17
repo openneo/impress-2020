@@ -36,7 +36,7 @@ const ASSET_IMAGE_PAGE_BASE_URL = process.env.VERCEL_URL
 let BROWSER;
 async function getBrowser() {
   if (!BROWSER) {
-    BROWSER = await playwright.launchChromium();
+    BROWSER = await playwright.launchChromium({ headless: true });
   }
   return BROWSER;
 }
