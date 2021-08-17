@@ -176,7 +176,8 @@ function OutfitKnownGlitchesBadge({ appearance }) {
         Invisible pets are affected by a number of glitches, including faces
         sometimes being visible on-site, and errors in the HTML5 conversion. If
         this pose looks incorrect, you can try another by clicking the emoji
-        face to the right. But be aware that Neopets.com might look different!
+        face next to the species/color picker. But be aware that Neopets.com
+        might look different!
       </Box>
     );
   }
@@ -208,12 +209,31 @@ function OutfitKnownGlitchesBadge({ appearance }) {
         We know that the art for this pet is incorrect, but we still haven't
         seen a <em>correct</em> model for this pose yet. Once someone models the
         correct data, we'll use that instead. For now, you could also try
-        switching to another pose, by clicking the emoji face to the right!
+        switching to another pose, by clicking the emoji face next to the
+        species/color picker!
       </Box>
     );
   }
 
   const petLayers = petAppearance?.layers || [];
+
+  // Look for pet layers with the OFFICIAL_SWF_IS_INCORRECT glitch.
+  for (const layer of petLayers) {
+    const layerHasGlitch = (layer.knownGlitches || []).includes(
+      "OFFICIAL_SWF_IS_INCORRECT"
+    );
+    if (layerHasGlitch) {
+      glitchMessages.push(
+        <Box key={`official-swf-is-incorrect-for-pet-layer-${layer.id}`}>
+          We're aware of a glitch affecting the art for this pet's{" "}
+          <i>{layer.zone.label}</i> zone. Last time we checked, this glitch
+          affected its appearance on Neopets.com, too. But our version might be
+          out of date! If you've seen it look better on-site, please email me at
+          matchu@openneo.net so we can fix it!
+        </Box>
+      );
+    }
+  }
 
   // Look for pet layers with the OFFICIAL_SVG_IS_INCORRECT glitch.
   for (const layer of petLayers) {
