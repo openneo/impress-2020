@@ -18,8 +18,6 @@ const beeline = require("honeycomb-beeline")({
   disableInstrumentationOnLoad: true,
 });
 
-const playwright = require("playwright-aws-lambda");
-
 // To render the image, we load the /internal/assetImage page in the web app,
 // a simple page specifically designed for this API endpoint!
 const ASSET_IMAGE_PAGE_BASE_URL = process.env.VERCEL_URL
@@ -36,7 +34,20 @@ const ASSET_IMAGE_PAGE_BASE_URL = process.env.VERCEL_URL
 let BROWSER;
 async function getBrowser() {
   if (!BROWSER) {
-    BROWSER = await playwright.launchChromium({ headless: true });
+    if (process.env["NODE_ENV"] === "production") {
+      // In production, we use a special chrome-aws-lambda Chromium.
+      const chromium = require("chrome-aws-lambda");
+      const playwright = require("playwright-core");
+      BROWSER = await playwright.chromium.launch({
+        args: chromium.args,
+        executablePath: await chromium.executablePath,
+        headless: true,
+      });
+    } else {
+      // In development, we use the standard playwright Chromium.
+      const playwright = require("playwright");
+      BROWSER = await playwright.chromium.launch({ headless: true });
+    }
   }
   return BROWSER;
 }

@@ -22,5 +22,10 @@
       "src": "/static/js/[^.]*\\.[^.]*\\.chunk.js",
       "status": 404
     }
-  ]
+  ],
+  "functions": {
+    "api/assetImage.js": {
+      "excludeFiles": "node_modules/playwright/**"
+    }
+  }
 }
