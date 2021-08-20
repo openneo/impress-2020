@@ -37,6 +37,13 @@ const ASSET_IMAGE_PAGE_BASE_URL = process.env.VERCEL_URL
 //       parallel will be a problem for our API endpoint.
 let BROWSER;
 async function getBrowser() {
+  // Sometimes, the browser crashes. Maybe a RAM thing? If that happened, set
+  // it to null, and then we'll replace it with a new instance below.
+  if (BROWSER && !BROWSER.isConnected()) {
+    console.info("Browser is no longer connected; rebooting.");
+    BROWSER = null;
+  }
+
   if (!BROWSER) {
     if (process.env["NODE_ENV"] === "production") {
       // In production, we use a special chrome-aws-lambda Chromium.
@@ -102,28 +109,33 @@ async function loadAndScreenshotImage(libraryUrl, size) {
   const page = await browser.newPage();
   console.debug("Page opened, navigating to: " + assetImagePageUrl.toString());
 
-  await page.goto(assetImagePageUrl.toString());
-  console.debug("Page loaded, awaiting image");
+  try {
+    await page.goto(assetImagePageUrl.toString());
+    console.debug("Page loaded, awaiting image");
 
-  // Start looking for the loaded canvas, *and* for an error message.
-  // When either one displays, we proceed, either by returning the image if
-  // present, or raising the error if present.
-  const imageBufferPromise = screenshotImageFromPage(page);
-  const errorMessagePromise = readErrorMessageFromPage(page);
-  const firstResultFromPage = await Promise.any([
-    imageBufferPromise.then((imageBuffer) => ({ imageBuffer })),
-    errorMessagePromise.then((errorMessage) => ({ errorMessage })),
-  ]);
+    // Start looking for the loaded canvas, *and* for an error message.
+    // When either one displays, we proceed, either by returning the image if
+    // present, or raising the error if present.
+    const imageBufferPromise = screenshotImageFromPage(page);
+    const errorMessagePromise = readErrorMessageFromPage(page);
+    const firstResultFromPage = await Promise.any([
+      imageBufferPromise.then((imageBuffer) => ({ imageBuffer })),
+      errorMessagePromise.then((errorMessage) => ({ errorMessage })),
+    ]);
 
-  if (firstResultFromPage.errorMessage) {
-    throw new Error(firstResultFromPage.errorMessage);
-  } else if (firstResultFromPage.imageBuffer) {
-    return firstResultFromPage.imageBuffer;
-  } else {
-    throw new Error(
-      `Assertion error: Promise.any did not return an errorMessage or an imageBuffer: ` +
-        `${JSON.stringify(Object.keys(firstResultFromPage))}`
-    );
+    if (firstResultFromPage.errorMessage) {
+      throw new Error(firstResultFromPage.errorMessage);
+    } else if (firstResultFromPage.imageBuffer) {
+      return firstResultFromPage.imageBuffer;
+    } else {
+      throw new Error(
+        `Assertion error: Promise.any did not return an errorMessage or an imageBuffer: ` +
+          `${JSON.stringify(Object.keys(firstResultFromPage))}`
+      );
+    }
+  } finally {
+    // Close the page, to save on RAM in our shared browser instance.
+    page.close();
   }
 }
 
