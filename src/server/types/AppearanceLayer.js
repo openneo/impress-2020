@@ -204,7 +204,24 @@ const resolvers = {
         if (format === "lod" && !jsAssetUrl && pngAssetUrl) {
           return pngAssetUrl.toString();
         }
+
+        // Or, if this is a movie, we can generate the PNG ourselves.
+        // TODO: Support this for smaller image sizes, too.
+        if (format === "lod" && jsAssetUrl) {
+          const httpsJsAssetUrl = jsAssetUrl
+            .toString()
+            .replace(/^http:\/\//, "https://");
+          return (
+            `https://impress-2020.openneo.net/api/assetImage` +
+            `?libraryUrl=${encodeURIComponent(httpsJsAssetUrl)}`
+          );
+        }
       }
+
+      // Otherwise, fall back to the Classic DTI image storage, which is
+      // generated from the SWFs (or sometimes manually overridden). It's less
+      // accurate, but well-tested to generally work okay, and it's the only
+      // image we have for assets not yet converted to HTML5.
 
       // If there's no image, return null. (In the development db, which isn't
       // aware which assets we have images for on the DTI CDN, assume we _do_
