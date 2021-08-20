@@ -180,42 +180,34 @@ const resolvers = {
     imageUrl: async ({ id }, { size = "SIZE_150" }, { swfAssetLoader, db }) => {
       const layer = await swfAssetLoader.load(id);
 
-      // For the largest size, try to use the official Neopets PNG!
-      //
-      // NOTE: This is mainly to avoid cases where the official PNG, based on
-      //       the official SWF, is inaccurate. (This was the case for the
-      //       Flying in an Airplane item when it first released, with the
-      //       OFFICIAL_SVG_IS_INCORRECT glitch.)
-      //
-      // TODO: This doesn't really help us with the glitches in our own PNGs,
-      //       because 1) if an official PNG is available, an official SVG
-      //       probably is too, and we prefer to use that in most cases; and 2)
-      //       outfit image thumbnails currently only request 300x300 at most,
-      //       so we'll still use our own PNGs for those cases.
-      if (size === "SIZE_600") {
-        const {
-          format,
-          jsAssetUrl,
-          pngAssetUrl,
-        } = await loadAndCacheAssetDataFromManifest(db, layer);
+      const {
+        format,
+        jsAssetUrl,
+        pngAssetUrl,
+      } = await loadAndCacheAssetDataFromManifest(db, layer);
 
+      // For the largest size, try to use the official Neopets PNG!
+      // TODO: Offer an API endpoint to resize the official Neopets PNG maybe?
+      //       That'll be an important final step before turning off the
+      //       Classic DTI image converters.
+      if (size === "SIZE_600") {
         // If there's an official single-image PNG we can use, use it! This is
         // what the official /customise editor uses at time of writing.
         if (format === "lod" && !jsAssetUrl && pngAssetUrl) {
           return pngAssetUrl.toString();
         }
+      }
 
-        // Or, if this is a movie, we can generate the PNG ourselves.
-        // TODO: Support this for smaller image sizes, too.
-        if (format === "lod" && jsAssetUrl) {
-          const httpsJsAssetUrl = jsAssetUrl
-            .toString()
-            .replace(/^http:\/\//, "https://");
-          return (
-            `https://impress-2020.openneo.net/api/assetImage` +
-            `?libraryUrl=${encodeURIComponent(httpsJsAssetUrl)}`
-          );
-        }
+      // Or, if this is a movie, we can generate the PNG ourselves.
+      if (format === "lod" && jsAssetUrl) {
+        const httpsJsAssetUrl = jsAssetUrl
+          .toString()
+          .replace(/^http:\/\//, "https://");
+        const sizeNum = size.split("_")[1];
+        return (
+          `https://impress-2020.openneo.net/api/assetImage` +
+          `?libraryUrl=${encodeURIComponent(httpsJsAssetUrl)}&size=${sizeNum}`
+        );
       }
 
       // Otherwise, fall back to the Classic DTI image storage, which is

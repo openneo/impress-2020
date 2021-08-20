@@ -39,6 +39,7 @@ function InternalAssetImagePageContent() {
   const location = useLocation();
   const search = new URLSearchParams(location.search);
   const libraryUrl = search.get("libraryUrl");
+  const size = search.get("size") || "600";
 
   const [movieError, setMovieError] = React.useState(null);
 
@@ -64,6 +65,14 @@ function InternalAssetImagePageContent() {
     );
   }
 
+  if (size !== "600" && size !== "300" && size !== "150") {
+    return (
+      <AssetImageErrorMessage>
+        Error: size must be 600, 300, or 150, but was: {size}
+      </AssetImageErrorMessage>
+    );
+  }
+
   if (movieError) {
     return (
       <AssetImageErrorMessage>
@@ -73,11 +82,17 @@ function InternalAssetImagePageContent() {
   }
 
   return (
-    <Box border="1px solid" borderColor="green.400">
+    <Box
+      border="1px solid"
+      borderColor="green.400"
+      boxSizing="content-box"
+      width={parseInt(size)}
+      height={parseInt(size)}
+    >
       <OutfitMovieLayer
         libraryUrl={libraryUrl}
-        width={600}
-        height={600}
+        width={parseInt(size)}
+        height={parseInt(size)}
         onError={onMovieError}
         canvasProps={{ id: "asset-image-canvas" }}
         isPaused

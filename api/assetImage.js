@@ -7,6 +7,10 @@
  * a bit slow, and consume significant RAM. So, caching is going to be
  * important, so that we're not calling this all the time and overloading the
  * endpoint!
+ *
+ * Parameters:
+ *   - libraryUrl: A https://images.neopets.com/ URL to a JS movie library
+ *   - size: 600, 300, or 150. Determines the output image size.
  */
 const beeline = require("honeycomb-beeline")({
   writeKey: process.env["HONEYCOMB_WRITE_KEY"],
@@ -53,7 +57,7 @@ async function getBrowser() {
 }
 
 async function handle(req, res) {
-  const { libraryUrl } = req.query;
+  const { libraryUrl, size } = req.query;
   if (!libraryUrl) {
     return reject(res, "libraryUrl is required");
   }
@@ -65,9 +69,13 @@ async function handle(req, res) {
     );
   }
 
+  if (size !== "600" && size !== "300" && size !== "150") {
+    return reject(res, `size must be 600, 300, or 150, but was: ${size}`);
+  }
+
   let imageBuffer;
   try {
-    imageBuffer = await loadAndScreenshotImage(libraryUrl);
+    imageBuffer = await loadAndScreenshotImage(libraryUrl, size);
   } catch (e) {
     console.error(e);
     return reject(res, `Could not load image: ${e.message}`, 500);
@@ -82,9 +90,12 @@ async function handle(req, res) {
   return res.send(imageBuffer);
 }
 
-async function loadAndScreenshotImage(libraryUrl) {
+async function loadAndScreenshotImage(libraryUrl, size) {
   const assetImagePageUrl = new URL(ASSET_IMAGE_PAGE_BASE_URL);
-  assetImagePageUrl.search = new URLSearchParams({ libraryUrl }).toString();
+  assetImagePageUrl.search = new URLSearchParams({
+    libraryUrl,
+    size,
+  }).toString();
 
   console.debug("Opening browser page");
   const browser = await getBrowser();
