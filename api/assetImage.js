@@ -122,9 +122,18 @@ async function loadAndScreenshotImage(libraryUrl, size) {
       );
     }
   } finally {
-    // Tear down our resources when we're done!
-    page.close();
-    browser.close();
+    // Tear down our resources when we're done! If it fails, log the error, but
+    // don't block the success of the image.
+    try {
+      await page.close();
+    } catch (e) {
+      console.warn("Error closing page after image finished", e);
+    }
+    try {
+      await browser.close();
+    } catch (e) {
+      console.warn("Error closing browser after image finished", e);
+    }
   }
 }
 
