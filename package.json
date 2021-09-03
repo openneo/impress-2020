@@ -35,7 +35,7 @@
     "framer-motion": "^4.1.11",
     "graphql": "^15.5.0",
     "honeycomb-beeline": "^2.7.4",
-    "immer": "^8.0.1",
+    "immer": "^9.0.6",
     "jimp": "^0.14.0",
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^1.9.0",
