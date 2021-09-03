@@ -30,37 +30,25 @@ const ASSET_IMAGE_PAGE_BASE_URL = process.env.VERCEL_URL
   ? "http://localhost:3000/internal/assetImage"
   : "https://impress-2020.openneo.net/internal/assetImage";
 
-// TODO: What are the perf implications of sharing one browser instance, with
-//       multiple pages open? This feels optimal to me from the *obvious*
-//       perspective, but I do wonder whether e.g. there are surprise
-//       implications from sharing a browser instance, or if too many pages in
-//       parallel will be a problem for our API endpoint.
-let BROWSER;
+// TODO: We used to share a browser instamce, but we couldn't get it to reload
+//       correctly after accidental closes, so we're just gonna always load a
+//       new one now. What are the perf implications of this? Does it slow down
+//       response time substantially?
 async function getBrowser() {
-  // Sometimes, the browser crashes. Maybe a RAM thing? If that happened, set
-  // it to null, and then we'll replace it with a new instance below.
-  if (BROWSER && !BROWSER.isConnected()) {
-    console.info("Browser is no longer connected; rebooting.");
-    BROWSER = null;
+  if (process.env["NODE_ENV"] === "production") {
+    // In production, we use a special chrome-aws-lambda Chromium.
+    const chromium = require("chrome-aws-lambda");
+    const playwright = require("playwright-core");
+    return await playwright.chromium.launch({
+      args: chromium.args,
+      executablePath: await chromium.executablePath,
+      headless: true,
+    });
+  } else {
+    // In development, we use the standard playwright Chromium.
+    const playwright = require("playwright");
+    return await playwright.chromium.launch({ headless: true });
   }
-
-  if (!BROWSER) {
-    if (process.env["NODE_ENV"] === "production") {
-      // In production, we use a special chrome-aws-lambda Chromium.
-      const chromium = require("chrome-aws-lambda");
-      const playwright = require("playwright-core");
-      BROWSER = await playwright.chromium.launch({
-        args: chromium.args,
-        executablePath: await chromium.executablePath,
-        headless: true,
-      });
-    } else {
-      // In development, we use the standard playwright Chromium.
-      const playwright = require("playwright");
-      BROWSER = await playwright.chromium.launch({ headless: true });
-    }
-  }
-  return BROWSER;
 }
 
 async function handle(req, res) {
