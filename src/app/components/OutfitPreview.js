@@ -417,7 +417,7 @@ export function usePreloadLayers(layers) {
           // The minimal asset for the movie case is *either* the image *or*
           // the movie, because we can start rendering when either is ready.
           minimalAssetPromises.push(
-            Promise.race([imageAssetPromise, movieAssetPromise])
+            Promise.any([imageAssetPromise, movieAssetPromise])
           );
         } else {
           minimalAssetPromises.push(imageAssetPromise);
