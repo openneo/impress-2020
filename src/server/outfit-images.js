@@ -1,11 +1,18 @@
 import { createCanvas, loadImage } from "canvas";
 
-async function renderOutfitImage(layerRefs, size) {
+async function renderOutfitImage(layerUrls, size) {
   const canvas = createCanvas(size, size);
   const ctx = canvas.getContext("2d");
 
-  const images = await Promise.all(layerRefs.map(loadImageAndSkipOnFailure));
+  const images = await Promise.all(layerUrls.map(loadImageAndSkipOnFailure));
+
   const loadedImages = images.filter((image) => image);
+  if (loadedImages.length === 0) {
+    throw new Error(
+      `Could not load any of the layer images: ${layerUrls.join(", ")}`
+    );
+  }
+
   for (const image of loadedImages) {
     ctx.drawImage(image, 0, 0, size, size);
   }
@@ -13,7 +20,7 @@ async function renderOutfitImage(layerRefs, size) {
   return {
     image: canvas.toBuffer(),
     status:
-      loadedImages.length === layerRefs.length ? "success" : "partial-failure",
+      loadedImages.length === layerUrls.length ? "success" : "partial-failure",
   };
 }
 
