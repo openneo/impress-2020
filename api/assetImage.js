@@ -122,8 +122,9 @@ async function loadAndScreenshotImage(libraryUrl, size) {
       );
     }
   } finally {
-    // Close the page, to save on RAM in our shared browser instance.
+    // Tear down our resources when we're done!
     page.close();
+    browser.close();
   }
 }
 
