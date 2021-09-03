@@ -5,12 +5,9 @@ import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
 import { Link } from "react-router-dom";
 
-import { ErrorMessage, Heading1, useCommonStyles } from "./util";
+import { Heading1, MajorErrorMessage, useCommonStyles } from "./util";
 import HangerSpinner from "./components/HangerSpinner";
-import OutfitThumbnail, {
-  outfitThumbnailFragment,
-  getOutfitThumbnailRenderSize,
-} from "./components/OutfitThumbnail";
+import OutfitThumbnail from "./components/OutfitThumbnail";
 import useRequireLogin from "./components/useRequireLogin";
 import WIPCallout from "./components/WIPCallout";
 
@@ -31,14 +28,13 @@ function UserOutfitsPageContent() {
 
   const { loading: queryLoading, error, data } = useQuery(
     gql`
-      query UserOutfitsPageContent($size: LayerImageSize) {
+      query UserOutfitsPageContent {
         currentUser {
           id
           outfits {
             id
             name
-
-            ...OutfitThumbnailFragment
+            updatedAt
 
             # For alt text
             petAppearance {
@@ -58,13 +54,8 @@ function UserOutfitsPageContent() {
           }
         }
       }
-      ${outfitThumbnailFragment}
     `,
     {
-      variables: {
-        // NOTE: This parameter is used inside `OutfitThumbnailFragment`!
-        size: "SIZE_" + getOutfitThumbnailRenderSize(),
-      },
       context: { sendAuth: true },
       skip: userLoading,
     }
@@ -79,7 +70,7 @@ function UserOutfitsPageContent() {
   }
 
   if (error) {
-    return <ErrorMessage>Error loading outfits: {error.message}</ErrorMessage>;
+    return <MajorErrorMessage error={error} variant="network" />;
   }
 
   const outfits = data.currentUser.outfits;
@@ -106,8 +97,8 @@ function OutfitCard({ outfit }) {
     <ClassNames>
       {({ css }) => (
         <OutfitThumbnail
-          petAppearance={outfit.petAppearance}
-          itemAppearances={outfit.itemAppearances}
+          outfitId={outfit.id}
+          updatedAt={outfit.updatedAt}
           alt={buildOutfitAltText(outfit)}
           // Firefox shows alt text as a fallback for images it can't show yet.
           // Show our alt text clearly if the image failed to load... but hide
@@ -118,6 +109,7 @@ function OutfitCard({ outfit }) {
           width={150}
           height={150}
           overflow="auto"
+          loading="lazy"
           className={css`
             &:-moz-loading {
               visibility: hidden;

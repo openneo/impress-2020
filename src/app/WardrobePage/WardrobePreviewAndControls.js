@@ -4,10 +4,7 @@ import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
 import * as Sentry from "@sentry/react";
 
-import OutfitThumbnail, {
-  outfitThumbnailFragment,
-  getOutfitThumbnailRenderSize,
-} from "../components/OutfitThumbnail";
+import OutfitThumbnail from "../components/OutfitThumbnail";
 import { useOutfitPreview } from "../components/OutfitPreview";
 import { loadable, MajorErrorMessage, TestErrorSender } from "../util";
 
@@ -65,21 +62,20 @@ function WardrobePreviewAndControls({
 function OutfitThumbnailIfCached({ outfitId }) {
   const { data } = useQuery(
     gql`
-      query OutfitThumbnailIfCached($outfitId: ID!, $size: LayerImageSize!) {
+      query OutfitThumbnailIfCached($outfitId: ID!) {
         outfit(id: $outfitId) {
           id
-          ...OutfitThumbnailFragment
+          updatedAt
         }
       }
-      ${outfitThumbnailFragment}
     `,
     {
       variables: {
         outfitId,
-        // NOTE: This parameter is used inside `OutfitThumbnailFragment`!
-        size: "SIZE_" + getOutfitThumbnailRenderSize(),
+        skip: outfitId == null,
       },
       fetchPolicy: "cache-only",
+      onError: (e) => console.error(e),
     }
   );
 
@@ -89,8 +85,8 @@ function OutfitThumbnailIfCached({ outfitId }) {
 
   return (
     <OutfitThumbnail
-      petAppearance={data.outfit.petAppearance}
-      itemAppearances={data.outfit.itemAppearances}
+      outfitId={data.outfit.id}
+      updatedAt={data.outfit.updatedAt}
       alt=""
       objectFit="contain"
       width="100%"
