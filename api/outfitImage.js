@@ -157,12 +157,14 @@ const GRAPHQL_QUERY = gql`
     outfit(id: $outfitId) {
       petAppearance {
         layers {
+          id
           imageUrl(size: $size)
         }
         ...PetAppearanceForGetVisibleLayers
       }
       itemAppearances {
         layers {
+          id
           imageUrl(size: $size)
         }
         ...ItemAppearanceForGetVisibleLayers
@@ -198,6 +200,13 @@ async function loadLayerUrlsForSavedOutfit(outfitId, size) {
 
   const { petAppearance, itemAppearances } = data.outfit;
   const visibleLayers = getVisibleLayers(petAppearance, itemAppearances);
+
+  for (const layer of visibleLayers) {
+    if (!layer.imageUrl) {
+      throw new Error(`layer ${layer.id} has no imageUrl for size ${size}`);
+    }
+  }
+
   return visibleLayers
     .sort((a, b) => a.depth - b.depth)
     .map((layer) => layer.imageUrl);
