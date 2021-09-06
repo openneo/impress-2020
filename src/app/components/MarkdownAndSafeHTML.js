@@ -59,6 +59,7 @@ function MarkdownAndSafeHTML({ children, onBeforeSanitizeNode }) {
       "ol",
       "ul",
       "li",
+      "pre",
     ],
     ALLOWED_ATTR: ["href", "class"],
     // URL must either start with an approved host (external link), or with a
