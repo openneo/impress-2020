@@ -86,6 +86,10 @@ function MarkdownAndSafeHTML({ children, onBeforeSanitizeNode }) {
             ul {
               margin-left: 2em;
             }
+
+            a {
+              text-decoration: underline;
+            }
           `}
         />
       )}
