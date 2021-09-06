@@ -349,7 +349,9 @@ export function ClosetList({
               boxShadow="sm"
             />
           ) : (
-            <MarkdownAndSafeHTML>{closetList.description}</MarkdownAndSafeHTML>
+            <MarkdownAndSafeHTML onBeforeSanitizeNode={rewriteLinkAnchors}>
+              {closetList.description}
+            </MarkdownAndSafeHTML>
           )}
         </Box>
       )}
@@ -554,6 +556,58 @@ export function NeopetsStarIcon(props) {
       </svg>
     </Box>
   );
+}
+
+/**
+ * Rewrite old-style links from Classic DTI, for compatibility with our new
+ * URLs and anchor syntax.
+ */
+function rewriteLinkAnchors(node) {
+  try {
+    // Only rewrite `a` tags, and only if they point to DTI (either classic
+    // DTI, or a path relative to the current host.)
+    if (node.nodeName === "A") {
+      const url = new URL(node.href);
+      if (
+        url.host === "impress.openneo.net" ||
+        url.host === window.location.host
+      ) {
+        // Rewrite the `closet` path component to `lists`.
+        const closetPathMatch = url.pathname.match(/^\/user\/([^/]+)\/closet$/);
+        if (closetPathMatch) {
+          url.pathname = `/user/${closetPathMatch[1]}/lists`;
+        }
+
+        // Rewrite `#closet-list-123` to `#list-123`.
+        const closetListAnchorMatch = url.hash.match(/^#closet-list-(.+)$/);
+        if (closetListAnchorMatch) {
+          url.hash = "#list-" + closetListAnchorMatch[1];
+        }
+
+        // Rewrite `#closet-hangers-group-true` to `#owned-items`.
+        if (url.hash === "#closet-hangers-group-true") {
+          url.hash = "#owned-items";
+        }
+
+        // Rewrite `#closet-hangers-group-false` to `#wanted-items`.
+        if (url.hash === "#closet-hangers-group-false") {
+          url.hash = "#wanted-items";
+        }
+
+        // Set the href to be an absolute path to the new URL. (We do this
+        // rather than url.toString(), because that will return a full absolute
+        // URL, and DOMPurify might not have the current host in its allow list,
+        // e.g. in dev or in a preview deploy.)
+        node.href = url.pathname + url.search + url.hash;
+      }
+    }
+  } catch (e) {
+    // None of these operations are safety operations; they're just to make
+    // old-style links compatible. If processing fails, then they'll just be
+    // judged for safety by DOMPurify and deleted if unsafe, which is fine!
+    // So, we allow processing to succeed, and just log the error.
+    console.error("[rewriteLinkAnchors] Could not rewrite node", node, e);
+  }
 }
 
 export default UserItemListPage;

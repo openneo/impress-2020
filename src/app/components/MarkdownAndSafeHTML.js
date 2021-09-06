@@ -37,11 +37,14 @@ const unsafeMarkdownOutput = SimpleMarkdown.htmlFor(
  * Rendering this component *should* be XSS-safe, it's designed to strip out
  * bad things! Still, be careful when using it, and consider what you're doing!
  */
-function MarkdownAndSafeHTML({ children }) {
+function MarkdownAndSafeHTML({ children, onBeforeSanitizeNode }) {
   const htmlAndMarkdown = children;
 
   const unsafeHtml = unsafeMarkdownOutput(markdownParser(htmlAndMarkdown));
 
+  if (onBeforeSanitizeNode) {
+    DOMPurify.addHook("beforeSanitizeAttributes", onBeforeSanitizeNode);
+  }
   const sanitizedHtml = DOMPurify.sanitize(unsafeHtml, {
     ALLOWED_TAGS: [
       "b",
@@ -62,6 +65,9 @@ function MarkdownAndSafeHTML({ children }) {
     // slash or hash (internal link).
     ALLOWED_URI_REGEXP: /^https?:\/\/(impress\.openneo\.net|impress-2020\.openneo\.net|www\.neopets\.com|neopets\.com|items\.jellyneo\.net)\/|^[/#]/,
   });
+  if (onBeforeSanitizeNode) {
+    DOMPurify.removeHook("beforeSanitizeAttributes");
+  }
 
   return (
     <ClassNames>
