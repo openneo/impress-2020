@@ -690,12 +690,11 @@ function FeedbackFormPitch() {
           flex={{ base: "0 0 auto", sm: "0 1 50%" }}
         >
           <Box as="h3" fontWeight="600">
-            New updates (June 21)
+            New updates (Sep 30)
           </Box>
           <UnorderedList>
-            <ListItem>Faster outfit editing</ListItem>
-            <ListItem>Better item list pages</ListItem>
-            <ListItem>Outfit saving! Try it out!!</ListItem>
+            <ListItem>Search bar on item page</ListItem>
+            <ListItem>Remove items from lists</ListItem>
             <ListItem>
               <ChakraLink
                 href="https://twitter.com/NeopetsDTI"
