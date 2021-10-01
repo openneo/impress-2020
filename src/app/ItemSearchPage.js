@@ -1,98 +1,21 @@
-import React from "react";
 import { Box, Wrap, WrapItem } from "@chakra-ui/react";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
-import { useHistory, useLocation, useParams } from "react-router-dom";
 
-import SearchToolbar, {
+import {
   emptySearchQuery,
   searchQueryIsEmpty,
 } from "./WardrobePage/SearchToolbar";
 import SquareItemCard, {
   SquareItemCardSkeleton,
 } from "./components/SquareItemCard";
-import { Delay, MajorErrorMessage, useCommonStyles, useDebounce } from "./util";
+import { Delay, MajorErrorMessage, useDebounce } from "./util";
 import PaginationToolbar from "./components/PaginationToolbar";
+import { useSearchQueryInUrl } from "./components/ItemSearchPageToolbar";
 
 function ItemSearchPage() {
-  const [query, offset, setQuery] = useSearchQueryInUrl();
-  const { brightBackground } = useCommonStyles();
+  const { query: latestQuery, offset } = useSearchQueryInUrl();
 
-  return (
-    <Box>
-      <SearchToolbar
-        query={query}
-        onChange={setQuery}
-        showItemsLabel
-        background={brightBackground}
-        boxShadow="md"
-        autoFocus
-      />
-      <Box height="6" />
-      <ItemSearchPageResults query={query} offset={offset} />
-    </Box>
-  );
-}
-
-/**
- * useSearchQueryInUrl provides an API like useState, but stores the search
- * query in the URL! It also parses out the offset for us.
- */
-function useSearchQueryInUrl() {
-  const history = useHistory();
-
-  const { query: value } = useParams();
-  const { search } = useLocation();
-  const searchParams = new URLSearchParams(search);
-
-  const query = {
-    value: decodeURIComponent(value || ""),
-    filterToZoneLabel: searchParams.get("zone") || null,
-    filterToItemKind: searchParams.get("kind") || null,
-    filterToCurrentUserOwnsOrWants: searchParams.get("user") || null,
-  };
-
-  const offset = parseInt(searchParams.get("offset")) || 0;
-
-  const setQuery = React.useCallback(
-    (newQuery) => {
-      let url = `/items/search`;
-
-      if (newQuery.value) {
-        url += "/" + encodeURIComponent(newQuery.value);
-      }
-
-      const newParams = new URLSearchParams();
-      if (newQuery.filterToItemKind) {
-        newParams.append("kind", newQuery.filterToItemKind);
-      }
-      if (newQuery.filterToZoneLabel) {
-        newParams.append("zone", newQuery.filterToZoneLabel);
-      }
-      if (newQuery.filterToCurrentUserOwnsOrWants) {
-        newParams.append("user", newQuery.filterToCurrentUserOwnsOrWants);
-      }
-
-      // NOTE: We omit `offset`, because changing the query should reset us
-      //       back to the first page!
-
-      const search = newParams.toString();
-      if (search) {
-        url += "?" + search;
-      }
-
-      history.replace(url);
-    },
-    [history]
-  );
-
-  // NOTE: We don't provide a `setOffset`, because that's handled via
-  //       pagination links.
-
-  return [query, offset, setQuery];
-}
-
-function ItemSearchPageResults({ query: latestQuery, offset }) {
   // NOTE: Some of this is copied from SearchPanel... but all of this is messy
   //       enough that I'm not comfy code-sharing yet, esp since I feel like
   //       SearchPanel pagination is a bit of a mess and will need refactoring.

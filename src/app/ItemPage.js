@@ -31,7 +31,7 @@ import { useQuery, useMutation } from "@apollo/client";
 import { Link, useParams } from "react-router-dom";
 
 import ItemPageLayout, { SubtleSkeleton } from "./ItemPageLayout";
-import { Delay, logAndCapture, usePageTitle } from "./util";
+import { Delay, logAndCapture, useLocalStorage, usePageTitle } from "./util";
 import HTML5Badge, { layerUsesHTML5 } from "./components/HTML5Badge";
 import {
   itemAppearanceFragment,
@@ -44,7 +44,6 @@ import SpeciesColorPicker, {
   getClosestPose,
 } from "./components/SpeciesColorPicker";
 import useCurrentUser from "./components/useCurrentUser";
-import { useLocalStorage } from "./util";
 import SpeciesFacesPicker, {
   colorIsBasic,
 } from "./ItemPage/SpeciesFacesPicker";

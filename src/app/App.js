@@ -1,7 +1,7 @@
 import React from "react";
 import { ApolloProvider } from "@apollo/client";
 import { Auth0Provider } from "@auth0/auth0-react";
-import { CSSReset, ChakraProvider, extendTheme } from "@chakra-ui/react";
+import { CSSReset, ChakraProvider, extendTheme, Box } from "@chakra-ui/react";
 import { mode } from "@chakra-ui/theme-tools";
 import {
   BrowserRouter as Router,
@@ -44,6 +44,17 @@ const UserOutfitsPage = loadable(() => import("./UserOutfitsPage"));
 const WardrobePage = loadable(() => import("./WardrobePage"), {
   fallback: <WardrobePageLayout />,
 });
+
+// ItemPage and ItemSearchPage need to share a search toolbar, so here it is!
+// It'll load in dynamically like the page elements, with a hacky fallback to
+// take up 40px of height until it loads.
+//
+// There very well be a better way to encapsulate this! It's not *great* to
+// have this here. I just don't wanna over abstract it just yet 😅
+const ItemSearchPageToolbar = loadable(
+  () => import("./components/ItemSearchPageToolbar"),
+  { fallback: <Box height="40px" /> }
+);
 
 const theme = extendTheme({
   styles: {
@@ -116,6 +127,7 @@ function App() {
             <Switch>
               <Route path="/items/search/:query?">
                 <PageLayout>
+                  <ItemSearchPageToolbar marginBottom="6" />
                   <ItemSearchPage />
                 </PageLayout>
               </Route>
@@ -131,6 +143,7 @@ function App() {
               </Route>
               <Route path="/items/:itemId">
                 <PageLayout>
+                  <ItemSearchPageToolbar marginBottom="8" />
                   <ItemPage />
                 </PageLayout>
               </Route>
