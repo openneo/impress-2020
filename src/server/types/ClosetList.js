@@ -103,9 +103,13 @@ const resolvers = {
     },
 
     items: async (
-      { id, items: precomputedItems },
+      { isDefaultList, id, userId, ownsOrWantsItems, items: precomputedItems },
       _,
-      { itemLoader, closetHangersForListLoader }
+      {
+        itemLoader,
+        closetHangersForListLoader,
+        closetHangersForDefaultListLoader,
+      }
     ) => {
       // HACK: When called from User.js, for fetching all of a user's lists at
       //       once, this is provided in the returned object. Just use it!
@@ -114,8 +118,12 @@ const resolvers = {
         return precomputedItems;
       }
 
-      // TODO: Support the not-in-a-list case!
-      const closetHangers = await closetHangersForListLoader.load(id);
+      const closetHangers = isDefaultList
+        ? await closetHangersForDefaultListLoader.load({
+            userId,
+            ownsOrWantsItems,
+          })
+        : await closetHangersForListLoader.load(id);
       const itemIds = closetHangers.map((h) => h.itemId);
       const items = await itemLoader.loadMany(itemIds);
 

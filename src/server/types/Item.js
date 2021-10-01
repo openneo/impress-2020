@@ -266,6 +266,8 @@ const typeDefs = gql`
 
     addToItemsCurrentUserWants(itemId: ID!): Item
     removeFromItemsCurrentUserWants(itemId: ID!): Item
+
+    removeItemFromClosetList(listId: ID!, itemId: ID!): ClosetList
   }
 `;
 
@@ -952,7 +954,87 @@ const resolvers = {
 
       return { id: itemId };
     },
+    removeItemFromClosetList: async (
+      _,
+      { listId, itemId },
+      { currentUserId, db, closetListLoader }
+    ) => {
+      const closetListRef = await loadClosetListOrDefaultList(
+        listId,
+        closetListLoader
+      );
+      if (closetListRef == null) {
+        throw new Error(`list ${listId} not found`);
+      }
+
+      if (closetListRef.userId !== currentUserId) {
+        throw new Error(`current user does not own this list`);
+      }
+
+      const listMatcherCondition = closetListRef.isDefaultList
+        ? `(user_id = ? AND owned = ? AND list_id IS NULL)`
+        : `(list_id = ?)`;
+      const listMatcherValues = closetListRef.isDefaultList
+        ? [closetListRef.userId, closetListRef.ownsOrWantsItems === "OWNS"]
+        : [closetListRef.id];
+
+      await db.query(
+        `
+          DELETE FROM closet_hangers
+            WHERE ${listMatcherCondition} AND item_id = ? LIMIT 1;
+        `,
+        [...listMatcherValues, itemId]
+      );
+
+      return closetListRef;
+    },
   },
 };
+
+// This matches the ID that we return from ClosetList for the default list.
+const DEFAULT_LIST_ID_PATTERN = /user-(.+?)-default-list-(OWNS|WANTS)/;
+
+/**
+ * Given a list ID returned from ClosetList (which the client might've passed
+ * back to us in a mutation), parse it as either a *real* list ID, or the
+ * placeholder ID we provide to "default" lists; and return the fields that
+ * our ClosetList resolver expects in order to return the correct list. (That
+ * is: `isDefaultList`, `id` (perhaps null), `userId`, and `ownsOrWantsItems`.
+ * The resolver doesn't need all of the fields in both cases, but we return
+ * both in case you want to use them for other things, e.g. checking the
+ * `userId`!)
+ *
+ * (Or return null, if the list ID does not correspond to a default list *or* a
+ * real list in the database.)
+ */
+async function loadClosetListOrDefaultList(listId, closetListLoader) {
+  if (listId == null) {
+    return null;
+  }
+
+  const defaultListMatch = listId.match(DEFAULT_LIST_ID_PATTERN);
+  if (defaultListMatch) {
+    const userId = defaultListMatch[1];
+    const ownsOrWantsItems = defaultListMatch[2];
+    return {
+      isDefaultList: true,
+      id: null,
+      userId,
+      ownsOrWantsItems,
+    };
+  }
+
+  const closetList = await closetListLoader.load(listId);
+  if (closetList) {
+    return {
+      isDefaultList: false,
+      id: closetList.id,
+      userId: closetList.userId,
+      ownsOrWantsItems: closetList.hangersOwned ? "OWNS" : "WANTS",
+    };
+  }
+
+  return null;
+}
 
 module.exports = { typeDefs, resolvers };

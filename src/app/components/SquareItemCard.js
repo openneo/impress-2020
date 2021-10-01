@@ -97,15 +97,17 @@ function SquareItemCard({
                 right: 0;
                 top: 0;
                 transform: translate(50%, -50%);
+                z-index: 1;
+
                 /* Apply some padding, so accidental clicks around the button
                  * don't click the link instead, or vice-versa! */
-                padding: 0.5em;
+                padding: 0.75em;
 
                 opacity: 0;
                 [role="group"]:hover &,
                 [role="group"]:focus-within &,
                 &:hover,
-                &:focus {
+                &:focus-within {
                   opacity: 1;
                 }
               `}

@@ -30,6 +30,33 @@ const buildClosetHangersForListLoader = (db) =>
     );
   });
 
+const buildClosetHangersForDefaultListLoader = (db) =>
+  new DataLoader(async (userIdAndOwnsOrWantsItemsPairs) => {
+    const conditions = userIdAndOwnsOrWantsItemsPairs
+      .map((_) => `(user_id = ? AND owned = ? AND list_id IS NULL)`)
+      .join(" OR ");
+    const values = userIdAndOwnsOrWantsItemsPairs
+      .map(({ userId, ownsOrWantsItems }) => [
+        userId,
+        ownsOrWantsItems === "OWNS",
+      ])
+      .flat();
+    const [rows] = await db.execute(
+      `SELECT * FROM closet_hangers WHERE ${conditions}`,
+      values
+    );
+
+    const entities = rows.map(normalizeRow);
+
+    return userIdAndOwnsOrWantsItemsPairs.map(({ userId, ownsOrWantsItems }) =>
+      entities.filter(
+        (e) =>
+          e.userId === userId &&
+          Boolean(e.owned) === (ownsOrWantsItems === "OWNS")
+      )
+    );
+  });
+
 const buildColorLoader = (db) => {
   const colorLoader = new DataLoader(async (colorIds) => {
     const qs = colorIds.map((_) => "?").join(",");
@@ -1393,6 +1420,9 @@ function buildLoaders(db) {
 
   loaders.closetListLoader = buildClosetListLoader(db);
   loaders.closetHangersForListLoader = buildClosetHangersForListLoader(db);
+  loaders.closetHangersForDefaultListLoader = buildClosetHangersForDefaultListLoader(
+    db
+  );
   loaders.colorLoader = buildColorLoader(db);
   loaders.colorTranslationLoader = buildColorTranslationLoader(db);
   loaders.itemLoader = buildItemLoader(db);

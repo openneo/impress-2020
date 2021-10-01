@@ -407,7 +407,8 @@ export function ClosetListContents({
     <Box>
       {itemsToShow.length > 0 ? (
         <ClosetItemList
-          items={itemsToShow}
+          itemsToShow={itemsToShow}
+          closetList={closetList}
           canEdit={isCurrentUser}
           tradeMatchingMode={tradeMatchingMode}
         />
@@ -447,11 +448,17 @@ export function ClosetListContents({
 const ITEM_CARD_WIDTH = 112 + 16;
 const ITEM_CARD_HEIGHT = 171 + 16;
 
-function ClosetItemList({ items, canEdit, tradeMatchingMode }) {
+function ClosetItemList({
+  itemsToShow,
+  closetList,
+  canEdit,
+  tradeMatchingMode,
+}) {
   const renderItem = (item) => (
     <ClosetListItemCard
       key={item.id}
       item={item}
+      closetList={closetList}
       canEdit={canEdit}
       tradeMatchingMode={tradeMatchingMode}
     />
@@ -459,10 +466,10 @@ function ClosetItemList({ items, canEdit, tradeMatchingMode }) {
 
   // For small lists, we don't bother to virtualize, because it slows down
   // scrolling! (This helps a lot on the lists index page.)
-  if (items.length < 30) {
+  if (itemsToShow.length < 30) {
     return (
       <Wrap spacing="4" justify="center">
-        {items.map((item) => (
+        {itemsToShow.map((item) => (
           <WrapItem key={item.id}>{renderItem(item)}</WrapItem>
         ))}
       </Wrap>
@@ -475,7 +482,7 @@ function ClosetItemList({ items, canEdit, tradeMatchingMode }) {
         <AutoSizer disableHeight>
           {({ width }) => {
             const numItemsPerRow = Math.floor(width / ITEM_CARD_WIDTH);
-            const numRows = Math.ceil(items.length / numItemsPerRow);
+            const numRows = Math.ceil(itemsToShow.length / numItemsPerRow);
 
             return (
               <div ref={registerChild}>
@@ -487,7 +494,7 @@ function ClosetItemList({ items, canEdit, tradeMatchingMode }) {
                   rowHeight={ITEM_CARD_HEIGHT}
                   rowRenderer={({ index: rowIndex, key, style }) => {
                     const firstItemIndex = rowIndex * numItemsPerRow;
-                    const itemsForRow = items.slice(
+                    const itemsForRow = itemsToShow.slice(
                       firstItemIndex,
                       firstItemIndex + numItemsPerRow
                     );
@@ -522,7 +529,45 @@ function ClosetItemList({ items, canEdit, tradeMatchingMode }) {
   );
 }
 
-function ClosetListItemCard({ item, canEdit, tradeMatchingMode }) {
+function ClosetListItemCard({ item, closetList, canEdit, tradeMatchingMode }) {
+  const toast = useToast();
+
+  const [sendRemoveMutation] = useMutation(
+    gql`
+      mutation ClosetListItemCard_RemoveItem($listId: ID!, $itemId: ID!) {
+        removeItemFromClosetList(listId: $listId, itemId: $itemId) {
+          id
+          items {
+            id
+          }
+        }
+      }
+    `,
+    { context: { sendAuth: true } }
+  );
+
+  const onRemove = React.useCallback(() => {
+    sendRemoveMutation({
+      variables: { itemId: item.id, listId: closetList.id },
+      optimisticResponse: {
+        removeItemFromClosetList: {
+          id: closetList.id,
+          __typename: "ClosetList",
+          items: closetList.items
+            .filter(({ id }) => id !== item.id)
+            .map(({ id }) => ({ id, __typename: "Item" })),
+        },
+      },
+    }).catch((error) => {
+      console.error(error);
+      toast({
+        status: "error",
+        title: `Oops, we couldn't remove "${item.name}" from this list!`,
+        description: "Check your connection and try again. Sorry!",
+      });
+    });
+  }, [sendRemoveMutation, item, closetList, toast]);
+
   return (
     <ItemCard
       key={item.id}
@@ -530,7 +575,7 @@ function ClosetListItemCard({ item, canEdit, tradeMatchingMode }) {
       variant="grid"
       tradeMatchingMode={tradeMatchingMode}
       showRemoveButton={canEdit}
-      onRemove={() => alert("TODO")}
+      onRemove={onRemove}
     />
   );
 }

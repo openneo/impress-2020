@@ -149,6 +149,13 @@ const typePolicies = {
       },
     },
   },
+
+  ClosetList: {
+    fields: {
+      // When loading the updated contents of a list, replace it entirely.
+      items: { merge: false },
+    },
+  },
 };
 
 const httpLink = createHttpLink({ uri: "/api/graphql" });
