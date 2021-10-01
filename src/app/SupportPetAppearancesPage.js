@@ -37,7 +37,7 @@ function SupportPetAppearancesPage() {
               This includes species/color combinations that have at least one{" "}
               non-glitched <code>UNKNOWN</code> pose, and still need a
               non-glitched version of at least one of the standard 6
-              mood/gender-presentation poses.
+              mood/gender-presentation poses. Sorted newest to oldest.
             </PopoverBody>
           </PopoverContent>
         </Popover>
@@ -76,13 +76,12 @@ function UnlabeledPetAppearancesList() {
     return <ErrorMessage>{error.message}</ErrorMessage>;
   }
 
+  // Sort the pairs from newest to oldest, taking advantage of our knowledge
+  // that the IDs are numbers that increase over time. (A bit hacky, a real
+  // timestamp would be better, but we never stored those oops!)
   const speciesColorPairs = [
     ...data.speciesColorPairsThatNeedSupportLabeling,
-  ].sort((a, b) =>
-    `${a.species.name} ${a.color.name}`.localeCompare(
-      `${b.species.name} ${b.color.name}`
-    )
-  );
+  ].sort((a, b) => Number(b.id) - Number(a.id));
 
   if (speciesColorPairs.length === 0) {
     return <>…never mind, they're all done! Wow, go team!! 🎉</>;
@@ -90,8 +89,8 @@ function UnlabeledPetAppearancesList() {
 
   return (
     <Wrap align="center">
-      {speciesColorPairs.map(({ species, color }) => (
-        <WrapItem key={`${species.id}-${color.id}`}>
+      {speciesColorPairs.map(({ id, species, color }) => (
+        <WrapItem key={id}>
           <SpeciesColorEditorLink species={species} color={color} />
         </WrapItem>
       ))}
