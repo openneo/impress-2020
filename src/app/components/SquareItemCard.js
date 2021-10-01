@@ -1,6 +1,7 @@
 import React from "react";
 import {
   Box,
+  IconButton,
   Skeleton,
   useColorModeValue,
   useTheme,
@@ -10,15 +11,18 @@ import { ClassNames } from "@emotion/react";
 import { Link } from "react-router-dom";
 
 import { safeImageUrl, useCommonStyles } from "../util";
-import { CheckIcon, StarIcon } from "@chakra-ui/icons";
+import { CheckIcon, CloseIcon, StarIcon } from "@chakra-ui/icons";
 
 function SquareItemCard({
   item,
+  showRemoveButton = false,
+  onRemove = () => {},
   tradeMatchingMode = null,
   footer = null,
   ...props
 }) {
   const outlineShadowValue = useToken("shadows", "outline");
+  const mdRadiusValue = useToken("radii", "md");
 
   const tradeMatchOwnShadowColor = useColorModeValue("green.500", "green.200");
   const tradeMatchWantShadowColor = useColorModeValue("blue.400", "blue.200");
@@ -46,33 +50,70 @@ function SquareItemCard({
         // SquareItemCard renders in large lists of 1k+ items, so we get a big
         // perf win by using Emotion directly instead of Chakra's styled-system
         // Box.
-        <Link
-          to={`/items/${item.id}`}
+        <div
           className={css`
-            transition: all 0.2s;
-            &:hover,
-            &:focus {
-              transform: scale(1.05);
-            }
-            &:focus {
-              box-shadow: ${outlineShadowValue};
-              outline: none;
-            }
+            position: relative;
+            display: flex;
           `}
-          {...props}
+          role="group"
         >
-          <SquareItemCardLayout
-            name={item.name}
-            thumbnailImage={
-              <ItemThumbnail
-                item={item}
-                tradeMatchingMode={tradeMatchingMode}
-              />
-            }
-            boxShadow={tradeMatchShadow}
-            footer={footer}
-          />
-        </Link>
+          <Link
+            to={`/items/${item.id}`}
+            className={css`
+              border-radius: ${mdRadiusValue};
+              transition: all 0.2s;
+              &:hover,
+              &:focus {
+                transform: scale(1.05);
+              }
+              &:focus {
+                box-shadow: ${outlineShadowValue};
+                outline: none;
+              }
+            `}
+            {...props}
+          >
+            <SquareItemCardLayout
+              name={item.name}
+              thumbnailImage={
+                <ItemThumbnail
+                  item={item}
+                  tradeMatchingMode={tradeMatchingMode}
+                />
+              }
+              removeButton={
+                showRemoveButton ? (
+                  <SquareItemCardRemoveButton onClick={onRemove} />
+                ) : null
+              }
+              boxShadow={tradeMatchShadow}
+              footer={footer}
+            />
+          </Link>
+          {showRemoveButton && (
+            <div
+              className={css`
+                position: absolute;
+                right: 0;
+                top: 0;
+                transform: translate(50%, -50%);
+                /* Apply some padding, so accidental clicks around the button
+                 * don't click the link instead, or vice-versa! */
+                padding: 0.5em;
+
+                opacity: 0;
+                [role="group"]:hover &,
+                [role="group"]:focus-within &,
+                &:hover,
+                &:focus {
+                  opacity: 1;
+                }
+              `}
+            >
+              <SquareItemCardRemoveButton onClick={onRemove} />
+            </div>
+          )}
+        </div>
       )}
     </ClassNames>
   );
@@ -360,6 +401,32 @@ function ItemThumbnailKindBadge({ colorScheme, children }) {
         </div>
       )}
     </ClassNames>
+  );
+}
+
+function SquareItemCardRemoveButton({ onClick }) {
+  const backgroundColor = useColorModeValue("gray.200", "gray.500");
+
+  return (
+    <IconButton
+      aria-label="Remove"
+      title="Remove"
+      icon={<CloseIcon />}
+      size="xs"
+      borderRadius="full"
+      boxShadow="lg"
+      backgroundColor={backgroundColor}
+      onClick={onClick}
+      _hover={{
+        // Override night mode's fade-out on hover
+        opacity: 1,
+        transform: "scale(1.15, 1.15)",
+      }}
+      _focus={{
+        transform: "scale(1.15, 1.15)",
+        boxShadow: "outline",
+      }}
+    />
   );
 }
 

@@ -408,6 +408,7 @@ export function ClosetListContents({
       {itemsToShow.length > 0 ? (
         <ClosetItemList
           items={itemsToShow}
+          canEdit={isCurrentUser}
           tradeMatchingMode={tradeMatchingMode}
         />
       ) : (
@@ -446,12 +447,12 @@ export function ClosetListContents({
 const ITEM_CARD_WIDTH = 112 + 16;
 const ITEM_CARD_HEIGHT = 171 + 16;
 
-function ClosetItemList({ items, tradeMatchingMode }) {
+function ClosetItemList({ items, canEdit, tradeMatchingMode }) {
   const renderItem = (item) => (
-    <ItemCard
+    <ClosetListItemCard
       key={item.id}
       item={item}
-      variant="grid"
+      canEdit={canEdit}
       tradeMatchingMode={tradeMatchingMode}
     />
   );
@@ -518,6 +519,19 @@ function ClosetItemList({ items, tradeMatchingMode }) {
         </AutoSizer>
       )}
     </WindowScroller>
+  );
+}
+
+function ClosetListItemCard({ item, canEdit, tradeMatchingMode }) {
+  return (
+    <ItemCard
+      key={item.id}
+      item={item}
+      variant="grid"
+      tradeMatchingMode={tradeMatchingMode}
+      showRemoveButton={canEdit}
+      onRemove={() => alert("TODO")}
+    />
   );
 }
 
