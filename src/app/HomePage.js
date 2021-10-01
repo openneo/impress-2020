@@ -12,7 +12,7 @@ import {
   InputGroup,
   InputLeftElement,
   InputRightElement,
-  Link,
+  Link as ChakraLink,
   ListItem,
   Skeleton,
   Textarea,
@@ -24,7 +24,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { ArrowForwardIcon, SearchIcon } from "@chakra-ui/icons";
-import { useHistory, useLocation } from "react-router-dom";
+import { Link, useHistory, useLocation } from "react-router-dom";
 import { useLazyQuery, useQuery } from "@apollo/client";
 
 import {
@@ -333,15 +333,18 @@ function ItemsSearchField() {
 
   return (
     <form
-      onSubmit={() => {
+      onSubmit={(e) => {
+        e.preventDefault();
         if (query) {
           history.push(`/items/search/${encodeURIComponent(query)}`);
         }
       }}
     >
       <InputGroup size="sm">
-        <InputLeftElement pointerEvents="none">
-          <SearchIcon color="gray.400" />
+        <InputLeftElement>
+          <Box as={Link} to="/items/search" display="flex">
+            <SearchIcon color="gray.400" />
+          </Box>
         </InputLeftElement>
         <Input
           value={query}
@@ -694,12 +697,12 @@ function FeedbackFormPitch() {
             <ListItem>Better item list pages</ListItem>
             <ListItem>Outfit saving! Try it out!!</ListItem>
             <ListItem>
-              <Link
+              <ChakraLink
                 href="https://twitter.com/NeopetsDTI"
                 textDecoration="underline"
               >
                 See more on Twitter!
-              </Link>
+              </ChakraLink>
             </ListItem>
           </UnorderedList>
         </Box>
