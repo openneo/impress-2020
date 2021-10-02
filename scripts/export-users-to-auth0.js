@@ -35,11 +35,10 @@ const auth0 = new ManagementClient({
 async function main() {
   const connectionsPromise = auth0.getConnections();
 
-  const { user, password } = await inquirer.prompt([
-    { name: "user", message: "MySQL admin user:" },
-    { name: "password", type: "password" },
-  ]);
-  const db = await connectToDb({ user, password });
+  const db = await connectToDb({
+    user: process.env.IMPRESS_MYSQL_SCRIPT_USER,
+    password: process.env.IMPRESS_MYSQL_SCRIPT_PASSWORD,
+  });
 
   const connections = await connectionsPromise;
   const { connectionId } = await inquirer.prompt([
