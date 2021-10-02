@@ -19,7 +19,6 @@
 // as a opt-in flag for now, in case I'm forgetting something 😅
 const { argv } = require("yargs");
 const { ManagementClient } = require("auth0");
-const inquirer = require("inquirer");
 const PromisePool = require("es6-promise-pool");
 
 const connectToDb = require("../src/server/db");
@@ -41,14 +40,14 @@ async function main() {
   });
 
   const connections = await connectionsPromise;
-  const { connectionId } = await inquirer.prompt([
-    {
-      name: "connectionId",
-      type: "list",
-      message: "Which Auth0 connection should we import to?",
-      choices: connections.map((c) => ({ name: c.name, value: c.id })),
-    },
-  ]);
+  if (connections.length === 0) {
+    throw new Error(`no connections found on the Auth0 account`);
+  } else if (connections.length > 1) {
+    throw new Error(
+      `Not yet implemented: when there is more than one Auth0 connection, specify which one to use.`
+    );
+  }
+  const connectionId = connections[0].id;
 
   let conditionSQL = "1";
   let conditionValues = [];
