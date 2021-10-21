@@ -375,7 +375,7 @@ function UserSearchForm() {
           return;
         }
 
-        history.push(`/user/${user.id}/items`);
+        history.push(`/user/${user.id}/lists`);
       },
       onError: (error) => {
         console.error(error);
