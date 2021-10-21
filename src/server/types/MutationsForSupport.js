@@ -872,41 +872,77 @@ const resolvers = {
         return null;
       }
 
-      const [[result1, result2]] = await db.query(
-        `
+      await db.beginTransaction();
+
+      let auth0Warning = null;
+      try {
+        const [[result1, result2]] = await db.query(
+          `
           UPDATE users SET name = ? WHERE id = ? LIMIT 1;
           UPDATE openneo_id.users SET name = ? WHERE id = ? LIMIT 1;
         `,
-        [newUsername, userId, newUsername, oldUser.remoteId]
-      );
-
-      if (result1.affectedRows !== 1) {
-        throw new Error(
-          `[UPDATE 1] Expected to affect 1 user, but affected ${result1.affectedRows}`
+          [newUsername, userId, newUsername, oldUser.remoteId]
         );
+
+        if (result1.affectedRows !== 1) {
+          throw new Error(
+            `[UPDATE 1] Expected to affect 1 user, but affected ${result1.affectedRows}`
+          );
+        }
+
+        if (result2.affectedRows !== 1) {
+          throw new Error(
+            `[UPDATE 2] Expected to affect 1 user, but affected ${result2.affectedRows}`
+          );
+        }
+
+        // we changed it, so clear it from cache
+        userLoader.clear(userId);
+
+        // We also want to update the username in Auth0, which is separate! It's
+        // possible that this will fail even though the db update succeeded, but
+        // I'm not going to bother to write recovery code; in that case, the
+        // error will reach the support user console, and we can work to manually
+        // fix it.
+        try {
+          await getAuth0().users.update(
+            { id: `auth0|impress-${userId}` },
+            { username: newUsername }
+          );
+        } catch (error) {
+          if (error.statusCode === 404) {
+            // If the user isn't in Auth0, that could be expected, if importing
+            // their record failed for some reason (unusually unsupported data
+            // values). Don't crash the endpoint, but do log a warning, in the
+            // server console and in Discord.
+            console.warn(`Auth0 warning: ${error.message}. Skipping.`);
+            auth0Warning = error;
+          } else {
+            throw error;
+          }
+        }
+      } catch (error) {
+        // If any part of this fails (including the commit to Auth0), roll back
+        // the database change. This doesn't *super* matter exactly (it's
+        // probably not *bad* to change the username in the database), but it
+        // does make the results more obvious and consistent for Support staff.
+        await db.rollback();
+        throw error;
       }
 
-      if (result2.affectedRows !== 1) {
-        throw new Error(
-          `[UPDATE 2] Expected to affect 1 user, but affected ${result2.affectedRows}`
-        );
-      }
-
-      // we changed it, so clear it from cache
-      userLoader.clear(userId);
-
-      // We also want to update the username in Auth0, which is separate! It's
-      // possible that this will fail even though the db update succeeded, but
-      // I'm not going to bother to write recovery code; in that case, the
-      // error will reach the support user console, and we can work to manually
-      // fix it.
-      await getAuth0().users.update(
-        { id: `auth0|impress-${userId}` },
-        { username: newUsername }
-      );
+      await db.commit();
 
       if (process.env["SUPPORT_TOOLS_DISCORD_WEBHOOK_URL"]) {
         try {
+          const auth0WarningFields = auth0Warning
+            ? [
+                {
+                  name:
+                    "⚠ Auth0 warning, update skipped (maybe they weren't imported?)",
+                  value: auth0Warning.message,
+                },
+              ]
+            : [];
           await logToDiscord({
             embeds: [
               {
@@ -916,6 +952,7 @@ const resolvers = {
                     name: `Username`,
                     value: `${oldUser.name} → **${newUsername}**`,
                   },
+                  ...auth0WarningFields,
                 ],
                 timestamp: new Date().toISOString(),
                 url: `https://impress-2020.openneo.net/user/${oldUser.id}/items`,
