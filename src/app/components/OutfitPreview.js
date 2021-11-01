@@ -140,7 +140,6 @@ export function useOutfitPreview({
         placeholder={placeholder}
         loadingDelayMs={loadingDelayMs}
         spinnerVariant={spinnerVariant}
-        onChangeHasAnimations={onChangeHasAnimations}
         onMovieError={onMovieError}
         onLowFps={onLowFps}
         doTransitions
