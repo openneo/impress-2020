@@ -454,18 +454,12 @@ function ItemPageTradeLink({ href, count, label, colorScheme, isEmbedded }) {
       paddingRight="1"
     >
       <Box display="grid" gridTemplateAreas="single-area">
-        <Box
-          gridArea="single-area"
-          display="flex"
-          flexAlign="center"
-          justifyContent="center"
-        >
+        <Box gridArea="single-area" display="flex" justifyContent="center">
           {count} {label} <ChevronRightIcon minHeight="1.2em" />
         </Box>
         <Box
           gridArea="single-area"
           display="flex"
-          flexAlign="center"
           justifyContent="center"
           visibility="hidden"
         >
