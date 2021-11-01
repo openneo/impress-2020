@@ -89,6 +89,13 @@ function SpeciesColorPicker({
       newColorId,
     });
 
+    // Ignore switching to the placeholder option. It shouldn't generally be
+    // doable once real options exist, and it doesn't represent a valid or
+    // meaningful transition in the case where it could happen.
+    if (newColorId === "SpeciesColorPicker-color-loading-placeholder") {
+      return;
+    }
+
     const species = allSpecies.find((s) => s.id === speciesId);
     const newColor = allColors.find((c) => c.id === newColorId);
     const validPoses = getValidPoses(valids, speciesId, newColorId);
@@ -118,6 +125,13 @@ function SpeciesColorPicker({
       newSpeciesId,
       colorId,
     });
+
+    // Ignore switching to the placeholder option. It shouldn't generally be
+    // doable once real options exist, and it doesn't represent a valid or
+    // meaningful transition in the case where it could happen.
+    if (newSpeciesId === "SpeciesColorPicker-species-loading-placeholder") {
+      return;
+    }
 
     const newSpecies = allSpecies.find((s) => s.id === newSpeciesId);
     if (!newSpecies) {
@@ -177,7 +191,7 @@ function SpeciesColorPicker({
     <Flex direction="row">
       <SpeciesColorSelect
         aria-label="Pet color"
-        value={colorId}
+        value={colorId || "SpeciesColorPicker-color-loading-placeholder"}
         // We also wait for the valid pairs before enabling, so users can't
         // trigger change events we're not ready for. Also, if the caller
         // hasn't provided species and color yet, assume it's still loading.
@@ -197,7 +211,9 @@ function SpeciesColorPicker({
           // placeholder. (Can happen during loading, or if an invalid color ID
           // like null is intentionally provided while the real value loads.)
           !visibleColors.some((c) => c.id === colorId) && (
-            <option>{colorPlaceholderText}</option>
+            <option value="SpeciesColorPicker-color-loading-placeholder">
+              {colorPlaceholderText}
+            </option>
           )
         }
         {
@@ -214,7 +230,7 @@ function SpeciesColorPicker({
       <Box width={size === "sm" ? 2 : 4} />
       <SpeciesColorSelect
         aria-label="Pet species"
-        value={speciesId}
+        value={speciesId || "SpeciesColorPicker-species-loading-placeholder"}
         // We also wait for the valid pairs before enabling, so users can't
         // trigger change events we're not ready for. Also, if the caller
         // hasn't provided species and color yet, assume it's still loading.
@@ -242,7 +258,9 @@ function SpeciesColorPicker({
           // ID like null is intentionally provided while the real value
           // loads.)
           !allSpecies.some((s) => s.id === speciesId) && (
-            <option>{speciesPlaceholderText}</option>
+            <option value="SpeciesColorPicker-species-loading-placeholder">
+              {speciesPlaceholderText}
+            </option>
           )
         }
         {
