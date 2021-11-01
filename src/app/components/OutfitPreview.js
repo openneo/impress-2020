@@ -522,4 +522,21 @@ function FadeInOnLoad({ children, ...props }) {
   );
 }
 
+// Polyfill Promise.any for older browsers: https://github.com/ungap/promise-any
+// NOTE: Normally I would've considered Promise.any within our support browser
+//       range… but it's affected 25 users in the past two months, which is
+//       surprisingly high. And the polyfill is small, so let's do it! (11/2021)
+Promise.any =
+  Promise.any ||
+  function ($) {
+    return new Promise(function (D, E, A, L) {
+      A = [];
+      L = $.map(function ($, i) {
+        return Promise.resolve($).then(D, function (O) {
+          return ((A[i] = O), --L) || E({ errors: A });
+        });
+      }).length;
+    });
+  };
+
 export default OutfitPreview;
