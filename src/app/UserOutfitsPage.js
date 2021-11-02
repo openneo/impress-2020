@@ -20,6 +20,38 @@ function UserOutfitsPage() {
   );
 }
 
+const USER_OUTFITS_PAGE_QUERY = gql`
+  query UserOutfitsPageContent($offset: Int!) {
+    currentUser {
+      id
+      numTotalOutfits
+      outfits(limit: 20, offset: $offset) {
+        id
+        name
+        updatedAt
+
+        # For alt text
+        petAppearance {
+          species {
+            id
+            name
+          }
+          color {
+            id
+            name
+          }
+        }
+        wornItems {
+          id
+          name
+        }
+      }
+    }
+  }
+`;
+
+const PER_PAGE = 20;
+
 function UserOutfitsPageContent() {
   const { isLoading: userLoading } = useRequireLogin();
 
@@ -27,35 +59,7 @@ function UserOutfitsPageContent() {
   const offset = parseInt(new URLSearchParams(search).get("offset")) || 0;
 
   const { loading: queryLoading, error, data } = useQuery(
-    gql`
-      query UserOutfitsPageContent($offset: Int!) {
-        currentUser {
-          id
-          numTotalOutfits
-          outfits(limit: 20, offset: $offset) {
-            id
-            name
-            updatedAt
-
-            # For alt text
-            petAppearance {
-              species {
-                id
-                name
-              }
-              color {
-                id
-                name
-              }
-            }
-            wornItems {
-              id
-              name
-            }
-          }
-        }
-      }
-    `,
+    USER_OUTFITS_PAGE_QUERY,
     {
       variables: { offset },
       context: { sendAuth: true },
@@ -65,6 +69,26 @@ function UserOutfitsPageContent() {
       returnPartialData: true,
     }
   );
+
+  const numTotalOutfits = data?.currentUser?.numTotalOutfits || null;
+
+  // Preload the previous and next pages. (Sigh, if we were doing cool Next.js
+  // stuff, this would already be happening by next/link magic I think!)
+  const prevPageOffset = offset - PER_PAGE;
+  const nextPageOffset = offset + PER_PAGE;
+  useQuery(USER_OUTFITS_PAGE_QUERY, {
+    variables: { offset: prevPageOffset },
+    context: { sendAuth: true },
+    skip: userLoading || offset === 0 || prevPageOffset < 0,
+  });
+  useQuery(USER_OUTFITS_PAGE_QUERY, {
+    variables: { offset: nextPageOffset },
+    context: { sendAuth: true },
+    skip:
+      userLoading ||
+      numTotalOutfits == null ||
+      nextPageOffset >= numTotalOutfits,
+  });
 
   const isLoading = userLoading || queryLoading;
 
@@ -78,8 +102,8 @@ function UserOutfitsPageContent() {
     <Box>
       <PaginationToolbar
         isLoading={isLoading}
-        totalCount={data?.currentUser?.numTotalOutfits}
-        numPerPage={20}
+        totalCount={numTotalOutfits}
+        numPerPage={PER_PAGE}
       />
       <Box height="6" />
       {isLoading ? (
@@ -100,8 +124,8 @@ function UserOutfitsPageContent() {
       <Box height="6" />
       <PaginationToolbar
         isLoading={isLoading}
-        totalCount={data?.currentUser?.numTotalOutfits}
-        numPerPage={20}
+        totalCount={numTotalOutfits}
+        numPerPage={PER_PAGE}
       />
     </Box>
   );
