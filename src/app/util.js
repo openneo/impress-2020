@@ -9,10 +9,10 @@ import {
 } from "@chakra-ui/react";
 import loadableLibrary from "@loadable/component";
 import * as Sentry from "@sentry/react";
+import { WarningIcon } from "@chakra-ui/icons";
+import NextImage from "next/image";
 
 import ErrorGrundoImg from "./images/error-grundo.png";
-import ErrorGrundoImg2x from "./images/error-grundo@2x.png";
-import { WarningIcon } from "@chakra-ui/icons";
 
 /**
  * Delay hides its content at first, then shows it after the given delay.
@@ -451,15 +451,20 @@ export function MajorErrorMessage({ error = null, variant = "unexpected" }) {
       >
         <Box gridArea="icon" marginTop="2">
           <Box
-            as="img"
-            src={ErrorGrundoImg}
-            srcSet={`${ErrorGrundoImg} 1x, ${ErrorGrundoImg2x} 2x`}
             borderRadius="full"
             boxShadow="md"
+            overflow="hidden"
             width="100px"
             height="100px"
-            alt=""
-          />
+          >
+            <NextImage
+              src={ErrorGrundoImg}
+              alt="Distressed Grundo programmer"
+              width={100}
+              height={100}
+              layout="fixed"
+            />
+          </Box>
         </Box>
         <Box gridArea="title" fontSize="lg" marginBottom="1">
           {variant === "unexpected" && <>Ah dang, I broke it 😖</>}

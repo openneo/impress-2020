@@ -13,11 +13,10 @@ import { HamburgerIcon } from "@chakra-ui/icons";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import { ChevronLeftIcon } from "@chakra-ui/icons";
+import Image from "next/image";
 
 import useCurrentUser from "./components/useCurrentUser";
-
 import HomeLinkIcon from "./images/home-link-icon.png";
-import HomeLinkIcon2x from "./images/home-link-icon@2x.png";
 
 function GlobalHeader() {
   return (
@@ -69,16 +68,15 @@ function HomeLink(props) {
         >
           <ChevronLeftIcon />
         </Box>
-        <Box
-          as="img"
-          src={HomeLinkIcon}
-          srcSet={`${HomeLinkIcon} 1x, ${HomeLinkIcon2x} 2x`}
-          alt=""
-          height="2em"
-          width="2em"
-          borderRadius="lg"
-          boxShadow="md"
-        />
+        <Box height="32px" borderRadius="lg" boxShadow="md" overflow="hidden">
+          <Image
+            src={HomeLinkIcon}
+            alt=""
+            width={32}
+            height={32}
+            layout="fixed"
+          />
+        </Box>
         <Box
           height="2em"
           width="2em"

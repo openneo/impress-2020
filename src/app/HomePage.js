@@ -26,6 +26,7 @@ import {
 import { ArrowForwardIcon, SearchIcon } from "@chakra-ui/icons";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { useLazyQuery, useQuery } from "@apollo/client";
+import Image from "next/image";
 
 import {
   Delay,
@@ -45,9 +46,7 @@ import SquareItemCard, {
 import WIPCallout from "./components/WIPCallout";
 
 import HomepageSplashImg from "./images/homepage-splash.png";
-import HomepageSplashImg2x from "./images/homepage-splash@2x.png";
 import FeedbackXweeImg from "./images/feedback-xwee.png";
-import FeedbackXweeImg2x from "./images/feedback-xwee@2x.png";
 
 function HomePage() {
   usePageTitle(null);
@@ -71,11 +70,12 @@ function HomePage() {
           wornItemIds={[]}
           loadingDelayMs={1500}
           placeholder={
-            <Box
-              as="img"
+            <Image
               src={HomepageSplashImg}
-              srcSet={`${HomepageSplashImg} 1x, ${HomepageSplashImg2x} 2x`}
+              width={200}
+              height={200}
               alt=""
+              layout="fixed"
             />
           }
         />
@@ -621,33 +621,19 @@ function FeedbackFormSection() {
             flex="0 0 auto"
             marginTop="4"
           >
-            <Box
-              as="img"
+            <Image
               src={FeedbackXweeImg}
-              srcSet={`${FeedbackXweeImg} 1x, ${FeedbackXweeImg2x} 2x`}
-              height="90px"
-              width="90px"
+              alt="Smiling green Xweetok"
+              width={90}
+              height={90}
+              layout="fixed"
               opacity="0.9"
-              alt=""
             />
           </Box>
           <FeedbackFormPitch />
         </Flex>
       </FeedbackFormContainer>
-      <FeedbackFormContainer
-        borderColor={formBorderColor}
-        image={
-          <Box
-            as="img"
-            src={FeedbackXweeImg}
-            srcSet={`${FeedbackXweeImg} 1x, ${FeedbackXweeImg2x} 2x`}
-            height="90px"
-            width="90px"
-            opacity="0.9"
-            alt=""
-          />
-        }
-      >
+      <FeedbackFormContainer borderColor={formBorderColor}>
         <FeedbackForm />
       </FeedbackFormContainer>
     </VStack>

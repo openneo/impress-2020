@@ -17,6 +17,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { loadable } from "../util";
+import Image from "next/image";
 
 import { petAppearanceFragment } from "../components/useOutfitAppearance";
 import getVisibleLayers from "../../shared/getVisibleLayers";
@@ -493,7 +494,7 @@ function PoseOption({
               </Box>
             ) : (
               <Flex align="center" justify="center" width="100%" height="100%">
-                <EmojiImage src={twemojiQuestion} boxSize="24px" />
+                <EmojiImage src={twemojiQuestion} boxSize={24} />
               </Flex>
             )}
           </Box>
@@ -512,8 +513,16 @@ function PoseOption({
   );
 }
 
-function EmojiImage({ src, alt, boxSize = "16px" }) {
-  return <img src={src} alt={alt} width={boxSize} height={boxSize} />;
+function EmojiImage({ src, alt, boxSize = 16 }) {
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      width={boxSize}
+      height={boxSize}
+      layout="fixed"
+    />
+  );
 }
 
 function usePoses(speciesId, colorId, selectedPose) {

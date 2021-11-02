@@ -1,10 +1,8 @@
-import React from "react";
 import { Box, Flex, Tooltip } from "@chakra-ui/react";
+import Image from "next/image";
 
 import { useCommonStyles } from "../util";
-
 import WIPXweeImg from "../images/wip-xwee.png";
-import WIPXweeImg2x from "../images/wip-xwee@2x.png";
 
 function WIPCallout({
   children,
@@ -30,14 +28,18 @@ function WIPCallout({
       fontSize={size === "sm" ? "xs" : "sm"}
     >
       <Box
-        as="img"
-        src={WIPXweeImg}
-        srcSet={`${WIPXweeImg} 1x, ${WIPXweeImg2x} 2x`}
-        alt=""
         width={size === "sm" ? "24px" : "36px"}
         height={size === "sm" ? "24px" : "36px"}
         marginRight="2"
-      />
+      >
+        <Image
+          src={WIPXweeImg}
+          alt="Curious blue Xweetok, tilted head"
+          width={size === "sm" ? 24 : 36}
+          height={size === "sm" ? 24 : 36}
+          layout="fixed"
+        />
+      </Box>
       {children || (
         <>
           <Box display={{ base: "none", md: "block" }}>
