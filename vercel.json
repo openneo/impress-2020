@@ -1,11 +1,6 @@
 {
   "routes": [
     {
-      "src": "/user/(?<userId>[^/]+)/(closet|items)",
-      "status": 308,
-      "headers": { "Location": "/user/$userId/lists" }
-    },
-    {
       "src": "/outfits/(?<id>[^/]+)/(?<size>150|300|600)\\.png",
       "dest": "/api/outfitImage.js?size=$size&id=$id"
     },
