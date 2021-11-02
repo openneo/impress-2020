@@ -388,83 +388,79 @@ export function usePreloadLayers(layers) {
     setError(null);
     setLayersHaveAnimations(false);
 
-    const loadAssets = async () => {
-      const minimalAssetPromises = [];
-      const imageAssetPromises = [];
-      const movieAssetPromises = [];
-      for (const layer of layers) {
-        const imageAssetPromise = loadImage(
-          getBestImageUrlForLayer(layer, { hiResMode })
+    const minimalAssetPromises = [];
+    const imageAssetPromises = [];
+    const movieAssetPromises = [];
+    for (const layer of layers) {
+      const imageAssetPromise = loadImage(
+        getBestImageUrlForLayer(layer, { hiResMode })
+      );
+      imageAssetPromises.push(imageAssetPromise);
+
+      if (layer.canvasMovieLibraryUrl) {
+        // Start preloading the movie. But we won't block on it! The blocking
+        // request will still be the image, which we'll show as a
+        // placeholder, which should usually be noticeably faster!
+        const movieLibraryPromise = loadMovieLibrary(
+          layer.canvasMovieLibraryUrl
         );
-        imageAssetPromises.push(imageAssetPromise);
+        const movieAssetPromise = movieLibraryPromise.then((library) => ({
+          library,
+          libraryUrl: layer.canvasMovieLibraryUrl,
+        }));
+        movieAssetPromise.libraryUrl = layer.canvasMovieLibraryUrl;
+        movieAssetPromise.cancel = () => movieLibraryPromise.cancel();
+        movieAssetPromises.push(movieAssetPromise);
 
-        if (layer.canvasMovieLibraryUrl) {
-          // Start preloading the movie. But we won't block on it! The blocking
-          // request will still be the image, which we'll show as a
-          // placeholder, which should usually be noticeably faster!
-          const movieLibraryPromise = loadMovieLibrary(
-            layer.canvasMovieLibraryUrl
-          );
-          const movieAssetPromise = movieLibraryPromise.then((library) => ({
-            library,
-            libraryUrl: layer.canvasMovieLibraryUrl,
-          }));
-          movieAssetPromise.libraryUrl = layer.canvasMovieLibraryUrl;
-          movieAssetPromise.cancel = () => movieLibraryPromise.cancel();
-          movieAssetPromises.push(movieAssetPromise);
+        // The minimal asset for the movie case is *either* the image *or*
+        // the movie, because we can start rendering when either is ready.
+        minimalAssetPromises.push(
+          Promise.any([imageAssetPromise, movieAssetPromise])
+        );
+      } else {
+        minimalAssetPromises.push(imageAssetPromise);
+      }
+    }
 
-          // The minimal asset for the movie case is *either* the image *or*
-          // the movie, because we can start rendering when either is ready.
-          minimalAssetPromises.push(
-            Promise.any([imageAssetPromise, movieAssetPromise])
-          );
-        } else {
-          minimalAssetPromises.push(imageAssetPromise);
-        }
+    // When the minimal assets have loaded, we can say the layers have
+    // loaded, and allow the UI to start showing them!
+    Promise.all(minimalAssetPromises)
+      .then(() => {
+        if (canceled) return;
+        setLoadedLayers(layers);
+      })
+      .catch((e) => {
+        if (canceled) return;
+        console.error("Error preloading outfit layers", e);
+        setError(e);
+
+        // Cancel any remaining promises, if cancelable.
+        imageAssetPromises.forEach((p) => p.cancel && p.cancel());
+        movieAssetPromises.forEach((p) => p.cancel && p.cancel());
+      });
+
+    // As the movie assets come in, check them for animations, to decide
+    // whether to show the Play/Pause button.
+    const checkHasAnimations = (asset) => {
+      if (canceled) return;
+      let assetHasAnimations;
+      try {
+        assetHasAnimations = getHasAnimationsForMovieAsset(asset);
+      } catch (e) {
+        console.error("Error testing layers for animations", e);
+        setError(e);
+        return;
       }
 
-      // When the minimal assets have loaded, we can say the layers have
-      // loaded, and allow the UI to start showing them!
-      Promise.all(minimalAssetPromises)
-        .then(() => {
-          if (canceled) return;
-          setLoadedLayers(layers);
-        })
-        .catch((e) => {
-          if (canceled) return;
-          console.error("Error preloading outfit layers", e);
-          setError(e);
-
-          // Cancel any remaining promises, if cancelable.
-          imageAssetPromises.forEach((p) => p.cancel && p.cancel());
-          movieAssetPromises.forEach((p) => p.cancel && p.cancel());
-        });
-
-      // As the movie assets come in, check them for animations, to decide
-      // whether to show the Play/Pause button.
-      const checkHasAnimations = (asset) => {
-        if (canceled) return;
-        let assetHasAnimations;
-        try {
-          assetHasAnimations = getHasAnimationsForMovieAsset(asset);
-        } catch (e) {
-          console.error("Error testing layers for animations", e);
-          setError(e);
-          return;
-        }
-
-        setLayersHaveAnimations(
-          (alreadyHasAnimations) => alreadyHasAnimations || assetHasAnimations
-        );
-      };
-      movieAssetPromises.forEach((p) =>
-        p.then(checkHasAnimations).catch((e) => {
-          console.error(`Error preloading movie library ${p.libraryUrl}:`, e);
-        })
+      setLayersHaveAnimations(
+        (alreadyHasAnimations) => alreadyHasAnimations || assetHasAnimations
       );
     };
-
-    loadAssets();
+    movieAssetPromises.forEach((p) =>
+      p.then(checkHasAnimations).catch((e) => {
+        console.error(`Error preloading movie library ${p.libraryUrl}:`, e);
+      })
+    );
 
     return () => {
       canceled = true;
