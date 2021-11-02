@@ -212,7 +212,7 @@ function PosePickerSupport({
                 .map((zone) => `${zone.label} (${zone.id})`)
                 .sort((a, b) => a[0].localeCompare(b[0]))
                 .map((zoneText) => (
-                  <ListItem>{zoneText}</ListItem>
+                  <ListItem key={zoneText}>{zoneText}</ListItem>
                 ))}
             </UnorderedList>
           ) : (

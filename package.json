@@ -64,7 +64,7 @@
     "build": "yarn build-cached-data && next build",
     "vercel-build": "yum install libuuid-devel libmount-devel && cp /lib64/{libuuid,libmount,libblkid}.so.1 node_modules/canvas/build/Release/",
     "test": "jest test --env=jsdom",
-    "lint": "next lint",
+    "lint": "next lint --dir src --dir pages",
     "cypress": "cypress open",
     "mysql": "mysql --host=impress.openneo.net --user=$(dotenv -p IMPRESS_MYSQL_USER) --password=$(dotenv -p IMPRESS_MYSQL_PASSWORD) --database=openneo_impress",
     "mysql-dev": "mysql --host=localhost --user=impress_2020_dev --password=impress_2020_dev --database=impress_2020_dev",
@@ -77,11 +77,6 @@
     "cache-asset-manifests": "ts-node --compiler=typescript-cached-transpile --transpile-only -r dotenv/config scripts/cache-asset-manifests.js",
     "delete-user": "ts-node --compiler=typescript-cached-transpile --transpile-only -r dotenv/config scripts/delete-user.js",
     "export-users-to-auth0": "ts-node --compiler=typescript-cached-transpile --transpile-only -r dotenv/config scripts/export-users-to-auth0.js"
-  },
-  "lint-staged": {
-    "*.{js,ts,tsx}": [
-      "next lint --max-warnings=0 --fix"
-    ]
   },
   "browserslist": {
     "production": [
@@ -97,6 +92,8 @@
   },
   "devDependencies": {
     "5to6-codemod": "^1.8.0",
+    "@typescript-eslint/eslint-plugin": "^5.3.0",
+    "@typescript-eslint/parser": "^5.3.0",
     "apollo-server-testing": "^2.12.0",
     "auth0": "^2.28.0",
     "cypress": "^7.2.0",
@@ -115,7 +112,6 @@
     "prettier": "^2.0.5",
     "react-is": "^16.13.1",
     "ts-node": "^9.1.1",
-    "typescript-cached-transpile": "^0.0.6",
-    "typescript-eslint": "^0.0.1-alpha.0"
+    "typescript-cached-transpile": "^0.0.6"
   }
 }

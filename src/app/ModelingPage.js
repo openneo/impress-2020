@@ -188,7 +188,7 @@ function ItemModelBadges({ item, currentUserOwnsItem }) {
       {item.isNc && <NcBadge />}
       {currentUserOwnsItem && <YouOwnThisBadge />}
       {item.speciesThatNeedModels.map((species) => (
-        <Badge>{species.name}</Badge>
+        <Badge key={species.id}>{species.name}</Badge>
       ))}
     </ItemBadgeList>
   );
