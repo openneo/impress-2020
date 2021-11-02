@@ -1,0 +1,20 @@
+{
+  "extends": "next/core-web-vitals",
+  "rules": {
+    "no-console": [
+      "warn",
+      {
+        "allow": ["debug", "info", "warn", "error"]
+      }
+    ],
+    "import/first": "off",
+    "import/no-webpack-loader-syntax": "off",
+    "no-unused-vars": [
+      "warn",
+      {
+        "varsIgnorePattern": "^unused",
+        "argsIgnorePattern": "^_+$|^e$"
+      }
+    ]
+  }
+}
