@@ -39,12 +39,12 @@ import fetch from "node-fetch";
 import gql from "graphql-tag";
 import { print as graphqlPrint } from "graphql/language/printer";
 
-import connectToDb from "../../src/server/db";
-import { renderOutfitImage } from "../../src/server/outfit-images";
+import connectToDb from "../src/server/db";
+import { renderOutfitImage } from "../src/server/outfit-images";
 import getVisibleLayers, {
   petAppearanceFragmentForGetVisibleLayers,
   itemAppearanceFragmentForGetVisibleLayers,
-} from "../../src/shared/getVisibleLayers";
+} from "../src/shared/getVisibleLayers";
 
 const VALID_LAYER_URLS = [
   /^https:\/\/(impress-asset-images\.openneo\.net|impress-asset-images\.s3\.amazonaws\.com)\/(biology|object)\/[0-9]{3}\/[0-9]{3}\/[0-9]{3}\/[0-9]+\/(150|300|600)x(150|300|600)\.png(\?[a-zA-Z0-9_-]+)?$/,
