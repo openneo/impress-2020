@@ -13,3 +13,11 @@
         cmd: yarn install
       register: result
       changed_when: '"Already up-to-date." not in result.stdout'
+    - name: Copy our local .env secrets file to the server
+      copy:
+        src: ../../.env
+        dest: /srv/impress-2020/latest-version
+    - name: Run `yarn build` to build the production app
+      command:
+        chdir: /srv/impress-2020/latest-version
+        cmd: yarn build
