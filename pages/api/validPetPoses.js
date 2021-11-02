@@ -7,8 +7,8 @@ const beeline = require("honeycomb-beeline")({
   serviceName: "impress-2020-gql-server",
   disableInstrumentationOnLoad: true,
 });
-import connectToDb from "../src/server/db";
-import { getPoseFromPetState, normalizeRow } from "../src/server/util";
+import connectToDb from "../../src/server/db";
+import { getPoseFromPetState, normalizeRow } from "../../src/server/util";
 
 export async function getValidPetPoses() {
   const db = await connectToDb();

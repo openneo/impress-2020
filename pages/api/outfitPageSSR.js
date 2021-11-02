@@ -25,8 +25,8 @@ const beeline = require("honeycomb-beeline")({
 import escapeHtml from "escape-html";
 import fetch from "node-fetch";
 
-import connectToDb from "../src/server/db";
-import { normalizeRow } from "../src/server/util";
+import connectToDb from "../../src/server/db";
+import { normalizeRow } from "../../src/server/util";
 
 async function handle(req, res) {
   // Load index.html as our initial page content. If this fails, it probably

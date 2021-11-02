@@ -10,7 +10,7 @@ const beeline = require("honeycomb-beeline")({
 
 import fetch from "node-fetch";
 
-import connectToDb from "../src/server/db";
+import connectToDb from "../../src/server/db";
 
 async function handle(req, res) {
   const allNcItemNamesAndIdsPromise = loadAllNcItemNamesAndIds();

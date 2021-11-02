@@ -10,13 +10,13 @@ const beeline = require("honeycomb-beeline")({
 const AWS = require("aws-sdk");
 const Jimp = require("jimp");
 
-const connectToDb = require("../src/server/db");
-const buildLoaders = require("../src/server/loaders");
+const connectToDb = require("../../src/server/db");
+const buildLoaders = require("../../src/server/loaders");
 const {
   loadBodyName,
   logToDiscord,
   normalizeRow,
-} = require("../src/server/util");
+} = require("../../src/server/util");
 
 if (
   !process.env["DTI_AWS_ACCESS_KEY_ID"] ||

@@ -9,8 +9,8 @@ const beeline = require("honeycomb-beeline")({
   samplerHook,
 });
 
-const { ApolloServer } = require("../src/server/lib/apollo-server-vercel");
-const { config } = require("../src/server");
+const { ApolloServer } = require("../../src/server/lib/apollo-server-vercel");
+const { config } = require("../../src/server");
 const crypto = require("crypto");
 
 const server = new ApolloServer(config);
