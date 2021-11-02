@@ -1,7 +1,5 @@
 {
   "routes": [
-    { "src": "/outfits/new(\\?|$)", "dest": "/index.html" },
-    { "src": "/outfits/(?<id>[^/]+)", "dest": "/api/outfitPageSSR.js?id=$id" },
     {
       "handle": "filesystem"
     },
