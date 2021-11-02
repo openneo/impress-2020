@@ -1291,23 +1291,45 @@ const buildUserClosetListsLoader = (db, loaders) =>
   });
 
 const buildUserOutfitsLoader = (db, loaders) =>
+  new DataLoader(async (queries) => {
+    // This isn't actually optimized as a batch query, we're just using a
+    // DataLoader API consistency with our other loaders!
+    return queries.map(async ({ userId, limit, offset }) => {
+      const actualLimit = Math.min(limit || 30, 30);
+      const actualOffset = offset || 0;
+
+      const [rows] = await db.execute(
+        `SELECT * FROM outfits
+         WHERE user_id = ?
+         ORDER BY name
+         LIMIT ? OFFSET ?`,
+        [userId, actualLimit, actualOffset]
+      );
+
+      const entities = rows.map(normalizeRow);
+      for (const entity of entities) {
+        loaders.outfitLoader.prime(entity.id, entity);
+      }
+
+      return entities;
+    });
+  });
+
+const buildUserNumTotalOutfitsLoader = (db) =>
   new DataLoader(async (userIds) => {
     const qs = userIds.map((_) => "?").join(",");
     const [rows] = await db.execute(
-      `SELECT * FROM outfits
+      `SELECT user_id, COUNT(*) as num_total_outfits FROM outfits
        WHERE user_id IN (${qs})
-       ORDER BY name`,
+       GROUP BY user_id`,
       userIds
     );
 
     const entities = rows.map(normalizeRow);
-    for (const entity of entities) {
-      loaders.outfitLoader.prime(entity.id, entity);
-    }
 
-    return userIds.map((userId) =>
-      entities.filter((e) => e.userId === String(userId))
-    );
+    return userIds
+      .map((userId) => entities.find((e) => e.userId === String(userId)))
+      .map((e) => (e ? e.numTotalOutfits : 0));
   });
 
 const buildUserLastTradeActivityLoader = (db) =>
@@ -1486,6 +1508,7 @@ function buildLoaders(db) {
   loaders.userByEmailLoader = buildUserByEmailLoader(db);
   loaders.userClosetHangersLoader = buildUserClosetHangersLoader(db);
   loaders.userClosetListsLoader = buildUserClosetListsLoader(db, loaders);
+  loaders.userNumTotalOutfitsLoader = buildUserNumTotalOutfitsLoader(db);
   loaders.userOutfitsLoader = buildUserOutfitsLoader(db, loaders);
   loaders.userLastTradeActivityLoader = buildUserLastTradeActivityLoader(db);
   loaders.zoneLoader = buildZoneLoader(db);

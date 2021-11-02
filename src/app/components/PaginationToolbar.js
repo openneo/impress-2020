@@ -2,26 +2,29 @@ import React from "react";
 import { Box, Button, Flex, Select } from "@chakra-ui/react";
 import { Link, useHistory, useLocation } from "react-router-dom";
 
-const PER_PAGE = 30;
-
-function PaginationToolbar({ isLoading, totalCount, ...props }) {
+function PaginationToolbar({
+  isLoading,
+  totalCount,
+  numPerPage = 30,
+  ...props
+}) {
   const { search } = useLocation();
   const history = useHistory();
 
   const currentOffset =
     parseInt(new URLSearchParams(search).get("offset")) || 0;
 
-  const currentPageIndex = Math.floor(currentOffset / PER_PAGE);
+  const currentPageIndex = Math.floor(currentOffset / numPerPage);
   const currentPageNumber = currentPageIndex + 1;
-  const numTotalPages = totalCount ? Math.ceil(totalCount / PER_PAGE) : null;
+  const numTotalPages = totalCount ? Math.ceil(totalCount / numPerPage) : null;
 
   const prevPageSearchParams = new URLSearchParams(search);
-  const prevPageOffset = currentOffset - PER_PAGE;
+  const prevPageOffset = currentOffset - numPerPage;
   prevPageSearchParams.set("offset", prevPageOffset);
   const prevPageUrl = "?" + prevPageSearchParams.toString();
 
   const nextPageSearchParams = new URLSearchParams(search);
-  const nextPageOffset = currentOffset + PER_PAGE;
+  const nextPageOffset = currentOffset + numPerPage;
   nextPageSearchParams.set("offset", nextPageOffset);
   const nextPageUrl = "?" + nextPageSearchParams.toString();
 
@@ -37,13 +40,13 @@ function PaginationToolbar({ isLoading, totalCount, ...props }) {
   const goToPageNumber = React.useCallback(
     (newPageNumber) => {
       const newPageIndex = newPageNumber - 1;
-      const newPageOffset = newPageIndex * PER_PAGE;
+      const newPageOffset = newPageIndex * numPerPage;
 
       const newPageSearchParams = new URLSearchParams(search);
       newPageSearchParams.set("offset", newPageOffset);
       history.push({ search: newPageSearchParams.toString() });
     },
-    [search, history]
+    [search, history, numPerPage]
   );
 
   return (

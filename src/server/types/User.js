@@ -28,9 +28,16 @@ const typeDefs = gql`
 
     """
     This user's outfits. Returns an empty list if the current user is not
+    authorized to see them. This list is paginated, and will return at most 30
+    at once.
+    """
+    outfits(limit: Int, offset: Int): [Outfit!]!
+
+    """
+    The number of outfits this user has. Returns 0 if the current user is not
     authorized to see them.
     """
-    outfits: [Outfit!]!
+    numTotalOutfits: Int!
 
     "This user's email address. Requires the correct supportSecret to view."
     emailForSupportUsers(supportSecret: String!): String!
@@ -241,13 +248,34 @@ const resolvers = {
       return lastTradeActivity.toISOString();
     },
 
-    outfits: async ({ id }, _, { currentUserId, userOutfitsLoader }) => {
+    outfits: async (
+      { id },
+      { limit = 30, offset = 0 },
+      { currentUserId, userOutfitsLoader }
+    ) => {
       if (currentUserId !== id) {
         return [];
       }
 
-      const outfits = await userOutfitsLoader.load(id);
+      const outfits = await userOutfitsLoader.load({
+        userId: id,
+        limit,
+        offset,
+      });
       return outfits.map((outfit) => ({ id: outfit.id }));
+    },
+
+    numTotalOutfits: async (
+      { id },
+      _,
+      { currentUserId, userNumTotalOutfitsLoader }
+    ) => {
+      if (currentUserId !== id) {
+        return [];
+      }
+
+      const numTotalOutfits = await userNumTotalOutfitsLoader.load(id);
+      return numTotalOutfits;
     },
 
     emailForSupportUsers: async ({ id }, { supportSecret }, { db }) => {

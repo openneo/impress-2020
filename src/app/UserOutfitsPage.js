@@ -3,21 +3,18 @@ import { Box, Center, Flex, Wrap, WrapItem } from "@chakra-ui/react";
 import { ClassNames } from "@emotion/react";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import { Heading1, MajorErrorMessage, useCommonStyles } from "./util";
 import HangerSpinner from "./components/HangerSpinner";
 import OutfitThumbnail from "./components/OutfitThumbnail";
 import useRequireLogin from "./components/useRequireLogin";
-import WIPCallout from "./components/WIPCallout";
+import PaginationToolbar from "./components/PaginationToolbar";
 
 function UserOutfitsPage() {
   return (
     <Box>
-      <Flex justifyContent="space-between" marginBottom="4">
-        <Heading1>Your outfits</Heading1>
-        <WIPCallout details="This list doesn't work well with a lot of outfits yet. We'll paginate it soon! And starred outfits are coming, too!" />
-      </Flex>
+      <Heading1 marginBottom="4">Your outfits</Heading1>
       <UserOutfitsPageContent />
     </Box>
   );
@@ -26,12 +23,16 @@ function UserOutfitsPage() {
 function UserOutfitsPageContent() {
   const { isLoading: userLoading } = useRequireLogin();
 
+  const { search } = useLocation();
+  const offset = parseInt(new URLSearchParams(search).get("offset")) || 0;
+
   const { loading: queryLoading, error, data } = useQuery(
     gql`
-      query UserOutfitsPageContent {
+      query UserOutfitsPageContent($offset: Int!) {
         currentUser {
           id
-          outfits {
+          numTotalOutfits
+          outfits(limit: 20, offset: $offset) {
             id
             name
             updatedAt
@@ -56,39 +57,53 @@ function UserOutfitsPageContent() {
       }
     `,
     {
+      variables: { offset },
       context: { sendAuth: true },
       skip: userLoading,
+      // This will give us the cached numTotalOutfits while we wait for the
+      // next page!
+      returnPartialData: true,
     }
   );
 
-  if (userLoading || queryLoading) {
-    return (
-      <Center>
-        <HangerSpinner />
-      </Center>
-    );
-  }
+  const isLoading = userLoading || queryLoading;
 
   if (error) {
     return <MajorErrorMessage error={error} variant="network" />;
   }
 
-  const outfits = data.currentUser.outfits;
-
-  if (outfits.length === 0) {
-    return (
-      <Box>You don't have any outfits yet. Maybe you can create some!</Box>
-    );
-  }
+  const outfits = data?.currentUser?.outfits || [];
 
   return (
-    <Wrap spacing="4" justify="space-around">
-      {outfits.map((outfit) => (
-        <WrapItem key={outfit.id}>
-          <OutfitCard outfit={outfit} />
-        </WrapItem>
-      ))}
-    </Wrap>
+    <Box>
+      <PaginationToolbar
+        isLoading={isLoading}
+        totalCount={data?.currentUser?.numTotalOutfits}
+        numPerPage={20}
+      />
+      <Box height="6" />
+      {isLoading ? (
+        <Center>
+          <HangerSpinner />
+        </Center>
+      ) : outfits.length === 0 ? (
+        <Box>You don't have any outfits yet. Maybe you can create some!</Box>
+      ) : (
+        <Wrap spacing="4" justify="space-around">
+          {outfits.map((outfit) => (
+            <WrapItem key={outfit.id}>
+              <OutfitCard outfit={outfit} />
+            </WrapItem>
+          ))}
+        </Wrap>
+      )}
+      <Box height="6" />
+      <PaginationToolbar
+        isLoading={isLoading}
+        totalCount={data?.currentUser?.numTotalOutfits}
+        numPerPage={20}
+      />
+    </Box>
   );
 }
 
