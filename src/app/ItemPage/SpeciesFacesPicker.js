@@ -399,7 +399,7 @@ function CrossFadeImage(incomingImageProps) {
                 opacity: 0;
               `}
             >
-              {/* eslint-disable-next-line jsx-a11y/alt-text */}
+              {/* eslint-disable-next-line jsx-a11y/alt-text, @next/next/no-img-element */}
               <img {...prevImageProps} aria-hidden />
             </div>
           )}
@@ -412,7 +412,7 @@ function CrossFadeImage(incomingImageProps) {
                 opacity: 1;
               `}
             >
-              {/* eslint-disable-next-line jsx-a11y/alt-text */}
+              {/* eslint-disable-next-line jsx-a11y/alt-text, @next/next/no-img-element */}
               <img
                 {...currentImageProps}
                 // If the current image _is_ the incoming image, we'll allow
@@ -434,7 +434,7 @@ function CrossFadeImage(incomingImageProps) {
                 opacity: 0;
               `}
             >
-              {/* eslint-disable-next-line jsx-a11y/alt-text */}
+              {/* eslint-disable-next-line jsx-a11y/alt-text, @next/next/no-img-element */}
               <img
                 {...incomingImageProps}
                 aria-hidden

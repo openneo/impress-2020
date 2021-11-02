@@ -225,6 +225,7 @@ function ItemThumbnail({ item, tradeMatchingMode }) {
             position: relative;
           `}
         >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={safeImageUrl(item.thumbnailUrl)}
             alt={`Thumbnail art for ${item.name}`}

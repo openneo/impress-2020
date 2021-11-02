@@ -288,6 +288,7 @@ function AppearanceLayerSupportReviewStep({
         marginTop="2"
       >
         {imageWithAlphaUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={imageWithAlphaUrl}
             width={600}
