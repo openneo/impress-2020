@@ -9,7 +9,7 @@
     }
   ],
   "functions": {
-    "pages/api/assetImage.js": {
+    "api/assetImage.js": {
       "excludeFiles": "node_modules/playwright/**"
     }
   }

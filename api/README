@@ -1,0 +1,12 @@
+This is a hack to work around a limitation deploying to Vercel!
+https://github.com/vercel/vercel/issues/4739#issuecomment-926879578
+
+API endpoints declared in here *won't* work during local development, but *will*
+work when deployed to production.
+
+Putting the endpoint here code-splits it separately from the rest of the app
+bundle, so its large dependencies aren't grouped in with the others, and thereby
+it just barely stays within the dependency bundle size of 50MB.
+
+If we move off Vercel, it'll be a good idea to move these endpoints back into
+the /pages/api folder!
