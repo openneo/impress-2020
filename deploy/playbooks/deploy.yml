@@ -17,7 +17,7 @@
       when: not skip_build
 
     - name: Generate a version name from the current timestamp
-      command: date '+%Y-%m-%dT%H:%M:%S'
+      command: date '+%Y-%m-%d-%s'
       register: new_app_version
 
     - name: Print out the new version name
