@@ -75,6 +75,10 @@
                 args: "start",
                 instances: "max",
                 exec_mode: "cluster",
+                // We add `app` to the end of the filename, to avoid a pm2
+                // bug that changes the filename:
+                // https://github.com/Unitech/pm2/issues/5218#issue-1044210369
+                pid_file: "/home/{{ ansible_user_id }}/impress-2020-app.pid",
               }
             ]
           }
@@ -126,7 +130,7 @@
     - name: Add impress-2020 config file to nginx
       become: yes
       copy:
-        content: >
+        content: |
           server {
             server_name impress-2020-box.openneo.net;
             listen 80;
@@ -153,6 +157,59 @@
       notify:
         - Restart nginx
 
+    - name: Install monit
+      become: yes
+      apt:
+        update_cache: yes
+        name: monit
+
+    - name: Add monit config file for global settings
+      become: yes
+      copy:
+        content: |
+          # TODO: Add email monitoring (requires SMTP config)
+
+          # This lets us call `sudo monit status` from the command line.
+          # Without this, the `monit` command can't find the running service.
+          set pidfile /var/run/monit.pid
+
+          # This enables Monit's HTTP server, but only locally, which is
+          # required for calling `sudo monit status` from the command line.
+          set httpd port 2812 and
+            use address localhost
+            allow localhost
+        dest: /etc/monit/conf-enabled/global-config
+      notify:
+        - Restart monit
+
+    - name: Add monit config to watch our pm2 app
+      become: yes
+      copy:
+        content: |
+          check process impress-2020-as-{{ ansible_user_id }} with pidfile /home/{{ ansible_user_id }}/impress-2020-app-0.pid
+            start program = "/bin/pm2 start impress-2020" as uid "{{ ansible_user_id }}"
+            stop program = "/bin/pm2 stop impress-2020" as uid "{{ ansible_user_id }}"
+            restart program = "/bin/pm2 reload impress-2020" as uid "{{ ansible_user_id }}"
+            if failed port 3000 protocol http then restart
+            if 5 restarts within 5 cycles then alert
+        dest: "/etc/monit/conf-enabled/pm2-as-{{ ansible_user_id }}"
+      notify:
+        - Reload monit
+
+    - name: Add monit config to watch nginx
+      become: yes
+      copy:
+        content: |
+          check process nginx with pidfile /var/run/nginx.pid
+            start program = "/bin/systemctl start nginx"
+            stop program = "/bin/systemctl stop nginx"
+            restart program = "/bin/systemctl restart nginx"
+            if failed host impress-2020-box.openneo.net port 443 type tcpssl protocol http then restart
+            if 5 restarts within 5 cycles then alert
+        dest: "/etc/monit/conf-enabled/nginx"
+      notify:
+        - Reload monit
+
     - name: Install dependencies for the npm module node-canvas
       become: yes
       apt:
@@ -168,6 +225,16 @@
   handlers:
     - name: Restart nginx
       become: yes
-      service:
+      systemd:
         name: nginx
         state: restarted
+    - name: Restart monit
+      become: yes
+      systemd:
+        name: monit
+        state: restarted
+    - name: Reload monit
+      become: yes
+      systemd:
+        name: monit
+        state: reloaded
