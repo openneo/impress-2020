@@ -57,10 +57,10 @@
         cmd: yarn install
 
     - name: Find older versions to clean up
-      # Print out all but the last 5 versions
+      # Print out all but the 5 last-recently-updated versions
       command:
         chdir: /srv/impress-2020/versions
-        cmd: bash -c 'ls | head -n -5'
+        cmd: bash -c 'ls -t | tail -n +6'
       register: versions_to_clean_up
 
     - name: Clean up older versions
