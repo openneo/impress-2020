@@ -48,7 +48,45 @@
         name: yarn
         global: yes
 
-    - name: Install node-canvas dependencies
+    - name: Install pm2
+      become: yes
+      npm:
+        name: pm2
+        global: yes
+
+    - name: Create pm2 startup script
+      # The current user is going to become the pm2 owner of the app server
+      # process. They'll be able to manage it without `sudo`, including during
+      # normal deploys, and run `pm2 monit` from their shell to see status.
+      become: yes
+      command: "pm2 startup systemd {{ ansible_user_id }} --hp /home/{{ ansible_user_id }}"
+
+    - name: Create pm2 ecosystem file
+      copy:
+        content: >
+          module.exports = {
+            apps: [
+              {
+                name: "impress-2020",
+                cwd: "/srv/impress-2020/current",
+                script: "yarn",
+                args: "start",
+                instances: "max",
+                exec_mode: "cluster",
+              }
+            ]
+          }
+        dest: "/srv/impress-2020/ecosystem.config.js"
+
+    - name: Start pm2 ecosystem (even if the app isn't ready yet)
+      command:
+        chdir: "/srv/impress-2020"
+        cmd: "pm2 start ecosystem.config.js"
+
+    - name: Save pm2 startup script
+      command: pm2 save
+
+    - name: Install dependencies for the npm module node-canvas
       become: yes
       apt:
         update_cache: yes

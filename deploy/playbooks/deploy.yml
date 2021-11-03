@@ -63,6 +63,9 @@
         dest: /srv/impress-2020/current
         state: link
 
+    - name: Reload the app in pm2
+      command: pm2 reload impress-2020
+
     - name: Find older versions to clean up
       # Print out all but the 5 last-recently-updated versions
       command:
