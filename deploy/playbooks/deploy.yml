@@ -4,6 +4,7 @@
   vars:
     skip_build: no # Can override this by running `yarn deploy-skip-build`
     local_app_root: "{{ playbook_dir  }}/../.."
+    remote_versions_root: "/srv/impress-2020/versions"
   tasks:
     # For our deployment, our server resources are more constrained than our
     # dev machine, and builds are an expensive uncommon RAM & CPU spike. Let's
@@ -26,7 +27,7 @@
 
     - name: Save new remote folder path to a variable
       set_fact:
-        remote_app_root: "/srv/impress-2020/versions/{{ new_app_version.stdout }}"
+        remote_app_root: "{{ remote_versions_root }}/{{ new_app_version.stdout }}"
 
     - name: Create new remote folder for the new version
       file:
@@ -59,12 +60,12 @@
     - name: Find older versions to clean up
       # Print out all but the 5 last-recently-updated versions
       command:
-        chdir: /srv/impress-2020/versions
+        chdir: "{{ remote_versions_root }}"
         cmd: bash -c 'ls -t | tail -n +6'
       register: versions_to_clean_up
 
     - name: Clean up older versions
       file:
-        path: "/srv/impress-2020/versions/{{ item }}"
+        path: "{{ remote_versions_root }}/{{ item }}"
         state: absent
       with_items: "{{ versions_to_clean_up.stdout_lines }}"
