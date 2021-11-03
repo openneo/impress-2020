@@ -16,9 +16,13 @@
         cmd: yarn build
       when: not skip_build
 
-    - name: Generate a version number from the current timestamp
+    - name: Generate a version name from the current timestamp
       command: date '+%Y-%m-%dT%H:%M:%S'
       register: new_app_version
+
+    - name: Print out the new version name
+      debug:
+        msg: "Deploying new version: {{ new_app_version.stdout }}"
 
     - name: Save new remote folder path to a variable
       set_fact:
@@ -51,3 +55,16 @@
       command:
         chdir: "{{ remote_app_root }}"
         cmd: yarn install
+
+    - name: Find older versions to clean up
+      # Print out all but the last 5 versions
+      command:
+        chdir: /srv/impress-2020/versions
+        cmd: bash -c 'ls | head -n -5'
+      register: versions_to_clean_up
+
+    - name: Clean up older versions
+      file:
+        path: "/srv/impress-2020/versions/{{ item }}"
+        state: absent
+      with_items: "{{ versions_to_clean_up.stdout_lines }}"
