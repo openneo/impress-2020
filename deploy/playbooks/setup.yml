@@ -4,27 +4,11 @@
   vars:
     email_address: "emi@matchu.dev" # TODO: Extract this to personal config?
   tasks:
-    - name: Create web user group
-      become: yes
-      group:
-        name: web
-
-    - name: Add current user to web group
-      become: yes
-      user:
-        name: "{{ ansible_user_id }}"
-        group: web
-        append: yes
-
     - name: Create the app folder
       become: yes
       file:
         path: /srv/impress-2020
-        state: directory
-        # Root and the `web` group may read/write this folder. Everyone else
-        # may only read it.
-        group: web
-        mode: "u=rwx,g=rwx,o=rx"
+        owner: "{{ ansible_user_id }}"
 
     - name: Add Nodesource apt key
       become: yes
