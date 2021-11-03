@@ -1,6 +1,8 @@
 ---
 - name: Set up the environment for the impress-2020 app
   hosts: webserver
+  vars:
+    email_address: "emi@matchu.dev" # TODO: Extract this to personal config?
   tasks:
     - name: Create web user group
       become: yes
@@ -86,6 +88,21 @@
     - name: Save pm2 startup script
       command: pm2 save
 
+    - name: Install core snap
+      become: yes
+      community.general.snap:
+        name: core
+
+    - name: Install certbot as a snap
+      become: yes
+      community.general.snap:
+        name: certbot
+        classic: yes
+
+    - name: Set up certbot
+      become: yes
+      command: "certbot certonly --nginx -n --agree-tos --email {{ email_address }} --domains impress-2020-box.openneo.net"
+
     - name: Install nginx
       become: yes
       apt:
@@ -97,8 +114,22 @@
       copy:
         content: >
           server {
-            listen 80;
             server_name impress-2020-box.openneo.net;
+            listen 80;
+            if ($host = impress-2020-box.openneo.net) {
+              return 301 https://$host$request_uri;
+            }
+          }
+
+          server {
+            server_name impress-2020-box.openneo.net;
+            listen 443 ssl;
+            ssl_certificate /etc/letsencrypt/live/impress-2020-box.openneo.net/fullchain.pem;
+            ssl_certificate_key /etc/letsencrypt/live/impress-2020-box.openneo.net/privkey.pem;
+            include /etc/letsencrypt/options-ssl-nginx.conf;
+            ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+            ssl_session_cache shared:SSL:10m; # https://superuser.com/q/1484466/14127
+
             # TODO: Serve static files directly, instead of through the proxy
             location / {
               proxy_pass http://127.0.0.1:3000;
