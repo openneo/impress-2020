@@ -36,21 +36,21 @@
 
     - name: Copy local app's source files to new remote folder
       ansible.posix.synchronize:
-        src: "{{ local_app_root }}"
+        src: "{{ local_app_root }}/"
         dest: "{{ remote_app_root }}"
         rsync_opts:
           - "--exclude=.git"
           - "--filter=':- .gitignore'"
 
-    - name: Copy local app's build files to new remote folder
+    - name: Copy local app's .next build files to new remote folder
       ansible.posix.synchronize:
-        src: "{{ local_app_root }}/build"
-        dest: "{{ remote_app_root }}/build"
+        src: "{{ local_app_root }}/.next/"
+        dest: "{{ remote_app_root }}/.next"
 
     - name: Copy local app's .env secrets file to new remote folder
-      copy:
+      ansible.posix.synchronize:
         src: "{{ local_app_root }}/.env"
-        dest: "{{ remote_app_root }}"
+        dest: "{{ remote_app_root }}/.env"
 
     - name: Run `yarn install` to install dependencies remotely
       command:
