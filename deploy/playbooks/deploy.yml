@@ -56,7 +56,7 @@
       # First, compare the files. Then, ensure that node_modules is in a good
       # state and will be linkable. If this succeeds, we can do the link cheat!
       # If this fails, keep going, and run `yarn install` instead.
-      command: >
+      command: |
         bash -c "
           cmp '{{ remote_app_root }}/yarn.lock' '/srv/impress-2020/current/yarn.lock' &&
           realpath /srv/impress-2020/current/node_modules"
@@ -69,7 +69,7 @@
       # change after the fact, and 2) the app doesn't mutate node_modules while
       # running. So, these two copies of node_modules *should* just stay
       # permanently the way they are forever, so linking shoouulld be safe 🤞
-      command: >
+      command: |
         bash -c "
           ln -s $(realpath /srv/impress-2020/current/node_modules)
           {{ remote_app_root }}/node_modules"
