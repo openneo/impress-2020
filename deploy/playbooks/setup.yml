@@ -86,6 +86,28 @@
     - name: Save pm2 startup script
       command: pm2 save
 
+    - name: Install nginx
+      become: yes
+      apt:
+        update_cache: yes
+        name: nginx
+
+    - name: Add impress-2020 config file to nginx
+      become: yes
+      copy:
+        content: >
+          server {
+            listen 80;
+            server_name impress-2020-box.openneo.net;
+            # TODO: Serve static files directly, instead of through the proxy
+            location / {
+              proxy_pass http://127.0.0.1:3000;
+            }
+          }
+        dest: /etc/nginx/sites-enabled/impress-2020
+      notify:
+        - Restart nginx
+
     - name: Install dependencies for the npm module node-canvas
       become: yes
       apt:
@@ -97,3 +119,10 @@
           - libjpeg-dev
           - libgif-dev
           - librsvg2-dev
+
+  handlers:
+    - name: Restart nginx
+      become: yes
+      service:
+        name: nginx
+        state: restarted
