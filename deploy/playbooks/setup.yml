@@ -65,7 +65,7 @@
 
     - name: Create pm2 ecosystem file
       copy:
-        content: >
+        content: |
           module.exports = {
             apps: [
               {
@@ -78,12 +78,26 @@
               }
             ]
           }
-        dest: "/srv/impress-2020/ecosystem.config.js"
+        dest: "~/ecosystem.config.js"
+        # Create a temporary backup file, so we can use it to delete the old
+        # version of the services. (This is important if e.g. a service is
+        # removed or renamed, in which case deleting from the *new* config file
+        # wouldn't include it.)
+        backup: yes
+      register: pm2_ecosystem_file
 
-    - name: Start pm2 ecosystem (even if the app isn't ready yet)
-      command:
-        chdir: "/srv/impress-2020"
-        cmd: "pm2 start ecosystem.config.js"
+    - name: Delete old pm2 services if config file changed
+      command: "pm2 delete {{ pm2_ecosystem_file.backup_file | quote }}"
+      when: pm2_ecosystem_file is changed and pm2_ecosystem_file.backup_file is defined
+
+    - name: Delete old pm2 config file if it changed
+      file:
+        path: "{{ pm2_ecosystem_file.backup_file }}"
+        state: absent
+      when: pm2_ecosystem_file is changed and pm2_ecosystem_file.backup_file is defined
+
+    - name: Start pm2 services
+      command: "pm2 start ~/ecosystem.config.js"
 
     - name: Save pm2 startup script
       command: pm2 save
