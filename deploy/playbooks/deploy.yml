@@ -52,10 +52,34 @@
         src: "{{ local_app_root }}/.env"
         dest: "{{ remote_app_root }}/.env"
 
-    - name: Run `yarn install` to install dependencies remotely
+    - name: Check whether yarn.lock is the same as the current deployed version
+      # First, compare the files. Then, ensure that node_modules is in a good
+      # state and will be linkable. If this succeeds, we can do the link cheat!
+      # If this fails, keep going, and run `yarn install` instead.
+      command: >
+        bash -c "
+          cmp '{{ remote_app_root }}/yarn.lock' '/srv/impress-2020/current/yarn.lock' &&
+          realpath /srv/impress-2020/current/node_modules"
+      failed_when: no
+      register: can_reuse_node_modules_when_successful
+
+    - name: Link node_modules to current deployed version, if they match
+      # Linking is a pretty wild cheat to make this much faster than copying!
+      # We're counting on the assumptions that 1) versions' dependencies don't
+      # change after the fact, and 2) the app doesn't mutate node_modules while
+      # running. So, these two copies of node_modules *should* just stay
+      # permanently the way they are forever, so linking shoouulld be safe 🤞
+      command: >
+        bash -c "
+          ln -s $(realpath /srv/impress-2020/current/node_modules)
+          {{ remote_app_root }}/node_modules"
+      when: "can_reuse_node_modules_when_successful.rc == 0"
+
+    - name: Run `yarn install` to install dependencies in new remote folder
       command:
         chdir: "{{ remote_app_root }}"
         cmd: yarn install
+      when: "can_reuse_node_modules_when_successful.rc > 0"
 
     - name: Update the `current` folder to point to the new version
       file:
