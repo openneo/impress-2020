@@ -6,12 +6,14 @@
       become: yes
       group:
         name: web
+
     - name: Add current user to web group
       become: yes
       user:
         name: "{{ ansible_user_id }}"
         group: web
         append: yes
+
     - name: Create the app folder
       become: yes
       file:
@@ -21,26 +23,31 @@
         # may only read it.
         group: web
         mode: "u=rwx,g=rwx,o=rx"
+
     - name: Add Nodesource apt key
       become: yes
       apt_key:
         id: 9FD3B784BC1C6FC31A8A0A1C1655A0AB68576280
         url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+
     - name: Add Node v16 apt repository
       become: yes
       apt_repository:
         repo: deb https://deb.nodesource.com/node_16.x focal main
+
     - name: Install Node v16
       become: yes
       apt:
         update_cache: yes
         name: nodejs
         state: present
+
     - name: Install Yarn
       become: yes
       npm:
         name: yarn
         global: yes
+
     - name: Install node-canvas dependencies
       become: yes
       apt:

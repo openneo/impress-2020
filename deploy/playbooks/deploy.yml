@@ -1,23 +1,53 @@
 ---
-- name: Deploy impress-2020 from `main` on GitHub
+- name: Deploy impress-2020 from the current local version
   hosts: webserver
+  vars:
+    skip_build: no # Can override this by running `yarn deploy-skip-build`
+    local_app_root: "{{ playbook_dir  }}/../.."
   tasks:
-    - name: Pull impress-2020 from `main` on GitHub
-      git:
-        repo: https://github.com/matchu/impress-2020.git
-        dest: /srv/impress-2020/latest-version
-        version: main
-    - name: Install dependencies with yarn
+    # For our deployment, our server resources are more constrained than our
+    # dev machine, and builds are an expensive uncommon RAM & CPU spike. Let's
+    # use our local machine for it! (I found that, running remotely, 2GB RAM
+    # was not enough to build impress-2020 😅)
+    - name: Run `yarn build` locally to build the current version
+      delegate_to: localhost
       command:
-        chdir: /srv/impress-2020/latest-version
-        cmd: yarn install
-      register: result
-      changed_when: '"Already up-to-date." not in result.stdout'
-    - name: Copy our local .env secrets file to the server
-      copy:
-        src: ../../.env
-        dest: /srv/impress-2020/latest-version
-    - name: Run `yarn build` to build the production app
-      command:
-        chdir: /srv/impress-2020/latest-version
+        chdir: "{{ local_app_root }}"
         cmd: yarn build
+      when: not skip_build
+
+    - name: Generate a version number from the current timestamp
+      command: date '+%Y-%m-%dT%H:%M:%S'
+      register: new_app_version
+
+    - name: Save new remote folder path to a variable
+      set_fact:
+        remote_app_root: "/srv/impress-2020/versions/{{ new_app_version.stdout }}"
+
+    - name: Create new remote folder for the new version
+      file:
+        path: "{{ remote_app_root }}"
+        state: directory
+
+    - name: Copy local app's source files to new remote folder
+      ansible.posix.synchronize:
+        src: "{{ local_app_root }}"
+        dest: "{{ remote_app_root }}"
+        rsync_opts:
+          - "--exclude=.git"
+          - "--filter=':- .gitignore'"
+
+    - name: Copy local app's build files to new remote folder
+      ansible.posix.synchronize:
+        src: "{{ local_app_root }}/build"
+        dest: "{{ remote_app_root }}/build"
+
+    - name: Copy local app's .env secrets file to new remote folder
+      copy:
+        src: "{{ local_app_root }}/.env"
+        dest: "{{ remote_app_root }}"
+
+    - name: Run `yarn install` to install dependencies remotely
+      command:
+        chdir: "{{ remote_app_root }}"
+        cmd: yarn install

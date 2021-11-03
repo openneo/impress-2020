@@ -68,6 +68,7 @@
     "lint": "next lint --dir src --dir pages",
     "deploy-setup": "echo $'Setup requires you to become the root user. You\\'ll need to enter the password for your account on the remote web server below, and you must be part of the `sudoers` user group.' && ansible-playbook -K -i deploy/inventory.cfg deploy/playbooks/setup.yml",
     "deploy": "ansible-playbook -i deploy/inventory.cfg deploy/playbooks/deploy.yml",
+    "deploy-skip-build": "ansible-playbook -i deploy/inventory.cfg deploy/playbooks/deploy.yml --extra-vars='{\"skip_build\": true}'",
     "cypress": "cypress open",
     "mysql": "mysql --host=impress.openneo.net --user=$(dotenv -p IMPRESS_MYSQL_USER) --password=$(dotenv -p IMPRESS_MYSQL_PASSWORD) --database=openneo_impress",
     "mysql-dev": "mysql --host=localhost --user=impress_2020_dev --password=impress_2020_dev --database=impress_2020_dev",
