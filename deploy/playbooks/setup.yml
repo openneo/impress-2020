@@ -71,8 +71,11 @@
               {
                 name: "impress-2020",
                 cwd: "/srv/impress-2020/current",
-                script: "yarn",
-                args: "start",
+                // Instead of `yarn start`, we specify the `next` binary
+                // directly, because it helps pm2 monitor our app correctly.
+                // https://github.com/vercel/next.js/discussions/10675#discussioncomment-34615
+                script: "./node_modules/.bin/next",
+                args: "start --port=3000",
                 instances: "max",
                 exec_mode: "cluster",
                 // We add `app` to the end of the filename, to avoid a pm2

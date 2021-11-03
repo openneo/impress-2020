@@ -60,7 +60,7 @@
   },
   "scripts": {
     "prepare": "husky install",
-    "start": "TS_NODE_COMPILER=typescript-cached-transpile next start",
+    "start": "next start",
     "dev": "yarn build-cached-data && REACT_APP_IMPRESS_LOG_IN_AS=$IMPRESS_LOG_IN_AS TS_NODE_COMPILER=typescript-cached-transpile next dev",
     "build": "yarn build-cached-data && next build",
     "vercel-build": "yum install libuuid-devel libmount-devel && cp /lib64/{libuuid,libmount,libblkid}.so.1 node_modules/canvas/build/Release/",
