@@ -57,6 +57,12 @@
         chdir: "{{ remote_app_root }}"
         cmd: yarn install
 
+    - name: Update the `current` folder to point to the new version
+      file:
+        src: "{{ remote_app_root }}"
+        dest: /srv/impress-2020/current
+        state: link
+
     - name: Find older versions to clean up
       # Print out all but the 5 last-recently-updated versions
       command:
