@@ -59,7 +59,7 @@
       command: |
         bash -c "
           cmp '{{ remote_app_root }}/yarn.lock' '/srv/impress-2020/current/yarn.lock' &&
-          test -e /srv/impress-2020/current/node_modules"
+            test -e /srv/impress-2020/current/node_modules"
       failed_when: no
       register: can_reuse_node_modules_when_successful
 
@@ -70,9 +70,7 @@
       # running. So, these two copies of node_modules *should* just stay
       # permanently the way they are forever, so linking shoouulld be safe 🤞
       command: |
-        bash -c "
-          ln -s $(realpath /srv/impress-2020/current/node_modules)
-          {{ remote_app_root }}/node_modules"
+        bash -c "ln -s $(realpath /srv/impress-2020/current/node_modules) {{ remote_app_root }}/node_modules"
       when: "can_reuse_node_modules_when_successful.rc == 0"
 
     - name: Run `yarn install` to install dependencies in new remote folder
