@@ -66,7 +66,7 @@
     "vercel-build": "yum install libuuid-devel libmount-devel && cp /lib64/{libuuid,libmount,libblkid}.so.1 node_modules/canvas/build/Release/",
     "test": "jest test --env=jsdom",
     "lint": "next lint --dir src --dir pages",
-    "deploy-setup": "echo $'Setup requires you to become the root user. You\\'ll need to enter the password for your account on the remote web server below, and you must be part of the `sudoers` user group.' && ansible-playbook -K -i deploy/inventory.cfg deploy/playbooks/setup.yml",
+    "deploy-setup": "echo $'Setup requires you to become the root user. You\\'ll need to enter the password for your account on the remote web server below, and you must be part of the `sudo` user group.' && ansible-playbook -K -i deploy/inventory.cfg deploy/playbooks/setup.yml",
     "deploy": "ansible-playbook -i deploy/inventory.cfg deploy/playbooks/deploy.yml",
     "deploy-skip-build": "ansible-playbook -i deploy/inventory.cfg deploy/playbooks/deploy.yml --extra-vars='{\"skip_build\": true}'",
     "cypress": "cypress open",

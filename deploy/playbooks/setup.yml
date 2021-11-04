@@ -4,11 +4,33 @@
   vars:
     email_address: "emi@matchu.dev" # TODO: Extract this to personal config?
   tasks:
-    - name: Create the app folder
+    - name: Disable root SSH login
+      become: yes
+      lineinfile:
+        dest: /etc/ssh/sshd_config
+        regexp: ^#?PermitRootLogin
+        line: PermitRootLogin no
+
+    - name: Disable password-based SSH authentication
+      become: yes
+      lineinfile:
+        dest: /etc/ssh/sshd_config
+        regexp: ^#?PasswordAuthentication
+        line: PasswordAuthentication no
+
+    - name: Install fail2ban firewall with default settings
+      become: yes
+      apt:
+        update_cache: yes
+        name: fail2ban
+
+    - name: Create the app versions folder
       become: yes
       file:
-        path: /srv/impress-2020
+        path: /srv/impress-2020/versions
         owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_id }}"
+        state: directory
 
     - name: Add Nodesource apt key
       become: yes
@@ -26,13 +48,44 @@
       apt:
         update_cache: yes
         name: nodejs
-        state: present
 
     - name: Install Yarn
       become: yes
       npm:
         name: yarn
         global: yes
+
+    - name: Check for a current app version
+      stat:
+        path: /srv/impress-2020/current
+      register: current_app_version
+
+    - name: Check whether we already have a placeholder app
+      stat:
+        path: /srv/impress-2020/versions/initial-placeholder
+      register: existing_placeholder_app
+      when: not current_app_version.stat.exists
+
+    - name: Create a placeholder app, to run until we deploy a real version
+      command:
+        chdir: /srv/impress-2020/versions
+        cmd: yarn create next-app initial-placeholder
+      when: |
+        not current_app_version.stat.exists and
+          not existing_placeholder_app.stat.exists
+
+    - name: Build the placeholder app
+      command:
+        chdir: /srv/impress-2020/versions/initial-placeholder
+        cmd: yarn build
+      when: not current_app_version.stat.exists
+
+    - name: Set the placeholder app as the current version
+      file:
+        src: /srv/impress-2020/versions/initial-placeholder
+        dest: /srv/impress-2020/current
+        state: link
+      when: not current_app_version.stat.exists
 
     - name: Install pm2
       become: yes
@@ -89,6 +142,12 @@
     - name: Save pm2 startup script
       command: pm2 save
 
+    - name: Install nginx
+      become: yes
+      apt:
+        update_cache: yes
+        name: nginx
+
     - name: Install core snap
       become: yes
       community.general.snap:
@@ -103,12 +162,6 @@
     - name: Set up certbot
       become: yes
       command: "certbot certonly --nginx -n --agree-tos --email {{ email_address }} --domains impress-2020-box.openneo.net"
-
-    - name: Install nginx
-      become: yes
-      apt:
-        update_cache: yes
-        name: nginx
 
     - name: Add impress-2020 config file to nginx
       become: yes
