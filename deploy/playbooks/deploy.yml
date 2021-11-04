@@ -59,7 +59,7 @@
       command: |
         bash -c "
           cmp '{{ remote_app_root }}/yarn.lock' '/srv/impress-2020/current/yarn.lock' &&
-          realpath /srv/impress-2020/current/node_modules"
+          test -e /srv/impress-2020/current/node_modules"
       failed_when: no
       register: can_reuse_node_modules_when_successful
 
