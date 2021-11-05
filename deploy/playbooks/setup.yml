@@ -24,6 +24,30 @@
         update_cache: yes
         name: fail2ban
 
+    - name: Configure ufw firewall to allow SSH connections on port 22
+      become: yes
+      community.general.ufw:
+        rule: allow
+        port: "22"
+
+    - name: Configure ufw firewall to allow HTTP connections on port 80
+      become: yes
+      community.general.ufw:
+        rule: allow
+        port: "80"
+
+    - name: Configure ufw firewall to allow HTTP connections on port 443
+      become: yes
+      community.general.ufw:
+        rule: allow
+        port: "443"
+
+    - name: Enable ufw firewall with all other ports closed by default
+      become: yes
+      community.general.ufw:
+        state: enabled
+        policy: deny
+
     - name: Create the app versions folder
       become: yes
       file:
