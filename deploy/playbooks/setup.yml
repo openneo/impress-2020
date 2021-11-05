@@ -48,6 +48,39 @@
         state: enabled
         policy: deny
 
+    - name: Install unattended-upgrades
+      become: yes
+      apt:
+        update_cache: yes
+        name: unattended-upgrades
+
+    - name: Enable unattended-upgrades to auto-upgrade our system
+      become: yes
+      copy:
+        content: |
+          APT::Periodic::Update-Package-Lists "1";
+          APT::Periodic::Unattended-Upgrade "1";
+        dest: /etc/apt/apt.conf.d/20auto-upgrades
+
+    - name: Configure unattended-upgrades to auto-reboot our server when necessary
+      become: yes
+      lineinfile:
+        regex: ^(//\s*)?Unattended-Upgrade::Automatic-Reboot ".*";$
+        line: Unattended-Upgrade::Automatic-Reboot "true";
+        dest: /etc/apt/apt.conf.d/50unattended-upgrades
+
+    - name: Configure unattended-upgrades to delay necessary reboots to 3am
+      become: yes
+      lineinfile:
+        regex: ^(//\s*)?Unattended-Upgrade::Automatic-Reboot-Time ".*";$
+        line: Unattended-Upgrade::Automatic-Reboot-Time "03:00";
+        dest: /etc/apt/apt.conf.d/50unattended-upgrades
+
+    - name: Configure the system timezone to be US Pacific time
+      become: yes
+      community.general.timezone:
+        name: America/Los_Angeles
+
     - name: Create the app versions folder
       become: yes
       file:
