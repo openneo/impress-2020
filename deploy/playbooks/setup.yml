@@ -160,7 +160,7 @@
       # process. They'll be able to manage it without `sudo`, including during
       # normal deploys, and run `pm2 monit` from their shell to see status.
       become: yes
-      command: "pm2 startup systemd {{ ansible_user_id }} --hp /home/{{ ansible_user_id }}"
+      command: "pm2 startup systemd -u {{ ansible_user_id }} --hp /home/{{ ansible_user_id }}"
 
     - name: Create pm2 ecosystem file
       copy:
