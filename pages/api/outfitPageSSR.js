@@ -132,7 +132,7 @@ async function loadIndexPageHtml() {
 }
 
 function reject(res, message, status = 400) {
-  res.setHeader("Content-Type", "text/plain");
+  res.setHeader("Content-Type", "text/plain; charset=utf8");
   return res.status(status).send(message);
 }
 

@@ -20,7 +20,7 @@ async function handle(req, res) {
     itemValuesByIdOrName = await loadWakaValuesByIdOrName();
   } catch (e) {
     console.error(e);
-    res.setHeader("Content-Type", "text/plain");
+    res.setHeader("Content-Type", "text/plain; charset=utf8");
     res.status(500).send("Error loading Waka data from Google Sheets API");
     return;
   }
