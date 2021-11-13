@@ -25,52 +25,34 @@ const beeline = require("honeycomb-beeline")({
 const puppeteer = require("puppeteer");
 const genericPool = require("generic-pool");
 
+console.info(`Creating new browser instance`);
+const browserPromise = puppeteer.launch({ headless: true });
+
 // We maintain a small pool of browser pages, to manage memory usage. If all
 // the pages are already in use, a request will wait for one of them to become
 // available.
 //
-// NOTE: I picked 4 because that seemed to be a good number for avoiding maxing
-//       out our CPU. I also noticed that maxing CPU seemed to be a weird
-//       threshold where Chromium processes started behaving poorly after? I'm
-//       not sure I'm diagnosing that correctly though, and I'm worried about
-//       the sysadmin implications of not having that locked down, y'know?
-function createPagePool() {
-  console.info(`Creating new browser instance`);
-  const browserPromise = puppeteer.launch({ headless: true });
+// NOTE: 4 pages is about where our 1-cpu prod environment maxes out. We might
+//       want to upgrade to the 2-cpu box as we add more pressure though, and
+//       then maybe we can afford more pages in the pool?
 
-  const pagePool = genericPool.createPool(
-    {
-      create: async () => {
-        console.debug(`Creating a browser page`);
-        const browser = await browserPromise;
-        return await browser.newPage();
-      },
-      destroy: (page) => {
-        console.debug(`Closing a browser page`);
-        page.close();
-      },
-      validate: (page) => page.browser().isConnected(),
+const PAGE_POOL = genericPool.createPool(
+  {
+    create: async () => {
+      console.debug(`Creating a browser page`);
+      const browser = await browserPromise;
+      return await browser.newPage();
     },
-    { min: 4, max: 4, testOnBorrow: true, acquireTimeoutMillis: 15000 }
-  );
-  pagePool.on("factoryCreateError", (error) => console.error(error));
-  pagePool.on("factoryDestroyError", (error) => console.error(error));
-  pagePool.browserPromise = browserPromise; // we use this during reset
-
-  // If the browser terminates unexpectedly, and this is still the current
-  // page pool, I guess something went wrong! Reset!
-  browserPromise.then((browser) =>
-    browser.on("disconnected", () => {
-      if (PAGE_POOL === pagePool) {
-        resetPagePool();
-      }
-    })
-  );
-
-  return pagePool;
-}
-
-let PAGE_POOL = createPagePool(); // TODO: simplify..
+    destroy: (page) => {
+      console.debug(`Closing a browser page`);
+      page.close();
+    },
+    validate: (page) => page.browser().isConnected(),
+  },
+  { min: 4, max: 4, testOnBorrow: true, acquireTimeoutMillis: 15000 }
+);
+PAGE_POOL.on("factoryCreateError", (error) => console.error(error));
+PAGE_POOL.on("factoryDestroyError", (error) => console.error(error));
 
 async function handle(req, res) {
   const { libraryUrl, size } = req.query;
@@ -124,8 +106,7 @@ async function loadAndScreenshotImage(libraryUrl, size) {
   }).toString();
 
   console.debug("Getting browser page");
-  const currentPagePool = PAGE_POOL;
-  const page = await currentPagePool.acquire();
+  const page = await PAGE_POOL.acquire();
 
   try {
     console.debug("Page ready, navigating to: " + assetImagePageUrl.toString());
@@ -163,7 +144,9 @@ async function loadAndScreenshotImage(libraryUrl, size) {
       );
     }
   } finally {
-    currentPagePool.release(page);
+    // To avoid memory leaks, we destroy the page when we're done with it.
+    // The pool will replace it with a fresh one!
+    PAGE_POOL.destroy(page);
   }
 }
 
