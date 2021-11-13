@@ -22,6 +22,8 @@ const beeline = require("honeycomb-beeline")({
   disableInstrumentationOnLoad: true,
 });
 
+const playwright = require("playwright");
+
 // To render the image, we load the /internal/assetImage page in the web app,
 // a simple page specifically designed for this API endpoint!
 const ASSET_IMAGE_PAGE_BASE_URL = process.env.VERCEL_URL
@@ -30,25 +32,21 @@ const ASSET_IMAGE_PAGE_BASE_URL = process.env.VERCEL_URL
   ? "http://localhost:3000/internal/assetImage"
   : "https://impress-2020.openneo.net/internal/assetImage";
 
-// TODO: We used to share a browser instamce, but we couldn't get it to reload
-//       correctly after accidental closes, so we're just gonna always load a
-//       new one now. What are the perf implications of this? Does it slow down
-//       response time substantially?
-async function getBrowser() {
-  if (process.env["NODE_ENV"] === "production") {
-    // In production, we use a special chrome-aws-lambda Chromium.
-    const chromium = require("chrome-aws-lambda");
-    const playwright = require("playwright-core");
-    return await playwright.chromium.launch({
-      args: chromium.args,
-      executablePath: await chromium.executablePath,
-      headless: true,
-    });
-  } else {
-    // In development, we use the standard playwright Chromium.
-    const playwright = require("playwright");
-    return await playwright.chromium.launch({ headless: true });
+// We share one browser instance, but create a new independent "context" for
+// each request, as a security hedge. (The intent is for the user to request
+// very little from the browser, so it shouldn't matter, but it's just an extra
+// layer to reduce the risk of what an attack could do!)
+//
+// TODO: We're probably going to need to limit the number of concurrent browser
+//       sessions here, right? I don't actually know how the Next.js server
+//       handles concurrency though, let's pressure-test and find out before
+//       building a solution.
+let SHARED_BROWSER = null;
+async function getBrowserContext() {
+  if (SHARED_BROWSER == null) {
+    SHARED_BROWSER = await playwright.chromium.launch({ headless: true });
   }
+  return await SHARED_BROWSER.newContext();
 }
 
 async function handle(req, res) {
@@ -93,8 +91,8 @@ async function loadAndScreenshotImage(libraryUrl, size) {
   }).toString();
 
   console.debug("Opening browser page");
-  const browser = await getBrowser();
-  const page = await browser.newPage();
+  const context = await getBrowserContext();
+  const page = await context.newPage();
   console.debug("Page opened, navigating to: " + assetImagePageUrl.toString());
 
   try {
@@ -130,7 +128,7 @@ async function loadAndScreenshotImage(libraryUrl, size) {
       console.warn("Error closing page after image finished", e);
     }
     try {
-      await browser.close();
+      await context.close();
     } catch (e) {
       console.warn("Error closing browser after image finished", e);
     }
