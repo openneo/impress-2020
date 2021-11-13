@@ -22,7 +22,7 @@ const beeline = require("honeycomb-beeline")({
   disableInstrumentationOnLoad: true,
 });
 
-const playwright = require("playwright");
+const puppeteer = require("puppeteer");
 const genericPool = require("generic-pool");
 
 // We maintain a small pool of browser pages, to manage memory usage. If all
@@ -36,7 +36,7 @@ const genericPool = require("generic-pool");
 //       the sysadmin implications of not having that locked down, y'know?
 function createPagePool() {
   console.info(`Creating new browser instance`);
-  const browserPromise = playwright.chromium.launch({ headless: true });
+  const browserPromise = puppeteer.launch({ headless: true });
 
   const pagePool = genericPool.createPool(
     {
@@ -49,7 +49,7 @@ function createPagePool() {
         console.debug(`Closing a browser page`);
         page.close();
       },
-      validate: (page) => page.context().browser().isConnected(),
+      validate: (page) => page.browser().isConnected(),
     },
     { min: 4, max: 4, testOnBorrow: true, acquireTimeoutMillis: 15000 }
   );
@@ -70,31 +70,7 @@ function createPagePool() {
   return pagePool;
 }
 
-let PAGE_POOL = createPagePool();
-
-// Every minute, we stop the current browser instance, to clear memory leaks.
-// (I don't think this endpoint leaks pages, though maybe it does? But I
-// definitely saw weird trailing memory and CPU usage after lots of requests...)
-async function resetPagePool() {
-  console.info(`Resetting page pool`);
-  const prevPagePool = PAGE_POOL;
-  if (prevPagePool) {
-    // First, wait for the previous pages to finish. This is called
-    // "draining" the pool: waiting for it to empty. Cute!
-    console.debug(`Draining previous page pool`);
-    prevPagePool.drain().then(async () => {
-      // Then, terminate the browser instance.
-      console.debug(`Previous page pool drained, closing browser`);
-      const browser = await prevPagePool.browserPromise;
-      await browser.close();
-      console.info(`Previous browser closed`);
-    });
-  }
-
-  const newPagePool = createPagePool();
-  PAGE_POOL = newPagePool;
-}
-setInterval(resetPagePool, 60000);
+let PAGE_POOL = createPagePool(); // TODO: simplify..
 
 async function handle(req, res) {
   const { libraryUrl, size } = req.query;
@@ -119,7 +95,7 @@ async function handle(req, res) {
   } catch (e) {
     console.error(e);
     if (e.name === "TimeoutError") {
-      return reject(res, `Could not load image: Server under heavy load`, 503);
+      return reject(res, `Server under heavy load: ${e.message}`, 503);
     }
     return reject(res, `Could not load image: ${e.message}`, 500);
   }

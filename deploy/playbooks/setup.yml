@@ -272,6 +272,7 @@
       #       `npx playwright install-deps`, which I couldn't get running in
       #       Ansible as root, and besides, I prefer manually managing the
       #       package list over running an npm script as root!
+      # TODO: We're using Puppeteer now, should this list change in some way?
       become: yes
       apt:
         update_cache: yes
@@ -315,6 +316,12 @@
           - libxfixes3
           - libxrandr2
           - libxshmfence1
+
+    - name: Enable user namespace cloning for Chromium sandboxing
+      become: yes
+      ansible.posix.sysctl:
+        name: kernel.unprivileged_userns_clone
+        value: "1"
 
   handlers:
     - name: Restart nginx
