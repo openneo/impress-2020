@@ -35,11 +35,12 @@ const beeline = require("honeycomb-beeline")({
   sampleRate: 10,
 });
 
-import fetch from "node-fetch";
 import gql from "graphql-tag";
-import { print as graphqlPrint } from "graphql/language/printer";
+import { ApolloServer } from "apollo-server";
+import { createTestClient } from "apollo-server-testing";
 
 import connectToDb from "../../src/server/db";
+import { config as graphqlConfig } from "../../src/server";
 import { renderOutfitImage } from "../../src/server/outfit-images";
 import getVisibleLayers, {
   petAppearanceFragmentForGetVisibleLayers,
@@ -143,50 +144,35 @@ async function handle(req, res) {
   return res.send(image);
 }
 
-const GRAPHQL_ENDPOINT = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}/api/graphql`
-  : process.env.NODE_ENV === "development"
-  ? "http://localhost:3000/api/graphql"
-  : "https://impress-2020.openneo.net/api/graphql";
-
-// NOTE: Unlike in-app views, we only load PNGs here. We expect this to
-//       generally perform better, and be pretty reliable now that TNT is
-//       generating canonical PNGs for every layer!
-const GRAPHQL_QUERY = gql`
-  query ApiOutfitImage($outfitId: ID!, $size: LayerImageSize) {
-    outfit(id: $outfitId) {
-      petAppearance {
-        layers {
-          id
-          imageUrl(size: $size)
-        }
-        ...PetAppearanceForGetVisibleLayers
-      }
-      itemAppearances {
-        layers {
-          id
-          imageUrl(size: $size)
-        }
-        ...ItemAppearanceForGetVisibleLayers
-      }
-    }
-  }
-  ${petAppearanceFragmentForGetVisibleLayers}
-  ${itemAppearanceFragmentForGetVisibleLayers}
-`;
-const GRAPHQL_QUERY_STRING = graphqlPrint(GRAPHQL_QUERY);
+// Check out this scrappy way of making a query against server code ^_^`
+const graphqlClient = createTestClient(new ApolloServer(graphqlConfig));
 
 async function loadLayerUrlsForSavedOutfit(outfitId, size) {
-  const { errors, data } = await fetch(GRAPHQL_ENDPOINT, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      query: GRAPHQL_QUERY_STRING,
-      variables: { outfitId, size: `SIZE_${size}` },
-    }),
-  }).then((res) => res.json());
+  const { errors, data } = await graphqlClient.query({
+    query: gql`
+      query ApiOutfitImage($outfitId: ID!, $size: LayerImageSize) {
+        outfit(id: $outfitId) {
+          petAppearance {
+            layers {
+              id
+              imageUrl(size: $size)
+            }
+            ...PetAppearanceForGetVisibleLayers
+          }
+          itemAppearances {
+            layers {
+              id
+              imageUrl(size: $size)
+            }
+            ...ItemAppearanceForGetVisibleLayers
+          }
+        }
+      }
+      ${petAppearanceFragmentForGetVisibleLayers}
+      ${itemAppearanceFragmentForGetVisibleLayers}
+    `,
+    variables: { outfitId, size: `SIZE_${size}` },
+  });
 
   if (errors && errors.length > 0) {
     throw new Error(
