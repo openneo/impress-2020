@@ -24,14 +24,6 @@ const beeline = require("honeycomb-beeline")({
 
 const playwright = require("playwright");
 
-// To render the image, we load the /internal/assetImage page in the web app,
-// a simple page specifically designed for this API endpoint!
-const ASSET_IMAGE_PAGE_BASE_URL = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}/internal/assetImage`
-  : process.env.NODE_ENV === "development"
-  ? "http://localhost:3000/internal/assetImage"
-  : "https://impress-2020.openneo.net/internal/assetImage";
-
 // We share one browser instance, but create a new independent "context" for
 // each request, as a security hedge. (The intent is for the user to request
 // very little from the browser, so it shouldn't matter, but it's just an extra
@@ -84,7 +76,14 @@ async function handle(req, res) {
 }
 
 async function loadAndScreenshotImage(libraryUrl, size) {
-  const assetImagePageUrl = new URL(ASSET_IMAGE_PAGE_BASE_URL);
+  // To render the image, we load the /internal/assetImage page in the web app,
+  // a simple page specifically designed for this API endpoint!
+  //
+  // NOTE: If we deploy to a host where localhost:3000 won't work, make this
+  //       configurable with an env var, e.g. process.env.LOCAL_APP_HOST
+  const assetImagePageUrl = new URL(
+    "http://localhost:3000/internal/assetImage"
+  );
   assetImagePageUrl.search = new URLSearchParams({
     libraryUrl,
     size,
