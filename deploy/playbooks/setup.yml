@@ -4,6 +4,11 @@
   vars:
     email_address: "emi@matchu.dev" # TODO: Extract this to personal config?
   tasks:
+    - name: Copy authorized SSH keys
+      copy:
+        dest: ~/.ssh/authorized_keys
+        src: ../authorized-ssh-keys.txt
+
     - name: Disable root SSH login
       become: yes
       lineinfile:
