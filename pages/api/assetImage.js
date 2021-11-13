@@ -25,67 +25,76 @@ const beeline = require("honeycomb-beeline")({
 const playwright = require("playwright");
 const genericPool = require("generic-pool");
 
-// Share a single browser instance for all requests, to help perf a lot.
-// We implement it as a "pool" of 1, because the pool is better than we are at
-// lifecycle management and timeouts!
-const browserPool = genericPool.createPool(
-  {
-    create: async () => {
-      console.info(`Starting shared browser instance`);
-      return await playwright.chromium.launch({ headless: true });
+// We maintain a small pool of browser pages, to manage memory usage. If all
+// the pages are already in use, a request will wait for one of them to become
+// available.
+//
+// NOTE: I picked 4 because that seemed to be a good number for avoiding maxing
+//       out our CPU. I also noticed that maxing CPU seemed to be a weird
+//       threshold where Chromium processes started behaving poorly after? I'm
+//       not sure I'm diagnosing that correctly though, and I'm worried about
+//       the sysadmin implications of not having that locked down, y'know?
+function createPagePool() {
+  console.info(`Creating new browser instance`);
+  const browserPromise = playwright.chromium.launch({ headless: true });
+
+  const pagePool = genericPool.createPool(
+    {
+      create: async () => {
+        console.debug(`Creating a browser page`);
+        const browser = await browserPromise;
+        return await browser.newPage();
+      },
+      destroy: (page) => {
+        console.debug(`Closing a browser page`);
+        page.close();
+      },
+      validate: (page) => page.context().browser().isConnected(),
     },
-    destroy: (browser) => {
-      console.info(`Closing shared browser instance`);
-      browser.close();
-    },
-    validate: (browser) => browser.isConnected(),
-  },
-  { min: 1, max: 1, testOnBorrow: true, acquireTimeoutMillis: 15000 }
-);
-browserPool.on("factoryCreateError", (error) => console.error(error));
-browserPool.on("factoryDestroyError", (error) => console.error(error));
-async function getBrowser() {
-  // HACK: We have the pool *managing* our browser's lifecycle, but we don't
-  //       actually need to *lock* it. So, we "acquire" the browser, then
-  //       immediately release the lock for other `getBrowser` calls.
-  const browser = await browserPool.acquire();
-  browserPool.release(browser);
-  browser.on("disconnected", () => browserPool.destroy(browser));
-  return browser;
+    { min: 4, max: 4, testOnBorrow: true, acquireTimeoutMillis: 15000 }
+  );
+  pagePool.on("factoryCreateError", (error) => console.error(error));
+  pagePool.on("factoryDestroyError", (error) => console.error(error));
+  pagePool.browserPromise = browserPromise; // we use this during reset
+
+  // If the browser terminates unexpectedly, and this is still the current
+  // page pool, I guess something went wrong! Reset!
+  browserPromise.then((browser) =>
+    browser.on("disconnected", () => {
+      if (PAGE_POOL === pagePool) {
+        resetPagePool();
+      }
+    })
+  );
+
+  return pagePool;
 }
 
-// We maintain a small pool of shared browser sessions ("contexts"), to manage
-// memory usage. If all the sessions are already in use, a request will wait
-// for one of them to become available.
-const contextPool = genericPool.createPool(
-  {
-    create: async () => {
-      console.info(`Creating a browser context`);
-      const browser = await getBrowser();
-      return await browser.newContext();
-    },
-    destroy: (context) => {
-      console.info(`Closing a browser context`);
-      context.close();
-    },
-    validate: (context) => context.browser().isConnected(),
-  },
-  { min: 1, max: 2, testOnBorrow: true, acquireTimeoutMillis: 15000 }
-);
-contextPool.on("factoryCreateError", (error) => console.error(error));
-contextPool.on("factoryDestroyError", (error) => console.error(error));
-async function getBrowserContext() {
-  const context = await contextPool.acquire();
+let PAGE_POOL = createPagePool();
 
-  // When the caller closes the context, we don't just release it back to the
-  // pool; we actually destroy it altogether, to help further isolate requests
-  // as a safe default for security purposes. (I'm not aware of an attack
-  // vector, but it feels like a good default, esp when contexts seem fast to
-  // create!)
-  context.on("close", () => contextPool.destroy(context));
+// Every minute, we stop the current browser instance, to clear memory leaks.
+// (I don't think this endpoint leaks pages, though maybe it does? But I
+// definitely saw weird trailing memory and CPU usage after lots of requests...)
+async function resetPagePool() {
+  console.info(`Resetting page pool`);
+  const prevPagePool = PAGE_POOL;
+  if (prevPagePool) {
+    // First, wait for the previous pages to finish. This is called
+    // "draining" the pool: waiting for it to empty. Cute!
+    console.debug(`Draining previous page pool`);
+    prevPagePool.drain().then(async () => {
+      // Then, terminate the browser instance.
+      console.debug(`Previous page pool drained, closing browser`);
+      const browser = await prevPagePool.browserPromise;
+      await browser.close();
+      console.info(`Previous browser closed`);
+    });
+  }
 
-  return context;
+  const newPagePool = createPagePool();
+  PAGE_POOL = newPagePool;
 }
+setInterval(resetPagePool, 60000);
 
 async function handle(req, res) {
   const { libraryUrl, size } = req.query;
@@ -109,6 +118,9 @@ async function handle(req, res) {
     imageBuffer = await loadAndScreenshotImage(libraryUrl, size);
   } catch (e) {
     console.error(e);
+    if (e.name === "TimeoutError") {
+      return reject(res, `Could not load image: Server under heavy load`, 503);
+    }
     return reject(res, `Could not load image: ${e.message}`, 500);
   }
 
@@ -135,12 +147,12 @@ async function loadAndScreenshotImage(libraryUrl, size) {
     size,
   }).toString();
 
-  console.debug("Opening browser page");
-  const context = await getBrowserContext();
-  const page = await context.newPage();
-  console.debug("Page opened, navigating to: " + assetImagePageUrl.toString());
+  console.debug("Getting browser page");
+  const currentPagePool = PAGE_POOL;
+  const page = await currentPagePool.acquire();
 
   try {
+    console.debug("Page ready, navigating to: " + assetImagePageUrl.toString());
     await page.goto(assetImagePageUrl.toString());
     console.debug("Page loaded, awaiting image");
 
@@ -149,10 +161,20 @@ async function loadAndScreenshotImage(libraryUrl, size) {
     // present, or raising the error if present.
     const imageBufferPromise = screenshotImageFromPage(page);
     const errorMessagePromise = readErrorMessageFromPage(page);
-    const firstResultFromPage = await Promise.any([
-      imageBufferPromise.then((imageBuffer) => ({ imageBuffer })),
-      errorMessagePromise.then((errorMessage) => ({ errorMessage })),
-    ]);
+    let firstResultFromPage;
+    try {
+      firstResultFromPage = await Promise.any([
+        imageBufferPromise.then((imageBuffer) => ({ imageBuffer })),
+        errorMessagePromise.then((errorMessage) => ({ errorMessage })),
+      ]);
+    } catch (error) {
+      if (error.errors) {
+        // If both promises failed, show all error messages.
+        throw new Error(error.errors.map((e) => e.message).join(", "));
+      } else {
+        throw error;
+      }
+    }
 
     if (firstResultFromPage.errorMessage) {
       throw new Error(firstResultFromPage.errorMessage);
@@ -165,18 +187,7 @@ async function loadAndScreenshotImage(libraryUrl, size) {
       );
     }
   } finally {
-    // Tear down our resources when we're done! If it fails, log the error, but
-    // don't block the success of the image.
-    try {
-      await page.close();
-    } catch (e) {
-      console.warn("Error closing page after image finished", e);
-    }
-    try {
-      await context.close();
-    } catch (e) {
-      console.warn("Error closing browser after image finished", e);
-    }
+    currentPagePool.release(page);
   }
 }
 
