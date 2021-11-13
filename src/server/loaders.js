@@ -1,5 +1,4 @@
 import DataLoader from "dataloader";
-import fetch from "node-fetch";
 import { normalizeRow } from "./util";
 
 const buildClosetListLoader = (db) =>
@@ -795,30 +794,6 @@ const buildItemTradesLoader = (db, loaders) =>
     { cacheKeyFn: ({ itemId, isOwned }) => `${itemId}-${isOwned}` }
   );
 
-const buildItemWakaValueLoader = () =>
-  new DataLoader(async (itemIds) => {
-    // This loader calls our /api/allWakaValues endpoint, to take advantage of
-    // the CDN caching. This helps us respond a bit faster than Google Sheets
-    // API would, and avoid putting pressure on our Google Sheets API quotas.
-    // (Some kind of internal memcache or process-level cache would be a more
-    // idiomatic solution in a monolith server environment!)
-    const url = process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}/api/allWakaValues`
-      : process.env.NODE_ENV === "production"
-      ? "https://impress-2020.openneo.net/api/allWakaValues"
-      : "http://localhost:3000/api/allWakaValues";
-    const res = await fetch(url);
-    if (!res.ok) {
-      throw new Error(
-        `Error loading /api/allWakaValues: ${res.status} ${res.statusText}`
-      );
-    }
-
-    const allWakaValues = await res.json();
-
-    return itemIds.map((itemId) => allWakaValues[itemId]);
-  });
-
 const buildPetTypeLoader = (db, loaders) =>
   new DataLoader(async (petTypeIds) => {
     const qs = petTypeIds.map((_) => "?").join(",");
@@ -1470,7 +1445,6 @@ function buildLoaders(db) {
     db
   );
   loaders.itemTradesLoader = buildItemTradesLoader(db, loaders);
-  loaders.itemWakaValueLoader = buildItemWakaValueLoader();
   loaders.petTypeLoader = buildPetTypeLoader(db, loaders);
   loaders.petTypeBySpeciesAndColorLoader = buildPetTypeBySpeciesAndColorLoader(
     db,

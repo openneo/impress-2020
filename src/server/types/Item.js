@@ -28,9 +28,8 @@ const typeDefs = gql`
     createdAt: String
 
     """
-    This item's capsule trade value as text, according to wakaguide.com, as a
-    human-readable string. Will be null if the value is not known, or if
-    there's an error connecting to the data source.
+    Deprecated: This item's capsule trade value as text, according to
+    wakaguide.com, as a human-readable string. **This now always returns null.**
     """
     wakaValueText: String @cacheControl(maxAge: ${oneHour})
 
@@ -315,17 +314,9 @@ const resolvers = {
       const item = await itemLoader.load(id);
       return item.createdAt && item.createdAt.toISOString();
     },
-    wakaValueText: async ({ id }, _, { itemWakaValueLoader }) => {
-      let wakaValue;
-      try {
-        wakaValue = await itemWakaValueLoader.load(id);
-      } catch (e) {
-        console.error(`Error loading wakaValueText for item ${id}, skipping:`);
-        console.error(e);
-        wakaValue = null;
-      }
-
-      return wakaValue ? wakaValue.value : null;
+    wakaValueText: () => {
+      // This feature is deprecated, so now we just always return unknown value.
+      return null;
     },
 
     currentUserOwnsThis: async (
