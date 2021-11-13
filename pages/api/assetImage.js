@@ -23,22 +23,68 @@ const beeline = require("honeycomb-beeline")({
 });
 
 const playwright = require("playwright");
+const genericPool = require("generic-pool");
 
-// We share one browser instance, but create a new independent "context" for
-// each request, as a security hedge. (The intent is for the user to request
-// very little from the browser, so it shouldn't matter, but it's just an extra
-// layer to reduce the risk of what an attack could do!)
-//
-// TODO: We're probably going to need to limit the number of concurrent browser
-//       sessions here, right? I don't actually know how the Next.js server
-//       handles concurrency though, let's pressure-test and find out before
-//       building a solution.
-let SHARED_BROWSER = null;
+// Share a single browser instance for all requests, to help perf a lot.
+// We implement it as a "pool" of 1, because the pool is better than we are at
+// lifecycle management and timeouts!
+const browserPool = genericPool.createPool(
+  {
+    create: async () => {
+      console.info(`Starting shared browser instance`);
+      return await playwright.chromium.launch({ headless: true });
+    },
+    destroy: (browser) => {
+      console.info(`Closing shared browser instance`);
+      browser.close();
+    },
+    validate: (browser) => browser.isConnected(),
+  },
+  { min: 1, max: 1, testOnBorrow: true, acquireTimeoutMillis: 15000 }
+);
+browserPool.on("factoryCreateError", (error) => console.error(error));
+browserPool.on("factoryDestroyError", (error) => console.error(error));
+async function getBrowser() {
+  // HACK: We have the pool *managing* our browser's lifecycle, but we don't
+  //       actually need to *lock* it. So, we "acquire" the browser, then
+  //       immediately release the lock for other `getBrowser` calls.
+  const browser = await browserPool.acquire();
+  browserPool.release(browser);
+  browser.on("disconnected", () => browserPool.destroy(browser));
+  return browser;
+}
+
+// We maintain a small pool of shared browser sessions ("contexts"), to manage
+// memory usage. If all the sessions are already in use, a request will wait
+// for one of them to become available.
+const contextPool = genericPool.createPool(
+  {
+    create: async () => {
+      console.info(`Creating a browser context`);
+      const browser = await getBrowser();
+      return await browser.newContext();
+    },
+    destroy: (context) => {
+      console.info(`Closing a browser context`);
+      context.close();
+    },
+    validate: (context) => context.browser().isConnected(),
+  },
+  { min: 1, max: 2, testOnBorrow: true, acquireTimeoutMillis: 15000 }
+);
+contextPool.on("factoryCreateError", (error) => console.error(error));
+contextPool.on("factoryDestroyError", (error) => console.error(error));
 async function getBrowserContext() {
-  if (SHARED_BROWSER == null) {
-    SHARED_BROWSER = await playwright.chromium.launch({ headless: true });
-  }
-  return await SHARED_BROWSER.newContext();
+  const context = await contextPool.acquire();
+
+  // When the caller closes the context, we don't just release it back to the
+  // pool; we actually destroy it altogether, to help further isolate requests
+  // as a safe default for security purposes. (I'm not aware of an attack
+  // vector, but it feels like a good default, esp when contexts seem fast to
+  // create!)
+  context.on("close", () => contextPool.destroy(context));
+
+  return context;
 }
 
 async function handle(req, res) {
