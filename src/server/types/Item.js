@@ -656,8 +656,13 @@ const resolvers = {
         itemSearchItemsLoader,
         petTypeBySpeciesAndColorLoader,
         currentUserId,
-      }
+      },
+      { cacheControl }
     ) => {
+      if (currentUserOwnsOrWants != null) {
+        cacheControl.setCacheHint({ scope: "PRIVATE" });
+      }
+
       let bodyId = null;
       if (fitsPet) {
         const petType = await petTypeBySpeciesAndColorLoader.load({
@@ -790,8 +795,12 @@ const resolvers = {
     numTotalItems: async (
       { query, bodyId, itemKind, currentUserOwnsOrWants, zoneIds },
       { offset, limit },
-      { currentUserId, itemSearchNumTotalItemsLoader }
+      { currentUserId, itemSearchNumTotalItemsLoader },
+      { cacheControl }
     ) => {
+      if (currentUserOwnsOrWants != null) {
+        cacheControl.setCacheHint({ scope: "PRIVATE" });
+      }
       const numTotalItems = await itemSearchNumTotalItemsLoader.load({
         query: query.trim(),
         bodyId,
@@ -807,8 +816,12 @@ const resolvers = {
     items: async (
       { query, bodyId, itemKind, currentUserOwnsOrWants, zoneIds },
       { offset, limit },
-      { currentUserId, itemSearchItemsLoader }
+      { currentUserId, itemSearchItemsLoader },
+      { cacheControl }
     ) => {
+      if (currentUserOwnsOrWants != null) {
+        cacheControl.setCacheHint({ scope: "PRIVATE" });
+      }
       const items = await itemSearchItemsLoader.load({
         query: query.trim(),
         bodyId,
