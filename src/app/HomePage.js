@@ -2,6 +2,7 @@ import React from "react";
 import { ClassNames } from "@emotion/react";
 import gql from "graphql-tag";
 import {
+  Alert,
   Box,
   Button,
   Center,
@@ -57,6 +58,23 @@ function HomePage() {
 
   return (
     <Flex direction="column" align="center" textAlign="center" marginTop="8">
+      <Alert status="warning" maxWidth="600px">
+        <Box>
+          <strong>
+            The Neopets Metaverse team is no longer licensed to use this
+            software.
+          </strong>{" "}
+          <Box
+            as="a"
+            href="https://twitter.com/NeopetsDTI/status/1460386400839168001?s=20"
+            textDecoration="underline"
+          >
+            More information available here.
+          </Box>{" "}
+          Thanks for understanding!
+        </Box>
+      </Alert>
+      <Box height="4" />
       <Box
         width="200px"
         height="200px"
