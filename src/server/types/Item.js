@@ -33,8 +33,8 @@ const typeDefs = gql`
     """
     wakaValueText: String @cacheControl(maxAge: ${oneHour})
 
-    currentUserOwnsThis: Boolean! @cacheControl(scope: PRIVATE)
-    currentUserWantsThis: Boolean! @cacheControl(scope: PRIVATE)
+    currentUserOwnsThis: Boolean! @cacheControl(maxAge: 0, scope: PRIVATE)
+    currentUserWantsThis: Boolean! @cacheControl(maxAge: 0, scope: PRIVATE)
 
     """
     How many users are offering/seeking this in their public trade lists.
