@@ -208,22 +208,14 @@ for (const zone of cachedZones) {
   initialCache[`Zone:${zone.id}`] = { __typename: "Zone", ...zone };
 }
 
-const buildLink = (getAuth0) => {
-  let link = buildAuthLink(getAuth0);
-  if (process.env.NODE_ENV === "production") {
-    // In production, we send GET requests for queries, to enable CDN and
-    // browser caching. But in development, we skip it, because our dev server
-    // reloads the route from scratch on each request, so queries never get
-    // persisted, and the GET always fails and falls back to POST anyway.
-    link = link.concat(
+const buildLink = (getAuth0) =>
+  buildAuthLink(getAuth0)
+    .concat(
       createPersistedQueryLink({
         useGETForHashedQueries: true,
       })
-    );
-  }
-  link = link.concat(httpLink);
-  return link;
-};
+    )
+    .concat(httpLink);
 
 /**
  * apolloClient is the global Apollo Client instance we use for GraphQL
