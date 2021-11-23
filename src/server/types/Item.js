@@ -28,14 +28,13 @@ const typeDefs = gql`
     createdAt: String
 
     """
-    This item's capsule trade value as text, according to wakaguide.com, as a
-    human-readable string. Will be null if the value is not known, or if
-    there's an error connecting to the data source.
+    Deprecated: This item's capsule trade value as text, according to
+    wakaguide.com, as a human-readable string. **This now always returns null.**
     """
     wakaValueText: String @cacheControl(maxAge: ${oneHour})
 
-    currentUserOwnsThis: Boolean! @cacheControl(scope: PRIVATE)
-    currentUserWantsThis: Boolean! @cacheControl(scope: PRIVATE)
+    currentUserOwnsThis: Boolean! @cacheControl(maxAge: 0, scope: PRIVATE)
+    currentUserWantsThis: Boolean! @cacheControl(maxAge: 0, scope: PRIVATE)
 
     """
     How many users are offering/seeking this in their public trade lists.
@@ -315,17 +314,9 @@ const resolvers = {
       const item = await itemLoader.load(id);
       return item.createdAt && item.createdAt.toISOString();
     },
-    wakaValueText: async ({ id }, _, { itemWakaValueLoader }) => {
-      let wakaValue;
-      try {
-        wakaValue = await itemWakaValueLoader.load(id);
-      } catch (e) {
-        console.error(`Error loading wakaValueText for item ${id}, skipping:`);
-        console.error(e);
-        wakaValue = null;
-      }
-
-      return wakaValue ? wakaValue.value : null;
+    wakaValueText: () => {
+      // This feature is deprecated, so now we just always return unknown value.
+      return null;
     },
 
     currentUserOwnsThis: async (
@@ -665,8 +656,13 @@ const resolvers = {
         itemSearchItemsLoader,
         petTypeBySpeciesAndColorLoader,
         currentUserId,
-      }
+      },
+      { cacheControl }
     ) => {
+      if (currentUserOwnsOrWants != null) {
+        cacheControl.setCacheHint({ scope: "PRIVATE" });
+      }
+
       let bodyId = null;
       if (fitsPet) {
         const petType = await petTypeBySpeciesAndColorLoader.load({
@@ -799,8 +795,12 @@ const resolvers = {
     numTotalItems: async (
       { query, bodyId, itemKind, currentUserOwnsOrWants, zoneIds },
       { offset, limit },
-      { currentUserId, itemSearchNumTotalItemsLoader }
+      { currentUserId, itemSearchNumTotalItemsLoader },
+      { cacheControl }
     ) => {
+      if (currentUserOwnsOrWants != null) {
+        cacheControl.setCacheHint({ scope: "PRIVATE" });
+      }
       const numTotalItems = await itemSearchNumTotalItemsLoader.load({
         query: query.trim(),
         bodyId,
@@ -816,8 +816,12 @@ const resolvers = {
     items: async (
       { query, bodyId, itemKind, currentUserOwnsOrWants, zoneIds },
       { offset, limit },
-      { currentUserId, itemSearchItemsLoader }
+      { currentUserId, itemSearchItemsLoader },
+      { cacheControl }
     ) => {
+      if (currentUserOwnsOrWants != null) {
+        cacheControl.setCacheHint({ scope: "PRIVATE" });
+      }
       const items = await itemSearchItemsLoader.load({
         query: query.trim(),
         bodyId,

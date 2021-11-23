@@ -47,7 +47,20 @@ const typeDefs = gql`
     user(id: ID!): User
     userByName(name: String!): User
     userByEmail(email: String!, supportSecret: String!): User
-    currentUser: User
+
+    """
+    The currently logged-in user.
+    """
+    # Don't allow caching of *anything* nested inside currentUser, because we
+    # want logins/logouts always reset user data properly.
+    #
+    # TODO: If we wanted to privately cache a currentUser field, we could
+    #       remove the maxAge condition here, and attach user ID to the GraphQL
+    #       request URL when sending auth headers. That way, changing user
+    #       would send different requests and avoid the old cache hits. (But we
+    #       should leave the scope, to emphasize that the CDN cache shouldn't
+    #       cache it.)
+    currentUser: User @cacheControl(maxAge: 0, scope: PRIVATE)
   }
 `;
 

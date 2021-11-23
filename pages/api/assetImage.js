@@ -22,34 +22,37 @@ const beeline = require("honeycomb-beeline")({
   disableInstrumentationOnLoad: true,
 });
 
-// To render the image, we load the /internal/assetImage page in the web app,
-// a simple page specifically designed for this API endpoint!
-const ASSET_IMAGE_PAGE_BASE_URL = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}/internal/assetImage`
-  : process.env.NODE_ENV === "development"
-  ? "http://localhost:3000/internal/assetImage"
-  : "https://impress-2020.openneo.net/internal/assetImage";
+const puppeteer = require("puppeteer");
+const genericPool = require("generic-pool");
 
-// TODO: We used to share a browser instamce, but we couldn't get it to reload
-//       correctly after accidental closes, so we're just gonna always load a
-//       new one now. What are the perf implications of this? Does it slow down
-//       response time substantially?
-async function getBrowser() {
-  if (process.env["NODE_ENV"] === "production") {
-    // In production, we use a special chrome-aws-lambda Chromium.
-    const chromium = require("chrome-aws-lambda");
-    const playwright = require("playwright-core");
-    return await playwright.chromium.launch({
-      args: chromium.args,
-      executablePath: await chromium.executablePath,
-      headless: true,
-    });
-  } else {
-    // In development, we use the standard playwright Chromium.
-    const playwright = require("playwright");
-    return await playwright.chromium.launch({ headless: true });
-  }
-}
+console.info(`Creating new browser instance`);
+const browserPromise = puppeteer.launch({ headless: true });
+
+// We maintain a small pool of browser pages, to manage memory usage. If all
+// the pages are already in use, a request will wait for one of them to become
+// available.
+//
+// NOTE: 4 pages is about where our 1-cpu prod environment maxes out. We might
+//       want to upgrade to the 2-cpu box as we add more pressure though, and
+//       then maybe we can afford more pages in the pool?
+
+const PAGE_POOL = genericPool.createPool(
+  {
+    create: async () => {
+      console.debug(`Creating a browser page`);
+      const browser = await browserPromise;
+      return await browser.newPage();
+    },
+    destroy: (page) => {
+      console.debug(`Closing a browser page`);
+      page.close();
+    },
+    validate: (page) => page.browser().isConnected(),
+  },
+  { min: 4, max: 4, testOnBorrow: true, acquireTimeoutMillis: 15000 }
+);
+PAGE_POOL.on("factoryCreateError", (error) => console.error(error));
+PAGE_POOL.on("factoryDestroyError", (error) => console.error(error));
 
 async function handle(req, res) {
   const { libraryUrl, size } = req.query;
@@ -73,6 +76,9 @@ async function handle(req, res) {
     imageBuffer = await loadAndScreenshotImage(libraryUrl, size);
   } catch (e) {
     console.error(e);
+    if (e.name === "TimeoutError") {
+      return reject(res, `Server under heavy load: ${e.message}`, 503);
+    }
     return reject(res, `Could not load image: ${e.message}`, 500);
   }
 
@@ -86,18 +92,24 @@ async function handle(req, res) {
 }
 
 async function loadAndScreenshotImage(libraryUrl, size) {
-  const assetImagePageUrl = new URL(ASSET_IMAGE_PAGE_BASE_URL);
+  // To render the image, we load the /internal/assetImage page in the web app,
+  // a simple page specifically designed for this API endpoint!
+  //
+  // NOTE: If we deploy to a host where localhost:3000 won't work, make this
+  //       configurable with an env var, e.g. process.env.LOCAL_APP_HOST
+  const assetImagePageUrl = new URL(
+    "http://localhost:3000/internal/assetImage"
+  );
   assetImagePageUrl.search = new URLSearchParams({
     libraryUrl,
     size,
   }).toString();
 
-  console.debug("Opening browser page");
-  const browser = await getBrowser();
-  const page = await browser.newPage();
-  console.debug("Page opened, navigating to: " + assetImagePageUrl.toString());
+  console.debug("Getting browser page");
+  const page = await PAGE_POOL.acquire();
 
   try {
+    console.debug("Page ready, navigating to: " + assetImagePageUrl.toString());
     await page.goto(assetImagePageUrl.toString());
     console.debug("Page loaded, awaiting image");
 
@@ -106,10 +118,20 @@ async function loadAndScreenshotImage(libraryUrl, size) {
     // present, or raising the error if present.
     const imageBufferPromise = screenshotImageFromPage(page);
     const errorMessagePromise = readErrorMessageFromPage(page);
-    const firstResultFromPage = await Promise.any([
-      imageBufferPromise.then((imageBuffer) => ({ imageBuffer })),
-      errorMessagePromise.then((errorMessage) => ({ errorMessage })),
-    ]);
+    let firstResultFromPage;
+    try {
+      firstResultFromPage = await Promise.any([
+        imageBufferPromise.then((imageBuffer) => ({ imageBuffer })),
+        errorMessagePromise.then((errorMessage) => ({ errorMessage })),
+      ]);
+    } catch (error) {
+      if (error.errors) {
+        // If both promises failed, show all error messages.
+        throw new Error(error.errors.map((e) => e.message).join(", "));
+      } else {
+        throw error;
+      }
+    }
 
     if (firstResultFromPage.errorMessage) {
       throw new Error(firstResultFromPage.errorMessage);
@@ -122,18 +144,9 @@ async function loadAndScreenshotImage(libraryUrl, size) {
       );
     }
   } finally {
-    // Tear down our resources when we're done! If it fails, log the error, but
-    // don't block the success of the image.
-    try {
-      await page.close();
-    } catch (e) {
-      console.warn("Error closing page after image finished", e);
-    }
-    try {
-      await browser.close();
-    } catch (e) {
-      console.warn("Error closing browser after image finished", e);
-    }
+    // To avoid memory leaks, we destroy the page when we're done with it.
+    // The pool will replace it with a fresh one!
+    PAGE_POOL.destroy(page);
   }
 }
 
@@ -173,7 +186,7 @@ function isNeopetsUrl(urlString) {
 }
 
 function reject(res, message, status = 400) {
-  res.setHeader("Content-Type", "text/plain");
+  res.setHeader("Content-Type", "text/plain; charset=utf8");
   return res.status(status).send(message);
 }
 

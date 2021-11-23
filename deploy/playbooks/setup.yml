@@ -160,7 +160,7 @@
       # process. They'll be able to manage it without `sudo`, including during
       # normal deploys, and run `pm2 monit` from their shell to see status.
       become: yes
-      command: "pm2 startup systemd {{ ansible_user_id }} --hp /home/{{ ansible_user_id }}"
+      command: "pm2 startup systemd -u {{ ansible_user_id }} --hp /home/{{ ansible_user_id }}"
 
     - name: Create pm2 ecosystem file
       copy:
@@ -266,6 +266,62 @@
           - libjpeg-dev
           - libgif-dev
           - librsvg2-dev
+
+    - name: Install Playwright system dependencies
+      # NOTE: I copied the package list from the source list for
+      #       `npx playwright install-deps`, which I couldn't get running in
+      #       Ansible as root, and besides, I prefer manually managing the
+      #       package list over running an npm script as root!
+      # TODO: We're using Puppeteer now, should this list change in some way?
+      become: yes
+      apt:
+        update_cache: yes
+        name:
+          # Tools
+          - xvfb
+          - fonts-noto-color-emoji
+          - ttf-unifont
+          - libfontconfig
+          - libfreetype6
+          - xfonts-cyrillic
+          - xfonts-scalable
+          - fonts-liberation
+          - fonts-ipafont-gothic
+          - fonts-wqy-zenhei
+          - fonts-tlwg-loma-otf
+          - ttf-ubuntu-font-family
+          # Chromium
+          - fonts-liberation
+          - libasound2
+          - libatk-bridge2.0-0
+          - libatk1.0-0
+          - libatspi2.0-0
+          - libcairo2
+          - libcups2
+          - libdbus-1-3
+          - libdrm2
+          - libegl1
+          - libgbm1
+          - libglib2.0-0
+          - libgtk-3-0
+          - libnspr4
+          - libnss3
+          - libpango-1.0-0
+          - libx11-6
+          - libx11-xcb1
+          - libxcb1
+          - libxcomposite1
+          - libxdamage1
+          - libxext6
+          - libxfixes3
+          - libxrandr2
+          - libxshmfence1
+
+    - name: Enable user namespace cloning for Chromium sandboxing
+      become: yes
+      ansible.posix.sysctl:
+        name: kernel.unprivileged_userns_clone
+        value: "1"
 
   handlers:
     - name: Restart nginx

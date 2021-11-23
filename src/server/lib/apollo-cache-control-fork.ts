@@ -299,13 +299,24 @@ function computeOverallCachePolicy(
 
   // If maxAge is 0, then we consider it uncacheable so it doesn't matter what
   // the scope was.
-  return lowestMaxAge && lowestMaxAgePlusSWR // FORK
-    ? {
-        maxAge: lowestMaxAge,
-        staleWhileRevalidate: lowestMaxAgePlusSWR - lowestMaxAge, // FORK
-        scope,
-      }
-    : undefined;
+  if (lowestMaxAge && lowestMaxAgePlusSWR) {
+    return {
+      maxAge: lowestMaxAge,
+      staleWhileRevalidate: lowestMaxAgePlusSWR - lowestMaxAge, // FORK
+      scope,
+    };
+  } else if (scope !== CacheScope.Public) {
+    // TODO: It'd probably be a bit better to leave the ages unspecified if
+    //       the hints didn't specify them, but I don't wanna mess with the
+    //       header-writing code right now.
+    return {
+      maxAge: 0,
+      staleWhileRevalidate: 0,
+      scope,
+    };
+  } else {
+    return undefined;
+  }
 }
 
 function addHint(
