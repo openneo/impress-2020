@@ -74,6 +74,22 @@ const config = {
       ...buildLoaders(db),
     };
   },
+  formatResponse: (res, context) => {
+    // The Authorization header can affect the response, so we signal that here
+    // for caching user data! That way, login/logout will refresh user data,
+    // even if it was briefly cached.
+    //
+    // NOTE: Our frontend JS only sends the Authorization header for user data
+    //       queries. For public data, the header will be absent, and different
+    //       users will still be able to share the same public cache data.
+    //
+    // NOTE: At time of writing, I'm not sure we use this in app? I think all
+    //       current user data queries request fields with `maxAge: 0`. But I'm
+    //       adding it just to remove a potential surprise gotcha later!
+    context.response.http.headers.set("Vary", "Authorization");
+
+    return res;
+  },
 
   plugins,
 
