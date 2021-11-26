@@ -173,10 +173,11 @@ function ItemPageOwnWantButtons({ itemId }) {
   return (
     <Grid
       templateRows="auto auto"
-      templateColumns="auto auto"
+      templateColumns="160px 160px"
       gridAutoFlow="column"
       rowGap="0.5"
       columnGap="4"
+      justifyItems="center"
     >
       <SubtleSkeleton isLoaded={!loading}>
         <ItemPageOwnButton
@@ -210,9 +211,10 @@ function ItemPageOwnWantListsButton({ closetLists, isVisible }) {
 
   let buttonText;
   if (realLists.length === 1) {
-    buttonText = `In list "${realLists[0].name}"`;
+    buttonText = `In list: "${realLists[0].name}"`;
   } else if (realLists.length > 1) {
-    buttonText = `In ${realLists.length} lists`;
+    const listNames = realLists.map((cl) => `"${cl.name}"`).join(", ");
+    buttonText = `${realLists.length} lists: ${listNames}`;
   } else {
     buttonText = "Add to list";
   }
@@ -223,6 +225,7 @@ function ItemPageOwnWantListsButton({ closetLists, isVisible }) {
       fontSize="xs"
       alignItems="center"
       borderRadius="sm"
+      width="100%"
       _hover={{ textDecoration: "underline" }}
       _focus={{
         textDecoration: "underline",
@@ -245,7 +248,9 @@ function ItemPageOwnWantListsButton({ closetLists, isVisible }) {
     >
       {/* Flex tricks to center the text, ignoring the caret */}
       <Box flex="1 0 0" />
-      <Box>{buttonText}</Box>
+      <Box textOverflow="ellipsis" overflow="hidden" whiteSpace="nowrap">
+        {buttonText}
+      </Box>
       <Flex flex="1 0 0">
         <ChevronDownIcon marginLeft="1" />
       </Flex>
