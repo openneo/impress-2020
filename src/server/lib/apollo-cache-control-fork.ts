@@ -122,7 +122,6 @@ export const plugin = (
       willSendResponse(requestContext) {
         const {
           response,
-          // @ts-ignore: FORK. Don't know enough TypeScript to resolve this!
           overallCachePolicy: overallCachePolicyOverride,
         } = requestContext;
 
@@ -133,12 +132,13 @@ export const plugin = (
 
         // Use the override by default, but if it's not overridden, set our
         // own computation onto the `requestContext` for other plugins to read.
-        const overallCachePolicy =
+        // FORK: I do an `any` cast here to convince Typescript that our
+        //       CacheHint type is compatible with the built-in one.
+        const overallCachePolicy: Required<CacheHint> | undefined =
           overallCachePolicyOverride ||
-          // @ts-ignore: FORK. Don't know enough TypeScript to resolve this!
-          (requestContext.overallCachePolicy = computeOverallCachePolicy(
+          ((requestContext.overallCachePolicy = computeOverallCachePolicy(
             hints
-          ));
+          )) as any);
 
         if (
           overallCachePolicy &&
