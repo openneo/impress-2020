@@ -22,7 +22,7 @@
     "@types/react": "^17.0.1",
     "@types/react-dom": "^17.0.0",
     "apollo-link-persisted-queries": "^0.2.2",
-    "apollo-server": "^2.19.2",
+    "apollo-server": "^2.25.3",
     "apollo-server-core": "^2.19.2",
     "apollo-server-env": "^3.0.0",
     "aws-sdk": "^2.726.0",
