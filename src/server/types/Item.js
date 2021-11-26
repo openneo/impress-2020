@@ -35,6 +35,7 @@ const typeDefs = gql`
 
     currentUserOwnsThis: Boolean! @cacheControl(maxAge: 0, scope: PRIVATE)
     currentUserWantsThis: Boolean! @cacheControl(maxAge: 0, scope: PRIVATE)
+    currentUserHasInLists: [ClosetList!]! @cacheControl(maxAge: 0, scope: PRIVATE)
 
     """
     How many users are offering/seeking this in their public trade lists.
@@ -336,6 +337,28 @@ const resolvers = {
       if (currentUserId == null) return false;
       const closetHangers = await userClosetHangersLoader.load(currentUserId);
       return closetHangers.some((h) => h.itemId === id && !h.owned);
+    },
+    currentUserHasInLists: async (
+      { id },
+      _,
+      { currentUserId, userClosetHangersLoader }
+    ) => {
+      if (currentUserId == null) return false;
+      const closetHangers = await userClosetHangersLoader.load(currentUserId);
+      const itemHangers = closetHangers.filter((h) => h.itemId === id);
+      const listRefs = itemHangers.map((hanger) => {
+        if (hanger.listId) {
+          return { id: hanger.listId };
+        } else {
+          return {
+            id: null,
+            isDefaultList: true,
+            userId: hanger.userId,
+            ownsOrWantsItems: hanger.owned ? "OWNS" : "WANTS",
+          };
+        }
+      });
+      return listRefs;
     },
 
     numUsersOfferingThis: async (

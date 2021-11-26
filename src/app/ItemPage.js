@@ -20,6 +20,7 @@ import {
 } from "@chakra-ui/react";
 import {
   CheckIcon,
+  ChevronDownIcon,
   ChevronRightIcon,
   EditIcon,
   StarIcon,
@@ -99,8 +100,8 @@ export function ItemPageContent({ itemId, isEmbedded }) {
           isEmbedded={isEmbedded}
         />
         <VStack spacing="4">
-          {isLoggedIn && <ItemPageOwnWantButtons itemId={itemId} />}
           <ItemPageTradeLinks itemId={itemId} isEmbedded={isEmbedded} />
+          {isLoggedIn && <ItemPageOwnWantButtons itemId={itemId} />}
         </VStack>
         {!isEmbedded && <ItemPageOutfitPreview itemId={itemId} />}
       </VStack>
@@ -147,6 +148,12 @@ function ItemPageOwnWantButtons({ itemId }) {
           id
           currentUserOwnsThis
           currentUserWantsThis
+          currentUserHasInLists {
+            id
+            name
+            isDefaultList
+            ownsOrWantsItems
+          }
         }
       }
     `,
@@ -157,14 +164,30 @@ function ItemPageOwnWantButtons({ itemId }) {
     return <Box color="red.400">{error.message}</Box>;
   }
 
+  const closetLists = data?.item?.currentUserHasInLists || [];
+  const ownedLists = closetLists.filter((cl) => cl.ownsOrWantsItems === "OWNS");
+  const wantedLists = closetLists.filter(
+    (cl) => cl.ownsOrWantsItems === "WANTS"
+  );
+
   return (
-    <Box display="flex">
-      <SubtleSkeleton isLoaded={!loading} marginRight="4">
+    <Grid
+      templateRows="auto auto"
+      templateColumns="auto auto"
+      gridAutoFlow="column"
+      rowGap="0.5"
+      columnGap="4"
+    >
+      <SubtleSkeleton isLoaded={!loading}>
         <ItemPageOwnButton
           itemId={itemId}
           isChecked={data?.item?.currentUserOwnsThis}
         />
       </SubtleSkeleton>
+      <ItemPageOwnWantListsButton
+        isVisible={data?.item?.currentUserOwnsThis}
+        closetLists={ownedLists}
+      />
 
       <SubtleSkeleton isLoaded={!loading}>
         <ItemPageWantButton
@@ -172,7 +195,61 @@ function ItemPageOwnWantButtons({ itemId }) {
           isChecked={data?.item?.currentUserWantsThis}
         />
       </SubtleSkeleton>
-    </Box>
+      <ItemPageOwnWantListsButton
+        isVisible={data?.item?.currentUserWantsThis}
+        closetLists={wantedLists}
+      />
+    </Grid>
+  );
+}
+
+function ItemPageOwnWantListsButton({ closetLists, isVisible }) {
+  const toast = useToast();
+
+  const realLists = closetLists.filter((cl) => !cl.isDefaultList);
+
+  let buttonText;
+  if (realLists.length === 1) {
+    buttonText = `In list "${realLists[0].name}"`;
+  } else if (realLists.length > 1) {
+    buttonText = `In ${realLists.length} lists`;
+  } else {
+    buttonText = "Add to list";
+  }
+
+  return (
+    <Flex
+      as="button"
+      fontSize="xs"
+      alignItems="center"
+      borderRadius="sm"
+      _hover={{ textDecoration: "underline" }}
+      _focus={{
+        textDecoration: "underline",
+        outline: "0",
+        boxShadow: "outline",
+      }}
+      onClick={() =>
+        toast({
+          status: "warning",
+          title: "Feature coming soon!",
+          description:
+            "I haven't built the cute pop-up for editing your lists yet! Neat concept though, right? 😅 —Matchu",
+        })
+      }
+      // Even when the button isn't visible, we still render it for layout
+      // purposes, but hidden and disabled.
+      opacity={isVisible ? 1 : 0}
+      aria-hidden={!isVisible}
+      disabled={!isVisible}
+    >
+      {/* Flex tricks to center the text, ignoring the caret */}
+      <Box flex="1 0 0" />
+      <Box>{buttonText}</Box>
+      <Flex flex="1 0 0">
+        <ChevronDownIcon marginLeft="1" />
+      </Flex>
+    </Flex>
   );
 }
 
