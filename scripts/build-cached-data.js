@@ -7,7 +7,6 @@ require("honeycomb-beeline")({
       ? "Dress to Impress (2020)"
       : "Dress to Impress (2020, dev)",
   serviceName: "impress-2020-build-process",
-  disableInstrumentationOnLoad: true,
 });
 const fs = require("fs").promises;
 const path = require("path");

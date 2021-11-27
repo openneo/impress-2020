@@ -5,7 +5,6 @@ const beeline = require("honeycomb-beeline")({
       ? "Dress to Impress (2020)"
       : "Dress to Impress (2020, dev)",
   serviceName: "impress-2020-gql-server",
-  disableInstrumentationOnLoad: true,
 });
 const AWS = require("aws-sdk");
 const Jimp = require("jimp");
