@@ -103,7 +103,6 @@ function OutfitKnownGlitchesBadge({ appearance }) {
 
   // Look for items with the OFFICIAL_SVG_IS_INCORRECT glitch. Only show this
   // if hi-res mode is on, because otherwise it doesn't affect the user anyway!
-  const [hiResMode] = useLocalStorage("DTIHiResMode", false);
   if (hiResMode) {
     for (const item of items) {
       const itemHasOfficialSvgIsIncorrect = item.appearance.layers.some((l) =>
@@ -246,9 +245,9 @@ function OutfitKnownGlitchesBadge({ appearance }) {
         glitchMessages.push(
           <Box key={`official-svg-is-incorrect-for-pet-layer-${layer.id}`}>
             There's a glitch in the art for this pet's <i>{layer.zone.label}</i>{" "}
-            zone that prevents us from showing the full-scale SVG version of the
-            image. Instead, we're showing a PNG, which might look a bit blurry
-            on larger screens.
+            zone that prevents us from showing the SVG image for Hi-Res Mode.
+            Instead, we're showing a PNG, which might look a bit blurry on
+            larger screens.
           </Box>
         );
       }
