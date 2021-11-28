@@ -7,9 +7,10 @@ import getVisibleLayers from "../../shared/getVisibleLayers";
 import { useLocalStorage } from "../util";
 
 function OutfitKnownGlitchesBadge({ appearance }) {
-  const glitchMessages = [];
-
+  const [hiResMode] = useLocalStorage("DTIHiResMode", false);
   const { petAppearance, items } = appearance;
+
+  const glitchMessages = [];
 
   // Look for UC/Invisible/etc incompatibilities that we hid, that we should
   // just mark Incompatible someday instead; or with correctly partially-hidden
@@ -236,19 +237,21 @@ function OutfitKnownGlitchesBadge({ appearance }) {
   }
 
   // Look for pet layers with the OFFICIAL_SVG_IS_INCORRECT glitch.
-  for (const layer of petLayers) {
-    const layerHasOfficialSvgIsIncorrect = (layer.knownGlitches || []).includes(
-      "OFFICIAL_SVG_IS_INCORRECT"
-    );
-    if (layerHasOfficialSvgIsIncorrect) {
-      glitchMessages.push(
-        <Box key={`official-svg-is-incorrect-for-pet-layer-${layer.id}`}>
-          There's a glitch in the art for this pet's <i>{layer.zone.label}</i>{" "}
-          zone that prevents us from showing the full-scale SVG version of the
-          image. Instead, we're showing a PNG, which might look a bit blurry on
-          larger screens.
-        </Box>
-      );
+  if (hiResMode) {
+    for (const layer of petLayers) {
+      const layerHasOfficialSvgIsIncorrect = (
+        layer.knownGlitches || []
+      ).includes("OFFICIAL_SVG_IS_INCORRECT");
+      if (layerHasOfficialSvgIsIncorrect) {
+        glitchMessages.push(
+          <Box key={`official-svg-is-incorrect-for-pet-layer-${layer.id}`}>
+            There's a glitch in the art for this pet's <i>{layer.zone.label}</i>{" "}
+            zone that prevents us from showing the full-scale SVG version of the
+            image. Instead, we're showing a PNG, which might look a bit blurry
+            on larger screens.
+          </Box>
+        );
+      }
     }
   }
 
