@@ -819,10 +819,10 @@ function ItemPageOutfitPreview({ itemId }) {
           "speciesColorPicker  zones"
         `,
       }}
+      // HACK: Really I wanted 400px to match the natural height of the
+      //       preview in md, but in Chromium that creates a scrollbar and
+      //       401px doesn't, not sure exactly why?
       templateRows={{
-        // HACK: Really I wanted 400px to match the natural height of the
-        //       preview in md, but in Chromium that creates a scrollbar and
-        //       401px doesn't, not sure exactly why?
         base: "auto auto 200px auto",
         md: "401px auto",
       }}
