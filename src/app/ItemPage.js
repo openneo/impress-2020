@@ -144,29 +144,31 @@ function ItemPageDescription({ description, isEmbedded }) {
   );
 }
 
-function ItemPageOwnWantButtons({ itemId }) {
-  const { loading, error, data } = useQuery(
-    gql`
-      query ItemPageOwnWantButtons($itemId: ID!) {
-        item(id: $itemId) {
-          id
-          name
-          currentUserOwnsThis
-          currentUserWantsThis
-        }
-        currentUser {
-          closetLists {
-            id
-            name
-            isDefaultList
-            ownsOrWantsItems
-            hasItem(itemId: $itemId)
-          }
-        }
+const ITEM_PAGE_OWN_WANT_BUTTONS_QUERY = gql`
+  query ItemPageOwnWantButtons($itemId: ID!) {
+    item(id: $itemId) {
+      id
+      name
+      currentUserOwnsThis
+      currentUserWantsThis
+    }
+    currentUser {
+      closetLists {
+        id
+        name
+        isDefaultList
+        ownsOrWantsItems
+        hasItem(itemId: $itemId)
       }
-    `,
-    { variables: { itemId }, context: { sendAuth: true } }
-  );
+    }
+  }
+`;
+
+function ItemPageOwnWantButtons({ itemId }) {
+  const { loading, error, data } = useQuery(ITEM_PAGE_OWN_WANT_BUTTONS_QUERY, {
+    variables: { itemId },
+    context: { sendAuth: true },
+  });
 
   if (error) {
     return <Box color="red.400">{error.message}</Box>;
@@ -423,6 +425,14 @@ function ItemPageOwnButton({ itemId, isChecked }) {
           currentUserOwnsThis: true,
         },
       },
+      // TODO: Refactor the mutation result to include closet lists
+      refetchQueries: [
+        {
+          query: ITEM_PAGE_OWN_WANT_BUTTONS_QUERY,
+          variables: { itemId },
+          context: { sendAuth: true },
+        },
+      ],
     }
   );
 
@@ -446,6 +456,14 @@ function ItemPageOwnButton({ itemId, isChecked }) {
           currentUserOwnsThis: false,
         },
       },
+      // TODO: Refactor the mutation result to include closet lists
+      refetchQueries: [
+        {
+          query: ITEM_PAGE_OWN_WANT_BUTTONS_QUERY,
+          variables: { itemId },
+          context: { sendAuth: true },
+        },
+      ],
     }
   );
 
@@ -533,6 +551,14 @@ function ItemPageWantButton({ itemId, isChecked }) {
           currentUserWantsThis: true,
         },
       },
+      // TODO: Refactor the mutation result to include closet lists
+      refetchQueries: [
+        {
+          query: ITEM_PAGE_OWN_WANT_BUTTONS_QUERY,
+          variables: { itemId },
+          context: { sendAuth: true },
+        },
+      ],
     }
   );
 
@@ -556,6 +582,14 @@ function ItemPageWantButton({ itemId, isChecked }) {
           currentUserWantsThis: false,
         },
       },
+      // TODO: Refactor the mutation result to include closet lists
+      refetchQueries: [
+        {
+          query: ITEM_PAGE_OWN_WANT_BUTTONS_QUERY,
+          variables: { itemId },
+          context: { sendAuth: true },
+        },
+      ],
     }
   );
 
