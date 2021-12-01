@@ -566,7 +566,7 @@ function ItemPageWantButton({ itemId, isChecked }) {
           <VisuallyHidden
             as="input"
             type="checkbox"
-            isChecked={isChecked}
+            checked={isChecked}
             onChange={(e) => {
               if (e.target.checked) {
                 sendAddMutation().catch((e) => {
