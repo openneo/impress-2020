@@ -17,6 +17,10 @@ import {
   Flex,
   usePrefersReducedMotion,
   Grid,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Checkbox,
 } from "@chakra-ui/react";
 import {
   CheckIcon,
@@ -146,13 +150,17 @@ function ItemPageOwnWantButtons({ itemId }) {
       query ItemPageOwnWantButtons($itemId: ID!) {
         item(id: $itemId) {
           id
+          name
           currentUserOwnsThis
           currentUserWantsThis
-          currentUserHasInLists {
+        }
+        currentUser {
+          closetLists {
             id
             name
             isDefaultList
             ownsOrWantsItems
+            hasItem(itemId: $itemId)
           }
         }
       }
@@ -164,11 +172,10 @@ function ItemPageOwnWantButtons({ itemId }) {
     return <Box color="red.400">{error.message}</Box>;
   }
 
-  const closetLists = data?.item?.currentUserHasInLists || [];
-  const ownedLists = closetLists.filter((cl) => cl.ownsOrWantsItems === "OWNS");
-  const wantedLists = closetLists.filter(
-    (cl) => cl.ownsOrWantsItems === "WANTS"
-  );
+  const closetLists = data?.currentUser?.closetLists || [];
+  const realLists = closetLists.filter((cl) => !cl.isDefaultList);
+  const ownedLists = realLists.filter((cl) => cl.ownsOrWantsItems === "OWNS");
+  const wantedLists = realLists.filter((cl) => cl.ownsOrWantsItems === "WANTS");
 
   return (
     <Grid
@@ -185,9 +192,13 @@ function ItemPageOwnWantButtons({ itemId }) {
           isChecked={data?.item?.currentUserOwnsThis}
         />
       </SubtleSkeleton>
-      <ItemPageOwnWantListsButton
-        isVisible={data?.item?.currentUserOwnsThis}
+      <ItemPageOwnWantListsDropdown
         closetLists={ownedLists}
+        item={data?.item}
+        // Show the dropdown if the user owns this, and has at least one custom
+        // list it could belong to.
+        isVisible={data?.item?.currentUserOwnsThis && ownedLists.length >= 1}
+        popoverPlacement="bottom-end"
       />
 
       <SubtleSkeleton isLoaded={!loading}>
@@ -196,65 +207,195 @@ function ItemPageOwnWantButtons({ itemId }) {
           isChecked={data?.item?.currentUserWantsThis}
         />
       </SubtleSkeleton>
-      <ItemPageOwnWantListsButton
-        isVisible={data?.item?.currentUserWantsThis}
+      <ItemPageOwnWantListsDropdown
         closetLists={wantedLists}
+        item={data?.item}
+        // Show the dropdown if the user wants this, and has at least one
+        // custom list it could belong to.
+        isVisible={data?.item?.currentUserWantsThis && wantedLists.length >= 1}
+        popoverPlacement="bottom-start"
       />
     </Grid>
   );
 }
 
-function ItemPageOwnWantListsButton({ closetLists, isVisible }) {
+function ItemPageOwnWantListsDropdown({
+  closetLists,
+  item,
+  isVisible,
+  popoverPlacement,
+}) {
+  return (
+    <Popover placement={popoverPlacement}>
+      <PopoverTrigger>
+        <ItemPageOwnWantListsDropdownButton
+          closetLists={closetLists}
+          isVisible={isVisible}
+        />
+      </PopoverTrigger>
+      <PopoverContent padding="2" width="64">
+        <ItemPageOwnWantListsDropdownContent
+          closetLists={closetLists}
+          item={item}
+        />
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+const ItemPageOwnWantListsDropdownButton = React.forwardRef(
+  ({ closetLists, isVisible, ...props }, ref) => {
+    const listsToShow = closetLists.filter((cl) => cl.hasItem);
+
+    let buttonText;
+    if (listsToShow.length === 1) {
+      buttonText = `In list: "${listsToShow[0].name}"`;
+    } else if (listsToShow.length > 1) {
+      const listNames = listsToShow.map((cl) => `"${cl.name}"`).join(", ");
+      buttonText = `${listsToShow.length} lists: ${listNames}`;
+    } else {
+      buttonText = "Add to list";
+    }
+
+    return (
+      <Flex
+        ref={ref}
+        as="button"
+        fontSize="xs"
+        alignItems="center"
+        borderRadius="sm"
+        width="100%"
+        _hover={{ textDecoration: "underline" }}
+        _focus={{
+          textDecoration: "underline",
+          outline: "0",
+          boxShadow: "outline",
+        }}
+        // Even when the button isn't visible, we still render it for layout
+        // purposes, but hidden and disabled.
+        opacity={isVisible ? 1 : 0}
+        aria-hidden={!isVisible}
+        disabled={!isVisible}
+        {...props}
+      >
+        {/* Flex tricks to center the text, ignoring the caret */}
+        <Box flex="1 0 0" />
+        <Box textOverflow="ellipsis" overflow="hidden" whiteSpace="nowrap">
+          {buttonText}
+        </Box>
+        <Flex flex="1 0 0">
+          <ChevronDownIcon marginLeft="1" />
+        </Flex>
+      </Flex>
+    );
+  }
+);
+
+function ItemPageOwnWantListsDropdownContent({ closetLists, item }) {
+  return (
+    <Box as="ul" listStyleType="none">
+      {closetLists.map((closetList) => (
+        <Box key={closetList.id} as="li">
+          <ItemPageOwnWantsListsDropdownRow
+            closetList={closetList}
+            item={item}
+          />
+        </Box>
+      ))}
+    </Box>
+  );
+}
+
+function ItemPageOwnWantsListsDropdownRow({ closetList, item }) {
   const toast = useToast();
 
-  const realLists = closetLists.filter((cl) => !cl.isDefaultList);
+  const [sendAddToListMutation] = useMutation(
+    gql`
+      mutation ItemPage_AddToClosetList($listId: ID!, $itemId: ID!) {
+        addItemToClosetList(
+          listId: $listId
+          itemId: $itemId
+          removeFromDefaultList: true
+        ) {
+          id
+          hasItem(itemId: $itemId)
+        }
+      }
+    `,
+    { context: { sendAuth: true } }
+  );
 
-  let buttonText;
-  if (realLists.length === 1) {
-    buttonText = `In list: "${realLists[0].name}"`;
-  } else if (realLists.length > 1) {
-    const listNames = realLists.map((cl) => `"${cl.name}"`).join(", ");
-    buttonText = `${realLists.length} lists: ${listNames}`;
-  } else {
-    buttonText = "Add to list";
-  }
+  const [sendRemoveFromListMutation] = useMutation(
+    gql`
+      mutation ItemPage_RemoveFromClosetList($listId: ID!, $itemId: ID!) {
+        removeItemFromClosetList(
+          listId: $listId
+          itemId: $itemId
+          ensureInSomeList: true
+        ) {
+          id
+          hasItem(itemId: $itemId)
+        }
+      }
+    `,
+    { context: { sendAuth: true } }
+  );
+
+  const onChange = React.useCallback(
+    (e) => {
+      if (e.target.checked) {
+        sendAddToListMutation({
+          variables: { listId: closetList.id, itemId: item.id },
+          optimisticResponse: {
+            addItemToClosetList: {
+              __typename: "ClosetList",
+              id: closetList.id,
+              hasItem: true,
+            },
+          },
+        }).catch((error) => {
+          console.error(error);
+          toast({
+            status: "error",
+            title: `Oops, error adding "${item.name}" to "${closetList.name}!"`,
+            description:
+              "Check your connection and try again? Sorry about this!",
+          });
+        });
+      } else {
+        sendRemoveFromListMutation({
+          variables: { listId: closetList.id, itemId: item.id },
+          optimisticResponse: {
+            removeItemFromClosetList: {
+              __typename: "ClosetList",
+              id: closetList.id,
+              hasItem: false,
+            },
+          },
+        }).catch((error) => {
+          console.error(error);
+          toast({
+            status: "error",
+            title: `Oops, error removing "${item.name}" from "${closetList.name}!"`,
+            description:
+              "Check your connection and try again? Sorry about this!",
+          });
+        });
+      }
+    },
+    [closetList, item, sendAddToListMutation, sendRemoveFromListMutation, toast]
+  );
 
   return (
-    <Flex
-      as="button"
-      fontSize="xs"
-      alignItems="center"
-      borderRadius="sm"
+    <Checkbox
+      size="sm"
       width="100%"
-      _hover={{ textDecoration: "underline" }}
-      _focus={{
-        textDecoration: "underline",
-        outline: "0",
-        boxShadow: "outline",
-      }}
-      onClick={() =>
-        toast({
-          status: "warning",
-          title: "Feature coming soon!",
-          description:
-            "I haven't built the cute pop-up for editing your lists yet! Neat concept though, right? 😅 —Matchu",
-        })
-      }
-      // Even when the button isn't visible, we still render it for layout
-      // purposes, but hidden and disabled.
-      opacity={isVisible ? 1 : 0}
-      aria-hidden={!isVisible}
-      disabled={!isVisible}
+      value={closetList.id}
+      isChecked={closetList.hasItem}
+      onChange={onChange}
     >
-      {/* Flex tricks to center the text, ignoring the caret */}
-      <Box flex="1 0 0" />
-      <Box textOverflow="ellipsis" overflow="hidden" whiteSpace="nowrap">
-        {buttonText}
-      </Box>
-      <Flex flex="1 0 0">
-        <ChevronDownIcon marginLeft="1" />
-      </Flex>
-    </Flex>
+      {closetList.name}
+    </Checkbox>
   );
 }
 

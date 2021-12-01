@@ -23,17 +23,23 @@ const typeDefs = gql`
     "Whether this is a list of items they own, or items they want."
     ownsOrWantsItems: OwnsOrWants!
 
-    # Each user has a "default list" of items they own/want. When users click
-    # the Own/Want button on the item page, items go here automatically. (On
-    # the backend, this is managed as the hangers having a null list ID.)
-    #
-    # This field is true if the list is the default list, so we can style it
-    # differently and change certain behaviors (e.g. can't be deleted).
+    """
+    Each user has a "default list" of items they own/want. When users click
+    the Own/Want button on the item page, items go here automatically. (On
+    the backend, this is managed as the hangers having a null list ID.)
+
+    This field is true if the list is the default list, so we can style it
+    differently and change certain behaviors (e.g. can't be deleted).
+    """
     isDefaultList: Boolean!
 
+    "The items in this list."
     items: [Item!]!
 
-    # The user that created this list.
+    "Whether the given item appears in this list."
+    hasItem(itemId: ID!): Boolean!
+
+    "The user that created this list."
     creator: User!
   }
 
@@ -128,6 +134,28 @@ const resolvers = {
       const items = await itemLoader.loadMany(itemIds);
 
       return items.map(({ id }) => ({ id }));
+    },
+
+    hasItem: async (
+      { isDefaultList, id, userId, ownsOrWantsItems, items: precomputedItems },
+      { itemId },
+      { closetHangersForListLoader, closetHangersForDefaultListLoader }
+    ) => {
+      // TODO: It'd be nice for User.closetLists to *not* just preload all
+      //       items if we're just trying to look up one specific one… but,
+      //       well, here we are! Look through precomputed items first!
+      if (precomputedItems) {
+        return precomputedItems.map((item) => item.id).includes(itemId);
+      }
+
+      const closetHangers = isDefaultList
+        ? await closetHangersForDefaultListLoader.load({
+            userId,
+            ownsOrWantsItems,
+          })
+        : await closetHangersForListLoader.load(id);
+      const itemIds = closetHangers.map((h) => h.itemId);
+      return itemIds.includes(itemId);
     },
 
     creator: async ({ id, isDefaultList, userId }, _, { closetListLoader }) => {

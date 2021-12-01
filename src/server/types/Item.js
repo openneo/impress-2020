@@ -35,6 +35,11 @@ const typeDefs = gql`
 
     currentUserOwnsThis: Boolean! @cacheControl(maxAge: 0, scope: PRIVATE)
     currentUserWantsThis: Boolean! @cacheControl(maxAge: 0, scope: PRIVATE)
+
+    """
+    Which lists the current user has this item in.
+    Deprecated: We're using ClosetList.hasItem in the client now!
+    """
     currentUserHasInLists: [ClosetList!]! @cacheControl(maxAge: 0, scope: PRIVATE)
 
     """
@@ -267,7 +272,27 @@ const typeDefs = gql`
     addToItemsCurrentUserWants(itemId: ID!): Item
     removeFromItemsCurrentUserWants(itemId: ID!): Item
 
-    removeItemFromClosetList(listId: ID!, itemId: ID!): ClosetList
+    """
+    Add the given item to the given list, if this user has permission.
+
+    If "removeFromDefaultList" is true, this will *also* remove the item from
+    the corresponding *default* list, if it's present. (This is helpful for UI
+    interactions like on the item page, where maybe the user clicks "I own
+    this", *then* adds it to a specific list, and probably didn't mean to
+    create two copies!)
+    """
+    addItemToClosetList(listId: ID!, itemId: ID!, removeFromDefaultList: Boolean): ClosetList
+
+    """
+    Remove the given item from the given list, if this user has permission.
+
+    If "ensureInSomeList" is true, this will *also* add the item to the
+    corresponding *default* list, if it's not in any others. (This is helpful
+    for UI interactions like on the item page, where unticking the checkbox for
+    all the lists doesn't necessarily mean you want to stop owning/wanting the
+    item altogether!)
+    """
+    removeItemFromClosetList(listId: ID!, itemId: ID!, ensureInSomeList: Boolean): ClosetList
   }
 `;
 
@@ -981,9 +1006,9 @@ const resolvers = {
 
       return { id: itemId };
     },
-    removeItemFromClosetList: async (
+    addItemToClosetList: async (
       _,
-      { listId, itemId },
+      { listId, itemId, removeFromDefaultList },
       { currentUserId, db, closetListLoader }
     ) => {
       const closetListRef = await loadClosetListOrDefaultList(
@@ -994,6 +1019,67 @@ const resolvers = {
         throw new Error(`list ${listId} not found`);
       }
 
+      const { userId, ownsOrWantsItems } = closetListRef;
+
+      if (userId !== currentUserId) {
+        throw new Error(`current user does not own this list`);
+      }
+
+      const now = new Date();
+
+      await db.beginTransaction();
+      try {
+        if (removeFromDefaultList) {
+          // First, remove from the default list, if requested.
+          await db.query(
+            `
+            DELETE FROM closet_hangers
+              WHERE item_id = ? AND user_id = ? AND list_id IS NULL
+                AND owned = ?
+              LIMIT 1;
+          `,
+            [itemId, userId, ownsOrWantsItems === "OWNS"]
+          );
+        }
+
+        // Then, add to the new list.
+        await db.query(
+          `
+            INSERT INTO closet_hangers
+              (item_id, user_id, owned, list_id, quantity, created_at, updated_at)
+              VALUES (?, ?, ?, ?, ?, ?, ?);
+          `,
+          [itemId, userId, ownsOrWantsItems === "OWNS", listId, 1, now, now]
+        );
+
+        await db.commit();
+      } catch (error) {
+        try {
+          await db.rollback();
+        } catch (error2) {
+          console.warn(`Error rolling back transaction`, error2);
+        }
+
+        throw error;
+      }
+
+      return closetListRef;
+    },
+    removeItemFromClosetList: async (
+      _,
+      { listId, itemId, ensureInSomeList },
+      { currentUserId, db, closetListLoader }
+    ) => {
+      const closetListRef = await loadClosetListOrDefaultList(
+        listId,
+        closetListLoader
+      );
+      if (closetListRef == null) {
+        throw new Error(`list ${listId} not found`);
+      }
+
+      const { userId, ownsOrWantsItems } = closetListRef;
+
       if (closetListRef.userId !== currentUserId) {
         throw new Error(`current user does not own this list`);
       }
@@ -1002,16 +1088,52 @@ const resolvers = {
         ? `(user_id = ? AND owned = ? AND list_id IS NULL)`
         : `(list_id = ?)`;
       const listMatcherValues = closetListRef.isDefaultList
-        ? [closetListRef.userId, closetListRef.ownsOrWantsItems === "OWNS"]
-        : [closetListRef.id];
+        ? [userId, ownsOrWantsItems === "OWNS"]
+        : [listId];
 
-      await db.query(
-        `
-          DELETE FROM closet_hangers
-            WHERE ${listMatcherCondition} AND item_id = ? LIMIT 1;
-        `,
-        [...listMatcherValues, itemId]
-      );
+      await db.beginTransaction();
+
+      try {
+        await db.query(
+          `
+            DELETE FROM closet_hangers
+              WHERE ${listMatcherCondition} AND item_id = ? LIMIT 1;
+          `,
+          [...listMatcherValues, itemId]
+        );
+
+        if (ensureInSomeList) {
+          // If requested, we check whether the item is still in *some* list of
+          // the same own/want type. If not, we add it to the default list.
+          const [rows] = await db.query(
+            `
+              SELECT COUNT(*) AS count FROM closet_hangers
+                WHERE user_id = ? AND item_id = ? AND owned = ?
+            `,
+            [userId, itemId, ownsOrWantsItems === "OWNS"]
+          );
+
+          if (rows[0].count === 0) {
+            const now = new Date();
+            await db.query(
+              `
+                INSERT INTO closet_hangers
+                  (item_id, user_id, owned, list_id, quantity, created_at, updated_at)
+                  VALUES (?, ?, ?, ?, ?, ?, ?);
+              `,
+              [itemId, userId, ownsOrWantsItems === "OWNS", null, 1, now, now]
+            );
+          }
+        }
+
+        await db.commit();
+      } catch (error) {
+        try {
+          await db.rollback();
+        } catch (error) {
+          console.warn(`Error rolling back transaction`, error);
+        }
+      }
 
       return closetListRef;
     },
