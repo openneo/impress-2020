@@ -1245,6 +1245,25 @@ const buildUserClosetHangersLoader = (db) =>
     );
   });
 
+const buildUserItemClosetHangersLoader = (db) =>
+  new DataLoader(async (userIdAndItemIdPairs) => {
+    const conditions = userIdAndItemIdPairs
+      .map((_) => `(user_id = ? AND item_id = ?)`)
+      .join(` OR `);
+    const params = userIdAndItemIdPairs
+      .map(({ userId, itemId }) => [userId, itemId])
+      .flat();
+    const [rows] = await db.execute(
+      `SELECT * FROM closet_hangers WHERE ${conditions};`,
+      params
+    );
+    const entities = rows.map(normalizeRow);
+
+    return userIdAndItemIdPairs.map(({ userId, itemId }) =>
+      entities.filter((e) => e.userId === userId && e.itemId === itemId)
+    );
+  });
+
 const buildUserClosetListsLoader = (db, loaders) =>
   new DataLoader(async (userIds) => {
     const qs = userIds.map((_) => "?").join(",");
@@ -1481,6 +1500,7 @@ function buildLoaders(db) {
   loaders.userByNameLoader = buildUserByNameLoader(db);
   loaders.userByEmailLoader = buildUserByEmailLoader(db);
   loaders.userClosetHangersLoader = buildUserClosetHangersLoader(db);
+  loaders.userItemClosetHangersLoader = buildUserItemClosetHangersLoader(db);
   loaders.userClosetListsLoader = buildUserClosetListsLoader(db, loaders);
   loaders.userNumTotalOutfitsLoader = buildUserNumTotalOutfitsLoader(db);
   loaders.userOutfitsLoader = buildUserOutfitsLoader(db, loaders);

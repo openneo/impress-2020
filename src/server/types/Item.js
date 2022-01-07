@@ -348,30 +348,38 @@ const resolvers = {
     currentUserOwnsThis: async (
       { id },
       _,
-      { currentUserId, userClosetHangersLoader }
+      { currentUserId, userItemClosetHangersLoader }
     ) => {
       if (currentUserId == null) return false;
-      const closetHangers = await userClosetHangersLoader.load(currentUserId);
-      return closetHangers.some((h) => h.itemId === id && h.owned);
+      const closetHangers = await userItemClosetHangersLoader.load({
+        userId: currentUserId,
+        itemId: id,
+      });
+      return closetHangers.some((h) => h.owned);
     },
     currentUserWantsThis: async (
       { id },
       _,
-      { currentUserId, userClosetHangersLoader }
+      { currentUserId, userItemClosetHangersLoader }
     ) => {
       if (currentUserId == null) return false;
-      const closetHangers = await userClosetHangersLoader.load(currentUserId);
-      return closetHangers.some((h) => h.itemId === id && !h.owned);
+      const closetHangers = await userItemClosetHangersLoader.load({
+        userId: currentUserId,
+        itemId: id,
+      });
+      return closetHangers.some((h) => !h.owned);
     },
     currentUserHasInLists: async (
       { id },
       _,
-      { currentUserId, userClosetHangersLoader }
+      { currentUserId, userItemClosetHangersLoader }
     ) => {
       if (currentUserId == null) return false;
-      const closetHangers = await userClosetHangersLoader.load(currentUserId);
-      const itemHangers = closetHangers.filter((h) => h.itemId === id);
-      const listRefs = itemHangers.map((hanger) => {
+      const closetHangers = await userItemClosetHangersLoader.load({
+        userId: currentUserId,
+        itemId: id,
+      });
+      const listRefs = closetHangers.map((hanger) => {
         if (hanger.listId) {
           return { id: hanger.listId };
         } else {
