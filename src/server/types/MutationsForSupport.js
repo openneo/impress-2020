@@ -872,11 +872,11 @@ const resolvers = {
         return null;
       }
 
-      await db.beginTransaction();
-
+      const connection = await db.getConnection();
       let auth0Warning = null;
       try {
-        const [[result1, result2]] = await db.query(
+        await connection.beginTransaction();
+        const [[result1, result2]] = await connection.query(
           `
           UPDATE users SET name = ? WHERE id = ? LIMIT 1;
           UPDATE openneo_id.users SET name = ? WHERE id = ? LIMIT 1;
@@ -921,16 +921,17 @@ const resolvers = {
             throw error;
           }
         }
+        await connection.commit();
       } catch (error) {
         // If any part of this fails (including the commit to Auth0), roll back
         // the database change. This doesn't *super* matter exactly (it's
         // probably not *bad* to change the username in the database), but it
         // does make the results more obvious and consistent for Support staff.
-        await db.rollback();
+        await connection.rollback();
         throw error;
+      } finally {
+        await connection.release();
       }
-
-      await db.commit();
 
       if (process.env["SUPPORT_TOOLS_DISCORD_WEBHOOK_URL"]) {
         try {

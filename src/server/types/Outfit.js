@@ -208,13 +208,14 @@ const resolvers = {
 
       // Save the outfit, and its item_outfit_relationships rows, in a
       // transaction.
-      await db.beginTransaction();
+      const connection = await db.getConnection();
       let newOutfitId;
       try {
+        await connection.beginTransaction();
         // If this is a new outfit, INSERT it. Or, if it's an existing outfit,
         // UPDATE it.
         const [result] = id
-          ? await db.execute(
+          ? await connection.execute(
               `
               UPDATE outfits
                 SET name = ?, pet_state_id = ?,
@@ -223,7 +224,7 @@ const resolvers = {
             `,
               [name, petState.id, id]
             )
-          : await db.execute(
+          : await connection.execute(
               `
                 INSERT INTO outfits
                   (name, pet_state_id, user_id, created_at, updated_at)
@@ -241,7 +242,7 @@ const resolvers = {
         //       performing the actual needed sync could be better. Keep an eye
         //       on query perf!
         if (id) {
-          await db.execute(
+          await connection.execute(
             `DELETE FROM item_outfit_relationships WHERE outfit_id = ?;`,
             [id]
           );
@@ -257,7 +258,7 @@ const resolvers = {
             ...wornItemIds.map((itemId) => [newOutfitId, itemId, true]),
             ...closetedItemIds.map((itemId) => [newOutfitId, itemId, false]),
           ].flat();
-          await db.execute(
+          await connection.execute(
             // TODO: When we start saving existing outfits, we'll need a delete
             //       here too, or some other sync mechanism.
             `
@@ -269,10 +270,12 @@ const resolvers = {
           );
         }
 
-        await db.commit();
+        await connection.commit();
       } catch (e) {
-        await db.rollback();
+        await connection.rollback();
         throw e;
+      } finally {
+        await connection.release();
       }
 
       console.info(`Saved outfit ${newOutfitId}`);

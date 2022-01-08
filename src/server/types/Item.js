@@ -1035,11 +1035,12 @@ const resolvers = {
 
       const now = new Date();
 
-      await db.beginTransaction();
+      const connection = await db.getConnection();
       try {
+        await connection.beginTransaction();
         if (removeFromDefaultList) {
           // First, remove from the default list, if requested.
-          await db.query(
+          await connection.query(
             `
             DELETE FROM closet_hangers
               WHERE item_id = ? AND user_id = ? AND list_id IS NULL
@@ -1051,7 +1052,7 @@ const resolvers = {
         }
 
         // Then, add to the new list.
-        await db.query(
+        await connection.query(
           `
             INSERT INTO closet_hangers
               (item_id, user_id, owned, list_id, quantity, created_at, updated_at)
@@ -1060,15 +1061,17 @@ const resolvers = {
           [itemId, userId, ownsOrWantsItems === "OWNS", listId, 1, now, now]
         );
 
-        await db.commit();
+        await connection.commit();
       } catch (error) {
         try {
-          await db.rollback();
+          await connection.rollback();
         } catch (error2) {
           console.warn(`Error rolling back transaction`, error2);
         }
 
         throw error;
+      } finally {
+        await connection.release();
       }
 
       return closetListRef;
@@ -1099,10 +1102,10 @@ const resolvers = {
         ? [userId, ownsOrWantsItems === "OWNS"]
         : [listId];
 
-      await db.beginTransaction();
-
+      const connection = await db.getConnection();
       try {
-        await db.query(
+        await connection.beginTransaction();
+        await connection.query(
           `
             DELETE FROM closet_hangers
               WHERE ${listMatcherCondition} AND item_id = ? LIMIT 1;
@@ -1113,7 +1116,7 @@ const resolvers = {
         if (ensureInSomeList) {
           // If requested, we check whether the item is still in *some* list of
           // the same own/want type. If not, we add it to the default list.
-          const [rows] = await db.query(
+          const [rows] = await connection.query(
             `
               SELECT COUNT(*) AS count FROM closet_hangers
                 WHERE user_id = ? AND item_id = ? AND owned = ?
@@ -1123,7 +1126,7 @@ const resolvers = {
 
           if (rows[0].count === 0) {
             const now = new Date();
-            await db.query(
+            await connection.query(
               `
                 INSERT INTO closet_hangers
                   (item_id, user_id, owned, list_id, quantity, created_at, updated_at)
@@ -1134,13 +1137,15 @@ const resolvers = {
           }
         }
 
-        await db.commit();
+        await connection.commit();
       } catch (error) {
         try {
-          await db.rollback();
+          await connection.rollback();
         } catch (error) {
           console.warn(`Error rolling back transaction`, error);
         }
+      } finally {
+        await connection.release();
       }
 
       return closetListRef;
