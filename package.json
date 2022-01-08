@@ -116,6 +116,7 @@
     "prettier": "^2.0.5",
     "react-is": "^16.13.1",
     "ts-node": "^9.1.1",
-    "typescript-cached-transpile": "^0.0.6"
+    "typescript-cached-transpile": "^0.0.6",
+    "yargs": "^17.3.1"
   }
 }
