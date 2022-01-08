@@ -35,12 +35,13 @@ async function connectToDb({
   }
 
   const db = mysql
-    .createConnection({
+    .createPool({
       host,
       user,
       password,
       database,
       multipleStatements: true,
+      connectionLimit: 10,
     })
     // We upgrade to promises here, instead of using the mysql2/promise import,
     // for compatibility with Honeycomb's automatic tracing.
