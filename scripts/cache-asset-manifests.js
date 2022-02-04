@@ -52,7 +52,7 @@ async function cacheAssetManifests(db) {
           // Make it a JSON string, then escape the string for the query.
           // Hacky for sure!
           const escapedManifest = JSON.stringify(JSON.stringify(manifest));
-          console.log(
+          console.info(
             `UPDATE swf_assets SET manifest = ${escapedManifest}, ` +
               `manifest_cached_at = CURRENT_TIMESTAMP() ` +
               `WHERE id = ${row.id} LIMIT 1;`
@@ -115,10 +115,10 @@ async function main() {
   try {
     await cacheAssetManifests(db);
   } catch (e) {
-    db.close();
+    db.end();
     throw e;
   }
-  db.close();
+  db.end();
 }
 
 main().catch((e) => {

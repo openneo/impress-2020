@@ -71,7 +71,7 @@ async function main() {
     );
     users = rows.map(normalizeRow);
   } finally {
-    db.close();
+    db.end();
   }
 
   let i = 0;
