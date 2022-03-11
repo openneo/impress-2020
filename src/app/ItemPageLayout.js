@@ -204,7 +204,7 @@ function ItemPageBadges({ item, isEmbedded }) {
         {!item?.isNc && !item?.isPb && (
           <LinkBadge
             href={
-              "http://www.neopets.com/market.phtml?type=wizard&string=" +
+              "http://www.neopets.com/shops/wizard.phtml?string=" +
               encodeURIComponent(item.name)
             }
             isEmbedded={isEmbedded}
