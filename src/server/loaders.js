@@ -611,7 +611,11 @@ async function runItemModelingQuery(db, filterToItemIds) {
       -- All species modeled except Vandagyre, for items that don't support it
       OR (NOT T_ITEMS.supports_vandagyre AND modeled_species_count = 54 AND modeled_species_ids = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54")
     )
-    ORDER BY T_ITEMS.item_id;
+    ORDER BY T_ITEMS.item_id
+    -- We limit the result set a bit, because if there's a bug or something
+    -- that causes too many records to return, it seems to have a tendency to
+    -- take up a bunch of resources and crash the site?
+    LIMIT 200;
     `,
     [...itemIdsValues]
   );
