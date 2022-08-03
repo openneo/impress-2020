@@ -51,7 +51,7 @@ import getVisibleLayers, {
 // of the following patterns:
 const VALID_LAYER_URLS = [
   // Some layers are converted from SWF to PNG by Classic DTI, living on S3.
-  /^https:\/\/(impress-asset-images\.openneo\.net|impress-asset-images\.s3\.amazonaws\.com)\/(biology|object)\/[0-9]{3}\/[0-9]{3}\/[0-9]{3}\/[0-9]+\/(150|300|600)x(150|300|600)\.png(\?[a-zA-Z0-9_-]+)?$/,
+  /^https:\/\/(impress-asset-images\.openneo\.net|impress-asset-images\.s3\.amazonaws\.com)\/(biology|object)\/[0-9]{3}\/[0-9]{3}\/[0-9]{3}\/[0-9]+\/(150x150|300x300|600x600)\.png(\?[a-zA-Z0-9_-]+)?$/,
 
   // Some layers are converted to PNG or SVG by Neopets themselves, extracted
   // from the manifest file.
