@@ -518,7 +518,7 @@ const resolvers = {
                 {
                   title: `🛠 ${colorName} ${speciesName}`,
                   thumbnail: {
-                    url: `http://pets.neopets.com/cp/${
+                    url: `https://pets.neopets.com/cp/${
                       petType.basicImageHash || petType.imageHash
                     }/1/6.png`,
                     height: 150,
@@ -754,7 +754,7 @@ const resolvers = {
               {
                 title: `🛠 ${colorName} ${speciesName}`,
                 thumbnail: {
-                  url: `http://pets.neopets.com/cp/${
+                  url: `https://pets.neopets.com/cp/${
                     petType.basicImageHash || petType.imageHash
                   }/1/6.png`,
                   height: 150,
@@ -833,7 +833,7 @@ const resolvers = {
               {
                 title: `🛠 ${colorName} ${speciesName}`,
                 thumbnail: {
-                  url: `http://pets.neopets.com/cp/${
+                  url: `https://pets.neopets.com/cp/${
                     petType.basicImageHash || petType.imageHash
                   }/1/6.png`,
                   height: 150,

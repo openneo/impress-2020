@@ -423,7 +423,7 @@ async function loadAndCacheAssetDataFromManifest(db, layer) {
 
   const format = asset.format;
   const assetUrls = asset.assetData.map(
-    (ad) => new URL(ad.path, "http://images.neopets.com")
+    (ad) => new URL(ad.path, "https://images.neopets.com")
   );
 
   // In the case of JS assets, we want the *last* one in the list, because
