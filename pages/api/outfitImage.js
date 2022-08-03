@@ -46,10 +46,23 @@ import getVisibleLayers, {
   itemAppearanceFragmentForGetVisibleLayers,
 } from "../../src/shared/getVisibleLayers";
 
+// We're overly cautious about what image URLs we're willing to download and
+// layer together for our output! We'll only accept `layerUrls` that match one
+// of the following patterns:
 const VALID_LAYER_URLS = [
+  // Some layers are converted from SWF to PNG by Classic DTI, living on S3.
   /^https:\/\/(impress-asset-images\.openneo\.net|impress-asset-images\.s3\.amazonaws\.com)\/(biology|object)\/[0-9]{3}\/[0-9]{3}\/[0-9]{3}\/[0-9]+\/(150|300|600)x(150|300|600)\.png(\?[a-zA-Z0-9_-]+)?$/,
-  /^http:\/\/images\.neopets\.com\/cp\/(bio|object|items)\/data\/[0-9]{3}\/[0-9]{3}\/[0-9]{3}\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+\.(svg|png)(\?.*)?$/,
-  // NOTE: We don't validate the layer's libraryUrl, because assetImage performs validation better than we could!
+
+  // Some layers are converted to PNG or SVG by Neopets themselves, extracted
+  // from the manifest file.
+  // TODO: I don't think we serve the `http://` variant of this layer URL
+  //       anymore, we could disallow that someday, but I'm keeping it for
+  //       compatibility with any potential old caches for now!
+  /^https?:\/\/images\.neopets\.com\/cp\/(bio|object|items)\/data\/[0-9]{3}\/[0-9]{3}\/[0-9]{3}\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+\.(svg|png)(\?.*)?$/,
+
+  // Some layers are converted from HTML5 movie to PNG, by our new system.
+  // NOTE: We don't validate the layer's libraryUrl, because we're expecting
+  //       the assetImage endpoint to have its own validation!
   /^https:\/\/impress-2020\.openneo\.net\/api\/assetImage\?libraryUrl=[^&]+(&size=(150|300|600))?$/,
 ];
 
