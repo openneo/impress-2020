@@ -141,9 +141,8 @@ const resolvers = {
   },
 };
 
-const neopetsXmlrpcClient = xmlrpc.createClient({
+const neopetsXmlrpcClient = xmlrpc.createSecureClient({
   host: "www.neopets.com",
-  port: 80,
   path: "/amfphp/xmlrpc.php",
 });
 const neopetsXmlrpcCall = util
