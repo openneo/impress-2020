@@ -102,7 +102,7 @@ function ItemTradesPage({
           thumbnailUrl
           description
           createdAt
-          wakaValueText
+          ncTradeValueText
         }
       }
     `,

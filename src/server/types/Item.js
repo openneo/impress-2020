@@ -33,6 +33,18 @@ const typeDefs = gql`
     """
     wakaValueText: String @cacheControl(maxAge: ${oneHour})
 
+    """
+    This item's NC trade value as a human-readable string. Returns null if the
+    value is not known.
+
+    Note that the format of this string is not well-specified—it's fully
+    human-curated and may include surprising words or extra notes! We recommend
+    presenting the text exactly as-is, rather than trying to parse and math it.
+
+    This data is currently curated by neopets.com/~owls, thank you!! <3
+    """
+    ncTradeValueText: String @cacheControl(maxAge: ${oneHour})
+
     currentUserOwnsThis: Boolean! @cacheControl(maxAge: 0, scope: PRIVATE)
     currentUserWantsThis: Boolean! @cacheControl(maxAge: 0, scope: PRIVATE)
 
@@ -343,6 +355,20 @@ const resolvers = {
     wakaValueText: () => {
       // This feature is deprecated, so now we just always return unknown value.
       return null;
+    },
+    ncTradeValueText: async ({ id }, _, { itemNCTradeValueLoader }) => {
+      let ncTradeValue;
+      try {
+        ncTradeValue = await itemNCTradeValueLoader.load(id);
+      } catch (e) {
+        console.error(
+          `Error loading ncTradeValueText for item ${id}, skipping:`
+        );
+        console.error(e);
+        ncTradeValue = null;
+      }
+
+      return ncTradeValue ? ncTradeValue.valueText : null;
     },
 
     currentUserOwnsThis: async (

@@ -79,20 +79,26 @@ async function loadOWLSValuesByIdOrName() {
   }
 
   const itemValuesByIdOrName = {};
-  for (const [itemName, value] of Object.entries(json)) {
+  for (const [itemName, valueText] of Object.entries(json)) {
     // OWLS returns an empty string for NC Mall items they don't have a trade
     // value for, to allow the script to distinguish between NP items vs
     // no-data NC items. We omit it from our data instead, because our UI is
     // already aware of whether the item is NP or NC.
-    if (value.trim() === "") {
+    if (valueText.trim() === "") {
       continue;
     }
 
     // TODO: OWLS doesn't currently provide item IDs ever. Add support for it
     //       if it does! (I'm keeping the rest of the code the same because I
-    //       think that might happen for disambiguation, like Waka did.)
+    //       think that might happen for disambiguation, like Waka did.) Until
+    //       then, we just always key by name.
     const normalizedItemName = normalizeItemName(itemName);
-    itemValuesByIdOrName[normalizedItemName] = value;
+
+    // We wrap it in an object with the key `valueText`, just to not break
+    // potential external consumers of this endpoint if we add more fields.
+    // (This is kinda silly and unnecessary, but it should get gzipped out and
+    // shouldn't add substantial time to building or parsing, so like w/e!)
+    itemValuesByIdOrName[normalizedItemName] = { valueText };
   }
 
   return itemValuesByIdOrName;
