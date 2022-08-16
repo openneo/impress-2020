@@ -147,6 +147,7 @@ const resolvers = {
       {
         currentUserId,
         db,
+        outfitLoader,
         petTypeBySpeciesAndColorLoader,
         petStatesForPetTypeLoader,
       }
@@ -155,6 +156,18 @@ const resolvers = {
         throw new Error(
           "saveOutfit requires login for now. This might change!"
         );
+      }
+
+      if (id) {
+        const outfit = await outfitLoader.load(id);
+        if (outfit == null) {
+          throw new Error(`outfit ${outfit.id} does not exist`);
+        }
+        if (outfit.userId !== currentUserId) {
+          throw new Error(
+            `user ${currentUserId} does not own outfit ${outfit.id}`
+          );
+        }
       }
 
       // Get the base name of the provided name: trim it, and strip any "(1)"
