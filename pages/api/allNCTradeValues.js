@@ -92,13 +92,23 @@ async function loadOWLSValuesByIdOrName() {
     //       if it does! (I'm keeping the rest of the code the same because I
     //       think that might happen for disambiguation, like Waka did.) Until
     //       then, we just always key by name.
-    const normalizedItemName = normalizeItemName(itemName);
+    // HACK: With the exception of the Butterfly Dress, which has a special
+    //       name in the OWLS database! We hardcodily disambiguate it here. But
+    //       if they start serving item IDs, that would resolve it too!
+    let nameOrId;
+    if (itemName === "Butterfly Dress") {
+      nameOrId = 44775;
+    } else if (itemName === "Butterfly Dress (from Faerie Festival event)") {
+      nameOrId = 76073;
+    } else {
+      nameOrId = normalizeItemName(itemName);
+    }
 
     // We wrap it in an object with the key `valueText`, just to not break
     // potential external consumers of this endpoint if we add more fields.
     // (This is kinda silly and unnecessary, but it should get gzipped out and
     // shouldn't add substantial time to building or parsing, so like w/e!)
-    itemValuesByIdOrName[normalizedItemName] = { valueText };
+    itemValuesByIdOrName[nameOrId] = { valueText };
   }
 
   return itemValuesByIdOrName;
