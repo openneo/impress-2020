@@ -5,7 +5,6 @@ import {
   Flex,
   Popover,
   PopoverArrow,
-  PopoverBody,
   PopoverContent,
   PopoverTrigger,
   Portal,
@@ -16,12 +15,7 @@ import {
   useToast,
   VStack,
 } from "@chakra-ui/react";
-import {
-  ExternalLinkIcon,
-  ChevronRightIcon,
-  QuestionIcon,
-  WarningTwoIcon,
-} from "@chakra-ui/icons";
+import { ExternalLinkIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { gql, useMutation } from "@apollo/client";
 
 import {
@@ -111,6 +105,7 @@ export function SubtleSkeleton({ isLoaded, ...props }) {
 
 function ItemPageBadges({ item, isEmbedded }) {
   const searchBadgesAreLoaded = item?.name != null && item?.isNc != null;
+  const shouldShowOwls = useShouldShowOwls();
 
   return (
     <ItemBadgeList marginTop="1">
@@ -156,47 +151,18 @@ function ItemPageBadges({ item, isEmbedded }) {
           Jellyneo
         </LinkBadge>
       </SubtleSkeleton>
-      {item.isNc && (
+      {item.isNc && shouldShowOwls && (
         <SubtleSkeleton
           isLoaded={
-            // Distinguish between undefined (still loading) and null (loaded and
-            // empty).
-            item.wakaValueText !== undefined
+            // Distinguish between undefined (still loading) and null (loaded
+            // and empty).
+            item.ncTradeValueText !== undefined
           }
         >
-          {shouldShowWaka() && item.wakaValueText && (
-            <>
-              {/* For hover-y devices, use a hover popover over the badge. */}
-              <Box sx={{ "@media (hover: none)": { display: "none" } }}>
-                <WakaPopover trigger="hover">
-                  <LinkBadge
-                    href="http://www.neopets.com/~waka"
-                    colorScheme="yellow"
-                  >
-                    <WarningTwoIcon marginRight="1" />
-                    Waka: {item.wakaValueText}
-                  </LinkBadge>
-                </WakaPopover>
-              </Box>
-              {/* For touch-y devices, use a tappable help icon. */}
-              <Flex
-                sx={{ "@media (hover: hover)": { display: "none" } }}
-                align="center"
-              >
-                <LinkBadge
-                  href="http://www.neopets.com/~waka"
-                  colorScheme="yellow"
-                >
-                  <WarningTwoIcon marginRight="1" />
-                  Waka: {item.wakaValueText}
-                </LinkBadge>
-                <WakaPopover>
-                  <Flex align="center" fontSize="sm" paddingX="2" tabIndex="0">
-                    <QuestionIcon />
-                  </Flex>
-                </WakaPopover>
-              </Flex>
-            </>
+          {item.ncTradeValueText && (
+            <LinkBadge href="http://www.neopets.com/~owls">
+              OWLS: {item.ncTradeValueText}
+            </LinkBadge>
           )}
         </SubtleSkeleton>
       )}
@@ -439,55 +405,34 @@ function ShortTimestamp({ when }) {
   );
 }
 
-function WakaPopover({ children, ...props }) {
-  return (
-    <Popover placement="bottom" {...props}>
-      <PopoverTrigger>{children}</PopoverTrigger>
-      <Portal>
-        <PopoverContent>
-          <PopoverArrow />
-          <PopoverBody fontSize="sm">
-            <p>
-              <strong>
-                The Waka Guide for NC trade values is closing down!
-              </strong>{" "}
-              We're sad to see them go, but excited that the team gets to move
-              onto the next phase in their life 💖
-            </p>
-            <Box height="1em" />
-            <p>
-              The Waka guide was last updated August 7, 2021, so this value
-              might not be accurate anymore. Consider checking in with the
-              Neoboards!
-            </p>
-            <Box height="1em" />
-            <p>
-              Thanks again to the Waka team for letting us experiment with
-              sharing their trade values here. Best wishes for everything to
-              come! 💜
-            </p>
-          </PopoverBody>
-        </PopoverContent>
-      </Portal>
-    </Popover>
-  );
-}
-
-// August 21, 2021. (The month uses 0-indexing, but nothing else does! 🙃)
-const STOP_SHOWING_WAKA_AFTER = new Date(2021, 7, 21, 0, 0, 0, 0);
+const SHOULD_SHOW_OWLS = false;
 
 /**
- * shouldShowWaka returns true if, according to the browser, it's not yet
- * August 21, 2021. It starts returning false at midnight on Aug 21.
+ * useShouldShowOwls will return false until the user types "~owls" on the
+ * page, after which the ~owls badge will appear.
  *
- * That way, our Waka deprecation message is on an auto-timer. After Aug 21,
- * it's safe to remove all Waka UI code, and the Waka API endpoint and GraphQL
- * fields. (It might be kind to return a placeholder string for the GraphQL
- * case!)
+ * We also keep the value in a global, so it'll stick if you go search for
+ * another item too!
  */
-function shouldShowWaka() {
-  const now = new Date();
-  return now < STOP_SHOWING_WAKA_AFTER;
+function useShouldShowOwls() {
+  const [mostRecentKeys, setMostRecentKeys] = React.useState([]);
+  const [shouldShowOwls, setShouldShowOwls] = React.useState(SHOULD_SHOW_OWLS);
+
+  React.useEffect(() => {
+    const onKeyPress = (e) => {
+      const newMostRecentKeys = [...mostRecentKeys, e.key].slice(-5);
+      if (newMostRecentKeys.join("") === "~owls") {
+        SHOULD_SHOW_OWLS = true;
+        setShouldShowOwls(true);
+      }
+      setMostRecentKeys(newMostRecentKeys);
+    };
+
+    window.addEventListener("keypress", onKeyPress);
+    return () => window.removeEventListener("keypress", onKeyPress);
+  });
+
+  return shouldShowOwls;
 }
 
 export default ItemPageLayout;

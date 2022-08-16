@@ -36,7 +36,13 @@ import { useQuery, useMutation } from "@apollo/client";
 import { Link, useParams } from "react-router-dom";
 
 import ItemPageLayout, { SubtleSkeleton } from "./ItemPageLayout";
-import { Delay, logAndCapture, useLocalStorage, usePageTitle } from "./util";
+import {
+  Delay,
+  logAndCapture,
+  MajorErrorMessage,
+  useLocalStorage,
+  usePageTitle,
+} from "./util";
 import HTML5Badge, { layerUsesHTML5 } from "./components/HTML5Badge";
 import {
   itemAppearanceFragment,
@@ -77,7 +83,7 @@ export function ItemPageContent({ itemId, isEmbedded }) {
           thumbnailUrl
           description
           createdAt
-          wakaValueText
+          ncTradeValueText
 
           # For Support users.
           rarityIndex
@@ -91,7 +97,7 @@ export function ItemPageContent({ itemId, isEmbedded }) {
   usePageTitle(data?.item?.name, { skip: isEmbedded });
 
   if (error) {
-    return <Box color="red.400">{error.message}</Box>;
+    return <MajorErrorMessage error={error} />;
   }
 
   const item = data?.item;
