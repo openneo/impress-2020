@@ -98,6 +98,16 @@ Sentry.init({
       startTransactionOnLocationChange: false,
     }),
   ],
+  denyUrls: [
+    // Don't log errors that were probably triggered by extensions and not by
+    // our own app. (Apparently Sentry's setting to ignore browser extension
+    // errors doesn't do this anywhere near as consistently as I'd expect?)
+    //
+    // Adapted from https://gist.github.com/impressiver/5092952, as linked in
+    // https://docs.sentry.io/platforms/javascript/configuration/filtering/.
+    /^chrome-extension:\/\//,
+    /^moz-extension:\/\//,
+  ],
 
   // Since we're only tracking first-page loads and not navigations, 100%
   // sampling isn't actually so much! Tune down if it becomes a problem, tho.
