@@ -52,14 +52,16 @@
         src: "{{ local_app_root }}/.env"
         dest: "{{ remote_app_root }}/.env"
 
-    - name: Check whether yarn.lock is the same as the current deployed version
+    - name: Check whether we can reuse the currently deployed node_modules.
       # First, compare the files. Then, ensure that node_modules is in a good
-      # state and will be linkable. If this succeeds, we can do the link cheat!
-      # If this fails, keep going, and run `yarn install` instead.
+      # state and will be linkable. Finally, ensure that it's one of the 5 most
+      # recent versions, so it won't be cleaned up. If this succeeds, we can do
+      # the link cheat! If this fails, proceed and run `yarn install` instead.
       command: |
         bash -c "
           cmp '{{ remote_app_root }}/yarn.lock' '/srv/impress-2020/current/yarn.lock' &&
-            test -e /srv/impress-2020/current/node_modules"
+            test -e /srv/impress-2020/current/node_modules &&
+            (ls -dt /srv/impress-2020/versions/* | head -n 5 | grep $(realpath /srv/impress-2020/current/node_modules/..))"
       failed_when: no
       register: can_reuse_node_modules_when_successful
 
@@ -89,7 +91,16 @@
       command: pm2 reload impress-2020
 
     - name: Find older versions to clean up
-      # Print out all but the 5 last-recently-updated versions
+      # Print out all but the 5 last-recently-updated versions.
+      # NOTE: If we change this count, change the count we use when checking
+      #       whether to reuse node_modules too!
+      # TODO: This *will* still break *older* versions that pointed to an old
+      #       `node_modules` that got cleaned up, which could make rollback a
+      #       pain. We don't roll back often for DTI so that's probably fine,
+      #       but it'd be better to do something a bit more robust - or just
+      #       drop it and accept the install perf hit every time. (It's only
+      #       like 40 seconds on this last test, which isn't as bad as I
+      #       remember, especially when deploys aren't super common.)
       command:
         chdir: "{{ remote_versions_root }}"
         cmd: bash -c 'ls -t | tail -n +6'
