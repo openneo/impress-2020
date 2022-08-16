@@ -105,7 +105,6 @@ export function SubtleSkeleton({ isLoaded, ...props }) {
 
 function ItemPageBadges({ item, isEmbedded }) {
   const searchBadgesAreLoaded = item?.name != null && item?.isNc != null;
-  const shouldShowOwls = useShouldShowOwls();
 
   return (
     <ItemBadgeList marginTop="1">
@@ -151,7 +150,7 @@ function ItemPageBadges({ item, isEmbedded }) {
           Jellyneo
         </LinkBadge>
       </SubtleSkeleton>
-      {item.isNc && shouldShowOwls && (
+      {item.isNc && (
         <SubtleSkeleton
           isLoaded={
             // Distinguish between undefined (still loading) and null (loaded
@@ -403,36 +402,6 @@ function ShortTimestamp({ when }) {
         : monthDayYearFormatter.format(date)}
     </Tooltip>
   );
-}
-
-const SHOULD_SHOW_OWLS = false;
-
-/**
- * useShouldShowOwls will return false until the user types "~owls" on the
- * page, after which the ~owls badge will appear.
- *
- * We also keep the value in a global, so it'll stick if you go search for
- * another item too!
- */
-function useShouldShowOwls() {
-  const [mostRecentKeys, setMostRecentKeys] = React.useState([]);
-  const [shouldShowOwls, setShouldShowOwls] = React.useState(SHOULD_SHOW_OWLS);
-
-  React.useEffect(() => {
-    const onKeyPress = (e) => {
-      const newMostRecentKeys = [...mostRecentKeys, e.key].slice(-5);
-      if (newMostRecentKeys.join("") === "~owls") {
-        SHOULD_SHOW_OWLS = true;
-        setShouldShowOwls(true);
-      }
-      setMostRecentKeys(newMostRecentKeys);
-    };
-
-    window.addEventListener("keypress", onKeyPress);
-    return () => window.removeEventListener("keypress", onKeyPress);
-  });
-
-  return shouldShowOwls;
 }
 
 export default ItemPageLayout;
