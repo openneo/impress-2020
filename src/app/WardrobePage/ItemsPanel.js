@@ -32,6 +32,7 @@ import Item, { ItemListContainer, ItemListSkeleton } from "./Item";
 import { BiRename } from "react-icons/bi";
 import { IoCloudUploadOutline } from "react-icons/io5";
 import { MdMoreVert } from "react-icons/md";
+import { buildOutfitUrl } from "./useOutfitState";
 
 /**
  * ItemsPanel shows the items in the current outfit, and lets the user toggle
@@ -359,6 +360,8 @@ function OutfitSavingIndicator({ outfitSaving }) {
  * It also contains the outfit menu, for saving etc.
  */
 function OutfitHeading({ outfitState, outfitSaving, dispatchToOutfit }) {
+  const outfitCopyUrl = buildOutfitUrl(outfitState, { withoutOutfitId: true });
+
   return (
     // The Editable wraps everything, including the menu, because the menu has
     // a Rename option.
@@ -400,8 +403,13 @@ function OutfitHeading({ outfitState, outfitSaving, dispatchToOutfit }) {
             <Portal>
               <MenuList>
                 {outfitState.id && (
-                  <MenuItem icon={<EditIcon />} isDisabled>
-                    Edit a copy <i>(Coming soon)</i>
+                  <MenuItem
+                    icon={<EditIcon />}
+                    as="a"
+                    href={outfitCopyUrl}
+                    target="_blank"
+                  >
+                    Edit a copy
                   </MenuItem>
                 )}
                 <MenuItem

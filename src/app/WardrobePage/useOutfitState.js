@@ -599,16 +599,16 @@ function getZonesAndItems(itemsById, wornItemIds, closetedItemIds) {
   return zonesAndItems;
 }
 
-function buildOutfitUrl(outfitState) {
+export function buildOutfitUrl(outfitState, { withoutOutfitId = false } = {}) {
   const { id } = outfitState;
 
-  const { origin, pathname } = window.location;
+  const { origin } = window.location;
 
-  if (id) {
+  if (id && !withoutOutfitId) {
     return origin + `/outfits/${id}`;
   }
 
-  return origin + pathname + "?" + buildOutfitQueryString(outfitState);
+  return origin + "/outfits/new?" + buildOutfitQueryString(outfitState);
 }
 
 function buildOutfitQueryString(outfitState) {
