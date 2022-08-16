@@ -18,21 +18,38 @@ import {
   Button,
   Spinner,
   useColorModeValue,
+  Modal,
+  ModalContent,
+  ModalOverlay,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+  ModalCloseButton,
 } from "@chakra-ui/react";
 import {
   CheckIcon,
+  DeleteIcon,
   EditIcon,
   QuestionIcon,
   WarningTwoIcon,
 } from "@chakra-ui/icons";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
+import { useHistory } from "react-router-dom";
 
-import { Delay, Heading1, Heading2 } from "../util";
+import {
+  Delay,
+  ErrorMessage,
+  getGraphQLErrorMessage,
+  Heading1,
+  Heading2,
+} from "../util";
 import Item, { ItemListContainer, ItemListSkeleton } from "./Item";
 import { BiRename } from "react-icons/bi";
 import { IoCloudUploadOutline } from "react-icons/io5";
 import { MdMoreVert } from "react-icons/md";
 import { buildOutfitUrl } from "./useOutfitState";
+import { gql, useMutation } from "@apollo/client";
 
 /**
  * ItemsPanel shows the items in the current outfit, and lets the user toggle
@@ -360,6 +377,7 @@ function OutfitSavingIndicator({ outfitSaving }) {
  * It also contains the outfit menu, for saving etc.
  */
 function OutfitHeading({ outfitState, outfitSaving, dispatchToOutfit }) {
+  const { canDeleteOutfit } = outfitSaving;
   const outfitCopyUrl = buildOutfitUrl(outfitState, { withoutOutfitId: true });
 
   return (
@@ -422,12 +440,86 @@ function OutfitHeading({ outfitState, outfitSaving, dispatchToOutfit }) {
                 >
                   Rename
                 </MenuItem>
+                {canDeleteOutfit && (
+                  <DeleteOutfitMenuItem outfitState={outfitState} />
+                )}
               </MenuList>
             </Portal>
           </Menu>
         </Flex>
       )}
     </Editable>
+  );
+}
+
+function DeleteOutfitMenuItem({ outfitState }) {
+  const { id, name } = outfitState;
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const history = useHistory();
+
+  const [sendDeleteOutfitMutation, { loading, error }] = useMutation(
+    gql`
+      mutation DeleteOutfitMenuItem($id: ID!) {
+        deleteOutfit(id: $id)
+      }
+    `,
+    {
+      context: { sendAuth: true },
+      update(cache) {
+        // Once this is deleted, evict it from the local cache, and "garbage
+        // collect" to force all queries referencing this outfit to reload the
+        // next time we see them. (This is especially important since we're
+        // about to redirect to the user outfits page, which shouldn't show
+        // the outfit anymore!)
+        cache.evict(`Outfit:${id}`);
+        cache.gc();
+      },
+    }
+  );
+
+  return (
+    <>
+      <MenuItem icon={<DeleteIcon />} onClick={onOpen}>
+        Delete
+      </MenuItem>
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Delete outfit "{name}"?</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            We'll delete this data and remove it from your list of outfits.
+            Links and image embeds pointing to this outfit will break. Is that
+            okay?
+            {error && (
+              <ErrorMessage marginTop="1em">
+                Error deleting outfit: "{getGraphQLErrorMessage(error)}". Try
+                again?
+              </ErrorMessage>
+            )}
+          </ModalBody>
+          <ModalFooter>
+            <Button onClick={onClose}>No, keep this outfit</Button>
+            <Box flex="1 0 auto" width="2" />
+            <Button
+              colorScheme="red"
+              onClick={() =>
+                sendDeleteOutfitMutation({ variables: { id } })
+                  .then(() => {
+                    history.push(`/your-outfits`);
+                  })
+                  .catch((e) => {
+                    /* handled in error UI */
+                  })
+              }
+              isLoading={loading}
+            >
+              Delete
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </>
   );
 }
 

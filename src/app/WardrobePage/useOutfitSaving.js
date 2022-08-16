@@ -46,6 +46,11 @@ function useOutfitSaving(outfitState, dispatchToOutfit) {
   const canSaveOutfit =
     isLoggedIn && (isNewOutfit || outfitState.creator?.id === currentUserId);
 
+  // Users can delete their own outfits too. The logic is slightly different
+  // than for saving, because you can save an outfit that hasn't been saved
+  // yet, but you can't delete it.
+  const canDeleteOutfit = !isNewOutfit && canSaveOutfit;
+
   const [sendSaveOutfitMutation, { loading: isSaving }] = useMutation(
     gql`
       mutation UseOutfitSaving_SaveOutfit(
@@ -232,6 +237,7 @@ function useOutfitSaving(outfitState, dispatchToOutfit) {
 
   return {
     canSaveOutfit,
+    canDeleteOutfit,
     isNewOutfit,
     isSaving,
     latestVersionIsSaved,

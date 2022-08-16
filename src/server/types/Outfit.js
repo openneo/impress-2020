@@ -46,6 +46,13 @@ const typeDefs = gql`
       wornItemIds: [ID!]!
       closetedItemIds: [ID!]!
     ): Outfit!
+
+    """
+    Delete the outfit with the given ID.
+    Only the user who owns it has permission to do this.
+    Returns the ID of the deleted outfit. (A bit silly but that's that!)
+    """
+    deleteOutfit(id: ID!): ID!
   }
 `;
 
@@ -294,6 +301,26 @@ const resolvers = {
       console.info(`Saved outfit ${newOutfitId}`);
 
       return { id: newOutfitId };
+    },
+
+    deleteOutfit: async (_, { id }, { currentUserId, db, outfitLoader }) => {
+      if (!currentUserId) {
+        throw new Error("Must be logged in to delete outfits.");
+      }
+
+      const outfit = await outfitLoader.load(id);
+      if (outfit == null) {
+        throw new Error(`outfit ${outfit.id} does not exist`);
+      }
+      if (outfit.userId !== currentUserId) {
+        throw new Error(
+          `user ${currentUserId} does not own outfit ${outfit.id}`
+        );
+      }
+
+      await db.query(`DELETE FROM outfits WHERE id = ? LIMIT 1;`, [id]);
+
+      return id;
     },
   },
 };

@@ -426,12 +426,15 @@ export function logAndCapture(e) {
   Sentry.captureException(e);
 }
 
-export function MajorErrorMessage({ error = null, variant = "unexpected" }) {
+export function getGraphQLErrorMessage(error) {
   // If this is a GraphQL Bad Request error, show the message of the first
   // error the server returned. Otherwise, just use the normal error message!
-  const message =
-    error?.networkError?.result?.errors?.[0]?.message || error?.message || null;
+  return (
+    error?.networkError?.result?.errors?.[0]?.message || error?.message || null
+  );
+}
 
+export function MajorErrorMessage({ error = null, variant = "unexpected" }) {
   // Log the detailed error to the console, so we can have a good debug
   // experience without the parent worrying about it!
   React.useEffect(() => {
@@ -512,7 +515,7 @@ export function MajorErrorMessage({ error = null, variant = "unexpected" }) {
               marginTop="-2px"
               aria-label="Error message"
             />
-            "{message}"
+            "{getGraphQLErrorMessage(message)}"
           </Box>
         )}
       </Grid>
