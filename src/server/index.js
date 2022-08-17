@@ -100,6 +100,12 @@ const config = {
         );
         return authToken;
       },
+      logout: async () => {
+        // NOTE: This function isn't actually async in practice, but we mark it
+        //       as such for consistency with `login`!
+        // Set a header to delete the cookie. (That is, empty and expired.)
+        res.setHeader("Set-Cookie", `DTIAuthToken=; Max-Age=-1`);
+      },
       ...buildLoaders(db),
     };
   },

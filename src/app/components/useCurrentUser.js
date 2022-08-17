@@ -1,4 +1,4 @@
-import { gql, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect } from "react";
 import { useLocalStorage } from "../util";
@@ -163,34 +163,50 @@ function getUserInfoFromAuth0Data(user) {
  * Note that `startLogin` is only supported with the Auth0 auto mode. In db
  * mode, you should open a `LoginModal` instead!
  */
-export function useLoginActions() {
-  const {
-    loginWithRedirect: auth0StartLogin,
-    logout: auth0Logout,
-  } = useAuth0();
+export function useLogout() {
+  const { logout: logoutWithAuth0 } = useAuth0();
   const authMode = useAuthModeFeatureFlag();
 
+  const [sendLogoutMutation, { loading, error }] = useMutation(
+    gql`
+      mutation useLogout_Logout {
+        logout {
+          id
+        }
+      }
+    `,
+    {
+      update: (cache, { data }) => {
+        // Evict the `currentUser` from the cache, which will force all queries
+        // on the page that depend on it to update. (This includes the
+        // GlobalHeader that shows who you're logged in as!)
+        //
+        // We also evict the user themself, to force-update things that we're
+        // allowed to see about this user (e.g. private lists).
+        //
+        // I don't do any optimistic UI here, because auth is complex enough
+        // that I'd rather only show logout success after validating it through
+        // an actual server round-trip.
+        cache.evict({ id: "ROOT_QUERY", fieldName: "currentUser" });
+        if (data.logout?.id != null) {
+          cache.evict({ id: `User:${data.logout.id}` });
+        }
+        cache.gc();
+      },
+    }
+  );
+
+  const logoutWithDb = () => {
+    sendLogoutMutation().catch((e) => {}); // handled in error UI
+  };
+
   if (authMode === "auth0") {
-    return { startLogin: auth0StartLogin, logout: auth0Logout };
+    return [logoutWithAuth0, { loading: false, error: null }];
   } else if (authMode === "db") {
-    return {
-      startLogin: () => {
-        console.error(
-          `Error: Cannot call startLogin in db login mode. Open a ` +
-            `<LoginModal /> instead.`
-        );
-        alert(
-          `Error: Cannot call startLogin in db login mode. Open a ` +
-            `<LoginModal /> instead.`
-        );
-      },
-      logout: () => {
-        alert(`TODO: logout`);
-      },
-    };
+    return [logoutWithDb, { loading, error }];
   } else {
     console.error(`unexpected auth mode: ${JSON.stringify(authMode)}`);
-    return { startLogin: () => {}, logout: () => {} };
+    return [() => {}, { loading: false, error: null }];
   }
 }
 

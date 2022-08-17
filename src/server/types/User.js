@@ -59,6 +59,7 @@ const typeDefs = gql`
 
   extend type Mutation {
     login(username: String!, password: String!): User
+    logout: User
   }
 `;
 
@@ -370,6 +371,13 @@ const resolvers = {
         return null;
       }
       return { id: loginToken.userId };
+    },
+    logout: async (_, __, { currentUserId, logout }) => {
+      await logout();
+      if (currentUserId == null) {
+        return null;
+      }
+      return { id: currentUserId };
     },
   },
 };

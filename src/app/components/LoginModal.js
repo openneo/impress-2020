@@ -67,15 +67,22 @@ function LoginForm({ onSuccess }) {
       }
     `,
     {
-      update: (cache) => {
+      update: (cache, { data }) => {
         // Evict the `currentUser` from the cache, which will force all queries
         // on the page that depend on it to update. (This includes the
         // GlobalHeader that shows who you're logged in as!)
+        //
+        // We also evict the user themself, to force-update things that we're
+        // allowed to see about this user (e.g. private lists).
         //
         // I don't do any optimistic UI here, because auth is complex enough
         // that I'd rather only show login success after validating it through
         // an actual server round-trip.
         cache.evict({ id: "ROOT_QUERY", fieldName: "currentUser" });
+        if (data.login?.id != null) {
+          cache.evict({ id: `User:${data.login.id}` });
+        }
+        cache.gc();
       },
     }
   );

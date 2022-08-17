@@ -9,6 +9,7 @@ import {
   MenuList,
   MenuItem,
   useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
 import { HamburgerIcon } from "@chakra-ui/icons";
 import { Link, useLocation } from "react-router-dom";
@@ -17,9 +18,10 @@ import Image from "next/image";
 
 import useCurrentUser, {
   useAuthModeFeatureFlag,
-  useLoginActions,
+  useLogout,
 } from "./components/useCurrentUser";
 import HomeLinkIcon from "./images/home-link-icon.png";
+import { useAuth0 } from "@auth0/auth0-react";
 
 function GlobalHeader() {
   return (
@@ -113,7 +115,6 @@ function HomeLink(props) {
 
 function UserNavBarSection() {
   const { isLoading, isLoggedIn, id, username } = useCurrentUser();
-  const { logout } = useLoginActions();
 
   if (isLoading) {
     return null;
@@ -139,11 +140,7 @@ function UserNavBarSection() {
           <NavLinkItem as={Link} to="/modeling">
             Modeling
           </NavLinkItem>
-          <NavLinkItem
-            onClick={() => logout({ returnTo: window.location.origin })}
-          >
-            Log out
-          </NavLinkItem>
+          <LogoutButton />
         </NavLinksList>
       </HStack>
     );
@@ -161,12 +158,12 @@ function UserNavBarSection() {
 
 function LoginButton() {
   const authMode = useAuthModeFeatureFlag();
-  const { startLogin } = useLoginActions();
+  const { loginWithRedirect } = useAuth0();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const onClick = () => {
     if (authMode === "auth0") {
-      startLogin();
+      loginWithRedirect();
     } else if (authMode === "db") {
       onOpen();
     } else {
@@ -190,6 +187,39 @@ function LoginButton() {
 // every single page. Split it out!
 const LoginModal = React.lazy(() => import("./components/LoginModal"));
 
+function LogoutButton() {
+  const toast = useToast();
+  const [logout, { loading, error }] = useLogout();
+
+  React.useEffect(() => {
+    if (error != null) {
+      console.error(error);
+      toast({
+        title: "Oops, there was an error logging you out.",
+        description: "Reload the page and try again? Sorry about that!",
+        status: "warning",
+        duration: null,
+        isClosable: true,
+      });
+    }
+  }, [error, toast]);
+
+  return (
+    <NavLinkItem
+      onClick={() => logout({ returnTo: window.location.origin })}
+      // NOTE: The `isLoading` prop will only be relevant in the desktop case,
+      //       where this renders as a NavButton. In the mobile case, the menu
+      //       doesn't have a loading UI, and it closes when you click the
+      //       button anyway. Not ideal, but fine for a simple quick action!
+      isLoading={loading}
+    >
+      Log out
+    </NavLinkItem>
+  );
+}
+
+const NavLinkTypeContext = React.createContext("button");
+
 /**
  * Renders the given <NavLinkItem /> children as a dropdown menu or as a list
  * of buttons, depending on the screen size.
@@ -205,27 +235,30 @@ function NavLinksList({ children }) {
             <NavButton icon={<HamburgerIcon />} />
           </MenuButton>
           <MenuList>
-            {React.Children.map(children, (c) => (
-              <MenuItem {...c.props} />
-            ))}
+            <NavLinkTypeContext.Provider value="menu">
+              {children}
+            </NavLinkTypeContext.Provider>
           </MenuList>
         </Menu>
       </Box>
       <HStack spacing="2" display={{ base: "none", md: "flex" }}>
-        {React.Children.map(children, (c) => (
-          <NavButton {...c.props} />
-        ))}
+        <NavLinkTypeContext.Provider value="button">
+          {children}
+        </NavLinkTypeContext.Provider>
       </HStack>
     </>
   );
 }
 
-function NavLinkItem() {
-  throw new Error(
-    `NavLinkItem should only be rendered in a NavLinksList, which should ` +
-      `render it as both a MenuItem or NavButton element. That way, we can ` +
-      `show the best layout depending on a CSS media query!`
-  );
+function NavLinkItem(props) {
+  const navLinkType = React.useContext(NavLinkTypeContext);
+  if (navLinkType === "button") {
+    return <NavButton {...props} />;
+  } else if (navLinkType === "menu") {
+    return <MenuItem {...props} />;
+  } else {
+    throw new Error(`unexpected navLinkType: ${JSON.stringify(navLinkType)}`);
+  }
 }
 
 const NavButton = React.forwardRef(({ icon, ...props }, ref) => {
