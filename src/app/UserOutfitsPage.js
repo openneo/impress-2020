@@ -8,8 +8,8 @@ import { Link, useLocation } from "react-router-dom";
 import { Heading1, MajorErrorMessage, useCommonStyles } from "./util";
 import HangerSpinner from "./components/HangerSpinner";
 import OutfitThumbnail from "./components/OutfitThumbnail";
-import useRequireLogin from "./components/useRequireLogin";
 import PaginationToolbar from "./components/PaginationToolbar";
+import useCurrentUser from "./components/useCurrentUser";
 
 function UserOutfitsPage() {
   return (
@@ -53,7 +53,7 @@ const USER_OUTFITS_PAGE_QUERY = gql`
 const PER_PAGE = 20;
 
 function UserOutfitsPageContent() {
-  const { isLoading: userLoading } = useRequireLogin();
+  const { isLoggedIn, isLoading: userLoading } = useCurrentUser();
 
   const { search } = useLocation();
   const offset = parseInt(new URLSearchParams(search).get("offset")) || 0;
@@ -63,7 +63,7 @@ function UserOutfitsPageContent() {
     {
       variables: { offset },
       context: { sendAuth: true },
-      skip: userLoading,
+      skip: !isLoggedIn,
       // This will give us the cached numTotalOutfits while we wait for the
       // next page!
       returnPartialData: true,
@@ -110,8 +110,15 @@ function UserOutfitsPageContent() {
         <Center>
           <HangerSpinner />
         </Center>
+      ) : !isLoggedIn ? (
+        <Box textAlign="center">
+          You can see your list of saved outfits here, once you create an
+          account and log in!
+        </Box>
       ) : outfits.length === 0 ? (
-        <Box>You don't have any outfits yet. Maybe you can create some!</Box>
+        <Box textAlign="center">
+          You don't have any outfits yet. Maybe you can create some!
+        </Box>
       ) : (
         <Wrap spacing="4" justify="space-around">
           {outfits.map((outfit) => (
