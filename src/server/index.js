@@ -4,6 +4,7 @@ import { getUserIdFromToken } from "./auth";
 import connectToDb from "./db";
 import buildLoaders from "./loaders";
 import { plugin as cacheControlPluginFork } from "./lib/apollo-cache-control-fork";
+import { getAuthToken } from "./auth-by-db";
 
 const rootTypeDefs = gql`
   enum CacheScope {
@@ -60,7 +61,7 @@ if (process.env["NODE_ENV"] !== "test") {
 
 const config = {
   schema,
-  context: async ({ req }) => {
+  context: async ({ req, res }) => {
     const db = await connectToDb();
 
     const auth = (req && req.headers && req.headers.authorization) || "";
@@ -71,6 +72,20 @@ const config = {
     return {
       db,
       currentUserId,
+      login: async (params) => {
+        const authToken = await getAuthToken(params, db);
+        if (authToken == null) {
+          return null;
+        }
+        const oneWeekFromNow = new Date();
+        oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
+        res.setHeader(
+          "Set-Cookie",
+          `DTIAuthToken=${encodeURIComponent(JSON.stringify(authToken))}; ` +
+            `Max-Age=${60 * 60 * 24 * 7}; Secure; HttpOnly; SameSite=Strict`
+        );
+        return authToken;
+      },
       ...buildLoaders(db),
     };
   },

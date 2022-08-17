@@ -56,6 +56,10 @@ const typeDefs = gql`
     #       login/logout will change the local cache key!
     currentUser: User @cacheControl(scope: PRIVATE)
   }
+
+  extend type Mutation {
+    login(username: String!, password: String!): User
+  }
 `;
 
 const resolvers = {
@@ -356,6 +360,16 @@ const resolvers = {
       }
 
       return { id: currentUserId };
+    },
+  },
+
+  Mutation: {
+    login: async (_, { username, password }, { login }) => {
+      const loginToken = await login({ username, password });
+      if (loginToken == null) {
+        return null;
+      }
+      return { id: loginToken.userId };
     },
   },
 };

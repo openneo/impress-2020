@@ -1,3 +1,4 @@
+import { gql, useMutation } from "@apollo/client";
 import {
   Box,
   Button,
@@ -18,6 +19,7 @@ import {
   Tabs,
 } from "@chakra-ui/react";
 import React from "react";
+import { ErrorMessage, getGraphQLErrorMessage } from "../util";
 
 export default function LoginModal({ isOpen, onClose }) {
   return (
@@ -34,7 +36,7 @@ export default function LoginModal({ isOpen, onClose }) {
           <TabPanels>
             <TabPanel>
               <ModalBody>
-                <LoginForm />
+                <LoginForm onSuccess={() => onClose()} />
               </ModalBody>
             </TabPanel>
             <TabPanel>
@@ -49,17 +51,47 @@ export default function LoginModal({ isOpen, onClose }) {
   );
 }
 
-function LoginForm() {
-  const onSubmit = (e) => {
-    e.preventDefault();
-    alert("TODO: Log in!");
-  };
+function LoginForm({ onSuccess }) {
+  const [username, setUsername] = React.useState("");
+  const [password, setPassword] = React.useState("");
+
+  const [
+    sendLoginMutation,
+    { loading, error, data, called, reset },
+  ] = useMutation(gql`
+    mutation LoginForm_Login($username: String!, $password: String!) {
+      login(username: $username, password: $password) {
+        id
+        username
+      }
+    }
+  `);
 
   return (
-    <form onSubmit={onSubmit}>
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        sendLoginMutation({
+          variables: { username, password },
+        })
+          .then(({ data }) => {
+            if (data?.login != null) {
+              onSuccess();
+            }
+          })
+          .catch((e) => {}); // handled in error UI
+      }}
+    >
       <FormControl>
         <FormLabel>DTI Username</FormLabel>
-        <Input type="text" />
+        <Input
+          type="text"
+          value={username}
+          onChange={(e) => {
+            setUsername(e.target.value);
+            reset();
+          }}
+        />
         <FormHelperText>
           This is separate from your Neopets.com account.
         </FormHelperText>
@@ -67,17 +99,37 @@ function LoginForm() {
       <Box height="4" />
       <FormControl>
         <FormLabel>DTI Password</FormLabel>
-        <Input type="password" />
+        <Input
+          type="password"
+          value={password}
+          onChange={(e) => {
+            setPassword(e.target.value);
+            reset();
+          }}
+        />
         <FormHelperText>
           Careful, never enter your Neopets password on another site!
         </FormHelperText>
       </FormControl>
+
+      {error && (
+        <ErrorMessage marginTop="4">
+          Oops, login failed: "{getGraphQLErrorMessage(error)}". Try again?
+        </ErrorMessage>
+      )}
+
+      {called && !loading && !error && data?.login == null && (
+        <ErrorMessage marginTop="4">
+          We couldn't find a match for that username and password. Try again?
+        </ErrorMessage>
+      )}
+
       <Box marginTop="6" display="flex" alignItems="center">
         <Button size="sm" onClick={() => alert("TODO: Forgot password")}>
           Forgot password?
         </Button>
         <Box flex="1 0 auto" width="4" />
-        <Button type="submit" colorScheme="green">
+        <Button type="submit" colorScheme="green" isLoading={loading}>
           Log in
         </Button>
       </Box>
