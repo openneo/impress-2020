@@ -72,7 +72,10 @@ export async function getAuthToken({ username, password }, db) {
         `.env file.`
     );
   }
-  const unsignedAuthToken = { userId: impressId };
+  const unsignedAuthToken = {
+    userId: impressId,
+    createdAt: new Date().toISOString(),
+  };
   const authTokenHmac = createHmac(
     "sha256",
     process.env["DTI_AUTH_TOKEN_SECRET"]
