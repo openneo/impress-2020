@@ -47,7 +47,7 @@ import SquareItemCard, {
 import WIPCallout from "./components/WIPCallout";
 
 import HomepageSplashImg from "./images/homepage-splash.png";
-import FeedbackXweeImg from "./images/feedback-xwee.png";
+import FeedbackKikoImg from "./images/feedback-kiko.png";
 
 function HomePage() {
   usePageTitle(null);
@@ -116,8 +116,8 @@ function HomePage() {
       <Box height="16" />
       <FeedbackFormSection />
       <Box height="16" />
-      <WIPCallout details="We started building this last year, but, well… what a year 😅 Anyway, this will eventually become the main site, at impress.openneo.net!">
-        Maybe we'll rename it to Impress 2021… or maybe not! 🤔
+      <WIPCallout details="We started building this in 2020, but, well… sheesh, what a time 😅 This will eventually become the main site, at impress.openneo.net!">
+        Maybe we'll rename it to Impress 2022… or maybe not! 🤔
       </WIPCallout>
       <TestErrorSender />
     </Flex>
@@ -640,8 +640,8 @@ function FeedbackFormSection() {
             marginTop="4"
           >
             <Image
-              src={FeedbackXweeImg}
-              alt="Smiling green Xweetok"
+              src={FeedbackKikoImg}
+              alt="Smiling purple Kiko chef, holding a spoon"
               width={90}
               height={90}
               layout="fixed"
@@ -694,11 +694,11 @@ function FeedbackFormPitch() {
           flex={{ base: "0 0 auto", sm: "0 1 50%" }}
         >
           <Box as="h3" fontWeight="600">
-            New updates (Sep 30)
+            New updates (Aug 17)
           </Box>
           <UnorderedList>
-            <ListItem>Search bar on item page</ListItem>
-            <ListItem>Remove items from lists</ListItem>
+            <ListItem>Copy and delete outfits</ListItem>
+            <ListItem>~/Owls values for items</ListItem>
             <ListItem>
               <ChakraLink
                 href="https://twitter.com/NeopetsDTI"
@@ -720,8 +720,8 @@ function FeedbackFormPitch() {
             Coming soon
           </Box>
           <UnorderedList>
-            <ListItem>Better outfit editing on large screens</ListItem>
-            <ListItem>Item list editing</ListItem>
+            <ListItem>Better login system</ListItem>
+            <ListItem>Making sure we're ready for the long-term</ListItem>
             <ListItem>
               …a lot of little things{" "}
               <span role="img" aria-label="Sweat smile emoji">
