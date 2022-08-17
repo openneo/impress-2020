@@ -41,7 +41,7 @@ export async function getAuthToken({ username, password }, db) {
     return null;
   }
 
-  // Finally, look up this user's ID in the main Dress to Impress database.
+  // Then, look up this user's ID in the main Dress to Impress database.
   // (For silly legacy reasons, it can be - and in our current database is
   // always! - different than the ID in the Openneo ID database.)
   const [rowsFromOpenneoImpress] = await db.query(
