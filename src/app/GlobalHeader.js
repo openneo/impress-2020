@@ -8,14 +8,17 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { HamburgerIcon } from "@chakra-ui/icons";
 import { Link, useLocation } from "react-router-dom";
-import { useAuth0 } from "@auth0/auth0-react";
 import { ChevronLeftIcon } from "@chakra-ui/icons";
 import Image from "next/image";
 
-import useCurrentUser from "./components/useCurrentUser";
+import useCurrentUser, {
+  useAuthModeFeatureFlag,
+  useLoginActions,
+} from "./components/useCurrentUser";
 import HomeLinkIcon from "./images/home-link-icon.png";
 
 function GlobalHeader() {
@@ -109,8 +112,8 @@ function HomeLink(props) {
 }
 
 function UserNavBarSection() {
-  const { loginWithRedirect, logout } = useAuth0();
   const { isLoading, isLoggedIn, id, username } = useCurrentUser();
+  const { logout } = useLoginActions();
 
   if (isLoading) {
     return null;
@@ -150,11 +153,42 @@ function UserNavBarSection() {
         <NavButton as={Link} to="/modeling">
           Modeling
         </NavButton>
-        <NavButton onClick={() => loginWithRedirect()}>Log in</NavButton>
+        <LoginButton />
       </HStack>
     );
   }
 }
+
+function LoginButton() {
+  const authMode = useAuthModeFeatureFlag();
+  const { startLogin } = useLoginActions();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const onClick = () => {
+    if (authMode === "auth0") {
+      startLogin();
+    } else if (authMode === "db") {
+      onOpen();
+    } else {
+      throw new Error(`unexpected auth mode: ${JSON.stringify(authMode)}`);
+    }
+  };
+
+  return (
+    <>
+      <NavButton onClick={onClick}>Log in</NavButton>
+      {authMode === "db" && (
+        <React.Suspense fallback="">
+          <LoginModal isOpen={isOpen} onClose={onClose} />
+        </React.Suspense>
+      )}
+    </>
+  );
+}
+
+// I don't wanna load all these Chakra components as part of the bundle for
+// every single page. Split it out!
+const LoginModal = React.lazy(() => import("./components/LoginModal"));
 
 /**
  * Renders the given <NavLinkItem /> children as a dropdown menu or as a list
