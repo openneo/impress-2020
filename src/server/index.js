@@ -67,10 +67,10 @@ const config = {
   context: async ({ req, res }) => {
     const db = await connectToDb();
 
-    let authMode = req.headers["dti-auth-mode"] || "auth0";
+    let authMode = req?.headers?.["dti-auth-mode"] || "auth0";
     let currentUserId;
     if (authMode === "auth0") {
-      const auth = (req && req.headers && req.headers.authorization) || "";
+      const auth = req?.headers?.authorization || "";
       const authMatch = auth.match(/^Bearer (.+)$/);
       const token = authMatch && authMatch[1];
       currentUserId = await getUserIdFromTokenViaAuth0(token);
