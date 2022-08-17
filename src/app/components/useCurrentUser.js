@@ -1,9 +1,23 @@
+import { gql, useQuery } from "@apollo/client";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect } from "react";
 import { useLocalStorage } from "../util";
 
+const NOT_LOGGED_IN_USER = {
+  isLoading: false,
+  isLoggedIn: false,
+  id: null,
+  username: null,
+};
+
 function useCurrentUser() {
-  const { isLoading, isAuthenticated, user } = useAuth0();
+  const authMode = useAuthModeFeatureFlag();
+  const currentUserViaAuth0 = useCurrentUserViaAuth0({
+    isEnabled: authMode === "auth0",
+  });
+  const currentUserViaDb = useCurrentUserViaDb({
+    isEnabled: authMode === "db",
+  });
 
   // In development, you can start the server with
   // `IMPRESS_LOG_IN_AS=12345 vc dev` to simulate logging in as user 12345.
@@ -30,14 +44,93 @@ function useCurrentUser() {
   // user. Use that token if present!
   const cypressUser = readCypressLoginData()?.decodedUser;
   if (cypressUser) {
-    return { isLoading: false, isLoggedIn: true, ...getUserInfo(cypressUser) };
+    return {
+      isLoading: false,
+      isLoggedIn: true,
+      ...getUserInfoFromAuth0Data(cypressUser),
+    };
   }
 
-  if (isLoading || !isAuthenticated) {
-    return { isLoading, isLoggedIn: false, id: null, username: null };
+  if (authMode === "auth0") {
+    return currentUserViaAuth0;
+  } else if (authMode === "db") {
+    return currentUserViaDb;
+  } else {
+    console.error(`Unexpected auth mode: ${JSON.stringify(authMode)}`);
+    return NOT_LOGGED_IN_USER;
   }
+}
 
-  return { isLoading, isLoggedIn: true, ...getUserInfo(user) };
+function useCurrentUserViaAuth0({ isEnabled }) {
+  // NOTE: I don't think we can actually, by the rule of hooks, *not* ask for
+  //       Auth0 login state when `isEnabled` is false, because `useAuth0`
+  //       doesn't accept a similar parameter to disable itself. We'll just
+  //       accept the redundant network effort during rollout, then delete it
+  //       when we're done. (So, the param isn't actually doing a whole lot; I
+  //       mostly have it for consistency with `useCurrentUserViaDb`, to make
+  //       it clear where the real difference is.)
+  const { isLoading, isAuthenticated, user } = useAuth0();
+
+  if (!isEnabled) {
+    return NOT_LOGGED_IN_USER;
+  } else if (isLoading) {
+    return { ...NOT_LOGGED_IN_USER, isLoading: true };
+  } else if (!isAuthenticated) {
+    return NOT_LOGGED_IN_USER;
+  } else {
+    return {
+      isLoading: false,
+      isLoggedIn: true,
+      ...getUserInfoFromAuth0Data(user),
+    };
+  }
+}
+
+function useCurrentUserViaDb({ isEnabled }) {
+  const { loading, data } = useQuery(
+    gql`
+      query useCurrentUser {
+        currentUser {
+          id
+          username
+        }
+      }
+    `,
+    {
+      skip: !isEnabled,
+      onError: (error) => {
+        // On error, we don't report anything to the user, but we do keep a
+        // record in the console. We figure that most errors are likely to be
+        // solvable by retrying the login button and creating a new session,
+        // which the user would do without an error prompt anyway; and if not,
+        // they'll either get an error when they try, or they'll see their
+        // login state continue to not work, which should be a clear hint that
+        // something is wrong and they need to reach out.
+        console.error("[useCurrentUser] Couldn't get current user:", error);
+      },
+      // We set this option so that, when we enter the loading state after
+      // logging in and evicting `currentUser` from the cache, we'll see the
+      // `loading: true` state. Otherwise, Apollo just leaves the return value
+      // as-is until the new data comes in, so the user sees the logged-out
+      // state until the behind-the-scenes update to this query finishes.
+      notifyOnNetworkStatusChange: true,
+    }
+  );
+
+  if (!isEnabled) {
+    return NOT_LOGGED_IN_USER;
+  } else if (loading) {
+    return { ...NOT_LOGGED_IN_USER, isLoading: true };
+  } else if (data?.currentUser == null) {
+    return NOT_LOGGED_IN_USER;
+  } else {
+    return {
+      isLoading: false,
+      isLoggedIn: true,
+      id: data.currentUser.id,
+      username: data.currentUser.username,
+    };
+  }
 }
 
 export function readCypressLoginData() {
@@ -56,7 +149,7 @@ export function readCypressLoginData() {
   }
 }
 
-function getUserInfo(user) {
+function getUserInfoFromAuth0Data(user) {
   return {
     id: user.sub?.match(/^auth0\|impress-([0-9]+)$/)?.[1],
     username: user["https://oauth.impress-2020.openneo.net/username"],
@@ -114,7 +207,7 @@ export function useAuthModeFeatureFlag() {
   // default to `null` instead of "auth0", I want to be unambiguous that this
   // is the *absence* of a localStorage value, and not risk accidentally
   // setting this override value to auth0 on everyone's devices 😅)
-  const [savedValue] = useLocalStorage("DTIAuthModeFeatureFlag", null);
+  let [savedValue] = useLocalStorage("DTIAuthModeFeatureFlag", null);
 
   useEffect(() => {
     window.setAuthModeFeatureFlag = setAuthModeFeatureFlag;
@@ -122,10 +215,37 @@ export function useAuthModeFeatureFlag() {
 
   if (!["auth0", "db", null].includes(savedValue)) {
     console.warn(
-      `Unexpected DTIAuthModeFeatureFlag value: %o. Treating as null.`,
+      `Unexpected DTIAuthModeFeatureFlag value: %o. Ignoring.`,
       savedValue
     );
-    return null;
+    savedValue = null;
+  }
+
+  return savedValue || "auth0";
+}
+
+/**
+ * getAuthModeFeatureFlag returns the authMode at the time it's called.
+ * It's generally preferable to use `useAuthModeFeatureFlag` in a React
+ * setting, but we use this instead for Apollo stuff!
+ */
+export function getAuthModeFeatureFlag() {
+  const savedValueString = localStorage.getItem("DTIAuthModeFeatureFlag");
+
+  let savedValue;
+  try {
+    savedValue = JSON.parse(savedValueString);
+  } catch (error) {
+    console.warn(`DTIAuthModeFeatureFlag was not valid JSON. Ignoring.`);
+    savedValue = null;
+  }
+
+  if (!["auth0", "db", null].includes(savedValue)) {
+    console.warn(
+      `Unexpected DTIAuthModeFeatureFlag value: %o. Ignoring.`,
+      savedValue
+    );
+    savedValue = null;
   }
 
   return savedValue || "auth0";

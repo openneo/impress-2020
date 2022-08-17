@@ -58,14 +58,27 @@ function LoginForm({ onSuccess }) {
   const [
     sendLoginMutation,
     { loading, error, data, called, reset },
-  ] = useMutation(gql`
-    mutation LoginForm_Login($username: String!, $password: String!) {
-      login(username: $username, password: $password) {
-        id
-        username
+  ] = useMutation(
+    gql`
+      mutation LoginForm_Login($username: String!, $password: String!) {
+        login(username: $username, password: $password) {
+          id
+        }
       }
+    `,
+    {
+      update: (cache) => {
+        // Evict the `currentUser` from the cache, which will force all queries
+        // on the page that depend on it to update. (This includes the
+        // GlobalHeader that shows who you're logged in as!)
+        //
+        // I don't do any optimistic UI here, because auth is complex enough
+        // that I'd rather only show login success after validating it through
+        // an actual server round-trip.
+        cache.evict({ id: "ROOT_QUERY", fieldName: "currentUser" });
+      },
     }
-  `);
+  );
 
   return (
     <form

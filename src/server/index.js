@@ -1,10 +1,13 @@
 import { beelinePlugin } from "./lib/beeline-graphql";
 import { gql, makeExecutableSchema } from "apollo-server";
-import { getUserIdFromToken } from "./auth";
+import { getUserIdFromToken as getUserIdFromTokenViaAuth0 } from "./auth";
 import connectToDb from "./db";
 import buildLoaders from "./loaders";
 import { plugin as cacheControlPluginFork } from "./lib/apollo-cache-control-fork";
-import { getAuthToken } from "./auth-by-db";
+import {
+  getAuthToken,
+  getUserIdFromToken as getUserIdFromTokenViaDb,
+} from "./auth-by-db";
 
 const rootTypeDefs = gql`
   enum CacheScope {
@@ -64,10 +67,21 @@ const config = {
   context: async ({ req, res }) => {
     const db = await connectToDb();
 
-    const auth = (req && req.headers && req.headers.authorization) || "";
-    const authMatch = auth.match(/^Bearer (.+)$/);
-    const token = authMatch && authMatch[1];
-    const currentUserId = await getUserIdFromToken(token);
+    let authMode = req.headers["dti-auth-mode"] || "auth0";
+    let currentUserId;
+    if (authMode === "auth0") {
+      const auth = (req && req.headers && req.headers.authorization) || "";
+      const authMatch = auth.match(/^Bearer (.+)$/);
+      const token = authMatch && authMatch[1];
+      currentUserId = await getUserIdFromTokenViaAuth0(token);
+    } else if (authMode === "db") {
+      currentUserId = await getCurrentUserIdViaDb(req);
+    } else {
+      console.warn(
+        `Unexpected auth mode: ${JSON.stringify(authMode)}. Skipping auth.`
+      );
+      currentUserId = null;
+    }
 
     return {
       db,
@@ -117,6 +131,22 @@ const config = {
     endpoint: "/api/graphql",
   },
 };
+
+async function getCurrentUserIdViaDb(req) {
+  const authTokenCookieString = req.cookies.DTIAuthToken;
+  if (!authTokenCookieString) {
+    return null;
+  }
+
+  let authTokenFromCookie = null;
+  try {
+    authTokenFromCookie = JSON.parse(authTokenCookieString);
+  } catch (error) {
+    console.warn(`DTIAuthToken cookie was not valid JSON, ignoring.`);
+  }
+
+  return await getUserIdFromTokenViaDb(authTokenFromCookie);
+}
 
 if (require.main === module) {
   const { ApolloServer } = require("apollo-server");
