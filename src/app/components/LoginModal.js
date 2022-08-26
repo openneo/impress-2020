@@ -78,11 +78,11 @@ function LoginForm({ onSuccess }) {
         // I don't do any optimistic UI here, because auth is complex enough
         // that I'd rather only show login success after validating it through
         // an actual server round-trip.
-        cache.evict({ id: "ROOT_QUERY", fieldName: "currentUser" });
         if (data.login?.id != null) {
+          cache.evict({ id: "ROOT_QUERY", fieldName: "currentUser" });
           cache.evict({ id: `User:${data.login.id}` });
+          cache.gc();
         }
-        cache.gc();
       },
     }
   );
@@ -99,7 +99,7 @@ function LoginForm({ onSuccess }) {
               onSuccess();
             }
           })
-          .catch((e) => {}); // handled in error UI
+          .catch((e) => console.error(e)); // plus the error UI
       }}
     >
       <FormControl>
