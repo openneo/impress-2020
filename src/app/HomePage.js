@@ -736,9 +736,15 @@ function FeedbackFormPitch() {
             <ListItem>
               <Popover>
                 <PopoverTrigger>
-                  <Box tabIndex="0" textDecoration="underline" cursor="pointer">
+                  <Button
+                    variant="link"
+                    textDecoration="underline"
+                    color="inherit"
+                    fontSize="1em"
+                    fontWeight="inherit"
+                  >
                     Better login system
-                  </Box>
+                  </Button>
                 </PopoverTrigger>
                 <PopoverContent>
                   <PopoverArrow />
