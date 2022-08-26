@@ -1,6 +1,7 @@
 import { gql } from "apollo-server";
 
 import { assertSupportSecretOrThrow } from "./MutationsForSupport";
+import { getAuthToken } from "../auth-by-db";
 
 const typeDefs = gql`
   type User {
@@ -365,15 +366,16 @@ const resolvers = {
   },
 
   Mutation: {
-    login: async (_, { username, password }, { login }) => {
-      const loginToken = await login({ username, password });
-      if (loginToken == null) {
+    login: async (_, { username, password }, { setAuthToken, db }) => {
+      const authToken = await getAuthToken({ username, password }, db);
+      if (authToken == null) {
         return null;
       }
-      return { id: loginToken.userId };
+      setAuthToken(authToken);
+      return { id: authToken.userId };
     },
-    logout: async (_, __, { currentUserId, logout }) => {
-      await logout();
+    logout: async (_, __, { currentUserId, setAuthToken }) => {
+      setAuthToken(null);
       if (currentUserId == null) {
         return null;
       }

@@ -4,10 +4,7 @@ import { getUserIdFromToken as getUserIdFromTokenViaAuth0 } from "./auth";
 import connectToDb from "./db";
 import buildLoaders from "./loaders";
 import { plugin as cacheControlPluginFork } from "./lib/apollo-cache-control-fork";
-import {
-  getAuthToken,
-  getUserIdFromToken as getUserIdFromTokenViaDb,
-} from "./auth-by-db";
+import { getUserIdFromToken as getUserIdFromTokenViaDb } from "./auth-by-db";
 
 const rootTypeDefs = gql`
   enum CacheScope {
@@ -86,25 +83,22 @@ const config = {
     return {
       db,
       currentUserId,
-      login: async (params) => {
-        const authToken = await getAuthToken(params, db);
-        if (authToken == null) {
-          return null;
+      setAuthToken: (authToken) => {
+        if (authToken != null) {
+          // Set the auth token as a secure cookie, encoded as JSON! (We also
+          // url-encode it, which is pretty standard for cookie-writing - to
+          // the extent that `req.cookies` actually decodes it automatically.)
+          const oneWeekFromNow = new Date();
+          oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
+          res.setHeader(
+            "Set-Cookie",
+            `DTIAuthToken=${encodeURIComponent(JSON.stringify(authToken))}; ` +
+              `Max-Age=${60 * 60 * 24 * 7}; Secure; HttpOnly; SameSite=Strict`
+          );
+        } else {
+          // Set a header to delete the cookie. (That is, empty and expired.)
+          res.setHeader("Set-Cookie", `DTIAuthToken=; Max-Age=-1`);
         }
-        const oneWeekFromNow = new Date();
-        oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
-        res.setHeader(
-          "Set-Cookie",
-          `DTIAuthToken=${encodeURIComponent(JSON.stringify(authToken))}; ` +
-            `Max-Age=${60 * 60 * 24 * 7}; Secure; HttpOnly; SameSite=Strict`
-        );
-        return authToken;
-      },
-      logout: async () => {
-        // NOTE: This function isn't actually async in practice, but we mark it
-        //       as such for consistency with `login`!
-        // Set a header to delete the cookie. (That is, empty and expired.)
-        res.setHeader("Set-Cookie", `DTIAuthToken=; Max-Age=-1`);
       },
       ...buildLoaders(db),
     };
