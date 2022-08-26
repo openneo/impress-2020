@@ -11,7 +11,7 @@ const NOT_LOGGED_IN_USER = {
 };
 
 function useCurrentUser() {
-  const authMode = useAuthModeFeatureFlag();
+  const [authMode] = useAuthModeFeatureFlag();
   const currentUserViaAuth0 = useCurrentUserViaAuth0({
     isEnabled: authMode === "auth0",
   });
@@ -165,7 +165,7 @@ function getUserInfoFromAuth0Data(user) {
  */
 export function useLogout() {
   const { logout: logoutWithAuth0 } = useAuth0();
-  const authMode = useAuthModeFeatureFlag();
+  const [authMode] = useAuthModeFeatureFlag();
 
   const [sendLogoutMutation, { loading, error }] = useMutation(
     gql`
@@ -223,7 +223,10 @@ export function useAuthModeFeatureFlag() {
   // default to `null` instead of "auth0", I want to be unambiguous that this
   // is the *absence* of a localStorage value, and not risk accidentally
   // setting this override value to auth0 on everyone's devices 😅)
-  let [savedValue] = useLocalStorage("DTIAuthModeFeatureFlag", null);
+  let [savedValue, setSavedValue] = useLocalStorage(
+    "DTIAuthModeFeatureFlag",
+    null
+  );
 
   useEffect(() => {
     window.setAuthModeFeatureFlag = setAuthModeFeatureFlag;
@@ -237,7 +240,9 @@ export function useAuthModeFeatureFlag() {
     savedValue = null;
   }
 
-  return savedValue || "auth0";
+  const value = savedValue || "auth0";
+
+  return [value, setSavedValue];
 }
 
 /**

@@ -7,6 +7,9 @@ import {
   Button,
   Center,
   Flex,
+  FormControl,
+  FormHelperText,
+  FormLabel,
   HStack,
   IconButton,
   Input,
@@ -15,7 +18,14 @@ import {
   InputRightElement,
   Link as ChakraLink,
   ListItem,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverCloseButton,
+  PopoverContent,
+  PopoverTrigger,
   Skeleton,
+  Switch,
   Textarea,
   Tooltip,
   UnorderedList,
@@ -45,6 +55,7 @@ import SquareItemCard, {
   SquareItemCardSkeleton,
 } from "./components/SquareItemCard";
 import WIPCallout from "./components/WIPCallout";
+import { useAuthModeFeatureFlag } from "./components/useCurrentUser";
 
 import HomepageSplashImg from "./images/homepage-splash.png";
 import FeedbackKikoImg from "./images/feedback-kiko.png";
@@ -679,6 +690,8 @@ function FeedbackFormContainer({ background, borderColor, children }) {
 }
 
 function FeedbackFormPitch() {
+  const [authMode, setAuthMode] = useAuthModeFeatureFlag();
+
   return (
     <Flex direction="column" textAlign="left" opacity="0.9">
       <Box as="header">Hi friends! Welcome to the beta!</Box>
@@ -720,7 +733,48 @@ function FeedbackFormPitch() {
             Coming soon
           </Box>
           <UnorderedList>
-            <ListItem>Better login system</ListItem>
+            <ListItem>
+              <Popover>
+                <PopoverTrigger>
+                  <Box tabIndex="0" textDecoration="underline" cursor="pointer">
+                    Better login system
+                  </Box>
+                </PopoverTrigger>
+                <PopoverContent>
+                  <PopoverArrow />
+                  <PopoverCloseButton />
+                  <PopoverBody>
+                    <FormControl>
+                      <Flex>
+                        <Box>
+                          <FormLabel
+                            htmlFor="hi-res-mode-setting"
+                            fontSize="sm"
+                            margin="0"
+                          >
+                            Experimental login mode
+                          </FormLabel>
+                          <FormHelperText marginTop="0" fontSize="xs">
+                            Should be faster and easier—help us try it out!
+                            After turning this on, try logging in.
+                          </FormHelperText>
+                        </Box>
+                        <Box width="2" />
+                        <Switch
+                          id="hi-res-mode-setting"
+                          size="sm"
+                          marginTop="0.1rem"
+                          isChecked={authMode === "db"}
+                          onChange={(e) =>
+                            setAuthMode(e.target.checked ? "db" : "auth0")
+                          }
+                        />
+                      </Flex>
+                    </FormControl>
+                  </PopoverBody>
+                </PopoverContent>
+              </Popover>
+            </ListItem>
             <ListItem>Making sure we're ready for the long-term</ListItem>
             <ListItem>
               …a lot of little things{" "}

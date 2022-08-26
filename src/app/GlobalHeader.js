@@ -157,7 +157,7 @@ function UserNavBarSection() {
 }
 
 function LoginButton() {
-  const authMode = useAuthModeFeatureFlag();
+  const [authMode] = useAuthModeFeatureFlag();
   const { loginWithRedirect } = useAuth0();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
