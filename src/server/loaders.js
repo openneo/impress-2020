@@ -1,5 +1,4 @@
 import DataLoader from "dataloader";
-import fetch from "node-fetch";
 import { normalizeRow } from "./util";
 
 const buildClosetListLoader = (db) =>
@@ -826,31 +825,6 @@ const buildItemTradesLoader = (db, loaders) =>
     { cacheKeyFn: ({ itemId, isOwned }) => `${itemId}-${isOwned}` }
   );
 
-const buildItemNCTradeValueLoader = () =>
-  new DataLoader(async (itemIds) => {
-    // This loader calls our /api/allNCTradeValues endpoint, to take advantage
-    // of the CDN caching. This helps us respond a bit faster than calling the
-    // API directly would, and avoids putting network pressure or caching
-    // complexity on our ~owls friends! (It would also be pretty reasonable to
-    // do this as a process-level cache or something instead, but I'm reusing
-    // Waka code from when we were on a more distributed system where that
-    // wouldn't have worked out, and I don't think the effort to refactor this
-    // just for the potential perf win is worthy!)
-    const url = process.env.NODE_ENV === "production"
-      ? "https://impress-2020.openneo.net/api/allNCTradeValues"
-      : "http://localhost:3000/api/allNCTradeValues";
-    const res = await fetch(url);
-    if (!res.ok) {
-      throw new Error(
-        `Error loading /api/allNCTradeValues: ${res.status} ${res.statusText}`
-      );
-    }
-
-    const allNCTradeValues = await res.json();
-
-    return itemIds.map((itemId) => allNCTradeValues[itemId]);
-  });
-
 const buildPetTypeLoader = (db, loaders) =>
   new DataLoader(async (petTypeIds) => {
     const qs = petTypeIds.map((_) => "?").join(",");
@@ -1521,7 +1495,6 @@ function buildLoaders(db) {
     db
   );
   loaders.itemTradesLoader = buildItemTradesLoader(db, loaders);
-  loaders.itemNCTradeValueLoader = buildItemNCTradeValueLoader();
   loaders.petTypeLoader = buildPetTypeLoader(db, loaders);
   loaders.petTypeBySpeciesAndColorLoader = buildPetTypeBySpeciesAndColorLoader(
     db,

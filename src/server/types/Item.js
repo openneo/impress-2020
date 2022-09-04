@@ -1,4 +1,5 @@
 import { gql } from "apollo-server";
+import { getOWLSTradeValue } from "../nc-trade-values";
 import {
   getRestrictedZoneIds,
   normalizeRow,
@@ -332,9 +333,7 @@ const resolvers = {
     },
     isNc: async ({ id }, _, { itemLoader }) => {
       const item = await itemLoader.load(id);
-      return (
-        item.rarityIndex === 500 || item.rarityIndex === 0 || item.isManuallyNc
-      );
+      return isNC(item);
     },
     isPb: async ({ id }, _, { itemTranslationLoader }) => {
       const translation = await itemTranslationLoader.load(id);
@@ -356,10 +355,31 @@ const resolvers = {
       // This feature is deprecated, so now we just always return unknown value.
       return null;
     },
-    ncTradeValueText: async ({ id }, _, { itemNCTradeValueLoader }) => {
+    ncTradeValueText: async (
+      { id },
+      _,
+      { itemLoader, itemTranslationLoader }
+    ) => {
+      // Skip this lookup for non-NC items, as a perf optimization.
+      const item = await itemLoader.load(id);
+      if (!isNC(item)) {
+        return;
+      }
+
+      // Get the item name, which is how we look things up in ~owls.
+      const itemTranslation = await itemTranslationLoader.load(id);
+      let itemName = itemTranslation.name;
+
+      // HACK: The name "Butterfly Dress" is used for two different items.
+      //       Here's what ~owls does to distinguish!
+      if (id === "76073") {
+        itemName = "Butterfly Dress (from Faerie Festival event)";
+      }
+
+      // Load the NC trade value from ~owls, if any.
       let ncTradeValue;
       try {
-        ncTradeValue = await itemNCTradeValueLoader.load(id);
+        ncTradeValue = await getOWLSTradeValue(itemName);
       } catch (e) {
         console.error(
           `Error loading ncTradeValueText for item ${id}, skipping:`
@@ -368,6 +388,7 @@ const resolvers = {
         ncTradeValue = null;
       }
 
+      // If there was a value, get the text. If not, return null.
       return ncTradeValue ? ncTradeValue.valueText : null;
     },
 
@@ -1223,6 +1244,12 @@ async function loadClosetListOrDefaultList(listId, closetListLoader) {
   }
 
   return null;
+}
+
+function isNC(item) {
+  return (
+    item.rarityIndex === 500 || item.rarityIndex === 0 || item.isManuallyNc
+  );
 }
 
 module.exports = { typeDefs, resolvers };

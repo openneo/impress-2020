@@ -1,3 +1,10 @@
+/**
+ * /api/allNCTradeValues returns all the NC trade values OWLS has!
+ *
+ * NOTE: We no longer use API endpoint as a caching layer for individual item
+ *       data requests. See `nc-trade-values.js` for the new system we use!
+ *       This endpoint is therefore deprecated and might vanish.
+ */
 const beeline = require("honeycomb-beeline")({
   writeKey: process.env["HONEYCOMB_WRITE_KEY"],
   dataset:
