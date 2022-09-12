@@ -1,6 +1,8 @@
 import { createHmac } from "crypto";
 import { normalizeRow } from "./util";
 
+// https://stackoverflow.com/a/201378/107415
+const EMAIL_PATTERN = /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/;
 
 export async function getAuthToken({ username, password, ipAddress }, db) {
   // For legacy reasons (and I guess decent security reasons too!), auth info
@@ -148,4 +150,41 @@ function computeSignatureForAuthToken(unsignedAuthToken) {
   );
   authTokenHmac.update(JSON.stringify(unsignedAuthToken));
   return authTokenHmac.digest("hex");
+}
+
+export async function createAccount(
+  { username, password, email, _ /* ipAddress */ },
+  __ /* db */
+) {
+  const errors = [];
+  if (!username) {
+    errors.push({ type: "USERNAME_IS_REQUIRED" });
+  }
+  if (!password) {
+    errors.push({ type: "PASSWORD_IS_REQUIRED" });
+  }
+  if (!email) {
+    errors.push({ type: "EMAIL_IS_REQUIRED" });
+  }
+  if (email && !email?.match(EMAIL_PATTERN)) {
+    errors.push({ type: "EMAIL_MUST_BE_VALID" });
+  }
+
+  // TODO: Add an error for non-unique username.
+
+  if (errors.length > 0) {
+    return { errors, authToken: null };
+  }
+
+  throw new Error(`TODO: Actually create the account!`);
+
+  // await db.query(`
+  //   INSERT INTO openneo_id.users
+  //     (name, encrypted_password, email, password_salt, sign_in_count,
+  //       current_sign_in_at, current_sign_in_ip, created_at, updated_at)
+  //     VALUES (?, ?, ?, ?, 1, CURRENT_TIMESTAMP(), ?,
+  //       CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP());
+  // `, [username, encryptedPassword, email, passwordSalt, ipAddress]);
+
+  // return { errors: [], authToken: createAuthToken(6) };
 }

@@ -1,7 +1,7 @@
 import { gql } from "apollo-server";
 
 import { assertSupportSecretOrThrow } from "./MutationsForSupport";
-import { getAuthToken } from "../auth-by-db";
+import { createAccount, getAuthToken } from "../auth-by-db";
 
 const typeDefs = gql`
   type User {
@@ -61,6 +61,26 @@ const typeDefs = gql`
   extend type Mutation {
     login(username: String!, password: String!): User
     logout: User
+    createAccount(
+      username: String!
+      password: String!
+      email: String!
+    ): CreateAccountMutationResult!
+  }
+
+  type CreateAccountMutationResult {
+    errors: [CreateAccountError!]!
+    user: User
+  }
+  type CreateAccountError {
+    type: CreateAccountErrorType!
+  }
+  enum CreateAccountErrorType {
+    USERNAME_IS_REQUIRED
+    USERNAME_ALREADY_TAKEN
+    PASSWORD_IS_REQUIRED
+    EMAIL_IS_REQUIRED
+    EMAIL_MUST_BE_VALID
   }
 `;
 
@@ -387,6 +407,22 @@ const resolvers = {
         return null;
       }
       return { id: currentUserId };
+    },
+    createAccount: async (
+      _,
+      { username, password, email },
+      { setAuthToken, db, ipAddress }
+    ) => {
+      const { errors, authToken } = await createAccount(
+        { username, password, email, ipAddress },
+        db
+      );
+      if (authToken == null) {
+        return { errors, user: null };
+      }
+
+      setAuthToken(authToken);
+      return { errors, user: { id: authToken.userId } };
     },
   },
 };
