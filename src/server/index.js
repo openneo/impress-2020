@@ -80,6 +80,12 @@ const config = {
       currentUserId = null;
     }
 
+    // In production, the server is behind a few proxy layers (both nginx and
+    // the CDN), so this IP header will be managed by them and can be trusted.
+    // (Can be null if something is set up a bit different, e.g. in local
+    // development.)
+    const ipAddress = req?.headers?.["x-forwarded-for"] || null;
+
     return {
       db,
       currentUserId,
@@ -100,6 +106,7 @@ const config = {
           res.setHeader("Set-Cookie", `DTIAuthToken=; Max-Age=-1`);
         }
       },
+      ipAddress,
       ...buildLoaders(db),
     };
   },

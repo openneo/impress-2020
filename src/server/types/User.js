@@ -366,8 +366,15 @@ const resolvers = {
   },
 
   Mutation: {
-    login: async (_, { username, password }, { setAuthToken, db }) => {
-      const authToken = await getAuthToken({ username, password }, db);
+    login: async (
+      _,
+      { username, password },
+      { setAuthToken, db, ipAddress }
+    ) => {
+      const authToken = await getAuthToken(
+        { username, password, ipAddress },
+        db
+      );
       if (authToken == null) {
         return null;
       }
