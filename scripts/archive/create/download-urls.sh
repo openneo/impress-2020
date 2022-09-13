@@ -1,0 +1,2 @@
+echo 'Starting! (Note: If many of the URLs are already downloaded, it will take some time for wget to quietly check them all and find the new ones.)'
+xargs --arg-file=$(dirname $0)/urls-cache.txt -P 8 wget --directory-prefix=${ARCHIVE_DIR=$(dirname $0)} --force-directories --no-clobber --timeout=10 --retry-connrefused --retry-on-host-error --no-cookies --compression=auto --https-only --no-verbose
