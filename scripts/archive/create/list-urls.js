@@ -46,7 +46,11 @@ async function main() {
     for (let i = 0; i < numItems; i += 1000) {
       console.info(`Loading items ${i + 1}–${i + 1000} of ${numItems}…`);
       const items = await loadItems(i, 1000, db);
-      const urls = items.map((i) => i.thumbnailUrl);
+      const urls = [];
+      for (const item of items) {
+        const thumbnailUrl = sanitizeUrl(item.thumbnailUrl, `Item ${item.id}`);
+        urls.push(thumbnailUrl);
+      }
       const lines = urls.map((url) => url + "\n");
       await file.write(lines.join(""), null, "utf8");
     }
@@ -57,12 +61,18 @@ async function main() {
       console.info(`Loading assets ${i + 1}–${i + 1000} of ${numSwfAssets}…`);
       const swfAssets = await loadSwfAssets(i, 1000, db);
       const urls = [];
+
       for (const swfAsset of swfAssets) {
-        urls.push(swfAsset.url);
-        urls.push(
-          ...getHTML5UrlsFromManifestContent(swfAsset.id, swfAsset.manifest)
-        );
+        const swfUrl = sanitizeUrl(swfAsset.url, `Asset ${swfAsset.id}`);
+        const html5Urls = getHTML5UrlsFromManifestContent(
+          swfAsset.id,
+          swfAsset.manifest
+        ).map((url) => sanitizeUrl(url, `Asset ${swfAsset.id}`));
+
+        urls.push(swfUrl);
+        urls.push(...html5Urls);
       }
+
       const lines = urls.map((url) => url + "\n");
       await file.write(lines.join(""), null, "utf8");
     }
@@ -97,7 +107,7 @@ async function loadItems(offset, limit, db) {
   const [
     rows,
   ] = await db.query(
-    `SELECT thumbnail_url FROM items ORDER BY id LIMIT ? OFFSET ?;`,
+    `SELECT id, thumbnail_url FROM items ORDER BY id LIMIT ? OFFSET ?;`,
     [limit, offset]
   );
   return rows.map(normalizeRow);
@@ -233,6 +243,45 @@ function inferManifestPath(paths) {
   }
 
   return `${baseDirectory}/manifest.json`;
+}
+
+/**
+ * Ensure this is an https://images.neopets.com URL. If the protocol isn't
+ * HTTPS, we fix it. If it's only a path, we'll fix that too. If the host isn't
+ * images.neopets.com, or we can't parse it at all… well, there's not a lot we
+ * can do, so we leave it intact but warn about the issue.
+ */
+function sanitizeUrl(url, contextString) {
+  // Some of the URLs in our database are written with the shorthand `//`
+  // prefix that directs the browser to use either HTTPS or HTTP depending on
+  // how the page was loaded. This won't parse correctly, so we fix it first!
+  if (url.startsWith("//")) {
+    url = "https:" + url;
+  }
+
+  let parsedUrl;
+  try {
+    // This is where we fix path-only "URLs": by parsing them in the context of
+    // the correct origin!
+    parsedUrl = new URL(url, "https://images.neopets.com");
+  } catch (error) {
+    console.warn(
+      `[${contextString}]: URL is not parseable, but we're saving it ` +
+        `anyway: ${JSON.stringify(url)}`
+    );
+    return url;
+  }
+
+  parsedUrl.protocol = "https:";
+
+  if (parsedUrl.host !== "images.neopets.com") {
+    console.warn(
+      `[${contextString}]: URL is not from images.neopets.com, but we're ` +
+        `saving it anyway: ${JSON.stringify(url)}`
+    );
+  }
+
+  return parsedUrl.toString();
 }
 
 main()
