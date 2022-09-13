@@ -1,4 +1,4 @@
--- MySQL dump 10.13  Distrib 8.0.21, for osx10.15 (x86_64)
+-- MariaDB dump 10.18  Distrib 10.4.17-MariaDB, for Linux (x86_64)
 --
 -- Host: impress.openneo.net    Database: openneo_impress
 -- ------------------------------------------------------
@@ -7,7 +7,7 @@
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!50503 SET NAMES utf8mb4 */;
+/*!40101 SET NAMES utf8mb4 */;
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -21,7 +21,7 @@
 
 DROP TABLE IF EXISTS `closet_hangers`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `closet_hangers` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `item_id` int(11) DEFAULT NULL,
@@ -35,7 +35,9 @@ CREATE TABLE `closet_hangers` (
   KEY `index_closet_hangers_on_list_id` (`list_id`),
   KEY `index_closet_hangers_on_user_id` (`user_id`),
   KEY `index_closet_hangers_on_item_id_and_owned` (`item_id`,`owned`),
-  KEY `index_closet_hangers_test_20131226` (`user_id`,`list_id`,`item_id`,`owned`,`created_at`)
+  KEY `index_closet_hangers_test_20131226` (`user_id`,`list_id`,`item_id`,`owned`,`created_at`),
+  KEY `index_closet_hangers_for_last_trade_activity` (`user_id`,`owned`,`list_id`,`updated_at`),
+  KEY `index_closet_hangers_on_user_id_and_owned_and_item_id` (`user_id`,`owned`,`item_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -45,7 +47,7 @@ CREATE TABLE `closet_hangers` (
 
 DROP TABLE IF EXISTS `closet_lists`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `closet_lists` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
@@ -66,7 +68,7 @@ CREATE TABLE `closet_lists` (
 
 DROP TABLE IF EXISTS `items`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `items` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `zones_restrict` text COLLATE utf8_unicode_ci NOT NULL,
@@ -84,8 +86,13 @@ CREATE TABLE `items` (
   `explicitly_body_specific` tinyint(1) NOT NULL DEFAULT '0',
   `manual_special_color_id` int(11) DEFAULT NULL,
   `modeling_status_hint` enum('done','glitchy') COLLATE utf8_unicode_ci DEFAULT NULL,
+  `is_manually_nc` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
-  KEY `objects_last_spidered` (`last_spidered`)
+  KEY `objects_last_spidered` (`last_spidered`),
+  KEY `items_modeling_status_hint` (`modeling_status_hint`),
+  KEY `items_modeling_status_hint_and_id` (`modeling_status_hint`,`id`),
+  KEY `items_modeling_status_hint_and_created_at` (`modeling_status_hint`,`created_at`),
+  KEY `items_modeling_status_hint_and_created_at_and_id` (`modeling_status_hint`,`created_at`,`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -95,7 +102,7 @@ CREATE TABLE `items` (
 
 DROP TABLE IF EXISTS `item_translations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `item_translations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `item_id` int(11) DEFAULT NULL,
@@ -119,7 +126,7 @@ CREATE TABLE `item_translations` (
 
 DROP TABLE IF EXISTS `modeling_logs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `modeling_logs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -135,7 +142,7 @@ CREATE TABLE `modeling_logs` (
 
 DROP TABLE IF EXISTS `parents_swf_assets`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `parents_swf_assets` (
   `parent_id` mediumint(9) NOT NULL,
   `swf_asset_id` mediumint(9) NOT NULL,
@@ -154,7 +161,7 @@ CREATE TABLE `parents_swf_assets` (
 
 DROP TABLE IF EXISTS `pet_types`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `pet_types` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `color_id` tinyint(4) NOT NULL,
@@ -164,7 +171,11 @@ CREATE TABLE `pet_types` (
   `image_hash` varchar(8) COLLATE utf8_unicode_ci DEFAULT NULL,
   `basic_image_hash` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `pet_types_species_color` (`species_id`,`color_id`)
+  UNIQUE KEY `pet_types_species_color` (`species_id`,`color_id`),
+  KEY `pet_types_color_id` (`color_id`),
+  KEY `pet_types_color_id_and_species_id` (`color_id`,`species_id`),
+  KEY `pet_types_body_id` (`body_id`),
+  KEY `pet_types_body_id_and_color_id_and_species_id` (`body_id`,`color_id`,`species_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -174,7 +185,7 @@ CREATE TABLE `pet_types` (
 
 DROP TABLE IF EXISTS `pet_states`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `pet_states` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `pet_type_id` mediumint(9) NOT NULL,
@@ -196,7 +207,7 @@ CREATE TABLE `pet_states` (
 
 DROP TABLE IF EXISTS `swf_assets`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `swf_assets` (
   `type` varchar(7) COLLATE utf8_unicode_ci NOT NULL,
   `remote_id` mediumint(9) NOT NULL,
@@ -211,7 +222,9 @@ CREATE TABLE `swf_assets` (
   `converted_at` datetime DEFAULT NULL,
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `image_manual` tinyint(1) NOT NULL DEFAULT '0',
-  `manifest` text COLLATE utf8_unicode_ci,
+  `manifest` mediumtext COLLATE utf8_unicode_ci,
+  `manifest_cached_at` timestamp NULL DEFAULT NULL,
+  `known_glitches` varchar(128) COLLATE utf8_unicode_ci DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `swf_assets_body_id_and_object_id` (`body_id`),
   KEY `idx_swf_assets_zone_id` (`zone_id`),
@@ -225,7 +238,7 @@ CREATE TABLE `swf_assets` (
 
 DROP TABLE IF EXISTS `users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
@@ -252,4 +265,4 @@ CREATE TABLE `users` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-10-22 20:30:56
+-- Dump completed on 2022-09-12 23:55:19
