@@ -15,7 +15,7 @@ const defaultOptions =
         host: "localhost",
         user: "impress_2020_dev",
         password: "impress_2020_dev",
-        database: "impress_2020_dev",
+        database: "openneo_impress",
       }
     : {
         host: "impress.openneo.net",
