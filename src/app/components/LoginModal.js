@@ -21,7 +21,6 @@ import {
 } from "@chakra-ui/react";
 import React from "react";
 import { ErrorMessage, getGraphQLErrorMessage } from "../util";
-import WIPCallout from "./WIPCallout";
 
 export default function LoginModal({ isOpen, onClose }) {
   return (
@@ -225,10 +224,12 @@ function CreateAccountForm() {
 
   return (
     <form onSubmit={onSubmit}>
-      <Box display="flex" justifyContent="center" marginBottom="3">
-        <WIPCallout>TODO: This form isn't wired up yet!</WIPCallout>
-      </Box>
-      <FormControl isInvalid={errorTypes.includes("USERNAME_IS_REQUIRED")}>
+      <FormControl
+        isInvalid={
+          errorTypes.includes("USERNAME_IS_REQUIRED") ||
+          errorTypes.includes("USERNAME_MUST_BE_UNIQUE")
+        }
+      >
         <FormLabel>DTI Username</FormLabel>
         <Input
           type="text"
@@ -238,12 +239,17 @@ function CreateAccountForm() {
             reset();
           }}
         />
-        <FormHelperText>
-          This will be separate from your Neopets.com account.
-        </FormHelperText>
         {errorTypes.includes("USERNAME_IS_REQUIRED") && (
           <FormErrorMessage>Username can't be blank</FormErrorMessage>
         )}
+        {errorTypes.includes("USERNAME_MUST_BE_UNIQUE") && (
+          <FormErrorMessage>
+            This username is already taken! Try another?
+          </FormErrorMessage>
+        )}
+        <FormHelperText>
+          This will be separate from your Neopets.com account.
+        </FormHelperText>
       </FormControl>
       <Box height="4" />
       <FormControl
@@ -260,12 +266,12 @@ function CreateAccountForm() {
             reset();
           }}
         />
-        <FormHelperText>
-          Careful, never use your Neopets password for another site!
-        </FormHelperText>
         {errorTypes.includes("PASSWORD_IS_REQUIRED") && (
           <FormErrorMessage>Password can't be blank</FormErrorMessage>
         )}
+        <FormHelperText>
+          Careful, never use your Neopets password for another site!
+        </FormHelperText>
       </FormControl>
       <Box height="4" />
       <FormControl isInvalid={passwordsDontMatch}>
@@ -284,7 +290,8 @@ function CreateAccountForm() {
       <FormControl
         isInvalid={
           errorTypes.includes("EMAIL_IS_REQUIRED") ||
-          errorTypes.includes("EMAIL_MUST_BE_VALID")
+          errorTypes.includes("EMAIL_MUST_BE_VALID") ||
+          errorTypes.includes("EMAIL_MUST_BE_UNIQUE")
         }
       >
         <FormLabel>Email address</FormLabel>
@@ -296,17 +303,22 @@ function CreateAccountForm() {
             reset();
           }}
         />
-        <FormHelperText>
-          We'll use this in the future if you need to reset your password, or
-          for us to contact you about your account. We won't sell this address,
-          and we won't send marketing-y emails.
-        </FormHelperText>
         {errorTypes.includes("EMAIL_IS_REQUIRED") && (
           <FormErrorMessage>Email can't be blank</FormErrorMessage>
         )}
         {errorTypes.includes("EMAIL_MUST_BE_VALID") && (
           <FormErrorMessage>Email must be valid</FormErrorMessage>
         )}
+        {errorTypes.includes("EMAIL_MUST_BE_UNIQUE") && (
+          <FormErrorMessage>
+            We already have an account with this address. Maybe it's yours?
+          </FormErrorMessage>
+        )}
+        <FormHelperText>
+          We'll use this in the future if you need to reset your password, or
+          for us to contact you about your account. We won't sell this address,
+          and we won't send marketing-y emails.
+        </FormHelperText>
       </FormControl>
       {error && (
         <ErrorMessage marginTop="4">

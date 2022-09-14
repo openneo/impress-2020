@@ -77,10 +77,11 @@ const typeDefs = gql`
   }
   enum CreateAccountErrorType {
     USERNAME_IS_REQUIRED
-    USERNAME_ALREADY_TAKEN
+    USERNAME_MUST_BE_UNIQUE
     PASSWORD_IS_REQUIRED
     EMAIL_IS_REQUIRED
     EMAIL_MUST_BE_VALID
+    EMAIL_MUST_BE_UNIQUE
   }
 `;
 

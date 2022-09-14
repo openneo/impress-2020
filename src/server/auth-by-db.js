@@ -1,4 +1,4 @@
-import { createHmac } from "crypto";
+import { createHmac, randomBytes } from "crypto";
 import { normalizeRow } from "./util";
 
 // https://stackoverflow.com/a/201378/107415
@@ -153,8 +153,8 @@ function computeSignatureForAuthToken(unsignedAuthToken) {
 }
 
 export async function createAccount(
-  { username, password, email, _ /* ipAddress */ },
-  __ /* db */
+  { username, password, email, ipAddress },
+  db
 ) {
   const errors = [];
   if (!username) {
@@ -170,21 +170,76 @@ export async function createAccount(
     errors.push({ type: "EMAIL_MUST_BE_VALID" });
   }
 
-  // TODO: Add an error for non-unique username.
+  const [nameRows] = await db.query(
+    `
+      SELECT count(*) FROM openneo_id.users WHERE name = ?;
+    `,
+    [username]
+  );
+  if (nameRows[0]["count(*)"] > 0) {
+    errors.push({ type: "USERNAME_MUST_BE_UNIQUE" });
+  }
+
+  // TODO: It'd be nice to not require email uniqueness, to avoid data leaks.
+  //       I don't want to argue with this constraint from Classic yet though.
+  const [emailRows] = await db.query(
+    `
+      SELECT count(*) FROM openneo_id.users WHERE email = ?;
+    `,
+    [email]
+  );
+  if (emailRows[0]["count(*)"] > 0) {
+    errors.push({ type: "EMAIL_MUST_BE_UNIQUE" });
+  }
 
   if (errors.length > 0) {
     return { errors, authToken: null };
   }
 
-  throw new Error(`TODO: Actually create the account!`);
+  // We'll generate 16 cryptographically-secure random bytes, encoded as a
+  // length-32 hex string. This will be the salt for our encrypted password. (A
+  // unique salt per user prevents table-based lookup attacks, where the
+  // attacker acquires or generates a bunch of password hashes, then searches
+  // for them in our database; because each user's unique salt means that the
+  // same password from different services - or different users on DTI even -
+  // will have different hashes for each user. You'd need a lookup table for
+  // each user!)
+  const passwordSalt = randomBytes(16).toString("hex");
+  const encryptedPassword = encryptPassword(password, passwordSalt);
 
-  // await db.query(`
-  //   INSERT INTO openneo_id.users
-  //     (name, encrypted_password, email, password_salt, sign_in_count,
-  //       current_sign_in_at, current_sign_in_ip, created_at, updated_at)
-  //     VALUES (?, ?, ?, ?, 1, CURRENT_TIMESTAMP(), ?,
-  //       CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP());
-  // `, [username, encryptedPassword, email, passwordSalt, ipAddress]);
+  const connection = await db.getConnection();
+  await connection.beginTransaction();
+  let impressId;
+  try {
+    const [openneoIdResult] = await connection.query(
+      `
+        INSERT INTO openneo_id.users
+          (name, encrypted_password, email, password_salt, sign_in_count,
+            current_sign_in_at, current_sign_in_ip, created_at, updated_at)
+          VALUES (?, ?, ?, ?, 1, CURRENT_TIMESTAMP(), ?,
+            CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP());
+      `,
+      [username, encryptedPassword, email, passwordSalt, ipAddress]
+    );
+    const userIdInOpenneoId = openneoIdResult.insertId;
+    const [impressResult] = await connection.query(
+      `
+        INSERT INTO openneo_impress.users
+          (name, remote_id, auth_server_id) VALUES (?, ?, 1);
+      `,
+      [username, userIdInOpenneoId]
+    );
+    impressId = impressResult.insertId;
+  } catch (error) {
+    try {
+      await connection.rollback();
+    } catch (error2) {
+      console.warn(`Error rolling back transaction:`, error2);
+    }
+    throw error;
+  }
+  await connection.commit();
 
-  // return { errors: [], authToken: createAuthToken(6) };
+  // Okay, user created! Return an auth token for the newly-created account.
+  return { errors: [], authToken: createAuthToken(impressId) };
 }
