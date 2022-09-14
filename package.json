@@ -62,7 +62,8 @@
   "scripts": {
     "prepare": "husky install",
     "start": "next start",
-    "dev": "yarn build-cached-data && REACT_APP_IMPRESS_LOG_IN_AS=$IMPRESS_LOG_IN_AS TS_NODE_COMPILER=typescript-cached-transpile next dev",
+    "dev": "yarn build-cached-data && DB_ENV=development REACT_APP_IMPRESS_LOG_IN_AS=$IMPRESS_LOG_IN_AS TS_NODE_COMPILER=typescript-cached-transpile next dev",
+    "local-prod": "yarn build-cached-data && DB_ENV=production REACT_APP_IMPRESS_LOG_IN_AS=$IMPRESS_LOG_IN_AS TS_NODE_COMPILER=typescript-cached-transpile next dev",
     "build": "yarn build-cached-data && next build",
     "vercel-build": "yum install libuuid-devel libmount-devel && cp /lib64/{libuuid,libmount,libblkid}.so.1 node_modules/canvas/build/Release/",
     "test": "jest test --env=jsdom",
