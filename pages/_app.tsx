@@ -41,15 +41,6 @@ export default function DTIApp({ Component, pageProps }: AppPropsWithLayout) {
   const renderWithLayout =
     Component.renderWithLayout ?? renderWithDefaultLayout;
 
-  // Store the *first* value of initialCacheState we get into our cache,
-  // because we don't want to rebuild our client and flush out everything else
-  // when the page changes. We set it in state here then never touch it again!
-  // TODO: Is there a clever way to *add* to our cache each time? The Apollo
-  //       API suggests not really, but maybe there's a clever option...
-  const [initialCacheState, unusedSetInitialCacheState] = React.useState(
-    pageProps.graphqlState ?? {}
-  );
-
   React.useEffect(() => setupLogging(), []);
 
   return (
@@ -70,12 +61,12 @@ export default function DTIApp({ Component, pageProps }: AppPropsWithLayout) {
         audience="https://impress-2020.openneo.net/api"
         scope=""
       >
-        <ApolloProviderWithAuth0 initialCacheState={initialCacheState}>
+        <DTIApolloProvider additionalCacheState={pageProps.graphqlState ?? {}}>
           <ChakraProvider theme={theme}>
             <CSSReset />
             {renderWithLayout(<Component {...pageProps} />)}
           </ChakraProvider>
-        </ApolloProviderWithAuth0>
+        </DTIApolloProvider>
       </Auth0Provider>
     </>
   );
@@ -85,12 +76,12 @@ function renderWithDefaultLayout(children: JSX.Element) {
   return <PageLayout>{children}</PageLayout>;
 }
 
-function ApolloProviderWithAuth0({
+function DTIApolloProvider({
   children,
-  initialCacheState,
+  additionalCacheState,
 }: {
   children: React.ReactNode;
-  initialCacheState: NormalizedCacheObject;
+  additionalCacheState: NormalizedCacheObject;
 }) {
   const auth0 = useAuth0();
   const auth0Ref = React.useRef(auth0);
@@ -98,6 +89,12 @@ function ApolloProviderWithAuth0({
   React.useEffect(() => {
     auth0Ref.current = auth0;
   }, [auth0]);
+
+  // Save the first `additionalCacheState` we get as our `initialCacheState`,
+  // which we'll use to initialize the client without having to wait a tick.
+  const [initialCacheState, unusedSetInitialCacheState] = React.useState(
+    additionalCacheState
+  );
 
   const client = React.useMemo(
     () =>
@@ -107,6 +104,42 @@ function ApolloProviderWithAuth0({
       }),
     [initialCacheState]
   );
+
+  // When we get a new `additionalCacheState` object, merge it into the cache:
+  // copy the previous cache state, merge the new cache state's entries in,
+  // and "restore" the new merged cache state.
+  //
+  // HACK: Using `useMemo` for this is a dastardly trick!! What we want is the
+  //       semantics of `useEffect` kinda, but we need to ensure it happens
+  //       *before* all the children below get rendered, so they don't fire off
+  //       unnecessary network requests. Using `useMemo` but throwing away the
+  //       result kinda does that. It's evil! It's nasty! It's... perfect?
+  //       (This operation is safe to run multiple times too, in case memo
+  //       re-runs it. It's just, y'know, a performance loss. Maybe it's
+  //       actually kinda perfect lol)
+  //
+  //       I feel like there's probably a better way to do this... like, I want
+  //       the semantic of replacing this client with an updated client - but I
+  //       don't want to actually replace the client, because that'll break
+  //       other kinds of state, like requests loading in the shared layout.
+  //       Idk! I'll see how it goes!
+  React.useMemo(() => {
+    const previousCacheState = client.cache.extract();
+    const mergedCacheState = { ...previousCacheState };
+    for (const key of Object.keys(additionalCacheState)) {
+      mergedCacheState[key] = {
+        ...mergedCacheState[key],
+        ...additionalCacheState[key],
+      };
+    }
+    console.debug(
+      "Merging Apollo cache:",
+      additionalCacheState,
+      mergedCacheState
+    );
+    client.cache.restore(mergedCacheState);
+  }, [client, additionalCacheState]);
+
   return <ApolloProvider client={client}>{children}</ApolloProvider>;
 }
 
