@@ -375,35 +375,39 @@ const EMPTY_CUSTOMIZATION_STATE = {
 
 function useParseOutfitUrl() {
   const { query } = useRouter();
-  const { outfitId } = query;
 
   // We memoize this to make `outfitStateWithoutExtras` an even more reliable
   // stable object!
-  const memoizedOutfitState = React.useMemo(() => {
-    // For the /outfits/:id page, ignore the query string, and just wait for the
-    // outfit data to load in!
-    if (outfitId != null) {
-      return {
-        ...EMPTY_CUSTOMIZATION_STATE,
-        id: outfitId,
-      };
-    }
-
-    // Otherwise, parse the query string, and fill in default values for anything
-    // not specified.
-    return {
-      id: null,
-      name: getValueFromQuery(query.name),
-      speciesId: getValueFromQuery(query.species) || "1",
-      colorId: getValueFromQuery(query.color) || "8",
-      pose: getValueFromQuery(query.pose) || "HAPPY_FEM",
-      appearanceId: getValueFromQuery(query.state) || null,
-      wornItemIds: new Set(getListFromQuery(query["objects[]"])),
-      closetedItemIds: new Set(getListFromQuery(query["closet[]"])),
-    };
-  }, [outfitId, query]);
+  const memoizedOutfitState = React.useMemo(
+    () => readOutfitStateFromQuery(query),
+    [query]
+  );
 
   return memoizedOutfitState;
+}
+
+export function readOutfitStateFromQuery(query) {
+  // For the /outfits/:id page, ignore the query string, and just wait for the
+  // outfit data to load in!
+  if (query.outfitId != null) {
+    return {
+      ...EMPTY_CUSTOMIZATION_STATE,
+      id: query.outfitId,
+    };
+  }
+
+  // Otherwise, parse the query string, and fill in default values for anything
+  // not specified.
+  return {
+    id: null,
+    name: getValueFromQuery(query.name),
+    speciesId: getValueFromQuery(query.species) || "1",
+    colorId: getValueFromQuery(query.color) || "8",
+    pose: getValueFromQuery(query.pose) || "HAPPY_FEM",
+    appearanceId: getValueFromQuery(query.state) || null,
+    wornItemIds: new Set(getListFromQuery(query["objects[]"])),
+    closetedItemIds: new Set(getListFromQuery(query["closet[]"])),
+  };
 }
 
 /**

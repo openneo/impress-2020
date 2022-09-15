@@ -209,9 +209,9 @@ async function getAccessToken(getAuth0) {
   }
 }
 
-const initialCache = {};
+const prebuiltCacheState = {};
 for (const zone of cachedZones) {
-  initialCache[`Zone:${zone.id}`] = { __typename: "Zone", ...zone };
+  prebuiltCacheState[`Zone:${zone.id}`] = { __typename: "Zone", ...zone };
 }
 
 const buildLink = (getAuth0) =>
@@ -228,11 +228,30 @@ const buildLink = (getAuth0) =>
  * apolloClient is the global Apollo Client instance we use for GraphQL
  * queries. This is how we communicate with the server!
  */
-const buildClient = (getAuth0) =>
-  new ApolloClient({
+const buildClient = ({ getAuth0, initialCacheState }) => {
+  // We have both a pre-built cache of data that we just hardcode at build
+  // time, and the `initialCacheState` parameter, which some SSR'd pages give
+  // to us as Next.js props, so that we don't have to request the data again.
+  const mergedCacheState = mergeCacheStates([
+    prebuiltCacheState,
+    initialCacheState,
+  ]);
+
+  return new ApolloClient({
     link: buildLink(getAuth0),
-    cache: new InMemoryCache({ typePolicies }).restore(initialCache),
+    cache: new InMemoryCache({ typePolicies }).restore(mergedCacheState),
     connectToDevTools: true,
   });
+};
+
+function mergeCacheStates(cacheStates) {
+  const mergedCacheState = {};
+  for (const cacheState of cacheStates) {
+    for (const key of Object.keys(cacheState)) {
+      mergedCacheState[key] = { ...mergedCacheState[key], ...cacheState[key] };
+    }
+  }
+  return mergedCacheState;
+}
 
 export default buildClient;

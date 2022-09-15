@@ -6,7 +6,7 @@ import * as Sentry from "@sentry/react";
 import { Integrations } from "@sentry/tracing";
 import { Auth0Provider } from "@auth0/auth0-react";
 import { CSSReset, ChakraProvider, extendTheme } from "@chakra-ui/react";
-import { ApolloProvider } from "@apollo/client";
+import { ApolloProvider, NormalizedCacheObject } from "@apollo/client";
 import { useAuth0 } from "@auth0/auth0-react";
 import { mode } from "@chakra-ui/theme-tools";
 
@@ -61,7 +61,9 @@ export default function DTIApp({ Component, pageProps }: AppPropsWithLayout) {
         audience="https://impress-2020.openneo.net/api"
         scope=""
       >
-        <ApolloProviderWithAuth0>
+        <ApolloProviderWithAuth0
+          initialCacheState={pageProps.graphqlState ?? {}}
+        >
           <ChakraProvider theme={theme}>
             <CSSReset />
             {renderWithLayout(<Component {...pageProps} />)}
@@ -76,7 +78,13 @@ function renderWithDefaultLayout(children: JSX.Element) {
   return <PageLayout>{children}</PageLayout>;
 }
 
-function ApolloProviderWithAuth0({ children }: { children: React.ReactNode }) {
+function ApolloProviderWithAuth0({
+  children,
+  initialCacheState = {},
+}: {
+  children: React.ReactNode;
+  initialCacheState: NormalizedCacheObject;
+}) {
   const auth0 = useAuth0();
   const auth0Ref = React.useRef(auth0);
 
@@ -85,8 +93,12 @@ function ApolloProviderWithAuth0({ children }: { children: React.ReactNode }) {
   }, [auth0]);
 
   const client = React.useMemo(
-    () => buildApolloClient(() => auth0Ref.current),
-    []
+    () =>
+      buildApolloClient({
+        getAuth0: () => auth0Ref.current,
+        initialCacheState,
+      }),
+    [initialCacheState]
   );
   return <ApolloProvider client={client}>{children}</ApolloProvider>;
 }
