@@ -15,7 +15,7 @@ import dynamic from "next/dynamic";
 // try changing "ssr" to true below to test for incompatibilities, if
 // no errors occur the above static import can be used instead and the
 // below removed
-const NextIndexWrapper = dynamic(() => import("../../src"), { ssr: false });
+const App = dynamic(() => import("../../src/app/App"), { ssr: false });
 
 export default function Page({ outfit, ...props }) {
   return (
@@ -24,7 +24,7 @@ export default function Page({ outfit, ...props }) {
         <title>{outfit.name || "Untitled outfit"} | Dress to Impress</title>
         <OutfitMetaTags outfit={outfit} />
       </Head>
-      <NextIndexWrapper {...props} />
+      <App {...props} />
     </>
   );
 }
