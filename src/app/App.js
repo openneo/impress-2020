@@ -11,7 +11,6 @@ import WardrobePageLayout from "./WardrobePage/WardrobePageLayout";
 import { loadable } from "./util";
 
 const HomePage = loadable(() => import("./HomePage"));
-const UserItemListPage = loadable(() => import("./UserItemListPage"));
 const WardrobePage = loadable(() => import("./WardrobePage"), {
   fallback: <WardrobePageLayout />,
 });
@@ -33,11 +32,6 @@ function App() {
         </Route>
         <Route path="/outfits/:id">
           <WardrobePage />
-        </Route>
-        <Route path="/user/:userId/lists/:ownsOrWants(owns|wants)/:listId">
-          <PageLayout>
-            <UserItemListPage />
-          </PageLayout>
         </Route>
         <Route path="/">
           <PageLayout hideHomeLink>

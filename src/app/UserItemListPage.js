@@ -23,9 +23,8 @@ import {
   EmailIcon,
 } from "@chakra-ui/icons";
 import { gql, useMutation, useQuery } from "@apollo/client";
-import { useParams } from "react-router-dom";
-import { HashLink } from "react-router-hash-link";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import {
   List as VirtualizedList,
   AutoSizer,
@@ -41,7 +40,8 @@ import useSupport from "./WardrobePage/support/useSupport";
 import WIPCallout from "./components/WIPCallout";
 
 function UserItemListPage() {
-  const { listId } = useParams();
+  const { query } = useRouter();
+  const { listId } = query;
   const currentUser = useCurrentUser();
 
   const { loading, error, data } = useQuery(
@@ -118,12 +118,19 @@ function UserItemListPage() {
         separator={<ChevronRightIcon marginTop="-2px" />}
       >
         <BreadcrumbItem>
-          <BreadcrumbLink as={Link} to={`/user/${creator.id}/lists`}>
-            {creator.username}'s lists
-          </BreadcrumbLink>
+          <Link href={`/user/${creator.id}/lists`} passHref>
+            <BreadcrumbLink>{creator.username}'s lists</BreadcrumbLink>
+          </Link>
         </BreadcrumbItem>
-        <BreadcrumbItem as={HashLink} to={linkBackPath}>
-          <BreadcrumbLink>{linkBackText}</BreadcrumbLink>
+        {/* TODO: The "wants" version of this link doesn't always scroll down
+         *       the page properly, now that we're not using the
+         *       react-router-hash-link library. Oh well for now!
+         *       Would be nice to fix by having Next.js eliminate the loading
+         *       spinner perhaps?...*/}
+        <BreadcrumbItem>
+          <Link href={linkBackPath} passHref>
+            <BreadcrumbLink>{linkBackText}</BreadcrumbLink>
+          </Link>
         </BreadcrumbItem>
       </Breadcrumb>
       <Box height="1" />
