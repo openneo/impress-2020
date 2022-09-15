@@ -96,12 +96,6 @@ function useCurrentUserViaDb({ isEnabled }) {
         // something is wrong and they need to reach out.
         console.error("[useCurrentUser] Couldn't get current user:", error);
       },
-      // We set this option so that, when we enter the loading state after
-      // logging in and evicting `currentUser` from the cache, we'll see the
-      // `loading: true` state. Otherwise, Apollo just leaves the return value
-      // as-is until the new data comes in, so the user sees the logged-out
-      // state until the behind-the-scenes update to this query finishes.
-      notifyOnNetworkStatusChange: true,
     }
   );
 
