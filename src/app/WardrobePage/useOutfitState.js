@@ -30,6 +30,7 @@ function useOutfitState() {
         outfit(id: $id) {
           id
           name
+          updatedAt
           creator {
             id
           }
@@ -69,6 +70,7 @@ function useOutfitState() {
   );
 
   const creator = outfitData?.outfit?.creator;
+  const updatedAt = outfitData?.outfit?.updatedAt;
 
   // We memoize this to make `outfitStateWithoutExtras` an even more reliable
   // stable object!
@@ -94,9 +96,14 @@ function useOutfitState() {
   // data isn't loaded yet, then this will be a customization state with
   // partial data, and that's okay.)
   let outfitState;
-  if (urlOutfitState.id === localOutfitState.id) {
+  if (
+    urlOutfitState.id === localOutfitState.id &&
+    localOutfitState.speciesId != null &&
+    localOutfitState.colorId != null
+  ) {
     // Use the reducer state: they're both for the same saved outfit, or both
-    // for an unsaved outfit (null === null).
+    // for an unsaved outfit (null === null). But we don't use it when it's
+    // *only* got the ID, and no other fields yet.
     console.debug("[useOutfitState] Choosing local outfit state");
     outfitState = localOutfitState;
   } else if (urlOutfitState.id && urlOutfitState.id === savedOutfitState.id) {
@@ -228,6 +235,7 @@ function useOutfitState() {
   const outfitStateWithExtras = {
     id,
     creator,
+    updatedAt,
     zonesAndItems,
     incompatibleItems,
     name,

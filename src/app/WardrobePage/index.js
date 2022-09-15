@@ -7,10 +7,10 @@ import SearchFooter from "./SearchFooter";
 import SupportOnly from "./support/SupportOnly";
 import useOutfitSaving from "./useOutfitSaving";
 import useOutfitState, { OutfitStateContext } from "./useOutfitState";
-import { usePageTitle } from "../util";
 import WardrobePageLayout from "./WardrobePageLayout";
 import WardrobePreviewAndControls from "./WardrobePreviewAndControls";
 import { useRouter } from "next/router";
+import Head from "next/head";
 
 const WardrobeDevHacks = loadable(() => import("./WardrobeDevHacks"));
 
@@ -34,8 +34,6 @@ function WardrobePage() {
   // the indicator isn't on the page, e.g. when searching. We also mount a
   // <Prompt /> in this component to prevent navigating away before saving.
   const outfitSaving = useOutfitSaving(outfitState, dispatchToOutfit);
-
-  usePageTitle(outfitState.name || "Untitled outfit");
 
   // TODO: I haven't found a great place for this error UI yet, and this case
   // isn't very common, so this lil toast notification seems good enough!
@@ -78,44 +76,84 @@ function WardrobePage() {
   //       that need it, where it's more useful and more performant to access
   //       via context.
   return (
-    <OutfitStateContext.Provider value={outfitState}>
-      <SupportOnly>
-        <WardrobeDevHacks />
-      </SupportOnly>
+    <>
+      <Head>
+        <title>
+          {outfitState.name || "Untitled outfit"} | Dress to Impress
+        </title>
+        {outfitState.id && <SavedOutfitMetaTags outfitState={outfitState} />}
+      </Head>
+      <OutfitStateContext.Provider value={outfitState}>
+        <SupportOnly>
+          <WardrobeDevHacks />
+        </SupportOnly>
 
-      {/*
-       * TODO: This might unnecessarily block navigations that we don't
-       * necessarily need to, e.g., navigating back to Your Outfits while the
-       * save request is in flight. We could instead submit the save mutation
-       * immediately on client-side nav, and have each outfit save mutation
-       * install a `beforeunload` handler that ensures that you don't close
-       * the page altogether while it's in flight. But let's start simple and
-       * see how annoying it actually is in practice lol
-       */}
-      <Prompt
-        when={shouldBlockNavigation}
-        message="Are you sure you want to leave? Your changes might not be saved."
-      />
+        {/*
+         * TODO: This might unnecessarily block navigations that we don't
+         * necessarily need to, e.g., navigating back to Your Outfits while the
+         * save request is in flight. We could instead submit the save mutation
+         * immediately on client-side nav, and have each outfit save mutation
+         * install a `beforeunload` handler that ensures that you don't close
+         * the page altogether while it's in flight. But let's start simple and
+         * see how annoying it actually is in practice lol
+         */}
+        <Prompt
+          when={shouldBlockNavigation}
+          message="Are you sure you want to leave? Your changes might not be saved."
+        />
 
-      <WardrobePageLayout
-        previewAndControls={
-          <WardrobePreviewAndControls
-            isLoading={loading}
-            outfitState={outfitState}
-            dispatchToOutfit={dispatchToOutfit}
-          />
-        }
-        itemsAndMaybeSearchPanel={
-          <ItemsAndSearchPanels
-            loading={loading}
-            outfitState={outfitState}
-            outfitSaving={outfitSaving}
-            dispatchToOutfit={dispatchToOutfit}
-          />
-        }
-        searchFooter={<SearchFooter />}
+        <WardrobePageLayout
+          previewAndControls={
+            <WardrobePreviewAndControls
+              isLoading={loading}
+              outfitState={outfitState}
+              dispatchToOutfit={dispatchToOutfit}
+            />
+          }
+          itemsAndMaybeSearchPanel={
+            <ItemsAndSearchPanels
+              loading={loading}
+              outfitState={outfitState}
+              outfitSaving={outfitSaving}
+              dispatchToOutfit={dispatchToOutfit}
+            />
+          }
+          searchFooter={<SearchFooter />}
+        />
+      </OutfitStateContext.Provider>
+    </>
+  );
+}
+
+/**
+ * SavedOutfitMetaTags renders the meta tags that we use to render pretty
+ * share cards for social media for saved outfits!
+ */
+function SavedOutfitMetaTags({ outfitState }) {
+  const updatedAtTimestamp = Math.floor(
+    new Date(outfitState.updatedAt).getTime() / 1000
+  );
+  const imageUrl =
+    `https://impress-outfit-images.openneo.net/outfits` +
+    `/${encodeURIComponent(outfitState.id)}` +
+    `/v/${encodeURIComponent(updatedAtTimestamp)}` +
+    `/600.png`;
+
+  return (
+    <>
+      <meta
+        property="og:title"
+        content={outfitState.name || "Untitled outfit"}
       />
-    </OutfitStateContext.Provider>
+      <meta property="og:type" content="website" />
+      <meta property="og:image" content={imageUrl} />
+      <meta property="og:url" content={outfitState.url} />
+      <meta property="og:site_name" content="Dress to Impress" />
+      <meta
+        property="og:description"
+        content="A custom Neopets outfit, designed on Dress to Impress!"
+      />
+    </>
   );
 }
 
