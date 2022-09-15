@@ -225,30 +225,6 @@ export function useDebounce(
 }
 
 /**
- * usePageTitle sets the page title!
- */
-export function usePageTitle(title, { skip = false } = {}) {
-  React.useEffect(() => {
-    if (skip) return;
-    try {
-      document.title = title
-        ? `${title} | Dress to Impress`
-        : "Dress to Impress";
-    } catch (e) {
-      // I've been seeing Sentry errors that we can't read `title` of
-      // undefined, with no traceback. This is the only `.title` I see in our
-      // codebase, aside from unpacking props that I'm pretty sure aren't
-      // null... so I'm adding this to help confirm!
-      logAndCapture(
-        new Error(
-          `Could not set page title: ${e.message}. Document is: ${document}.`
-        )
-      );
-    }
-  }, [title, skip]);
-}
-
-/**
  * useFetch uses `fetch` to fetch the given URL, and returns the request state.
  *
  * Our limited API is designed to match the `use-http` library!
