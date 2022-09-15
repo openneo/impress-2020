@@ -1,7 +1,7 @@
 import React from "react";
-import { useHistory, useLocation, useParams } from "react-router-dom";
 import { useCommonStyles } from "../util";
 import SearchToolbar from "../WardrobePage/SearchToolbar";
+import { useRouter } from "next/router";
 
 function ItemSearchPageToolbar({ ...props }) {
   const { query, setQuery } = useSearchQueryInUrl();
@@ -24,27 +24,30 @@ function ItemSearchPageToolbar({ ...props }) {
  * query in the URL! It also parses out the offset for us.
  */
 export function useSearchQueryInUrl() {
-  const history = useHistory();
-
-  const { query: value } = useParams();
-  const { pathname, search } = useLocation();
+  const {
+    pathname,
+    query: queryParams,
+    push: pushHistory,
+    replace: replaceHistory,
+  } = useRouter();
+  const value = queryParams.query;
 
   // Parse the query from the location. (We memoize this because we use it as a
   // dependency in the query-saving hook below.)
   const parsedQuery = React.useMemo(() => {
-    const searchParams = new URLSearchParams(search);
     return {
       value: decodeURIComponent(value || ""),
-      filterToZoneLabel: searchParams.get("zone") || null,
-      filterToItemKind: searchParams.get("kind") || null,
-      filterToCurrentUserOwnsOrWants: searchParams.get("user") || null,
+      filterToZoneLabel: queryParams.zone || null,
+      filterToItemKind: queryParams.kind || null,
+      filterToCurrentUserOwnsOrWants: queryParams.user || null,
     };
-  }, [search, value]);
+  }, [queryParams.zone, queryParams.kind, queryParams.user, value]);
 
-  const offset = parseInt(new URLSearchParams(search).get("offset")) || 0;
+  const offset = parseInt(queryParams.offset) || 0;
 
   // While on the search page, save the most recent parsed query in state.
-  const isSearchPage = pathname.startsWith("/items/search");
+  const isSearchPage =
+    pathname === "/items/search" || pathname === "/items/search/[query]";
   const [savedQuery, setSavedQuery] = React.useState(parsedQuery);
   React.useEffect(() => {
     if (isSearchPage) {
@@ -88,14 +91,14 @@ export function useSearchQueryInUrl() {
       // navigation, like if they see the results and decide it's the wrong
       // thing.
       if (isSearchPage) {
-        history.replace(url);
+        replaceHistory(url);
       } else {
         // When you use the search toolbar from the item page, treat it as a
         // full navigation!
-        history.push(url);
+        pushHistory(url);
       }
     },
-    [history, isSearchPage]
+    [replaceHistory, pushHistory, isSearchPage]
   );
 
   // NOTE: We don't provide a `setOffset`, because that's handled via

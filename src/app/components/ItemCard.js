@@ -164,13 +164,16 @@ export function ItemThumbnail({
                 },
             ])}
           >
-            <Box
-              as="img"
-              width="100%"
-              height="100%"
-              src={safeImageUrl(item.thumbnailUrl)}
-              alt={`Thumbnail art for ${item.name}`}
-            />
+            {/* If the item is still loading, wait with an empty box. */}
+            {item && (
+              <Box
+                as="img"
+                width="100%"
+                height="100%"
+                src={safeImageUrl(item.thumbnailUrl)}
+                alt={`Thumbnail art for ${item.name}`}
+              />
+            )}
           </Box>
         </Box>
       )}

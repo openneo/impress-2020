@@ -114,11 +114,11 @@ function ColorModeButton() {
 function useClassicDTIUrl() {
   const { pathname, query } = useRouter();
 
-  if (pathname === "/items/:itemId") {
+  if (pathname === "/items/[itemId]") {
     return `https://impress.openneo.net/items/${query.itemId}`;
   }
 
-  if (pathname === "/user/:userId/lists") {
+  if (pathname === "/user/[userId]/lists") {
     return `https://impress.openneo.net/user/${query.userId}/closet`;
   }
 

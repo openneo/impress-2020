@@ -33,7 +33,7 @@ import {
 import { MdPause, MdPlayArrow } from "react-icons/md";
 import gql from "graphql-tag";
 import { useQuery, useMutation } from "@apollo/client";
-import { Link, useParams } from "react-router-dom";
+import Link from "next/link";
 
 import ItemPageLayout, { SubtleSkeleton } from "./ItemPageLayout";
 import {
@@ -58,10 +58,11 @@ import useCurrentUser from "./components/useCurrentUser";
 import SpeciesFacesPicker, {
   colorIsBasic,
 } from "./ItemPage/SpeciesFacesPicker";
+import { useRouter } from "next/router";
 
 function ItemPage() {
-  const { itemId } = useParams();
-  return <ItemPageContent itemId={itemId} />;
+  const { query } = useRouter();
+  return <ItemPageContent itemId={query.itemId} />;
 }
 
 /**
@@ -69,7 +70,7 @@ function ItemPage() {
  * entry point for ItemPageDrawer! When embedded in ItemPageDrawer, the
  * `isEmbedded` prop is true, so we know not to e.g. set the page title.
  */
-export function ItemPageContent({ itemId, isEmbedded }) {
+export function ItemPageContent({ itemId, isEmbedded = false }) {
   const { isLoggedIn } = useCurrentUser();
 
   const { error, data } = useQuery(
@@ -706,30 +707,31 @@ function ItemPageTradeLinks({ itemId, isEmbedded }) {
 
 function ItemPageTradeLink({ href, count, label, colorScheme, isEmbedded }) {
   return (
-    <Button
-      as={Link}
-      to={href}
-      target={isEmbedded ? "_blank" : undefined}
-      size="xs"
-      variant="outline"
-      colorScheme={colorScheme}
-      borderRadius="full"
-      paddingRight="1"
-    >
-      <Box display="grid" gridTemplateAreas="single-area">
-        <Box gridArea="single-area" display="flex" justifyContent="center">
-          {count} {label} <ChevronRightIcon minHeight="1.2em" />
+    <Link href={href} passHref>
+      <Button
+        as="a"
+        target={isEmbedded ? "_blank" : undefined}
+        size="xs"
+        variant="outline"
+        colorScheme={colorScheme}
+        borderRadius="full"
+        paddingRight="1"
+      >
+        <Box display="grid" gridTemplateAreas="single-area">
+          <Box gridArea="single-area" display="flex" justifyContent="center">
+            {count} {label} <ChevronRightIcon minHeight="1.2em" />
+          </Box>
+          <Box
+            gridArea="single-area"
+            display="flex"
+            justifyContent="center"
+            visibility="hidden"
+          >
+            888 offering <ChevronRightIcon minHeight="1.2em" />
+          </Box>
         </Box>
-        <Box
-          gridArea="single-area"
-          display="flex"
-          justifyContent="center"
-          visibility="hidden"
-        >
-          888 offering <ChevronRightIcon minHeight="1.2em" />
-        </Box>
-      </Box>
-    </Button>
+      </Button>
+    </Link>
   );
 }
 
@@ -1149,9 +1151,8 @@ function CustomizeMoreButton({ speciesId, colorId, pose, itemId, isDisabled }) {
   const backgroundColorHover = useColorModeValue(undefined, "blackAlpha.900");
 
   return (
-    <Button
-      as={isDisabled ? "button" : Link}
-      to={isDisabled ? null : url}
+    <LinkOrButton
+      href={isDisabled ? null : url}
       role="group"
       position="absolute"
       top="2"
@@ -1165,8 +1166,20 @@ function CustomizeMoreButton({ speciesId, colorId, pose, itemId, isDisabled }) {
     >
       <ExpandOnGroupHover paddingRight="2">Customize more</ExpandOnGroupHover>
       <EditIcon />
-    </Button>
+    </LinkOrButton>
   );
+}
+
+function LinkOrButton({ href, ...props }) {
+  if (href != null) {
+    return (
+      <Link href={href} passHref>
+        <Button as="a" {...props} />
+      </Link>
+    );
+  } else {
+    return <Button {...props} />;
+  }
 }
 
 /**

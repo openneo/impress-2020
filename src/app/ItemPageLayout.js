@@ -113,11 +113,11 @@ function ItemPageBadges({ item, isEmbedded }) {
       </SubtleSkeleton>
       {
         // If the createdAt date is null (loaded and empty), hide the badge.
-        item.createdAt !== null && (
+        item?.createdAt !== null && (
           <SubtleSkeleton
             // Distinguish between undefined (still loading) and null (loaded and
             // empty).
-            isLoaded={item.createdAt !== undefined}
+            isLoaded={item?.createdAt !== undefined}
           >
             <Badge
               display="block"
@@ -125,14 +125,14 @@ function ItemPageBadges({ item, isEmbedded }) {
               boxSizing="content-box"
               textAlign="center"
             >
-              {item.createdAt && <ShortTimestamp when={item.createdAt} />}
+              {item?.createdAt && <ShortTimestamp when={item?.createdAt} />}
             </Badge>
           </SubtleSkeleton>
         )
       }
       <SubtleSkeleton isLoaded={searchBadgesAreLoaded}>
         <LinkBadge
-          href={`https://impress.openneo.net/items/${item.id}`}
+          href={`https://impress.openneo.net/items/${item?.id}`}
           isEmbedded={isEmbedded}
         >
           Classic DTI
@@ -142,7 +142,7 @@ function ItemPageBadges({ item, isEmbedded }) {
         <LinkBadge
           href={
             "https://items.jellyneo.net/search/?name=" +
-            encodeURIComponent(item.name) +
+            encodeURIComponent(item?.name) +
             "&name_type=3"
           }
           isEmbedded={isEmbedded}
@@ -150,17 +150,17 @@ function ItemPageBadges({ item, isEmbedded }) {
           Jellyneo
         </LinkBadge>
       </SubtleSkeleton>
-      {item.isNc && (
+      {item?.isNc && (
         <SubtleSkeleton
           isLoaded={
             // Distinguish between undefined (still loading) and null (loaded
             // and empty).
-            item.ncTradeValueText !== undefined
+            item?.ncTradeValueText !== undefined
           }
         >
-          {item.ncTradeValueText && (
+          {item?.ncTradeValueText && (
             <LinkBadge href="http://www.neopets.com/~owls">
-              OWLS: {item.ncTradeValueText}
+              OWLS: {item?.ncTradeValueText}
             </LinkBadge>
           )}
         </SubtleSkeleton>
@@ -170,7 +170,7 @@ function ItemPageBadges({ item, isEmbedded }) {
           <LinkBadge
             href={
               "http://www.neopets.com/shops/wizard.phtml?string=" +
-              encodeURIComponent(item.name)
+              encodeURIComponent(item?.name)
             }
             isEmbedded={isEmbedded}
           >
@@ -183,7 +183,7 @@ function ItemPageBadges({ item, isEmbedded }) {
           <LinkBadge
             href={
               "http://www.neopets.com/portal/supershopwiz.phtml?string=" +
-              encodeURIComponent(item.name)
+              encodeURIComponent(item?.name)
             }
             isEmbedded={isEmbedded}
           >
@@ -196,7 +196,7 @@ function ItemPageBadges({ item, isEmbedded }) {
           <LinkBadge
             href={
               "http://www.neopets.com/island/tradingpost.phtml?type=browse&criteria=item_exact&search_string=" +
-              encodeURIComponent(item.name)
+              encodeURIComponent(item?.name)
             }
             isEmbedded={isEmbedded}
           >
@@ -209,7 +209,7 @@ function ItemPageBadges({ item, isEmbedded }) {
           <LinkBadge
             href={
               "http://www.neopets.com/genie.phtml?type=process_genie&criteria=exact&auctiongenie=" +
-              encodeURIComponent(item.name)
+              encodeURIComponent(item?.name)
             }
             isEmbedded={isEmbedded}
           >
@@ -228,7 +228,7 @@ function ItemKindBadgeWithSupportTools({ item }) {
   const ncRef = React.useRef(null);
 
   const isNcAutoDetectedFromRarity =
-    item.rarityIndex === 500 || item.rarityIndex === 0;
+    item?.rarityIndex === 500 || item?.rarityIndex === 0;
 
   const [mutate, { loading }] = useMutation(gql`
     mutation ItemPageSupportSetIsManuallyNc(
@@ -248,7 +248,11 @@ function ItemKindBadgeWithSupportTools({ item }) {
     }
   `);
 
-  if (isSupportUser && item.rarityIndex != null && item.isManuallyNc != null) {
+  if (
+    isSupportUser &&
+    item?.rarityIndex != null &&
+    item?.isManuallyNc != null
+  ) {
     // TODO: Could code-split this into a SupportOnly file...
     return (
       <Popover placement="bottom-start" initialFocusRef={ncRef} showArrow>
@@ -329,7 +333,7 @@ function ItemKindBadgeWithSupportTools({ item }) {
     );
   }
 
-  return <ItemKindBadge isNc={item.isNc} isPb={item.isPb} />;
+  return <ItemKindBadge isNc={item?.isNc} isPb={item?.isPb} />;
 }
 
 const LinkBadge = React.forwardRef(
