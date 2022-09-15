@@ -3,10 +3,7 @@ import { setContext } from "@apollo/client/link/context";
 import { createPersistedQueryLink } from "apollo-link-persisted-queries";
 
 import cachedZones from "./cached-data/zones.json";
-import {
-  getAuthModeFeatureFlag,
-  readCypressLoginData,
-} from "./components/useCurrentUser";
+import { getAuthModeFeatureFlag } from "./components/useCurrentUser";
 
 // Teach Apollo to load certain fields from the cache, to avoid extra network
 // requests. This happens a lot - e.g. reusing data from item search on the
@@ -192,13 +189,7 @@ const authModeLink = setContext((_, { headers = {} }) => {
 });
 
 async function getAccessToken(getAuth0) {
-  // Our Cypress tests store login data separately. Use it if available!
-  const cypressToken = readCypressLoginData()?.encodedToken;
-  if (cypressToken) {
-    return cypressToken;
-  }
-
-  // Otherwise, wait for auth0 to stop loading, so we can maybe get a token!
+  // Wait for auth0 to stop loading, so we can maybe get a token!
   // We'll do this hackily by checking every 100ms until it's true.
   await new Promise((resolve) => {
     function check() {

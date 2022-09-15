@@ -40,17 +40,6 @@ function useCurrentUser() {
     };
   }
 
-  // Additionally, our Cypress tests do an actual end-to-end login as a test
-  // user. Use that token if present!
-  const cypressUser = readCypressLoginData()?.decodedUser;
-  if (cypressUser) {
-    return {
-      isLoading: false,
-      isLoggedIn: true,
-      ...getUserInfoFromAuth0Data(cypressUser),
-    };
-  }
-
   if (authMode === "auth0") {
     return currentUserViaAuth0;
   } else if (authMode === "db") {
@@ -130,22 +119,6 @@ function useCurrentUserViaDb({ isEnabled }) {
       id: data.currentUser.id,
       username: data.currentUser.username,
     };
-  }
-}
-
-export function readCypressLoginData() {
-  const cypressUserJsonString = window.localStorage.getItem("auth0Cypress");
-  if (!cypressUserJsonString) {
-    return null;
-  }
-
-  try {
-    return JSON.parse(cypressUserJsonString);
-  } catch (e) {
-    console.warn(
-      "Could not parse auth0Cypress token in localStorage; ignoring."
-    );
-    return null;
   }
 }
 
