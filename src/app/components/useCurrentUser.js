@@ -1,6 +1,5 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { useAuth0 } from "@auth0/auth0-react";
-import { useEffect } from "react";
 import { useLocalStorage } from "../util";
 
 const NOT_LOGGED_IN_USER = {
@@ -184,11 +183,11 @@ export function useLogout() {
 }
 
 /**
- * useAuthModeFeatureFlag returns "auth0" by default, but "db" if you're trying
- * the new db-backed login mode.
+ * useAuthModeFeatureFlag returns "db" by default, but "auto" if you're falling
+ * back to the old auth0-backed login mode.
  *
- * To set this manually, run `window.setAuthModeFeatureFlag("db")` in your
- * browser console.
+ * To set this manually, click "Better login system" on the homepage in the
+ * Coming Soon block, and switch the toggle.
  */
 export function useAuthModeFeatureFlag() {
   // We'll probably add a like, experimental gradual rollout thing here too.
@@ -200,10 +199,6 @@ export function useAuthModeFeatureFlag() {
     "DTIAuthModeFeatureFlag",
     null
   );
-
-  useEffect(() => {
-    window.setAuthModeFeatureFlag = setAuthModeFeatureFlag;
-  });
 
   if (!["auth0", "db", null].includes(savedValue)) {
     console.warn(
@@ -242,23 +237,7 @@ export function getAuthModeFeatureFlag() {
     savedValue = null;
   }
 
-  return savedValue || "auth0";
-}
-
-/**
- * setAuthModeFeatureFlag is mounted on the window, so you can call it from the
- * browser console to set this override manually.
- */
-function setAuthModeFeatureFlag(newValue) {
-  if (!["auth0", "db", null].includes(newValue)) {
-    throw new Error(`Auth mode must be "auth0", "db", or null.`);
-  }
-
-  localStorage.setItem("DTIAuthModeFeatureFlag", JSON.stringify(newValue));
-
-  // The useLocalStorage hook isn't *quite* good enough to catch this change.
-  // Let's just reload the page lmao.
-  window.location.reload();
+  return savedValue || "db";
 }
 
 export default useCurrentUser;
