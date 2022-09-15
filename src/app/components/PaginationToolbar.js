@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, Button, Flex, Select } from "@chakra-ui/react";
-import { Link, useHistory, useLocation } from "react-router-dom";
+import Link from "next/link";
+import { useRouter } from "next/router";
 
 function PaginationToolbar({
   isLoading,
@@ -8,22 +9,20 @@ function PaginationToolbar({
   numPerPage = 30,
   ...props
 }) {
-  const { search } = useLocation();
-  const history = useHistory();
+  const { query, push: pushHistory } = useRouter();
 
-  const currentOffset =
-    parseInt(new URLSearchParams(search).get("offset")) || 0;
+  const currentOffset = parseInt(query.offset) || 0;
 
   const currentPageIndex = Math.floor(currentOffset / numPerPage);
   const currentPageNumber = currentPageIndex + 1;
   const numTotalPages = totalCount ? Math.ceil(totalCount / numPerPage) : null;
 
-  const prevPageSearchParams = new URLSearchParams(search);
+  const prevPageSearchParams = new URLSearchParams(query);
   const prevPageOffset = currentOffset - numPerPage;
   prevPageSearchParams.set("offset", prevPageOffset);
   const prevPageUrl = "?" + prevPageSearchParams.toString();
 
-  const nextPageSearchParams = new URLSearchParams(search);
+  const nextPageSearchParams = new URLSearchParams(query);
   const nextPageOffset = currentOffset + numPerPage;
   nextPageSearchParams.set("offset", nextPageOffset);
   const nextPageUrl = "?" + nextPageSearchParams.toString();
@@ -42,23 +41,25 @@ function PaginationToolbar({
       const newPageIndex = newPageNumber - 1;
       const newPageOffset = newPageIndex * numPerPage;
 
-      const newPageSearchParams = new URLSearchParams(search);
+      const newPageSearchParams = new URLSearchParams(query);
       newPageSearchParams.set("offset", newPageOffset);
-      history.push({ search: newPageSearchParams.toString() });
+      pushHistory("?" + newPageSearchParams.toString());
     },
-    [search, history, numPerPage]
+    [query, pushHistory, numPerPage]
   );
 
   return (
     <Flex align="center" justify="space-between" {...props}>
-      <Button
-        as={prevPageIsDisabled ? "button" : Link}
-        to={prevPageIsDisabled ? undefined : prevPageUrl}
-        _disabled={{ cursor: isLoading ? "wait" : "not-allowed", opacity: 0.4 }}
+      <LinkOrButton
+        href={prevPageIsDisabled ? undefined : prevPageUrl}
+        _disabled={{
+          cursor: isLoading ? "wait" : "not-allowed",
+          opacity: 0.4,
+        }}
         isDisabled={prevPageIsDisabled}
       >
         ← Prev
-      </Button>
+      </LinkOrButton>
       {numTotalPages && (
         <Flex align="center">
           <Box flex="0 0 auto">Page</Box>
@@ -73,16 +74,30 @@ function PaginationToolbar({
           <Box flex="0 0 auto">of {numTotalPages}</Box>
         </Flex>
       )}
-      <Button
-        as={nextPageIsDisabled ? "button" : Link}
-        to={nextPageIsDisabled ? undefined : nextPageUrl}
-        _disabled={{ cursor: isLoading ? "wait" : "not-allowed", opacity: 0.4 }}
+      <LinkOrButton
+        href={nextPageIsDisabled ? undefined : nextPageUrl}
+        _disabled={{
+          cursor: isLoading ? "wait" : "not-allowed",
+          opacity: 0.4,
+        }}
         isDisabled={nextPageIsDisabled}
       >
         Next →
-      </Button>
+      </LinkOrButton>
     </Flex>
   );
+}
+
+function LinkOrButton({ href, ...props }) {
+  if (href != null) {
+    return (
+      <Link href={href} passHref>
+        <Button as="a" {...props} />
+      </Link>
+    );
+  } else {
+    return <Button {...props} />;
+  }
 }
 
 function PageNumberSelect({

@@ -3,7 +3,8 @@ import { Box, Center, Flex, Wrap, WrapItem } from "@chakra-ui/react";
 import { ClassNames } from "@emotion/react";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
-import { Link, useLocation } from "react-router-dom";
+import Link from "next/link";
+import { useRouter } from "next/router";
 
 import { Heading1, MajorErrorMessage, useCommonStyles } from "./util";
 import HangerSpinner from "./components/HangerSpinner";
@@ -55,8 +56,8 @@ const PER_PAGE = 20;
 function UserOutfitsPageContent() {
   const { isLoggedIn, isLoading: userLoading } = useCurrentUser();
 
-  const { search } = useLocation();
-  const offset = parseInt(new URLSearchParams(search).get("offset")) || 0;
+  const { query } = useRouter();
+  const offset = parseInt(query.offset) || 0;
 
   const { loading: queryLoading, error, data } = useQuery(
     USER_OUTFITS_PAGE_QUERY,
@@ -171,20 +172,21 @@ function OutfitCard({ outfit }) {
   );
 
   return (
-    <Box
-      as={Link}
-      to={`/outfits/${outfit.id}`}
-      display="block"
-      transition="all 0.2s"
-      _hover={{ transform: `scale(1.05)` }}
-      _focus={{
-        transform: `scale(1.05)`,
-        boxShadow: "outline",
-        outline: "none",
-      }}
-    >
-      <OutfitCardLayout image={image} caption={outfit.name} />
-    </Box>
+    <Link href={`/outfits/${outfit.id}`} passHref>
+      <Box
+        as="a"
+        display="block"
+        transition="all 0.2s"
+        _hover={{ transform: `scale(1.05)` }}
+        _focus={{
+          transform: `scale(1.05)`,
+          boxShadow: "outline",
+          outline: "none",
+        }}
+      >
+        <OutfitCardLayout image={image} caption={outfit.name} />
+      </Box>
+    </Link>
   );
 }
 
