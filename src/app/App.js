@@ -20,7 +20,6 @@ const ItemTradesOfferingPage = loadable(() =>
 const ItemTradesSeekingPage = loadable(() =>
   import("./ItemTradesPage").then((m) => m.ItemTradesSeekingPage)
 );
-const ModelingPage = loadable(() => import("./ModelingPage"));
 const UserItemListsIndexPage = loadable(() =>
   import("./UserItemListsIndexPage")
 );
@@ -94,11 +93,6 @@ function App() {
         <Route path="/your-outfits">
           <PageLayout>
             <UserOutfitsPage />
-          </PageLayout>
-        </Route>
-        <Route path="/modeling">
-          <PageLayout>
-            <ModelingPage />
           </PageLayout>
         </Route>
         <Route path="/">
