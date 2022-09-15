@@ -2,34 +2,38 @@
 // extra SSR for outfit sharing meta tags!
 
 import Head from "next/head";
+import { NextPageWithLayout } from "../_app";
+import WardrobePage from "../../src/app/WardrobePage";
+// @ts-ignore: doesn't understand module.exports
 import connectToDb from "../../src/server/db";
+// @ts-ignore: doesn't understand module.exports
 import { normalizeRow } from "../../src/server/util";
+import { GetServerSideProps } from "next";
 
-// import NextIndexWrapper from '../../src'
+type Outfit = {
+  id: string;
+  name: string;
+  updatedAt: string;
+};
+type PageProps = {
+  outfit: Outfit;
+};
 
-// next/dynamic is used to prevent breaking incompatibilities
-// with SSR from window.SOME_VAR usage, if this is not used
-// next/dynamic can be removed to take advantage of SSR/prerendering
-import dynamic from "next/dynamic";
-
-// try changing "ssr" to true below to test for incompatibilities, if
-// no errors occur the above static import can be used instead and the
-// below removed
-const App = dynamic(() => import("../../src/app/App"), { ssr: false });
-
-export default function Page({ outfit, ...props }) {
+const WardrobePageWrapper: NextPageWithLayout<PageProps> = ({ outfit }) => {
   return (
     <>
       <Head>
         <title>{outfit.name || "Untitled outfit"} | Dress to Impress</title>
         <OutfitMetaTags outfit={outfit} />
       </Head>
-      <App {...props} />
+      <WardrobePage />
     </>
   );
-}
+};
 
-function OutfitMetaTags({ outfit }) {
+WardrobePageWrapper.renderWithLayout = (children) => children;
+
+function OutfitMetaTags({ outfit }: { outfit: Outfit }) {
   const updatedAtTimestamp = Math.floor(
     new Date(outfit.updatedAt).getTime() / 1000
   );
@@ -57,8 +61,13 @@ function OutfitMetaTags({ outfit }) {
   );
 }
 
-export async function getServerSideProps({ params }) {
-  const outfit = await loadOutfitData(params.id);
+export const getServerSideProps: GetServerSideProps = async ({ params }) => {
+  const outfitId = params?.outfitId;
+  if (typeof outfitId !== "string") {
+    throw new Error(`assertion failed: outfitId route param is missing`);
+  }
+
+  const outfit = await loadOutfitData(outfitId);
   if (outfit == null) {
     return { notFound: true };
   }
@@ -72,9 +81,9 @@ export async function getServerSideProps({ params }) {
       },
     },
   };
-}
+};
 
-async function loadOutfitData(id) {
+async function loadOutfitData(id: string) {
   const db = await connectToDb();
   const [rows] = await db.query(`SELECT * FROM outfits WHERE id = ?;`, [id]);
   if (rows.length === 0) {
@@ -83,3 +92,5 @@ async function loadOutfitData(id) {
 
   return normalizeRow(rows[0]);
 }
+
+export default WardrobePageWrapper;

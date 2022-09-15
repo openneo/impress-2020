@@ -33,7 +33,7 @@ import {
   SettingsIcon,
 } from "@chakra-ui/icons";
 import { MdPause, MdPlayArrow } from "react-icons/md";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 import { getBestImageUrlForLayer } from "../components/OutfitPreview";
 import HTML5Badge, { layerUsesHTML5 } from "../components/HTML5Badge";
@@ -318,14 +318,15 @@ function BackButton({ outfitState }) {
     outfitState.creator && outfitState.creator.id === currentUser.id;
 
   return (
-    <ControlButton
-      as={Link}
-      to={outfitBelongsToCurrentUser ? "/your-outfits" : "/"}
-      icon={<ArrowBackIcon />}
-      aria-label="Leave this outfit"
-      d="inline-flex" // Not sure why <a> requires this to style right! ^^`
-      data-test-id="wardrobe-nav-back-button"
-    />
+    <Link href={outfitBelongsToCurrentUser ? "/your-outfits" : "/"} passHref>
+      <ControlButton
+        as="a"
+        icon={<ArrowBackIcon />}
+        aria-label="Leave this outfit"
+        d="inline-flex" // Not sure why <a> requires this to style right! ^^`
+        data-test-id="wardrobe-nav-back-button"
+      />
+    </Link>
   );
 }
 

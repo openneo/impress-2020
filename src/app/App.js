@@ -7,13 +7,9 @@ import {
 } from "react-router-dom";
 
 import PageLayout from "./PageLayout";
-import WardrobePageLayout from "./WardrobePage/WardrobePageLayout";
 import { loadable } from "./util";
 
 const HomePage = loadable(() => import("./HomePage"));
-const WardrobePage = loadable(() => import("./WardrobePage"), {
-  fallback: <WardrobePageLayout />,
-});
 
 /**
  * App is the entry point of our application. There's not a ton of exciting
@@ -27,12 +23,6 @@ function App() {
       <ScrollToTop />
 
       <Switch>
-        <Route path="/outfits/new">
-          <WardrobePage />
-        </Route>
-        <Route path="/outfits/:id">
-          <WardrobePage />
-        </Route>
         <Route path="/">
           <PageLayout hideHomeLink>
             <HomePage />

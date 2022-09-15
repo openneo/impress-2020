@@ -1,6 +1,6 @@
 import React from "react";
 import { useToast } from "@chakra-ui/react";
-import { useHistory } from "react-router-dom";
+import { useRouter } from "next/router";
 import { useDebounce } from "../util";
 import useCurrentUser from "../components/useCurrentUser";
 import gql from "graphql-tag";
@@ -9,7 +9,7 @@ import { outfitStatesAreEqual } from "./useOutfitState";
 
 function useOutfitSaving(outfitState, dispatchToOutfit) {
   const { isLoggedIn, id: currentUserId } = useCurrentUser();
-  const history = useHistory();
+  const { pathname, push: pushHistory } = useRouter();
   const toast = useToast();
 
   // There's not a way to reset an Apollo mutation state to clear out the error
@@ -158,8 +158,8 @@ function useOutfitSaving(outfitState, dispatchToOutfit) {
           // Navigate to the new saved outfit URL. Our Apollo cache should pick
           // up the data from this mutation response, and combine it with the
           // existing cached data, to make this smooth without any loading UI.
-          if (history.location.pathname !== `/outfits/${outfit.id}`) {
-            history.push(`/outfits/${outfit.id}`);
+          if (pathname !== `/outfits/[outfitId]`) {
+            pushHistory(`/outfits/${outfit.id}`);
           }
         })
         .catch((e) => {
@@ -175,7 +175,7 @@ function useOutfitSaving(outfitState, dispatchToOutfit) {
     // It's important that this callback _doesn't_ change when the outfit
     // changes, so that the auto-save effect is only responding to the
     // debounced state!
-    [sendSaveOutfitMutation, history, toast]
+    [sendSaveOutfitMutation, pathname, pushHistory, toast]
   );
 
   const saveOutfit = React.useCallback(

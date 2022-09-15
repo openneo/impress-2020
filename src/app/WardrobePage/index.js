@@ -1,5 +1,4 @@
 import React from "react";
-import { Prompt } from "react-router-dom";
 import { useToast } from "@chakra-ui/react";
 import { loadable } from "../util";
 
@@ -11,6 +10,7 @@ import useOutfitState, { OutfitStateContext } from "./useOutfitState";
 import { usePageTitle } from "../util";
 import WardrobePageLayout from "./WardrobePageLayout";
 import WardrobePreviewAndControls from "./WardrobePreviewAndControls";
+import { useRouter } from "next/router";
 
 const WardrobeDevHacks = loadable(() => import("./WardrobeDevHacks"));
 
@@ -117,6 +117,38 @@ function WardrobePage() {
       />
     </OutfitStateContext.Provider>
   );
+}
+
+/**
+ * Prompt blocks client-side navigation via Next.js when the `when` prop is
+ * true. This is our attempt at a drop-in replacement for the Prompt component
+ * offered by react-router!
+ *
+ * Adapted from https://github.com/vercel/next.js/issues/2694#issuecomment-778225625
+ */
+function Prompt({ when, message }) {
+  const router = useRouter();
+  React.useEffect(() => {
+    const handleWindowClose = (e) => {
+      if (!when) return;
+      e.preventDefault();
+      return (e.returnValue = message);
+    };
+    const handleBrowseAway = () => {
+      if (!when) return;
+      if (window.confirm(message)) return;
+      router.events.emit("routeChangeError");
+      throw "routeChange aborted by <Prompt>.";
+    };
+    window.addEventListener("beforeunload", handleWindowClose);
+    router.events.on("routeChangeStart", handleBrowseAway);
+    return () => {
+      window.removeEventListener("beforeunload", handleWindowClose);
+      router.events.off("routeChangeStart", handleBrowseAway);
+    };
+  }, [when, message, router]);
+
+  return null;
 }
 
 export default WardrobePage;

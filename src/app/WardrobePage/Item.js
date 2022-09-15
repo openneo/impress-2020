@@ -10,7 +10,7 @@ import {
   useTheme,
 } from "@chakra-ui/react";
 import { EditIcon, DeleteIcon, InfoIcon } from "@chakra-ui/icons";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { loadable } from "../util";
 
 import {
@@ -249,13 +249,13 @@ function ItemActionButton({ icon, label, to, onClick }) {
     <ClassNames>
       {({ css }) => (
         <Tooltip label={label} placement="top">
-          <IconButton
-            as={to ? Link : "button"}
+          <LinkOrButton
+            component={IconButton}
+            href={to}
             icon={icon}
             aria-label={label}
             variant="ghost"
             color="gray.400"
-            to={to}
             onClick={onClick}
             className={css`
               opacity: 0;
@@ -284,6 +284,19 @@ function ItemActionButton({ icon, label, to, onClick }) {
       )}
     </ClassNames>
   );
+}
+
+function LinkOrButton({ href, component = Button, ...props }) {
+  const ButtonComponent = component;
+  if (href != null) {
+    return (
+      <Link href={href} passHref>
+        <ButtonComponent as="a" {...props} />
+      </Link>
+    );
+  } else {
+    return <ButtonComponent {...props} />;
+  }
 }
 
 /**

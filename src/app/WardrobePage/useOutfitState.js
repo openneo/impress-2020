@@ -2,9 +2,9 @@ import React from "react";
 import gql from "graphql-tag";
 import produce, { enableMapSet } from "immer";
 import { useQuery, useApolloClient } from "@apollo/client";
-import { useLocation, useParams } from "react-router-dom";
 
 import { itemAppearanceFragment } from "../components/useOutfitAppearance";
+import { useRouter } from "next/router";
 
 enableMapSet();
 
@@ -249,8 +249,13 @@ function useOutfitState() {
   };
 
   // Keep the URL up-to-date. (We don't listen to it, though 😅)
+  // TODO: Seems like we should hook this in with the actual router... I'm
+  //       avoiding it rn, but I'm worried Next.js won't necessarily play nice
+  //       with this hack, even though react-router did. Hard to predict!
   React.useEffect(() => {
-    window.history.replaceState(null, "", url);
+    if (typeof history !== "undefined") {
+      history.replaceState(null, "", url);
+    }
   }, [url]);
 
   return {
@@ -369,37 +374,72 @@ const EMPTY_CUSTOMIZATION_STATE = {
 };
 
 function useParseOutfitUrl() {
-  const { id } = useParams();
-  const { search } = useLocation();
+  const { query } = useRouter();
+  const { outfitId } = query;
 
   // We memoize this to make `outfitStateWithoutExtras` an even more reliable
   // stable object!
   const memoizedOutfitState = React.useMemo(() => {
     // For the /outfits/:id page, ignore the query string, and just wait for the
     // outfit data to load in!
-    if (id != null) {
+    if (outfitId != null) {
       return {
         ...EMPTY_CUSTOMIZATION_STATE,
-        id,
+        id: outfitId,
       };
     }
 
     // Otherwise, parse the query string, and fill in default values for anything
     // not specified.
-    const urlParams = new URLSearchParams(search);
     return {
       id: null,
-      name: urlParams.get("name"),
-      speciesId: urlParams.get("species") || "1",
-      colorId: urlParams.get("color") || "8",
-      pose: urlParams.get("pose") || "HAPPY_FEM",
-      appearanceId: urlParams.get("state") || null,
-      wornItemIds: new Set(urlParams.getAll("objects[]")),
-      closetedItemIds: new Set(urlParams.getAll("closet[]")),
+      name: getValueFromQuery(query.name),
+      speciesId: getValueFromQuery(query.species) || "1",
+      colorId: getValueFromQuery(query.color) || "8",
+      pose: getValueFromQuery(query.pose) || "HAPPY_FEM",
+      appearanceId: getValueFromQuery(query.state) || null,
+      wornItemIds: new Set(getListFromQuery(query["objects[]"])),
+      closetedItemIds: new Set(getListFromQuery(query["closet[]"])),
     };
-  }, [id, search]);
+  }, [outfitId, query]);
 
   return memoizedOutfitState;
+}
+
+/**
+ * getValueFromQuery reads the given value from Next's `router.query` as a
+ * single value. For example:
+ *
+ * ?foo=bar -> "bar" -> "bar"
+ * ?foo=bar&foo=baz -> ["bar", "baz"] -> "bar"
+ * ?lol=huh -> undefined -> null
+ */
+function getValueFromQuery(value) {
+  if (Array.isArray(value)) {
+    return value[0];
+  } else if (value != null) {
+    return value;
+  } else {
+    return null;
+  }
+}
+
+/**
+ * getListFromQuery reads the given value from Next's `router.query` as a list
+ * of values. For example:
+ *
+ * ?foo=bar -> "bar" -> ["bar"]
+ * ?foo=bar&foo=baz -> ["bar", "baz"] -> ["bar", "baz"]
+ * ?lol=huh -> undefined -> []
+ */
+function getListFromQuery(value) {
+  if (Array.isArray(value)) {
+    return value;
+  } else if (value != null) {
+    return [value];
+  } else {
+    return [];
+  }
 }
 
 function getOutfitStateFromOutfitData(outfit) {
@@ -602,7 +642,10 @@ function getZonesAndItems(itemsById, wornItemIds, closetedItemIds) {
 export function buildOutfitUrl(outfitState, { withoutOutfitId = false } = {}) {
   const { id } = outfitState;
 
-  const { origin } = window.location;
+  const origin =
+    typeof window !== "undefined"
+      ? window.location.origin
+      : "https://impress-2020.openneo.net";
 
   if (id && !withoutOutfitId) {
     return origin + `/outfits/${id}`;
