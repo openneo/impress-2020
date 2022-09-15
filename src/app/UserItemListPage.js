@@ -31,13 +31,14 @@ import {
   WindowScroller,
 } from "react-virtualized";
 
-import { Heading1, Heading3, MajorErrorMessage, usePageTitle } from "./util";
+import { Heading1, Heading3, MajorErrorMessage } from "./util";
 import HangerSpinner from "./components/HangerSpinner";
 import MarkdownAndSafeHTML from "./components/MarkdownAndSafeHTML";
 import ItemCard from "./components/ItemCard";
 import useCurrentUser from "./components/useCurrentUser";
 import useSupport from "./WardrobePage/support/useSupport";
 import WIPCallout from "./components/WIPCallout";
+import Head from "next/head";
 
 function UserItemListPage() {
   const { query } = useRouter();
@@ -74,8 +75,6 @@ function UserItemListPage() {
 
   const closetList = data?.closetList;
 
-  usePageTitle(closetList?.name);
-
   if (loading) {
     return (
       <Center>
@@ -111,35 +110,42 @@ function UserItemListPage() {
   }
 
   return (
-    <Box>
-      <Breadcrumb
-        fontSize="sm"
-        opacity="0.8"
-        separator={<ChevronRightIcon marginTop="-2px" />}
-      >
-        <BreadcrumbItem>
-          <Link href={`/user/${creator.id}/lists`} passHref>
-            <BreadcrumbLink>{creator.username}'s lists</BreadcrumbLink>
-          </Link>
-        </BreadcrumbItem>
-        {/* TODO: The "wants" version of this link doesn't always scroll down
-         *       the page properly, now that we're not using the
-         *       react-router-hash-link library. Oh well for now!
-         *       Would be nice to fix by having Next.js eliminate the loading
-         *       spinner perhaps?...*/}
-        <BreadcrumbItem>
-          <Link href={linkBackPath} passHref>
-            <BreadcrumbLink>{linkBackText}</BreadcrumbLink>
-          </Link>
-        </BreadcrumbItem>
-      </Breadcrumb>
-      <Box height="1" />
-      <ClosetList
-        closetList={closetList}
-        isCurrentUser={isCurrentUser}
-        headingVariant="top-level"
-      />
-    </Box>
+    <>
+      <Head>
+        {closetList?.name && (
+          <title>{closetList?.name} | Dress to Impress</title>
+        )}
+      </Head>
+      <Box>
+        <Breadcrumb
+          fontSize="sm"
+          opacity="0.8"
+          separator={<ChevronRightIcon marginTop="-2px" />}
+        >
+          <BreadcrumbItem>
+            <Link href={`/user/${creator.id}/lists`} passHref>
+              <BreadcrumbLink>{creator.username}'s lists</BreadcrumbLink>
+            </Link>
+          </BreadcrumbItem>
+          {/* TODO: The "wants" version of this link doesn't always scroll down
+           *       the page properly, now that we're not using the
+           *       react-router-hash-link library. Oh well for now!
+           *       Would be nice to fix by having Next.js eliminate the loading
+           *       spinner perhaps?...*/}
+          <BreadcrumbItem>
+            <Link href={linkBackPath} passHref>
+              <BreadcrumbLink>{linkBackText}</BreadcrumbLink>
+            </Link>
+          </BreadcrumbItem>
+        </Breadcrumb>
+        <Box height="1" />
+        <ClosetList
+          closetList={closetList}
+          isCurrentUser={isCurrentUser}
+          headingVariant="top-level"
+        />
+      </Box>
+    </>
   );
 }
 
