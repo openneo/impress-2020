@@ -10,7 +10,8 @@ import {
 } from "@chakra-ui/react";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
-import { Link, useHistory, useParams } from "react-router-dom";
+import Link from "next/link";
+import { useRouter } from "next/router";
 
 import { Heading2, usePageTitle } from "./util";
 import ItemPageLayout from "./ItemPageLayout";
@@ -89,7 +90,8 @@ function ItemTradesPage({
   compareColumnLabel,
   tradesQuery,
 }) {
-  const { itemId } = useParams();
+  const { query } = useRouter();
+  const { itemId } = query;
 
   const { error, data } = useQuery(
     gql`
@@ -310,8 +312,11 @@ function ItemTradesTableRow({
   matchingItems,
   shouldShowCompareColumn,
 }) {
-  const history = useHistory();
-  const onClick = React.useCallback(() => history.push(href), [history, href]);
+  const { push: pushHistory } = useRouter();
+  const onClick = React.useCallback(() => pushHistory(href), [
+    pushHistory,
+    href,
+  ]);
   const focusBackground = useColorModeValue("gray.100", "gray.600");
 
   const sortedMatchingItems = [...matchingItems].sort((a, b) =>
@@ -362,20 +367,21 @@ function ItemTradesTableRow({
           )}
           <ItemTradesTableCell fontSize="xs">{username}</ItemTradesTableCell>
           <ItemTradesTableCell fontSize="sm">
-            <Box
-              as={Link}
-              to={href}
-              className={css`
-                &:hover,
-                &:focus,
-                tr:hover &,
-                tr:focus-within & {
-                  text-decoration: underline;
-                }
-              `}
-            >
-              {listName}
-            </Box>
+            <Link href={href} passHref>
+              <Box
+                as="a"
+                className={css`
+                  &:hover,
+                  &:focus,
+                  tr:hover &,
+                  tr:focus-within & {
+                    text-decoration: underline;
+                  }
+                `}
+              >
+                {listName}
+              </Box>
+            </Link>
           </ItemTradesTableCell>
         </Box>
       )}

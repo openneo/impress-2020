@@ -11,12 +11,6 @@ import WardrobePageLayout from "./WardrobePage/WardrobePageLayout";
 import { loadable } from "./util";
 
 const HomePage = loadable(() => import("./HomePage"));
-const ItemTradesOfferingPage = loadable(() =>
-  import("./ItemTradesPage").then((m) => m.ItemTradesOfferingPage)
-);
-const ItemTradesSeekingPage = loadable(() =>
-  import("./ItemTradesPage").then((m) => m.ItemTradesSeekingPage)
-);
 const UserItemListsIndexPage = loadable(() =>
   import("./UserItemListsIndexPage")
 );
@@ -37,16 +31,6 @@ function App() {
       <ScrollToTop />
 
       <Switch>
-        <Route path="/items/:itemId/trades/offering">
-          <PageLayout>
-            <ItemTradesOfferingPage />
-          </PageLayout>
-        </Route>
-        <Route path="/items/:itemId/trades/seeking">
-          <PageLayout>
-            <ItemTradesSeekingPage />
-          </PageLayout>
-        </Route>
         <Route path="/outfits/new">
           <WardrobePage />
         </Route>
