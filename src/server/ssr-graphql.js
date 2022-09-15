@@ -19,11 +19,11 @@ async function loadGraphqlQuery({ query, variables = {} }) {
   // a whole client!)
   const cache = new InMemoryCache();
   cache.writeQuery({ query, variables, data });
-  const state = cache.extract();
+  const graphqlState = cache.extract();
 
   // We return the data, errors, and cache state: we figure callers will almost
   // always want the errors and state, and may also want the data!
-  return { data, errors, state };
+  return { data, errors, graphqlState };
 }
 
 /**

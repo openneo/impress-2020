@@ -19,7 +19,7 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   // with it! We add it as a special `pageProps` key named `graphqlState`,
   // which the `App` component intercepts and gives to the Apollo client.
   const outfitState = readOutfitStateFromQuery(query);
-  const res = await loadGraphqlQuery({
+  const { errors, graphqlState } = await loadGraphqlQuery({
     query: gql`
       query OutfitsNew_GetServerSideProps(
         $speciesId: ID!
@@ -49,17 +49,17 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
       wornItemIds: outfitState.wornItemIds,
     },
   });
-  if (res.errors) {
+  if (errors) {
     console.warn(
       `[SSR: /outfits/new] Skipping GraphQL preloading, got errors:`
     );
-    for (const error of res.errors) {
+    for (const error of errors) {
       console.warn(`[SSR: /outfits/new]`, error);
     }
     return { props: { graphqlState: {} } };
   }
 
-  return { props: { graphqlState: res.state } };
+  return { props: { graphqlState } };
 };
 
 export default WardrobePageWrapper;

@@ -41,7 +41,6 @@ import {
   logAndCapture,
   MajorErrorMessage,
   useLocalStorage,
-  usePageTitle,
 } from "./util";
 import HTML5Badge, { layerUsesHTML5 } from "./components/HTML5Badge";
 import {
@@ -59,6 +58,7 @@ import SpeciesFacesPicker, {
   colorIsBasic,
 } from "./ItemPage/SpeciesFacesPicker";
 import { useRouter } from "next/router";
+import Head from "next/head";
 
 function ItemPage() {
   const { query } = useRouter();
@@ -95,8 +95,6 @@ export function ItemPageContent({ itemId, isEmbedded = false }) {
     { variables: { itemId }, returnPartialData: true }
   );
 
-  usePageTitle(data?.item?.name, { skip: isEmbedded });
-
   if (error) {
     return <MajorErrorMessage error={error} />;
   }
@@ -104,19 +102,26 @@ export function ItemPageContent({ itemId, isEmbedded = false }) {
   const item = data?.item;
 
   return (
-    <ItemPageLayout item={item} isEmbedded={isEmbedded}>
-      <VStack spacing="8" marginTop="4">
-        <ItemPageDescription
-          description={item?.description}
-          isEmbedded={isEmbedded}
-        />
-        <VStack spacing="4">
-          <ItemPageTradeLinks itemId={itemId} isEmbedded={isEmbedded} />
-          {isLoggedIn && <ItemPageOwnWantButtons itemId={itemId} />}
+    <>
+      {!isEmbedded && item?.name && (
+        <Head>
+          <title>{item?.name} | Dress to Impress</title>
+        </Head>
+      )}
+      <ItemPageLayout item={item} isEmbedded={isEmbedded}>
+        <VStack spacing="8" marginTop="4">
+          <ItemPageDescription
+            description={item?.description}
+            isEmbedded={isEmbedded}
+          />
+          <VStack spacing="4">
+            <ItemPageTradeLinks itemId={itemId} isEmbedded={isEmbedded} />
+            {isLoggedIn && <ItemPageOwnWantButtons itemId={itemId} />}
+          </VStack>
+          {!isEmbedded && <ItemPageOutfitPreview itemId={itemId} />}
         </VStack>
-        {!isEmbedded && <ItemPageOutfitPreview itemId={itemId} />}
-      </VStack>
-    </ItemPageLayout>
+      </ItemPageLayout>
+    </>
   );
 }
 
