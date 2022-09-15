@@ -312,8 +312,11 @@ export function useFetch(url, { responseType, skip, ...fetchOptions }) {
 let storageListeners = [];
 export function useLocalStorage(key, initialValue) {
   const loadValue = React.useCallback(() => {
+    if (typeof localStorage === "undefined") {
+      return initialValue;
+    }
     try {
-      const item = window.localStorage.getItem(key);
+      const item = localStorage.getItem(key);
       return item ? JSON.parse(item) : initialValue;
     } catch (error) {
       console.error(error);
