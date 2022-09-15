@@ -10,6 +10,6 @@ import dynamic from "next/dynamic";
 // below removed
 const NextIndexWrapper = dynamic(() => import("../src"), { ssr: false });
 
-export default function Page(props) {
+export default function Page(props: any) {
   return <NextIndexWrapper {...props} />;
 }
