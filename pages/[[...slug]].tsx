@@ -17,8 +17,6 @@ const FallbackPage: NextPageWithLayout = () => {
 };
 
 // This old fallback page uses App, which already has PageLayout built-in.
-FallbackPage.layoutComponent = ({ children }: { children: JSX.Element }) => {
-  return children;
-};
+FallbackPage.renderWithLayout = (children: JSX.Element) => children;
 
 export default FallbackPage;

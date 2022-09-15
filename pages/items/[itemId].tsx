@@ -7,7 +7,7 @@ const ItemPageWrapper: NextPageWithLayout = () => {
   return <ItemPage />;
 };
 
-ItemPageWrapper.layoutComponent = ({ children }) => {
+ItemPageWrapper.renderWithLayout = (children) => {
   return (
     <PageLayout>
       <ItemSearchPageToolbar marginBottom="8" />

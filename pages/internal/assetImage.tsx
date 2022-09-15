@@ -5,8 +5,7 @@ const InternalAssetImagePageWrapper: NextPageWithLayout = () => {
   return <InternalAssetImagePage />;
 };
 
-InternalAssetImagePageWrapper.layoutComponent = ({ children }) => {
-  return children;
-};
+InternalAssetImagePageWrapper.renderWithLayout = (children: JSX.Element) =>
+  children;
 
 export default InternalAssetImagePageWrapper;

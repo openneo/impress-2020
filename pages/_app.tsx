@@ -14,7 +14,7 @@ import buildApolloClient from "../src/app/apolloClient";
 import PageLayout from "../src/app/PageLayout";
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
-  layoutComponent?: (props: { children: JSX.Element }) => JSX.Element;
+  renderWithLayout?: (children: JSX.Element) => JSX.Element;
 };
 
 const theme = extendTheme({
@@ -38,7 +38,8 @@ const theme = extendTheme({
 type AppPropsWithLayout = AppProps & { Component: NextPageWithLayout };
 
 export default function DTIApp({ Component, pageProps }: AppPropsWithLayout) {
-  const LayoutComponent = Component.layoutComponent ?? PageLayout;
+  const renderWithLayout =
+    Component.renderWithLayout ?? renderWithDefaultLayout;
 
   React.useEffect(() => setupLogging(), []);
 
@@ -63,14 +64,16 @@ export default function DTIApp({ Component, pageProps }: AppPropsWithLayout) {
         <ApolloProviderWithAuth0>
           <ChakraProvider theme={theme}>
             <CSSReset />
-            <LayoutComponent>
-              <Component {...pageProps} />
-            </LayoutComponent>
+            {renderWithLayout(<Component {...pageProps} />)}
           </ChakraProvider>
         </ApolloProviderWithAuth0>
       </Auth0Provider>
     </>
   );
+}
+
+function renderWithDefaultLayout(children: JSX.Element) {
+  return <PageLayout>{children}</PageLayout>;
 }
 
 function ApolloProviderWithAuth0({ children }: { children: React.ReactNode }) {
