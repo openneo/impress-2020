@@ -37,7 +37,7 @@ function GlobalHeader() {
 
 function HomeLink(props) {
   const { pathname } = useRouter();
-  const isHomePage = pathname === "";
+  const isHomePage = pathname === "/";
 
   return (
     <Link href="/" passHref>

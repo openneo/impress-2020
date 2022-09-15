@@ -35,8 +35,9 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { ArrowForwardIcon, SearchIcon } from "@chakra-ui/icons";
-import { Link, useHistory, useLocation } from "react-router-dom";
 import { useLazyQuery, useQuery } from "@apollo/client";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import Image from "next/image";
 
 import {
@@ -136,7 +137,7 @@ function HomePage() {
 }
 
 function StartOutfitForm({ onChange }) {
-  const history = useHistory();
+  const { push: pushHistory } = useRouter();
 
   const idealPose = React.useMemo(
     () => (Math.random() > 0.5 ? "HAPPY_FEM" : "HAPPY_MASC"),
@@ -161,7 +162,7 @@ function StartOutfitForm({ onChange }) {
       pose: closestPose,
     });
 
-    history.push(`/outfits/new?${params}`);
+    pushHistory(`/outfits/new?${params}`);
   };
 
   const buttonBgColor = useColorModeValue("green.600", "green.300");
@@ -208,10 +209,9 @@ function StartOutfitForm({ onChange }) {
 }
 
 function SubmitPetForm() {
-  const history = useHistory();
+  const { query, push: pushHistory } = useRouter();
   const theme = useTheme();
   const toast = useToast();
-  const location = useLocation();
 
   const [petName, setPetName] = React.useState("");
 
@@ -247,7 +247,7 @@ function SubmitPetForm() {
         for (const item of items) {
           params.append("objects[]", item.id);
         }
-        history.push(`/outfits/new?${params}`);
+        pushHistory(`/outfits/new?${params}`);
       },
       onError: () => {
         toast({
@@ -279,14 +279,13 @@ function SubmitPetForm() {
   // custom search engines. (I feel like a route or a different UX would be
   // better, but I don't really know enough to commit to one… let's just keep
   // this simple for now, I think. We might change this someday!)
+  const autoLoadPetName = query.loadPet;
   React.useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const petName = params.get("loadPet");
-    if (petName) {
-      setPetName(petName);
-      loadPet(petName);
+    if (autoLoadPetName != null) {
+      setPetName(autoLoadPetName);
+      loadPet(autoLoadPetName);
     }
-  }, [location, loadPet]);
+  }, [autoLoadPetName, loadPet]);
 
   const { brightBackground } = useCommonStyles();
   const inputBorderColor = useColorModeValue("green.600", "green.500");
@@ -358,22 +357,24 @@ function NewItemsSection() {
 function ItemsSearchField() {
   const [query, setQuery] = React.useState("");
   const { brightBackground } = useCommonStyles();
-  const history = useHistory();
+  const { push: pushHistory } = useRouter();
 
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
         if (query) {
-          history.push(`/items/search/${encodeURIComponent(query)}`);
+          pushHistory(`/items/search/${encodeURIComponent(query)}`);
         }
       }}
     >
       <InputGroup size="sm">
         <InputLeftElement>
-          <Box as={Link} to="/items/search" display="flex">
-            <SearchIcon color="gray.400" />
-          </Box>
+          <Link href="/items/search" passHref>
+            <Box as="a" display="flex">
+              <SearchIcon color="gray.400" />
+            </Box>
+          </Link>
         </InputLeftElement>
         <Input
           value={query}
@@ -906,12 +907,11 @@ function FeedbackForm() {
  * other people know about the tools and poke around a powerless interface!
  */
 function useSupportSetup() {
-  const location = useLocation();
+  const { query } = useRouter();
   const toast = useToast();
 
+  const supportSecret = query.supportSecret;
   React.useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const supportSecret = params.get("supportSecret");
     const existingSupportSecret = localStorage.getItem("supportSecret");
 
     if (supportSecret && supportSecret !== existingSupportSecret) {
@@ -937,7 +937,7 @@ function useSupportSetup() {
         isClosable: true,
       });
     }
-  }, [location, toast]);
+  }, [supportSecret, toast]);
 }
 
 export default HomePage;
