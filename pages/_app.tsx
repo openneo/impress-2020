@@ -41,6 +41,15 @@ export default function DTIApp({ Component, pageProps }: AppPropsWithLayout) {
   const renderWithLayout =
     Component.renderWithLayout ?? renderWithDefaultLayout;
 
+  // Store the *first* value of initialCacheState we get into our cache,
+  // because we don't want to rebuild our client and flush out everything else
+  // when the page changes. We set it in state here then never touch it again!
+  // TODO: Is there a clever way to *add* to our cache each time? The Apollo
+  //       API suggests not really, but maybe there's a clever option...
+  const [initialCacheState, unusedSetInitialCacheState] = React.useState(
+    pageProps.graphqlState ?? {}
+  );
+
   React.useEffect(() => setupLogging(), []);
 
   return (
@@ -61,9 +70,7 @@ export default function DTIApp({ Component, pageProps }: AppPropsWithLayout) {
         audience="https://impress-2020.openneo.net/api"
         scope=""
       >
-        <ApolloProviderWithAuth0
-          initialCacheState={pageProps.graphqlState ?? {}}
-        >
+        <ApolloProviderWithAuth0 initialCacheState={initialCacheState}>
           <ChakraProvider theme={theme}>
             <CSSReset />
             {renderWithLayout(<Component {...pageProps} />)}
@@ -80,7 +87,7 @@ function renderWithDefaultLayout(children: JSX.Element) {
 
 function ApolloProviderWithAuth0({
   children,
-  initialCacheState = {},
+  initialCacheState,
 }: {
   children: React.ReactNode;
   initialCacheState: NormalizedCacheObject;
