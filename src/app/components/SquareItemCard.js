@@ -8,7 +8,7 @@ import {
   useToken,
 } from "@chakra-ui/react";
 import { ClassNames } from "@emotion/react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 import { safeImageUrl, useCommonStyles } from "../util";
 import { CheckIcon, CloseIcon, StarIcon } from "@chakra-ui/icons";
@@ -57,38 +57,40 @@ function SquareItemCard({
           `}
           role="group"
         >
-          <Link
-            to={`/items/${item.id}`}
-            className={css`
-              border-radius: ${mdRadiusValue};
-              transition: all 0.2s;
-              &:hover,
-              &:focus {
-                transform: scale(1.05);
-              }
-              &:focus {
-                box-shadow: ${outlineShadowValue};
-                outline: none;
-              }
-            `}
-            {...props}
-          >
-            <SquareItemCardLayout
-              name={item.name}
-              thumbnailImage={
-                <ItemThumbnail
-                  item={item}
-                  tradeMatchingMode={tradeMatchingMode}
-                />
-              }
-              removeButton={
-                showRemoveButton ? (
-                  <SquareItemCardRemoveButton onClick={onRemove} />
-                ) : null
-              }
-              boxShadow={tradeMatchShadow}
-              footer={footer}
-            />
+          <Link href={`/items/${item.id}`} passHref>
+            <Box
+              as="a"
+              className={css`
+                border-radius: ${mdRadiusValue};
+                transition: all 0.2s;
+                &:hover,
+                &:focus {
+                  transform: scale(1.05);
+                }
+                &:focus {
+                  box-shadow: ${outlineShadowValue};
+                  outline: none;
+                }
+              `}
+              {...props}
+            >
+              <SquareItemCardLayout
+                name={item.name}
+                thumbnailImage={
+                  <ItemThumbnail
+                    item={item}
+                    tradeMatchingMode={tradeMatchingMode}
+                  />
+                }
+                removeButton={
+                  showRemoveButton ? (
+                    <SquareItemCardRemoveButton onClick={onRemove} />
+                  ) : null
+                }
+                boxShadow={tradeMatchShadow}
+                footer={footer}
+              />
+            </Box>
           </Link>
           {showRemoveButton && (
             <div

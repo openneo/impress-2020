@@ -1,5 +1,4 @@
 import React from "react";
-import { Box } from "@chakra-ui/react";
 import {
   BrowserRouter as Router,
   Switch,
@@ -12,7 +11,6 @@ import WardrobePageLayout from "./WardrobePage/WardrobePageLayout";
 import { loadable } from "./util";
 
 const HomePage = loadable(() => import("./HomePage"));
-const ItemSearchPage = loadable(() => import("./ItemSearchPage"));
 const ItemTradesOfferingPage = loadable(() =>
   import("./ItemTradesPage").then((m) => m.ItemTradesOfferingPage)
 );
@@ -27,17 +25,6 @@ const WardrobePage = loadable(() => import("./WardrobePage"), {
   fallback: <WardrobePageLayout />,
 });
 
-// ItemPage and ItemSearchPage need to share a search toolbar, so here it is!
-// It'll load in dynamically like the page elements, with a hacky fallback to
-// take up 40px of height until it loads.
-//
-// There very well be a better way to encapsulate this! It's not *great* to
-// have this here. I just don't wanna over abstract it just yet 😅
-const ItemSearchPageToolbar = loadable(
-  () => import("./components/ItemSearchPageToolbar"),
-  { fallback: <Box height="40px" /> }
-);
-
 /**
  * App is the entry point of our application. There's not a ton of exciting
  * stuff happening here, mostly just setting up some globals and theming!
@@ -50,12 +37,6 @@ function App() {
       <ScrollToTop />
 
       <Switch>
-        <Route path="/items/search/:query?">
-          <PageLayout>
-            <ItemSearchPageToolbar marginBottom="6" />
-            <ItemSearchPage />
-          </PageLayout>
-        </Route>
         <Route path="/items/:itemId/trades/offering">
           <PageLayout>
             <ItemTradesOfferingPage />
