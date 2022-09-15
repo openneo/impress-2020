@@ -48,7 +48,6 @@ import {
   TestErrorSender,
   useCommonStyles,
   useLocalStorage,
-  usePageTitle,
 } from "./util";
 import OutfitPreview from "./components/OutfitPreview";
 import SpeciesColorPicker from "./components/SpeciesColorPicker";
@@ -62,7 +61,6 @@ import HomepageSplashImg from "./images/homepage-splash.png";
 import FeedbackKikoImg from "./images/feedback-kiko.png";
 
 function HomePage() {
-  usePageTitle(null);
   useSupportSetup();
 
   const [previewState, setPreviewState] = React.useState(null);
