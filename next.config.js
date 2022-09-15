@@ -1,8 +1,5 @@
 module.exports = {
   reactStrictMode: true,
-  env: {
-    PUBLIC_URL: "",
-  },
   async rewrites() {
     return [
       {
