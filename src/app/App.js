@@ -21,9 +21,6 @@ const ItemTradesSeekingPage = loadable(() =>
   import("./ItemTradesPage").then((m) => m.ItemTradesSeekingPage)
 );
 const ModelingPage = loadable(() => import("./ModelingPage"));
-const SupportPetAppearancesPage = loadable(() =>
-  import("./SupportPetAppearancesPage")
-);
 const UserItemListsIndexPage = loadable(() =>
   import("./UserItemListsIndexPage")
 );
@@ -102,11 +99,6 @@ function App() {
         <Route path="/modeling">
           <PageLayout>
             <ModelingPage />
-          </PageLayout>
-        </Route>
-        <Route path="/support/petAppearances">
-          <PageLayout>
-            <SupportPetAppearancesPage />
           </PageLayout>
         </Route>
         <Route path="/">

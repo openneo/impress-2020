@@ -17,7 +17,10 @@ import * as React from "react";
  */
 function useSupport() {
   const supportSecret = React.useMemo(
-    () => localStorage.getItem("supportSecret"),
+    () =>
+      typeof localStorage !== "undefined"
+        ? localStorage.getItem("supportSecret")
+        : null,
     []
   );
 

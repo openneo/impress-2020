@@ -9,20 +9,20 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@chakra-ui/popover";
-import { Link } from "react-router-dom";
 import HangerSpinner from "./components/HangerSpinner";
 import { ErrorMessage, Heading1 } from "./util";
 import useSupport from "./WardrobePage/support/useSupport";
+import Link from "next/link";
 
 function SupportPetAppearancesPage() {
   const { isSupportUser } = useSupport();
 
   if (!isSupportUser) {
-    return "Sorry, this page is only for Support users!";
+    return <Box>Sorry, this page is only for Support users!</Box>;
   }
 
   return (
-    <>
+    <Box>
       <Heading1 marginBottom=".5em">Support: Pet appearances</Heading1>
       <Box as="p" marginBottom="2">
         These species/color combinations have some <code>UNKNOWN</code>{" "}
@@ -43,7 +43,7 @@ function SupportPetAppearancesPage() {
         </Popover>
       </Box>
       <UnlabeledPetAppearancesList />
-    </>
+    </Box>
   );
 }
 
@@ -112,21 +112,25 @@ function SpeciesColorEditorLink({ species, color }) {
   );
 
   return (
-    <Box
-      as={Link}
-      to={`/outfits/new?species=${species.id}&color=${color.id}&pose=UNKNOWN`}
-      target="supportPetAppearanceEditor"
-      border="1px solid"
-      borderColor="green.600"
-      borderRadius="full"
-      paddingX="3"
-      paddingY="2"
-      fontSize="sm"
-      _hover={{ backgroundColor: hoverBackgroundColor }}
-      _focus={{ boxShadow: "outline", outline: "none" }}
+    <Link
+      href={`/outfits/new?species=${species.id}&color=${color.id}&pose=UNKNOWN`}
+      passHref
     >
-      {color.name} {species.name}
-    </Box>
+      <Box
+        as="a"
+        target="supportPetAppearanceEditor"
+        border="1px solid"
+        borderColor="green.600"
+        borderRadius="full"
+        paddingX="3"
+        paddingY="2"
+        fontSize="sm"
+        _hover={{ backgroundColor: hoverBackgroundColor }}
+        _focus={{ boxShadow: "outline", outline: "none" }}
+      >
+        {color.name} {species.name}
+      </Box>
+    </Link>
   );
 }
 
