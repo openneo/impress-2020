@@ -4,13 +4,17 @@ Contributor: Matchu
 
 Source Code: https://github.com/matchu/impress-2020
 
+## Modification
+
+The Neopets Metaverse project is not authorized to use this software in any way, nor is any commercial crypto/NFT project, including under the terms of the commercial trial period below. If this is unwittingly violated, the expected remediation is to cease and desist all sales of crypto/NFT products derived from this product, in addition to offering consideration for appropriate compensation.
+
 ## Purpose
 
 This license allows you to use and share this software for noncommercial purposes for free and to try this software for commercial purposes for thirty days.
 
 ## Agreement
 
-In order to receive this license, you have to agree to its rules.  Those rules are both obligations under that agreement and conditions to your license.  Don't do anything with this software that triggers a rule you can't or won't follow.
+In order to receive this license, you have to agree to its rules. Those rules are both obligations under that agreement and conditions to your license. Don't do anything with this software that triggers a rule you can't or won't follow.
 
 ## Notices
 
@@ -18,7 +22,7 @@ Make sure everyone who gets a copy of any part of this software from you, with o
 
 ## Commercial Trial
 
-Limit your use of this software for commercial purposes to a thirty-day trial period.  If you use this software for work, your company gets one trial period for all personnel, not one trial per person.
+Limit your use of this software for commercial purposes to a thirty-day trial period. If you use this software for work, your company gets one trial period for all personnel, not one trial per person.
 
 ## Contributions Back
 
@@ -54,7 +58,7 @@ You're excused for unknowingly breaking [Notices](#notices) if you take all prac
 
 ## No Liability
 
-***As far as the law allows, this software comes as is, without any warranty or condition, and the contributor won't be liable to anyone for any damages related to this software or this license, under any kind of legal claim.***
+**_As far as the law allows, this software comes as is, without any warranty or condition, and the contributor won't be liable to anyone for any damages related to this software or this license, under any kind of legal claim._**
 
 # Additional Notes
 
