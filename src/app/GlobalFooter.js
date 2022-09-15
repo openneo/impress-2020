@@ -29,7 +29,7 @@ function GlobalFooter() {
             Terms of Use
           </ChakraLink>
           <Link href="/privacy" passHref>
-            <ChakraLink>Privacy Policy</ChakraLink>
+            <ChakraLink>Privacy Policy (09/2022)</ChakraLink>
           </Link>
           <ChakraLink href={classicDTIUrl}>Classic DTI</ChakraLink>
         </HStack>

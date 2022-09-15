@@ -3,8 +3,11 @@ import { css } from "@emotion/react";
 import { VStack } from "@chakra-ui/react";
 
 import { Heading1, Heading2, Heading3 } from "./util";
+import { useAuthModeFeatureFlag } from "./components/useCurrentUser";
 
 function PrivacyPolicyPage() {
+  const [authMode] = useAuthModeFeatureFlag();
+
   return (
     <>
       <Heading1 marginBottom="4">Our privacy policy</Heading1>
@@ -38,43 +41,46 @@ function PrivacyPolicyPage() {
             your creations with others.
           </p>
         </section>
-        <section>
-          <Heading2>Account management</Heading2>
-          <p>
-            While our <a href="https://impress.openneo.net/">classic app</a>{" "}
-            uses its own authentication, the app you're using now uses a service
-            called <a href="https://auth0.com/">Auth0</a> to manage account
-            creation and login.
-          </p>
-          <p>
-            We made this decision because authentication is difficult to write
-            and maintain securely. We felt that Auth0 was the smoothest and most
-            secure experience we could offer, especially as a small team of
-            volunteers{" "}
-            <span role="img" aria-label="Sweat smile emoji">
-              😅
-            </span>
-          </p>
-          <p>
-            <a href="https://auth0.com/legal/ss-tos">
-              Auth0's terms of service
-            </a>{" "}
-            commit to treating your user data as confidential information, not
-            to be shared with anyone else, and only to be used as part of Dress
-            to Impress. (The details are in Sections 6 and 7!)
-          </p>
-          <p>
-            When signing up, Auth0 will ask for a username, password, and email
-            address. They store your password as a <em>hash</em> (which,
-            colloquially, is like a one-way encryption), rather than as the
-            plain password itself.
-          </p>
-          <p>
-            Some user accounts were created before we moved to Auth0. For those
-            users, we imported their accounts from our custom database into
-            Auth0. This included username, password hash, and email address.
-          </p>
-        </section>
+        {authMode === "auth0" && (
+          <section>
+            <Heading2>Account management</Heading2>
+            <p>
+              While our <a href="https://impress.openneo.net/">classic app</a>{" "}
+              uses its own authentication, the app you're using now uses a
+              service called <a href="https://auth0.com/">Auth0</a> to manage
+              account creation and login.
+            </p>
+            <p>
+              We made this decision because authentication is difficult to write
+              and maintain securely. We felt that Auth0 was the smoothest and
+              most secure experience we could offer, especially as a small team
+              of volunteers{" "}
+              <span role="img" aria-label="Sweat smile emoji">
+                😅
+              </span>
+            </p>
+            <p>
+              <a href="https://auth0.com/legal/ss-tos">
+                Auth0's terms of service
+              </a>{" "}
+              commit to treating your user data as confidential information, not
+              to be shared with anyone else, and only to be used as part of
+              Dress to Impress. (The details are in Sections 6 and 7!)
+            </p>
+            <p>
+              When signing up, Auth0 will ask for a username, password, and
+              email address. They store your password as a <em>hash</em> (which,
+              colloquially, is like a one-way encryption), rather than as the
+              plain password itself.
+            </p>
+            <p>
+              Some user accounts were created before we moved to Auth0. For
+              those users, we imported their accounts from our custom database
+              into Auth0. This included username, password hash, and email
+              address.
+            </p>
+          </section>
+        )}
         <section>
           <Heading2>Analytics and logging</Heading2>
           <p>
@@ -105,10 +111,12 @@ function PrivacyPolicyPage() {
             </a>
           </p>
           <p>
-            We also use <a href="https://vercel.com/">Vercel</a> and{" "}
-            <a href="https://www.fastly.com/">Fastly</a> for web hosting. They
-            store aggregate usage logs for us, but not any
-            personally-identifying data.
+            We also use <a href="https://www.linode.com/">Linode</a> and{" "}
+            <a href="https://www.fastly.com/">Fastly</a> for web hosting. Linode
+            stores our database, and handles most web traffic dealing with
+            personal data. Personal data also travels through Fastly's servers
+            temporarily, but they only store aggregate usage logs for us, not
+            any personally-identifying data.
           </p>
         </section>
         <section>
