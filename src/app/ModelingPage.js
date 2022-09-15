@@ -5,7 +5,7 @@ import { useQuery } from "@apollo/client";
 
 import { Delay } from "./util";
 import HangerSpinner from "./components/HangerSpinner";
-import { Heading1, Heading2, usePageTitle } from "./util";
+import { Heading1, Heading2 } from "./util";
 import ItemCard, {
   ItemBadgeList,
   ItemCardList,
@@ -13,15 +13,19 @@ import ItemCard, {
   YouOwnThisBadge,
 } from "./components/ItemCard";
 import useCurrentUser from "./components/useCurrentUser";
+import Head from "next/head";
 
 function ModelingPage() {
-  usePageTitle("Modeling Hub");
-
   return (
-    <Box>
-      <Heading1 marginBottom="2">Modeling Hub</Heading1>
-      <ItemModelsSection />
-    </Box>
+    <>
+      <Head>
+        <title>Modeling Hub | Dress to Impress</title>
+      </Head>
+      <Box>
+        <Heading1 marginBottom="2">Modeling Hub</Heading1>
+        <ItemModelsSection />
+      </Box>
+    </>
   );
 }
 
