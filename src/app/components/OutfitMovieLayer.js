@@ -7,8 +7,11 @@ import { loadImage, logAndCapture, safeImageUrl } from "../util";
 // Import EaselJS and TweenJS directly into the `window` object! The bundled
 // scripts are built to attach themselves to `window.createjs`, and
 // `window.createjs` is where the Neopets movie libraries expects to find them!
-require("imports-loader?wrapper=window!easeljs/lib/easeljs");
-require("imports-loader?wrapper=window!tweenjs/lib/tweenjs");
+// NOTE: If there's no window (e.g. SSR), we skip this step.
+if (typeof window !== "undefined") {
+  require("imports-loader?wrapper=window!easeljs/lib/easeljs");
+  require("imports-loader?wrapper=window!tweenjs/lib/tweenjs");
+}
 
 function OutfitMovieLayer({
   libraryUrl,

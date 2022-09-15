@@ -1,8 +1,8 @@
 import React from "react";
 import { Box, Center } from "@chakra-ui/react";
-import { useLocation } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 import { Global, css } from "@emotion/react";
+import { useRouter } from "next/router";
 
 import OutfitMovieLayer from "./components/OutfitMovieLayer";
 
@@ -36,10 +36,9 @@ function InternalAssetImagePage() {
 }
 
 function InternalAssetImagePageContent() {
-  const location = useLocation();
-  const search = new URLSearchParams(location.search);
-  const libraryUrl = search.get("libraryUrl");
-  const size = search.get("size") || "600";
+  const { query } = useRouter();
+  const libraryUrl = query.libraryUrl;
+  const size = query.size ?? "600";
 
   const [movieError, setMovieError] = React.useState(null);
 
