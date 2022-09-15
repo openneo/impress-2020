@@ -10,7 +10,8 @@ import {
 } from "@chakra-ui/react";
 import { EmailIcon, MoonIcon, SunIcon } from "@chakra-ui/icons";
 import { SiGithub, SiTwitter } from "react-icons/si";
-import { Link as RouterLink, useRouteMatch } from "react-router-dom";
+import { useRouter } from "next/router";
+import Link from "next/link";
 
 function GlobalFooter() {
   const classicDTIUrl = useClassicDTIUrl();
@@ -27,9 +28,9 @@ function GlobalFooter() {
           <ChakraLink href="https://impress.openneo.net/terms">
             Terms of Use
           </ChakraLink>
-          <ChakraLink as={RouterLink} to="/privacy">
-            Privacy Policy
-          </ChakraLink>
+          <Link href="/privacy" passHref>
+            <ChakraLink>Privacy Policy</ChakraLink>
+          </Link>
           <ChakraLink href={classicDTIUrl}>Classic DTI</ChakraLink>
         </HStack>
         <Box as="p" opacity="0.75">
@@ -111,21 +112,17 @@ function ColorModeButton() {
 }
 
 function useClassicDTIUrl() {
-  const itemPageMatch = useRouteMatch("/items/:itemId");
-  const userItemListsIndexPageMatch = useRouteMatch("/user/:userId/lists");
-  const modelingPageMatch = useRouteMatch("/modeling");
+  const { pathname, query } = useRouter();
 
-  if (itemPageMatch) {
-    const { itemId } = itemPageMatch.params;
-    return `https://impress.openneo.net/items/${itemId}`;
+  if (pathname === "/items/:itemId") {
+    return `https://impress.openneo.net/items/${query.itemId}`;
   }
 
-  if (userItemListsIndexPageMatch) {
-    const { userId } = userItemListsIndexPageMatch.params;
-    return `https://impress.openneo.net/user/${userId}/closet`;
+  if (pathname === "/user/:userId/lists") {
+    return `https://impress.openneo.net/user/${query.userId}/closet`;
   }
 
-  if (modelingPageMatch) {
+  if (pathname === "/modeling") {
     return "https://impress.openneo.net/modeling";
   }
 

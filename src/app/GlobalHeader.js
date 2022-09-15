@@ -12,9 +12,10 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { HamburgerIcon } from "@chakra-ui/icons";
-import { Link, useLocation } from "react-router-dom";
 import { ChevronLeftIcon } from "@chakra-ui/icons";
 import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/router";
 
 import useCurrentUser, {
   useAuthModeFeatureFlag,
@@ -35,81 +36,82 @@ function GlobalHeader() {
 }
 
 function HomeLink(props) {
-  const { pathname } = useLocation();
-  const isHomePage = pathname === "/";
+  const { pathname } = useRouter();
+  const isHomePage = pathname === "";
 
   return (
-    <Box
-      as={Link}
-      to="/"
-      display="flex"
-      alignItems="center"
-      role="group"
-      // HACK: When we're on the homepage, I want the title "Dress to Impress"
-      //       to stay visible for transition, but I don't want it to be a
-      //       click target. To do this, I constrain the size of the container,
-      //       and also remove pointer events from the overflowing children.
-      maxWidth={isHomePage ? "32px" : "none"}
-      {...props}
-    >
+    <Link href="/" passHref>
       <Box
-        flex="0 0 auto"
+        as="a"
         display="flex"
         alignItems="center"
-        marginRight="2"
-        position="relative"
-        transition="all 0.2s"
-        opacity="0.8"
-        _groupHover={{ transform: "scale(1.1)", opacity: "1" }}
-        _groupFocus={{ transform: "scale(1.1)", opacity: "1" }}
+        role="group"
+        // HACK: When we're on the homepage, I want the title "Dress to Impress"
+        //       to stay visible for transition, but I don't want it to be a
+        //       click target. To do this, I constrain the size of the container,
+        //       and also remove pointer events from the overflowing children.
+        maxWidth={isHomePage ? "32px" : "none"}
+        {...props}
       >
         <Box
-          position="absolute"
-          right="100%"
-          opacity={isHomePage ? "0" : "1"}
-          pointerEvents={isHomePage ? "none" : "all"}
-          transform={isHomePage ? "translateX(3px)" : "none"}
+          flex="0 0 auto"
+          display="flex"
+          alignItems="center"
+          marginRight="2"
+          position="relative"
           transition="all 0.2s"
+          opacity="0.8"
+          _groupHover={{ transform: "scale(1.1)", opacity: "1" }}
+          _groupFocus={{ transform: "scale(1.1)", opacity: "1" }}
         >
-          <ChevronLeftIcon />
-        </Box>
-        <Box height="32px" borderRadius="lg" boxShadow="md" overflow="hidden">
-          <Image
-            src={HomeLinkIcon}
-            alt=""
-            width={32}
-            height={32}
-            layout="fixed"
+          <Box
+            position="absolute"
+            right="100%"
+            opacity={isHomePage ? "0" : "1"}
+            pointerEvents={isHomePage ? "none" : "all"}
+            transform={isHomePage ? "translateX(3px)" : "none"}
+            transition="all 0.2s"
+          >
+            <ChevronLeftIcon />
+          </Box>
+          <Box height="32px" borderRadius="lg" boxShadow="md" overflow="hidden">
+            <Image
+              src={HomeLinkIcon}
+              alt=""
+              width={32}
+              height={32}
+              layout="fixed"
+            />
+          </Box>
+          <Box
+            height="2em"
+            width="2em"
+            position="absolute"
+            top="0"
+            left="0"
+            right="0"
+            bottom="0"
+            borderRadius="lg"
+            transition="border 0.2s"
           />
         </Box>
         <Box
-          height="2em"
-          width="2em"
-          position="absolute"
-          top="0"
-          left="0"
-          right="0"
-          bottom="0"
-          borderRadius="lg"
-          transition="border 0.2s"
-        />
+          flex="0 0 auto"
+          fontFamily="Delicious"
+          fontWeight="600"
+          fontSize="2xl"
+          display={{ base: "none", sm: "block" }}
+          opacity={isHomePage ? "0" : "1"}
+          transition="all 0.2s"
+          marginRight="2"
+          pointerEvents={isHomePage ? "none" : "all"}
+          _groupHover={{ fontWeight: "900" }}
+          _groupFocus={{ fontWeight: "900" }}
+        >
+          Dress to Impress
+        </Box>
       </Box>
-      <Box
-        flex="0 0 auto"
-        fontFamily="Delicious"
-        fontWeight="600"
-        fontSize="2xl"
-        display={{ base: "none", sm: "block" }}
-        opacity={isHomePage ? "0" : "1"}
-        transition="all 0.2s"
-        marginRight="2"
-        pointerEvents={isHomePage ? "none" : "all"}
-        _groupHover={{ fontWeight: "900" }}
-        _groupFocus={{ fontWeight: "900" }}
-      >
-        Dress to Impress
-      </Box>
-    </Box>
+    </Link>
   );
 }
 
@@ -130,16 +132,16 @@ function UserNavBarSection() {
         )}
         <NavLinksList>
           {id && (
-            <NavLinkItem as={Link} to={`/user/${id}/lists`}>
-              Lists
-            </NavLinkItem>
+            <Link href={`/user/${id}/lists`} passHref>
+              <NavLinkItem as="a">Lists</NavLinkItem>
+            </Link>
           )}
-          <NavLinkItem as={Link} to={`/your-outfits`}>
-            Outfits
-          </NavLinkItem>
-          <NavLinkItem as={Link} to="/modeling">
-            Modeling
-          </NavLinkItem>
+          <Link href={`/your-outfits`} passHref>
+            <NavLinkItem as="a">Outfits</NavLinkItem>
+          </Link>
+          <Link href="/modeling" passHref>
+            <NavLinkItem as="a">Modeling</NavLinkItem>
+          </Link>
           <LogoutButton />
         </NavLinksList>
       </HStack>
@@ -147,9 +149,9 @@ function UserNavBarSection() {
   } else {
     return (
       <HStack align="center" spacing="2">
-        <NavButton as={Link} to="/modeling">
-          Modeling
-        </NavButton>
+        <Link href="/modeling" passHref>
+          <NavButton as="a">Modeling</NavButton>
+        </Link>
         <LoginButton />
       </HStack>
     );

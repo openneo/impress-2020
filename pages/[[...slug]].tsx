@@ -1,3 +1,5 @@
+import React from "react";
+import type { NextPageWithLayout } from "./_app";
 // import App from '../src'
 
 // next/dynamic is used to prevent breaking incompatibilities
@@ -10,6 +12,13 @@ import dynamic from "next/dynamic";
 // below removed
 const App = dynamic(() => import("../src/app/App"), { ssr: false });
 
-export default function Page(props: any) {
-  return <App {...props} />;
-}
+const FallbackPage: NextPageWithLayout = () => {
+  return <App />;
+};
+
+// This old fallback page uses App, which already has PageLayout built-in.
+FallbackPage.layoutComponent = ({ children }: { children: JSX.Element }) => {
+  return children;
+};
+
+export default FallbackPage;

@@ -1,6 +1,7 @@
 import React from "react";
 import Head from "next/head";
 import type { AppProps } from "next/app";
+import type { NextPage } from "next";
 import * as Sentry from "@sentry/react";
 import { Integrations } from "@sentry/tracing";
 import { Auth0Provider } from "@auth0/auth0-react";
@@ -10,6 +11,11 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { mode } from "@chakra-ui/theme-tools";
 
 import buildApolloClient from "../src/app/apolloClient";
+import PageLayout from "../src/app/PageLayout";
+
+export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
+  layoutComponent?: (props: { children: JSX.Element }) => JSX.Element;
+};
 
 const theme = extendTheme({
   styles: {
@@ -29,7 +35,11 @@ const theme = extendTheme({
   },
 });
 
-export default function DTIApp({ Component, pageProps }: AppProps) {
+type AppPropsWithLayout = AppProps & { Component: NextPageWithLayout };
+
+export default function DTIApp({ Component, pageProps }: AppPropsWithLayout) {
+  const LayoutComponent = Component.layoutComponent ?? PageLayout;
+
   React.useEffect(() => setupLogging(), []);
 
   return (
@@ -53,7 +63,9 @@ export default function DTIApp({ Component, pageProps }: AppProps) {
         <ApolloProviderWithAuth0>
           <ChakraProvider theme={theme}>
             <CSSReset />
-            <Component {...pageProps} />
+            <LayoutComponent>
+              <Component {...pageProps} />
+            </LayoutComponent>
           </ChakraProvider>
         </ApolloProviderWithAuth0>
       </Auth0Provider>

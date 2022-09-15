@@ -25,7 +25,6 @@ const ItemTradesSeekingPage = loadable(() =>
   import("./ItemTradesPage").then((m) => m.ItemTradesSeekingPage)
 );
 const ModelingPage = loadable(() => import("./ModelingPage"));
-const PrivacyPolicyPage = loadable(() => import("./PrivacyPolicyPage"));
 const SupportPetAppearancesPage = loadable(() =>
   import("./SupportPetAppearancesPage")
 );
@@ -107,11 +106,6 @@ function App() {
         <Route path="/modeling">
           <PageLayout>
             <ModelingPage />
-          </PageLayout>
-        </Route>
-        <Route path="/privacy">
-          <PageLayout>
-            <PrivacyPolicyPage />
           </PageLayout>
         </Route>
         <Route path="/conversion">
