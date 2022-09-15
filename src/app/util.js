@@ -508,14 +508,14 @@ export function MajorErrorMessage({ error = null, variant = "unexpected" }) {
             </>
           )}
         </Box>
-        {message && (
+        {error && (
           <Box gridArea="details" fontSize="xs" opacity="0.8">
             <WarningIcon
               marginRight="1.5"
               marginTop="-2px"
               aria-label="Error message"
             />
-            "{getGraphQLErrorMessage(message)}"
+            "{getGraphQLErrorMessage(error)}"
           </Box>
         )}
       </Grid>
