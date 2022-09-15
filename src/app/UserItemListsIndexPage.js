@@ -29,7 +29,7 @@ import {
   StarIcon,
 } from "@chakra-ui/icons";
 import gql from "graphql-tag";
-import { useHistory, useParams } from "react-router-dom";
+import { useRouter } from "next/router";
 import { useQuery, useLazyQuery, useMutation } from "@apollo/client";
 
 import HangerSpinner from "./components/HangerSpinner";
@@ -44,7 +44,8 @@ const BadgeButton = React.forwardRef((props, ref) => (
 ));
 
 function UserItemListsIndexPage() {
-  const { userId } = useParams();
+  const { query } = useRouter();
+  const { userId } = query;
   const currentUser = useCurrentUser();
   const isCurrentUser = currentUser.id === userId;
 
@@ -317,7 +318,7 @@ function UserSearchForm() {
   const [query, setQuery] = React.useState("");
 
   const { isSupportUser, supportSecret } = useSupport();
-  const history = useHistory();
+  const { push: pushHistory } = useRouter();
   const toast = useToast();
 
   const [loadUserSearch, { loading: loading1 }] = useLazyQuery(
@@ -341,7 +342,7 @@ function UserSearchForm() {
           return;
         }
 
-        history.push(`/user/${user.id}/lists`);
+        pushHistory(`/user/${user.id}/lists`);
       },
       onError: (error) => {
         console.error(error);

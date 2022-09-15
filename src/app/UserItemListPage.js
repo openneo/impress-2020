@@ -23,8 +23,9 @@ import {
   EmailIcon,
 } from "@chakra-ui/icons";
 import { gql, useMutation, useQuery } from "@apollo/client";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { HashLink } from "react-router-hash-link";
+import Link from "next/link";
 import {
   List as VirtualizedList,
   AutoSizer,
@@ -252,13 +253,11 @@ export function ClosetList({
               {closetList.isDefaultList || headingVariant === "top-level" ? (
                 closetList.name
               ) : (
-                <Box
-                  as={Link}
-                  to={buildClosetListPath(closetList)}
-                  _hover={{ textDecoration: "underline" }}
-                >
-                  {closetList.name}
-                </Box>
+                <Link href={buildClosetListPath(closetList)} passHref>
+                  <Box as="a" _hover={{ textDecoration: "underline" }}>
+                    {closetList.name}
+                  </Box>
+                </Link>
               )}
             </Heading>
           ))}
@@ -416,29 +415,30 @@ export function ClosetListContents({
         <Box fontStyle="italic">This list is empty!</Box>
       )}
       {numMoreItems > 0 && (
-        <Box
-          as={Link}
-          to={buildClosetListPath(closetList)}
-          display="flex"
-          width="100%"
-          alignItems="center"
-          justifyContent="center"
-          marginTop="6"
-          fontStyle="italic"
-          textAlign="center"
-          role="group"
-        >
-          <Flex
-            align="center"
-            borderBottom="1px solid transparent"
-            _groupHover={{ borderBottomColor: "currentColor" }}
-            _groupFocus={{ borderBottomColor: "currentColor" }}
+        <Link href={buildClosetListPath(closetList)} passHref>
+          <Box
+            as="a"
+            display="flex"
+            width="100%"
+            alignItems="center"
+            justifyContent="center"
+            marginTop="6"
+            fontStyle="italic"
+            textAlign="center"
+            role="group"
           >
-            <Box>Show {numMoreItems} more items</Box>
-            <Box width="1" />
-            <ArrowForwardIcon />
-          </Flex>
-        </Box>
+            <Flex
+              align="center"
+              borderBottom="1px solid transparent"
+              _groupHover={{ borderBottomColor: "currentColor" }}
+              _groupFocus={{ borderBottomColor: "currentColor" }}
+            >
+              <Box>Show {numMoreItems} more items</Box>
+              <Box width="1" />
+              <ArrowForwardIcon />
+            </Flex>
+          </Box>
+        </Link>
       )}
     </Box>
   );
