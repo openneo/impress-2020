@@ -213,7 +213,7 @@ export function useAuthModeFeatureFlag() {
     savedValue = null;
   }
 
-  const value = savedValue || "auth0";
+  const value = savedValue || "db";
 
   return [value, setSavedValue];
 }
