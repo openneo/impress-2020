@@ -11,7 +11,6 @@ import PageLayout from "./PageLayout";
 import WardrobePageLayout from "./WardrobePage/WardrobePageLayout";
 import { loadable } from "./util";
 
-const ConversionPage = loadable(() => import("./ConversionPage"));
 const HomePage = loadable(() => import("./HomePage"));
 const InternalAssetImagePage = loadable(() =>
   import("./InternalAssetImagePage")
@@ -106,11 +105,6 @@ function App() {
         <Route path="/modeling">
           <PageLayout>
             <ModelingPage />
-          </PageLayout>
-        </Route>
-        <Route path="/conversion">
-          <PageLayout>
-            <ConversionPage />
           </PageLayout>
         </Route>
         <Route path="/support/petAppearances">
