@@ -13,10 +13,11 @@ import { useQuery } from "@apollo/client";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
-import { Heading2, usePageTitle } from "./util";
+import { Heading2 } from "./util";
 import ItemPageLayout from "./ItemPageLayout";
 import useCurrentUser from "./components/useCurrentUser";
 import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
+import Head from "next/head";
 
 export function ItemTradesOfferingPage() {
   return (
@@ -111,24 +112,31 @@ function ItemTradesPage({
     { variables: { itemId }, returnPartialData: true }
   );
 
-  usePageTitle(`${data?.item?.name} | ${title}`, { skip: !data?.item?.name });
-
   if (error) {
     return <Box color="red.400">{error.message}</Box>;
   }
 
   return (
-    <ItemPageLayout item={data?.item}>
-      <Heading2 marginTop="6" marginBottom="4">
-        {title}
-      </Heading2>
-      <ItemTradesTable
-        itemId={itemId}
-        userHeading={userHeading}
-        compareColumnLabel={compareColumnLabel}
-        tradesQuery={tradesQuery}
-      />
-    </ItemPageLayout>
+    <>
+      <Head>
+        {data?.item?.name && (
+          <title>
+            {data?.item?.name} | {title} | Dress to Impress
+          </title>
+        )}
+      </Head>
+      <ItemPageLayout item={data?.item}>
+        <Heading2 marginTop="6" marginBottom="4">
+          {title}
+        </Heading2>
+        <ItemTradesTable
+          itemId={itemId}
+          userHeading={userHeading}
+          compareColumnLabel={compareColumnLabel}
+          tradesQuery={tradesQuery}
+        />
+      </ItemPageLayout>
+    </>
   );
 }
 
