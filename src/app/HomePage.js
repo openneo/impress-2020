@@ -217,14 +217,16 @@ function SubmitPetForm() {
     gql`
       query SubmitPetForm($petName: String!) {
         petOnNeopetsDotCom(petName: $petName) {
-          color {
-            id
+          petAppearance {
+            color {
+              id
+            }
+            species {
+              id
+            }
+            pose
           }
-          species {
-            id
-          }
-          pose
-          items {
+          wornItems {
             id
           }
         }
@@ -235,14 +237,25 @@ function SubmitPetForm() {
       onCompleted: (data) => {
         if (!data) return;
 
-        const { species, color, pose, items } = data.petOnNeopetsDotCom;
+        const { petAppearance, wornItems } = data.petOnNeopetsDotCom;
+        if (petAppearance == null) {
+          toast({
+            title: "This pet exists, but is in a glitchy state on Neopets.com.",
+            description:
+              "Hopefully it gets fixed soon! If this doesn't sound right to you, contact us and let us know!",
+            status: "error",
+          });
+          return;
+        }
+
+        const { species, color, pose } = petAppearance;
         const params = new URLSearchParams({
           name: petName,
           species: species.id,
           color: color.id,
           pose,
         });
-        for (const item of items) {
+        for (const item of wornItems) {
           params.append("objects[]", item.id);
         }
         pushHistory(`/outfits/new?${params}`);

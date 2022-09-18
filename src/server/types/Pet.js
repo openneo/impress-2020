@@ -8,17 +8,13 @@ const typeDefs = gql`
   type Pet {
     id: ID!
     name: String!
-    petAppearance: PetAppearance!
     wornItems: [Item!]!
 
-    "to be deprecated? can use petAppearance? 🤔"
-    species: Species!
-    "to be deprecated? can use petAppearance? 🤔"
-    color: Color!
-    "to be deprecated? can use petAppearance? 🤔"
-    pose: Pose!
-    "deprecated alias for wornItems"
-    items: [Item!]!
+    """
+    The pet's appearance. Can be null if the pet is in an invalid buggy state
+    that Neopets.com's own customization system doesn't support yet.
+    """
+    petAppearance: PetAppearance
   }
 
   extend type Query {
@@ -29,19 +25,15 @@ const typeDefs = gql`
 const resolvers = {
   Pet: {
     id: ({ name }) => name,
-    species: ({ customPetData }) => ({
-      id: String(customPetData.custom_pet.species_id),
-    }),
-    color: ({ customPetData }) => ({
-      id: String(customPetData.custom_pet.color_id),
-    }),
-    pose: ({ customPetData, petMetaData }) =>
-      getPoseFromPetData(petMetaData, customPetData),
     petAppearance: async (
       { name, customPetData, petMetaData },
       _,
       { petTypeBySpeciesAndColorLoader, petStatesForPetTypeLoader }
     ) => {
+      if (customPetData == null) {
+        return null;
+      }
+
       const petType = await petTypeBySpeciesAndColorLoader.load({
         speciesId: customPetData.custom_pet.species_id,
         colorId: customPetData.custom_pet.color_id,
@@ -99,15 +91,19 @@ const resolvers = {
           `sorry! Try using the Modeling Hub on Classic DTI to upload it first?`
       );
     },
-    wornItems: ({ customPetData }) =>
-      Object.values(customPetData.object_info_registry).map((o) => ({
+    wornItems: ({ customPetData }) => {
+      if (customPetData == null) {
+        return [];
+      }
+
+      return Object.values(customPetData.object_info_registry).map((o) => ({
         id: o.obj_info_id,
         name: o.name,
         description: o.description,
         thumbnailUrl: o.thumbnail_url,
         rarityIndex: o.rarity_index,
-      })),
-    items: (...args) => resolvers.Pet.wornItems(...args),
+      }));
+    },
   },
   Query: {
     petOnNeopetsDotCom: async (
@@ -127,14 +123,16 @@ const resolvers = {
         loadPetMetaData(petName),
       ]);
 
-      await saveModelingData(customPetData, petMetaData, {
-        db,
-        petTypeBySpeciesAndColorLoader,
-        petStateByPetTypeAndAssetsLoader,
-        itemLoader,
-        itemTranslationLoader,
-        swfAssetByRemoteIdLoader,
-      });
+      if (customPetData != null) {
+        await saveModelingData(customPetData, petMetaData, {
+          db,
+          petTypeBySpeciesAndColorLoader,
+          petStateByPetTypeAndAssetsLoader,
+          itemLoader,
+          itemTranslationLoader,
+          swfAssetByRemoteIdLoader,
+        });
+      }
 
       return { name: petName, customPetData, petMetaData };
     },
@@ -155,10 +153,22 @@ async function loadPetMetaData(petName) {
 }
 
 async function loadCustomPetData(petName) {
-  const response = await neopetsXmlrpcCall("CustomPetService.getViewerData", [
-    petName,
-  ]);
-  return response;
+  try {
+    const response = await neopetsXmlrpcCall("CustomPetService.getViewerData", [
+      petName,
+    ]);
+    return response;
+  } catch (error) {
+    // If Neopets.com fails to find valid customization data, we return null.
+    if (
+      error.code === "AMFPHP_RUNTIME_ERROR" &&
+      error.faultString === "Unable to find body artwork for this combination."
+    ) {
+      return null;
+    } else {
+      throw error;
+    }
+  }
 }
 
 function getPoseFromPetData(petMetaData, petCustomData) {
