@@ -83,7 +83,7 @@
     "export-users-to-auth0": "ts-node --compiler=typescript-cached-transpile --transpile-only -r dotenv/config scripts/export-users-to-auth0.js",
     "validate-owls-data": "ts-node --compiler=typescript-cached-transpile --transpile-only -r dotenv/config scripts/validate-owls-data.js",
     "archive:create:list-urls": "ts-node --compiler=typescript-cached-transpile --transpile-only -r dotenv/config scripts/archive/create/list-urls.js",
-    "archive:create:download-urls": "./scripts/archive/create/download-urls.sh"
+    "archive:create:download-urls": "dotenv -- ./scripts/archive/create/download-urls.sh"
   },
   "browserslist": {
     "production": [
