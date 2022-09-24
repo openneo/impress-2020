@@ -86,9 +86,9 @@
     "validate-owls-data": "yarn run-script scripts/validate-owls-data.js",
     "archive:create:list-urls": "yarn run-script scripts/archive/create/list-urls.js",
     "archive:create:download-urls": "dotenv -- ./scripts/archive/create/download-urls.sh",
-    "s3cmd": "s3cmd --host=$(dotenv -p ARCHIVE_STORAGE_HOST) --host-bucket='%(bucket)s.'$(dotenv -p ARCHIVE_STORAGE_HOST) --access_key=$(dotenv -p ARCHIVE_STORAGE_READWRITE_ACCESS_KEY) --secret_key=$(dotenv -p ARCHIVE_STORAGE_READWRITE_SECRET_KEY)",
-    "archive:create:upload": "yarn s3cmd sync $(dotenv -p ARCHIVE_DIR)/ s3://$(dotenv -p ARCHIVE_STORAGE_BUCKET) --verbose",
-    "archive:create:upload-test": "yarn s3cmd sync $(dotenv -p ARCHIVE_DIR)/images.neopets.com/cp/items/data/000/000/000/1_8422bedbf9/ s3://$(dotenv -p ARCHIVE_STORAGE_BUCKET)/images.neopets.com/cp/items/data/000/000/000/1_8422bedbf9/ --verbose"
+    "aws": "AWS_ACCESS_KEY_ID=$(dotenv -p ARCHIVE_STORAGE_READWRITE_ACCESS_KEY) AWS_SECRET_ACCESS_KEY=$(dotenv -p ARCHIVE_STORAGE_READWRITE_SECRET_KEY) aws --endpoint=https://$(dotenv -p ARCHIVE_STORAGE_HOST)",
+    "archive:create:upload": "yarn aws s3 sync $(dotenv -p ARCHIVE_DIR) s3://$(dotenv -p ARCHIVE_STORAGE_BUCKET)",
+    "archive:create:upload-test": "yarn aws s3 sync $(dotenv -p ARCHIVE_DIR)/images.neopets.com/cp/items/data/000/000/000/1_8422bedbf9/ s3://$(dotenv -p ARCHIVE_STORAGE_BUCKET)/images.neopets.com/cp/items/data/000/000/000/1_8422bedbf9/"
   },
   "browserslist": {
     "production": [
