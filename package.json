@@ -6,6 +6,7 @@
     "@apollo/client": "^3.6.9",
     "@apollographql/graphql-playground-html": "^1.6.24",
     "@auth0/auth0-react": "^1.0.0",
+    "@aws-sdk/client-s3": "^3.178.0",
     "@chakra-ui/icons": "^1.0.4",
     "@chakra-ui/react": "^1.6.0",
     "@chakra-ui/theme-tools": "^1.0.3",
