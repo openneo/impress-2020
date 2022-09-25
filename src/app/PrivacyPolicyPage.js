@@ -4,12 +4,16 @@ import { VStack } from "@chakra-ui/react";
 
 import { Heading1, Heading2, Heading3 } from "./util";
 import { useAuthModeFeatureFlag } from "./components/useCurrentUser";
+import Head from "next/head";
 
 function PrivacyPolicyPage() {
   const [authMode] = useAuthModeFeatureFlag();
 
   return (
     <>
+      <Head>
+        <title>Privacy Policy | Dress to Impress</title>
+      </Head>
       <Heading1 marginBottom="4">Our privacy policy</Heading1>
       <VStack
         spacing="4"
