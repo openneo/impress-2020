@@ -139,14 +139,14 @@ function UserOutfitsPageContent() {
   );
 }
 
-function OutfitCard({ outfit }) {
+export function OutfitCard({ outfit, caption = null, alt = null }) {
   const image = (
     <ClassNames>
       {({ css }) => (
         <OutfitThumbnail
           outfitId={outfit.id}
           updatedAt={outfit.updatedAt}
-          alt={buildOutfitAltText(outfit)}
+          alt={alt ?? buildOutfitAltText(outfit)}
           // Firefox shows alt text as a fallback for images it can't show yet.
           // Show our alt text clearly if the image failed to load... but hide
           // it if it's still loading. It's normal for these to take a second
@@ -184,7 +184,7 @@ function OutfitCard({ outfit }) {
           outline: "none",
         }}
       >
-        <OutfitCardLayout image={image} caption={outfit.name} />
+        <OutfitCardLayout image={image} caption={caption ?? outfit.name} />
       </Box>
     </Link>
   );

@@ -31,6 +31,9 @@ function GlobalFooter() {
           <Link href="/privacy" passHref>
             <ChakraLink>Privacy Policy (Sep 2022)</ChakraLink>
           </Link>
+          <Link href="/donate" passHref>
+            <ChakraLink>Donors</ChakraLink>
+          </Link>
           <ChakraLink href={classicDTIUrl}>Classic DTI</ChakraLink>
         </HStack>
         <Box as="p" opacity="0.75">

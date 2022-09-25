@@ -1,8 +1,11 @@
 USE openneo_impress;
 
 -- Public data tables: read
+GRANT SELECT ON campaigns TO impress2020;
 GRANT SELECT ON colors TO impress2020;
 GRANT SELECT ON color_translations TO impress2020;
+GRANT SELECT ON donation_features TO impress2020;
+GRANT SELECT ON donations TO impress2020;
 GRANT SELECT ON items TO impress2020;
 GRANT SELECT ON item_translations TO impress2020;
 GRANT SELECT ON modeling_logs TO impress2020;
