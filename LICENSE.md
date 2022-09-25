@@ -6,7 +6,7 @@ Source Code: https://github.com/matchu/impress-2020
 
 ## Modification
 
-The Neopets Metaverse project is not authorized to use this software in any way, nor is any commercial crypto/NFT project, including under the terms of the commercial trial period below. If this is unwittingly violated, the expected remediation is to cease and desist all sales of crypto/NFT products derived from this product, in addition to offering consideration for appropriate compensation.
+The Neopets Metaverse project is not authorized to use this software in any way, nor is any commercial crypto/NFT project, including under the terms of the commercial trial period below. If this is unwittingly violated, the expected remediation is to cease and desist all sales of crypto/NFT products derived from this service, in addition to offering appropriate compensation.
 
 ## Purpose
 

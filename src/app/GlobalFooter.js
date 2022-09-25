@@ -25,11 +25,11 @@ function GlobalFooter() {
       />
       <Box textAlign="center" fontSize="xs">
         <HStack spacing="4" justifyContent="center">
-          <ChakraLink href="https://impress.openneo.net/terms">
-            Terms of Use
-          </ChakraLink>
+          <Link href="/terms" passHref>
+            <ChakraLink>Terms of Use (Sep 2022)</ChakraLink>
+          </Link>
           <Link href="/privacy" passHref>
-            <ChakraLink>Privacy Policy (09/2022)</ChakraLink>
+            <ChakraLink>Privacy Policy (Sep 2022)</ChakraLink>
           </Link>
           <ChakraLink href={classicDTIUrl}>Classic DTI</ChakraLink>
         </HStack>
