@@ -29,6 +29,7 @@ const beeline = require("honeycomb-beeline")({
       : "Dress to Impress (2020, dev)",
   serviceName: "impress-2020-gql-server",
 });
+import * as path from "node:path";
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
 async function handle(req, res) {
@@ -60,11 +61,19 @@ async function handle(req, res) {
     return;
   }
 
+  // Set the Content-Type so the browser interprets it correctly, and also tell
+  // it the filename via Content-Disposition in case the browser chooses to
+  // download it immediately (like with SWFs) or if the user chooses to Save As
+  // it later.
+  const filename = path.basename(archiveKey.split("?")[0]);
+  const contentType = inferContentType(filename);
+  res.setHeader("Content-Type", contentType);
+  res.setHeader("Content-Disposition", `inline; filename=${filename}`);
+
   // Send a long-term cache header, like images.neopets.com does! We assume
   // that, if they change an asset, they'll change the query string to bust the
   // cache, and so we'll get to see that change in the updated archive too.
   res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
-  res.setHeader("Content-Type", archiveRes.ContentType);
   res.send(archiveRes.Body);
 }
 
@@ -85,6 +94,37 @@ async function fetchFromArchive(archiveKey) {
     })
   );
   return res;
+}
+
+function inferContentType(filename) {
+  // So, S3 objects *do* have a ContentType field, but our upload script
+  // doesn't infer it correctly for the filenames that include query strings.
+  // Rather than write our own uploader or something to fix the ContentType in
+  // S3 after the fact (the latter of which wouldn't be unreasonable and might
+  // be a better approach), we just take advantage of the fact that the archive
+  // only *really* has a small handful of filetypes that we would need to serve
+  // to DTI, and that serving as `application/octet-stream` isn't unreasonable
+  // for other kinds of files we might have.
+  const fileExtension = path.extname(filename);
+  if (fileExtension === ".json") {
+    return "application/json";
+  } else if (fileExtension === ".js") {
+    return "text/javascript";
+  } else if (fileExtension === ".png") {
+    return "image/png";
+  } else if (fileExtension === ".gif") {
+    return "image/gif";
+  } else if (fileExtension === ".svg") {
+    return "image/svg+xml";
+  } else if (fileExtension === ".jpeg" || fileExtension === ".jpg") {
+    return "image/jpeg";
+  } else if (fileExtension === ".swf") {
+    return "application/x-shockwave-flash";
+  } else if (fileExtension === ".mp3") {
+    return "audio/mpeg3";
+  } else {
+    return "application/octet-stream";
+  }
 }
 
 async function handleWithBeeline(req, res) {
