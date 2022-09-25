@@ -177,4 +177,10 @@ async function handleWithBeeline(req, res) {
   );
 }
 
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
 export default handleWithBeeline;
