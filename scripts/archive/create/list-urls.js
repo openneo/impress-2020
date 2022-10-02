@@ -29,15 +29,6 @@ const connectToDb = require("../../../src/server/db");
 const { normalizeRow } = require("../../../src/server/util");
 
 async function main() {
-  const urlsCacheFileAlreadyExists = await checkIfUrlsCacheFileAlreadyExists();
-  if (urlsCacheFileAlreadyExists) {
-    console.error(
-      `urls-cache.txt already exists. Please remove it first if you really ` +
-        `want to rebuild it from scratch!`
-    );
-    return 1;
-  }
-
   const db = await connectToDb();
   const file = await createUrlsCacheFile();
 
@@ -81,16 +72,6 @@ async function main() {
   }
 
   console.info(`Done writing asset URLs.`);
-}
-
-async function checkIfUrlsCacheFileAlreadyExists() {
-  const urlsCacheFilePath = path.join(__dirname, "urls-cache.txt");
-  try {
-    await fs.access(urlsCacheFilePath, fs.constants.R_OK);
-  } catch (error) {
-    return false;
-  }
-  return true;
 }
 
 async function createUrlsCacheFile() {

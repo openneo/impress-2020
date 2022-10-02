@@ -84,6 +84,7 @@
     "delete-user": "yarn run-script scripts/delete-user.js",
     "export-users-to-auth0": "yarn run-script scripts/export-users-to-auth0.js",
     "validate-owls-data": "yarn run-script scripts/validate-owls-data.js",
+    "archive:create": "yarn archive:create:list-urls && yarn archive:create:download-urls && yarn archive:create:upload",
     "archive:create:list-urls": "yarn run-script scripts/archive/create/list-urls.js",
     "archive:create:download-urls": "dotenv -- ./scripts/archive/create/download-urls.sh",
     "aws": "AWS_ACCESS_KEY_ID=$(dotenv -p ARCHIVE_STORAGE_READWRITE_ACCESS_KEY) AWS_SECRET_ACCESS_KEY=$(dotenv -p ARCHIVE_STORAGE_READWRITE_SECRET_KEY) aws --endpoint=https://$(dotenv -p ARCHIVE_STORAGE_HOST)",
