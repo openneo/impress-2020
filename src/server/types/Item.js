@@ -553,7 +553,7 @@ const resolvers = {
     speciesThatNeedModels: async (
       { id },
       { colorId = "8" }, // Blue
-      { speciesThatNeedModelsForItemLoader }
+      { speciesThatNeedModelsForItemLoader, allSpeciesIdsForColorLoader }
     ) => {
       // NOTE: If we're running this in the context of `itemsThatNeedModels`,
       //       this loader should already be primed, no extra query!
@@ -566,8 +566,8 @@ const resolvers = {
       }
 
       const modeledSpeciesIds = row.modeledSpeciesIds.split(",");
-      const allSpeciesIdsForThisColor = row.allSpeciesIdsForThisColor.split(
-        ","
+      const allSpeciesIdsForThisColor = await allSpeciesIdsForColorLoader.load(
+        colorId
       );
 
       let allModelableSpeciesIds = allSpeciesIdsForThisColor;

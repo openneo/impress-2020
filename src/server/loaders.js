@@ -544,25 +544,7 @@ async function runItemModelingQuery(db, filterToItemIds) {
       GROUP_CONCAT(
         T_BODIES.species_id
         ORDER BY T_BODIES.species_id
-      ) AS modeled_species_ids,
-      (
-        SELECT GROUP_CONCAT(DISTINCT species_id ORDER BY species_id)
-        FROM pet_types T_PT1
-        WHERE color_id = T_BODIES.color_id
-          AND (
-            -- For non-standard colors, ignore the species that have the same
-            -- body ID as standard pets. Otherwise, a lot of items will be
-            -- like "oh, we fit the Maraquan Koi and Maraquan Mynci, where
-            -- are all the other Maraquans??", which is incorrect!
-            color_id = 8
-            OR
-              (
-                SELECT count(*) FROM pet_types T_PT2
-                WHERE T_PT1.body_id = T_PT2.body_id
-                  AND T_PT1.color_id != T_PT2.color_id
-              ) = 0
-          )
-      ) AS all_species_ids_for_this_color
+      ) AS modeled_species_ids
     FROM (
       -- NOTE: I found that extracting this as a separate query that runs
       --       first made things WAAAY faster. Less to join/group, I guess?
@@ -607,7 +589,24 @@ async function runItemModelingQuery(db, filterToItemIds) {
       -- Single species (probably just their item)
       OR modeled_species_count = 1
       -- All species modeled (that are compatible with this color)
-      OR modeled_species_ids = all_species_ids_for_this_color
+      OR modeled_species_ids = (
+        SELECT GROUP_CONCAT(DISTINCT species_id ORDER BY species_id)
+        FROM pet_types T_PT1
+        WHERE color_id = T_BODIES.color_id
+          AND (
+            -- For non-standard colors, ignore the species that have the same
+            -- body ID as standard pets. Otherwise, a lot of items will be
+            -- like "oh, we fit the Maraquan Koi and Maraquan Mynci, where
+            -- are all the other Maraquans??", which is incorrect!
+            color_id = 8
+            OR
+              (
+                SELECT count(*) FROM pet_types T_PT2
+                WHERE T_PT1.body_id = T_PT2.body_id
+                  AND T_PT1.color_id != T_PT2.color_id
+              ) = 0
+          )
+      )
       -- All species modeled except Vandagyre, for items that don't support it
       OR (NOT T_ITEMS.supports_vandagyre AND modeled_species_count = 54 AND modeled_species_ids = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54")
     )
@@ -672,6 +671,42 @@ const buildItemsThatNeedModelsLoader = (db, loaders) =>
     }
 
     return [result];
+  });
+
+const buildAllSpeciesIdsForColorLoader = (db) =>
+  new DataLoader(async (colorIds) => {
+    const qs = colorIds.map((_) => "?").join(", ");
+    const [rows] = await db.execute(
+      `
+        SELECT color_id,
+          GROUP_CONCAT(DISTINCT species_id ORDER BY species_id) AS species_ids
+          FROM pet_types T_PT1
+          WHERE color_id IN (${qs})
+            AND (
+              -- For non-standard colors, ignore the species that have the same
+              -- body ID as standard pets. Otherwise, a lot of items will be
+              -- like "oh, we fit the Maraquan Koi and Maraquan Mynci, where
+              -- are all the other Maraquans??", which is incorrect!
+              color_id = 8
+              OR
+                (
+                  SELECT count(*) FROM pet_types T_PT2
+                  WHERE T_PT1.body_id = T_PT2.body_id
+                    AND T_PT1.color_id != T_PT2.color_id
+                ) = 0
+            )
+          GROUP BY color_id;
+      `,
+      colorIds
+    );
+
+    const entities = rows.map(normalizeRow);
+
+    return colorIds.map(
+      (colorId) =>
+        entities.find((e) => e.colorId === colorId)?.speciesIds?.split(",") ||
+        []
+    );
   });
 
 const buildItemBodiesWithAppearanceDataLoader = (db) =>
@@ -1487,6 +1522,7 @@ function buildLoaders(db) {
     db,
     loaders
   );
+  loaders.allSpeciesIdsForColorLoader = buildAllSpeciesIdsForColorLoader(db);
   loaders.itemBodiesWithAppearanceDataLoader = buildItemBodiesWithAppearanceDataLoader(
     db
   );
