@@ -37,8 +37,27 @@ const typeDefs = gql`
 
     This might not be available at all, if there's no official PNG, and also
     DTI Classic is still converting or failed to convert it from SWF.
+
+    DEPRECATED: See imageUrlV2 instead!
     """
     imageUrl(size: LayerImageSize): String
+
+    """
+    This layer as a single PNG, if available.
+
+    This will sometimes be a Neopets.com URL, if there's an official PNG at the
+    requested size.
+
+    This might not be available at all, if there's no official PNG, and also
+    DTI Classic is still converting or failed to convert it from SWF.
+
+    The idealSize parameter is a hint for what size image would be best to
+    return (e.g. if you only need 150x150, requesting that size can make image
+    loading faster). Note that the endpoint might return an image that's not of
+    the correct size, and callers should be prepared to handle that and resize
+    if necessary!
+    """
+    imageUrlV2(idealSize: LayerImageSize): String
 
     """
     This layer as a single SVG, if available.
@@ -85,70 +104,93 @@ const typeDefs = gql`
   }
 
   enum AppearanceLayerKnownGlitch {
-    # This glitch means that the official SWF art for this layer is known to
-    # contain a glitch. (It probably also affects the PNG captured by Classic
-    # DTI, too.)
-    #
-    # In this case, there's no correct art we _can_ show until it's converted
-    # to HTML5. We'll show a message explaining the situation, and automatically
-    # change it to be more hesitant after HTML5 conversion, because we don't
-    # know in advance whether the layer will be fixed during conversion.
+    """
+    This glitch means that the official SWF art for this layer is known to
+    contain a glitch. (It probably also affects the PNG captured by Classic
+    DTI, too.)
+
+    In this case, there's no correct art we _can_ show until it's converted
+    to HTML5. We'll show a message explaining the situation, and automatically
+    change it to be more hesitant after HTML5 conversion, because we don't
+    know in advance whether the layer will be fixed during conversion.
+    """
     OFFICIAL_SWF_IS_INCORRECT
 
-    # This glitch means that, while the official manifest declares an SVG
-    # version of this layer, it is incorrect and does not visually match the
-    # PNG version that the official pet editor users.
-    #
-    # For affected layers, svgUrl will be null, regardless of the manifest.
+    """
+    This glitch means that, while the official manifest declares an SVG
+    version of this layer, it is incorrect and does not visually match the
+    PNG version that the official pet editor users.
+
+    For affected layers, svgUrl will be null, regardless of the manifest.
+    """
     OFFICIAL_SVG_IS_INCORRECT
 
-    # This glitch means that the official movie JS library (or supporting data)
-    # for this layer is known to contain a glitch.
-    #
-    # In this case, we _could_ fall back to the PNG, but we choose not to: it
-    # could mislead people about how the item will appear on-site. We like our
-    # previews to match the real on-site appearance whenever possible! Instead,
-    # we show a message, asking users to send us info if they know it to be
-    # fixed on-site. (This could happen by our manifest getting out of date, or
-    # TNT replacing it with a new asset that needs re-modeling.)
+    """
+    This glitch means that the official movie JS library (or supporting data)
+    for this layer is known to contain a glitch.
+
+    In this case, we _could_ fall back to the PNG, but we choose not to: it
+    could mislead people about how the item will appear on-site. We like our
+    previews to match the real on-site appearance whenever possible! Instead,
+    we show a message, asking users to send us info if they know it to be
+    fixed on-site. (This could happen by our manifest getting out of date, or
+    TNT replacing it with a new asset that needs re-modeling.)
+    """
     OFFICIAL_MOVIE_IS_INCORRECT
 
-    # This glitch means that we know the layer doesn't display correctly on
-    # DTI, but we're not sure why, or whether it works differently on-site. We
-    # show a vague apologetic message, asking users to send us info.
+    """
+    This glitch means that we know the layer doesn't display correctly on
+    DTI, but we're not sure why, or whether it works differently on-site. We
+    show a vague apologetic message, asking users to send us info.
+    """
     DISPLAYS_INCORRECTLY_BUT_CAUSE_UNKNOWN
 
-    # This glitch means that the official body ID for this asset is not correct
-    # (usually 0), so it will fit some pets that it shouldn't. We reflect this
-    # accurately on DTI, with a message to explain that it's not our error, and
-    # as a warning that this might not work if TNT changes it later.
+    """
+    This glitch means that the official body ID for this asset is not correct
+    (usually 0), so it will fit some pets that it shouldn't. We reflect this
+    accurately on DTI, with a message to explain that it's not our error, and
+    as a warning that this might not work if TNT changes it later.
+    """
     OFFICIAL_BODY_ID_IS_INCORRECT
 
-    # This glitch is a hack for a bug in DTI: some items, like "Living in
-    # Watermelon Foreground and Background", have a background layer that's
-    # shared across all bodies - but it should NOT fit pets that don't have a
-    # corresponding body-specific foreground!
-    #
-    # The long-term fix here is to refactor our data to not use bodyId=0, and
-    # instead have a more robust concept of item appearance across bodies.
+    """
+    This glitch is a hack for a bug in DTI: some items, like "Living in
+    Watermelon Foreground and Background", have a background layer that's
+    shared across all bodies - but it should NOT fit pets that don't have a
+    corresponding body-specific foreground!
+
+    The long-term fix here is to refactor our data to not use bodyId=0, and
+    instead have a more robust concept of item appearance across bodies.
+    """
     REQUIRES_OTHER_BODY_SPECIFIC_ASSETS
   }
 
   extend type Query {
-    # Return the item appearance layers with the given remoteIds. We use this
-    # in Support tool to bulk-add a range of layers to an item. When we can't
-    # find a layer with the given ID, we omit its entry from the returned list.
+    """
+    Return the item appearance layers with the given remoteIds. We use this
+    in Support tool to bulk-add a range of layers to an item. When we can't
+    find a layer with the given ID, we omit its entry from the returned list.
+    """
     itemAppearanceLayersByRemoteId(remoteIds: [ID!]!): [AppearanceLayer]!
 
-    # Return the number of layers that have been converted to HTML5, optionally
-    # filtered by type. Cache for 30 minutes (we re-sync with Neopets every
-    # hour).
+    """
+    Return the number of layers that have been converted to HTML5, optionally
+    filtered by type. Cache for 30 minutes (we re-sync with Neopets every
+    hour).
+    """
     numAppearanceLayersConverted(type: LayerType): Int!
       @cacheControl(maxAge: 1800)
 
-    # Return the total number of layers, optionally filtered by type. Cache for
-    # 30 minutes (we re-sync with Neopets every hour).
+    """
+    Return the total number of layers, optionally filtered by type. Cache for
+    30 minutes (we re-sync with Neopets every hour).
+    """
     numAppearanceLayersTotal(type: LayerType): Int! @cacheControl(maxAge: 1800)
+
+    """
+    Return the appearance layer with the given type and remoteId, if any.
+    """
+    appearanceLayerByRemoteId(type: LayerType, remoteId: ID!): AppearanceLayer
   }
 `;
 
@@ -187,9 +229,6 @@ const resolvers = {
       } = await loadAndCacheAssetDataFromManifest(db, layer);
 
       // For the largest size, try to use the official Neopets PNG!
-      // TODO: Offer an API endpoint to resize the official Neopets PNG maybe?
-      //       That'll be an important final step before turning off the
-      //       Classic DTI image converters.
       if (size === "SIZE_600") {
         // If there's an official single-image PNG we can use, use it! This is
         // what the official /customise editor uses at time of writing.
@@ -225,6 +264,70 @@ const resolvers = {
       }
 
       const sizeNum = size.split("_")[1];
+
+      const rid = layer.remoteId;
+      const paddedId = rid.padStart(12, "0");
+      const rid1 = paddedId.slice(0, 3);
+      const rid2 = paddedId.slice(3, 6);
+      const rid3 = paddedId.slice(6, 9);
+      const time = Number(new Date(layer.convertedAt));
+
+      return (
+        `https://aws.impress-asset-images.openneo.net/${layer.type}` +
+        `/${rid1}/${rid2}/${rid3}/${rid}/${sizeNum}x${sizeNum}.png?v2-${time}`
+      );
+    },
+    imageUrlV2: async ({ id }, { idealSize }, { swfAssetLoader, db }) => {
+      const layer = await swfAssetLoader.load(id);
+
+      const {
+        format,
+        jsAssetUrl,
+        pngAssetUrl,
+      } = await loadAndCacheAssetDataFromManifest(db, layer);
+
+      // If there's an official single-image PNG we can use, use it! This is
+      // what the official /customise editor uses at time of writing.
+      //
+      // NOTE: This ignores `idealSize`, and it's the case that you're most
+      //       likely to actually trigger! This because we don't think logic to
+      //       resize the image server-side is actually likely to be net better
+      //       for performance in most cases, so we're not gonna build that
+      //       until the need is demonstrated ^_^;
+      if (format === "lod" && !jsAssetUrl && pngAssetUrl) {
+        return pngAssetUrl.toString();
+      }
+
+      // Or, if this is a movie, we can generate the PNG ourselves.
+      if (format === "lod" && jsAssetUrl) {
+        const httpsJsAssetUrl = jsAssetUrl
+          .toString()
+          .replace(/^http:\/\//, "https://");
+        const sizeNum = idealSize.split("_")[1];
+        return (
+          `https://impress-2020.openneo.net/api/assetImage` +
+          `?libraryUrl=${encodeURIComponent(httpsJsAssetUrl)}&size=${sizeNum}`
+        );
+      }
+
+      // Otherwise, fall back to the Classic DTI image storage, which is
+      // generated from the SWFs (or sometimes manually overridden). It's less
+      // accurate, but well-tested to generally work okay, and it's the only
+      // image we have for assets not yet converted to HTML5.
+      //
+      // NOTE: We've stopped generating these images for new assets! This is
+      //       mainly for old assets not yet converted to HTML5.
+
+      // If there's no image, return null. (In the development db, which isn't
+      // aware which assets we have images for on the DTI CDN, assume we _do_
+      // have the image - it's usually true, and better for testing.)
+      const hasImage =
+        layer.hasImage || process.env["DB_ENV"] === "development";
+      if (!hasImage) {
+        return null;
+      }
+
+      const sizeNum = idealSize.split("_")[1];
 
       const rid = layer.remoteId;
       const paddedId = rid.padStart(12, "0");
@@ -354,6 +457,20 @@ const resolvers = {
         type: convertLayerTypeToSwfAssetType(type),
       });
       return count;
+    },
+    appearanceLayerByRemoteId: async (
+      _,
+      { type, remoteId },
+      { swfAssetByRemoteIdLoader }
+    ) => {
+      const swfAsset = await swfAssetByRemoteIdLoader.load({
+        type: type === "PET_LAYER" ? "biology" : "object",
+        remoteId,
+      });
+      if (swfAsset == null) {
+        return null;
+      }
+      return { id: swfAsset.id };
     },
   },
 };
