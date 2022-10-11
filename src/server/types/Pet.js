@@ -1,8 +1,7 @@
-import util from "util";
 import { gql } from "apollo-server";
-import xmlrpc from "xmlrpc";
 import { getPoseFromPetState } from "../util";
 import { saveModelingData } from "../modeling";
+import { loadCustomPetData, loadPetMetaData } from "../load-pet-data";
 
 const typeDefs = gql`
   type Pet {
@@ -123,7 +122,7 @@ const resolvers = {
         loadPetMetaData(petName),
       ]);
 
-      if (customPetData != null) {
+      if (customPetData != null && process.env["USE_NEW_MODELING"] === "1") {
         await saveModelingData(customPetData, petMetaData, {
           db,
           petTypeBySpeciesAndColorLoader,
@@ -138,38 +137,6 @@ const resolvers = {
     },
   },
 };
-
-const neopetsXmlrpcClient = xmlrpc.createSecureClient({
-  host: "www.neopets.com",
-  path: "/amfphp/xmlrpc.php",
-});
-const neopetsXmlrpcCall = util
-  .promisify(neopetsXmlrpcClient.methodCall)
-  .bind(neopetsXmlrpcClient);
-
-async function loadPetMetaData(petName) {
-  const response = await neopetsXmlrpcCall("PetService.getPet", [petName]);
-  return response;
-}
-
-async function loadCustomPetData(petName) {
-  try {
-    const response = await neopetsXmlrpcCall("CustomPetService.getViewerData", [
-      petName,
-    ]);
-    return response;
-  } catch (error) {
-    // If Neopets.com fails to find valid customization data, we return null.
-    if (
-      error.code === "AMFPHP_RUNTIME_ERROR" &&
-      error.faultString === "Unable to find body artwork for this combination."
-    ) {
-      return null;
-    } else {
-      throw error;
-    }
-  }
-}
 
 function getPoseFromPetData(petMetaData, petCustomData) {
   const moodId = petMetaData.mood;

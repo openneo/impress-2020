@@ -16,10 +16,6 @@
  *       HTML5.
  */
 async function saveModelingData(customPetData, petMetaData, context) {
-  if (process.env["USE_NEW_MODELING"] !== "1") {
-    return;
-  }
-
   const modelingLogs = [];
   const addToModelingLogs = (entry) => {
     console.info("[Modeling] " + JSON.stringify(entry, null, 4));
@@ -47,6 +43,13 @@ async function savePetTypeAndStateModelingData(
   petMetaData,
   context
 ) {
+  // NOTE: When we automatically model items with "@imageHash" pet names, we
+  // can't load corresponding metadata. That's fine, the script is just looking
+  // for new item data anyway, we can skip this step altogether in that case!
+  if (petMetaData.mood == null || petMetaData.gender == null) {
+    return;
+  }
+
   const {
     db,
     petTypeBySpeciesAndColorLoader,
@@ -214,6 +217,9 @@ async function saveItemModelingData(customPetData, context) {
 async function saveSwfAssetModelingData(customPetData, context) {
   const { db, swfAssetByRemoteIdLoader, addToModelingLogs } = context;
 
+  // NOTE: It seems like sometimes customPetData.object_asset_registry is
+  // an object keyed by asset ID, and sometimes it's an array? Uhhh hm. Well,
+  // Object.values does what we want in both cases!
   const objectAssets = Object.values(customPetData.object_asset_registry);
   const incomingItemSwfAssets = objectAssets.map((objectAsset) => ({
     type: "object",

@@ -36,6 +36,12 @@ const typeDefs = gql`
     switching between standard colors.
     """
     standardBodyId: ID!
+
+    """
+    A SpeciesColorPair of this species and the given color. Null if we don't
+    have a record of it as a valid species-color pair on Neopets.com.
+    """
+    withColor(colorId: ID!): SpeciesColorPair
   }
 
   """
@@ -210,6 +216,21 @@ const resolvers = {
       }
 
       return petType.bodyId;
+    },
+
+    withColor: async (
+      { id },
+      { colorId },
+      { petTypeBySpeciesAndColorLoader }
+    ) => {
+      const petType = await petTypeBySpeciesAndColorLoader.load({
+        speciesId: id,
+        colorId,
+      });
+      if (petType == null) {
+        return null;
+      }
+      return { id: petType.id };
     },
   },
 
