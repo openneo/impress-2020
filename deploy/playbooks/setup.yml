@@ -255,6 +255,17 @@
       notify:
         - Restart nginx
 
+    - name: Create cron log files directory
+      file:
+        path: /srv/impress-2020/cron-logs
+        state: directory
+
+    - name: Set up cron jobs
+      cron:
+        name: model-needed-items
+        minute: "*/10" # Every 10 minutes
+        job: "cd /srv/impress-2020/current && yarn model-needed-items 2>&1 > /srv/impress-2020/cron-logs/model-needed-items.log"
+
     - name: Install dependencies for the npm module node-canvas
       become: yes
       apt:
