@@ -234,7 +234,7 @@ const resolvers = {
       const time = Number(new Date(layer.convertedAt));
 
       return (
-        `https://impress-asset-images.openneo.net/${layer.type}` +
+        `https://aws.impress-asset-images.openneo.net/${layer.type}` +
         `/${rid1}/${rid2}/${rid3}/${rid}/${sizeNum}x${sizeNum}.png?v2-${time}`
       );
     },
