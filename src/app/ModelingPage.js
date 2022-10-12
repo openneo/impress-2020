@@ -1,5 +1,5 @@
 import React from "react";
-import { Badge, Box, Tooltip } from "@chakra-ui/react";
+import { Badge, Box, Tooltip, VStack } from "@chakra-ui/react";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client";
 
@@ -121,37 +121,50 @@ function ItemModelsSection() {
     userData?.currentUser?.itemsTheyOwn?.map((item) => item.id)
   );
 
+  if (
+    data.standardItems.length === 0 &&
+    data.babyItems.length === 0 &&
+    data.maraquanItems.length === 0 &&
+    data.mutantItems.length === 0
+  ) {
+    return <p>All items seem to be fully modeled! Good job, everyone! 🥳</p>;
+  }
+
   return (
-    <>
-      <Heading2 marginBottom="2">Items we need modeled</Heading2>
-      <ItemModelsColorSection
-        items={data.standardItems}
-        ownedItemIds={ownedItemIds}
-      />
-      <Heading2 marginTop="6" marginBottom="2">
-        Items we need modeled on Baby pets
-      </Heading2>
-      <ItemModelsColorSection
-        items={data.babyItems}
-        ownedItemIds={ownedItemIds}
-      />
-      <Heading2 marginTop="6" marginBottom="2">
-        Items we need modeled on Maraquan pets
-      </Heading2>
-      <ItemModelsColorSection
-        items={data.maraquanItems}
-        ownedItemIds={ownedItemIds}
-      />
-      <Heading2 marginTop="6">Items we need modeled on Mutant pets</Heading2>
-      <ItemModelsColorSection
-        items={data.mutantItems}
-        ownedItemIds={ownedItemIds}
-      />
-    </>
+    <VStack spacing="6" align="flex-start">
+      {data.standardItems.length > 0 && (
+        <ItemModelsColorSection
+          title="Items we need modeled"
+          items={data.standardItems}
+          ownedItemIds={ownedItemIds}
+        />
+      )}
+      {data.babyItems.length > 0 && (
+        <ItemModelsColorSection
+          title="Items we need modeled on Baby pets"
+          items={data.babyItems}
+          ownedItemIds={ownedItemIds}
+        />
+      )}
+      {data.maraquanItems.length > 0 && (
+        <ItemModelsColorSection
+          title="Items we need modeled on Maraquan pets"
+          items={data.maraquanItems}
+          ownedItemIds={ownedItemIds}
+        />
+      )}
+      {data.mutantItems.length > 0 && (
+        <ItemModelsColorSection
+          title="Items we need modeled on Mutant pets"
+          items={data.mutantItems}
+          ownedItemIds={ownedItemIds}
+        />
+      )}
+    </VStack>
   );
 }
 
-function ItemModelsColorSection({ items, ownedItemIds }) {
+function ItemModelsColorSection({ title, items, ownedItemIds, ...props }) {
   items = items
     // enough MMEs are broken that I just don't want to deal right now!
     // TODO: solve this with our new database omission feature instead?
@@ -165,15 +178,18 @@ function ItemModelsColorSection({ items, ownedItemIds }) {
     });
 
   return (
-    <ItemCardList>
-      {items.map((item) => (
-        <ItemModelCard
-          key={item.id}
-          item={item}
-          currentUserOwnsItem={ownedItemIds.has(item.id)}
-        />
-      ))}
-    </ItemCardList>
+    <Box {...props}>
+      <Heading2 marginBottom="2">{title}</Heading2>
+      <ItemCardList>
+        {items.map((item) => (
+          <ItemModelCard
+            key={item.id}
+            item={item}
+            currentUserOwnsItem={ownedItemIds.has(item.id)}
+          />
+        ))}
+      </ItemCardList>
+    </Box>
   );
 }
 
