@@ -167,14 +167,14 @@ async function loadLayerUrlsForSavedOutfit(outfitId, size) {
           petAppearance {
             layers {
               id
-              imageUrl(size: $size)
+              imageUrl: imageUrlV2(idealSize: $size)
             }
             ...PetAppearanceForGetVisibleLayers
           }
           itemAppearances {
             layers {
               id
-              imageUrl(size: $size)
+              imageUrl: imageUrlV2(idealSize: $size)
             }
             ...ItemAppearanceForGetVisibleLayers
           }
