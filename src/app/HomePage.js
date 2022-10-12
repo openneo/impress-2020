@@ -719,11 +719,13 @@ function FeedbackFormPitch() {
           flex={{ base: "0 0 auto", sm: "0 1 50%" }}
         >
           <Box as="h3" fontWeight="600">
-            New updates (Aug 17)
+            New updates (Oct 12)
           </Box>
           <UnorderedList>
-            <ListItem>Copy and delete outfits</ListItem>
-            <ListItem>~/Owls values for items</ListItem>
+            <ListItem>
+              Automatic modeling!! Thank you everyone who modeled over the
+              years!! &lt;333
+            </ListItem>
             <ListItem>
               <ChakraLink
                 href="https://twitter.com/NeopetsDTI"
