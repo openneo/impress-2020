@@ -54,7 +54,7 @@ function PosePickerSupport({
             bodyId
             swfUrl
             svgUrl
-            imageUrl(size: SIZE_600)
+            imageUrl: imageUrlV2(idealSize: SIZE_600)
             canvasMovieLibraryUrl
           }
           restrictedZones {

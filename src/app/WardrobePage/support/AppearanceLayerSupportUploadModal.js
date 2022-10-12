@@ -125,6 +125,10 @@ function AppearanceLayerSupportUploadModal({ item, layer, isOpen, onClose }) {
         id: `AppearanceLayer:${layer.id}`,
         fieldName: "imageUrl",
       });
+      apolloClient.cache.evict({
+        id: `AppearanceLayer:${layer.id}`,
+        fieldName: "imageUrlV2",
+      });
     } catch (e) {
       setIsUploading(false);
       setUploadError(e);

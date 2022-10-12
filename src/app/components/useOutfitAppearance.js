@@ -123,7 +123,7 @@ export const appearanceLayerFragment = gql`
     id
     svgUrl
     canvasMovieLibraryUrl
-    imageUrl(size: SIZE_600)
+    imageUrl: imageUrlV2(idealSize: SIZE_600)
     bodyId
     knownGlitches # For HTML5 & Known Glitches UI
     zone {
