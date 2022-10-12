@@ -91,8 +91,9 @@ async function main() {
 async function modelItems(items, context) {
   for (const item of items) {
     for (const species of item.speciesThatNeedModels) {
+      let imageHash;
       try {
-        await modelItem(item, species, context);
+        imageHash = await modelItem(item, species, context);
       } catch (error) {
         console.error(
           `❌ [${item.name} (${item.id}) on ${species.name} (${species.id}))] ` +
@@ -103,7 +104,7 @@ async function modelItems(items, context) {
       }
       console.info(
         `✅ [${item.name} (${item.id}) on ${species.name} (${species.id}))] ` +
-          `Modeling data saved!`
+          `Modeling data saved! Hash: ${imageHash}`
       );
     }
   }
@@ -143,6 +144,8 @@ async function modelItem(item, species, context) {
 
   // Finally, model this data into the database!
   await saveModelingData(customPetData, petMetaData, context);
+
+  return imageHash;
 }
 
 async function loadImageHash(item, species) {
@@ -181,6 +184,7 @@ async function loadWithRetries(fn, { numAttempts, delay, contextString }) {
     return await loadWithRetries(fn, {
       numAttempts: numAttempts - 1,
       delay: delay * 2,
+      contextString,
     });
   }
 }
