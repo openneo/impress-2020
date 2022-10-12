@@ -139,9 +139,6 @@ function UserNavBarSection() {
           <Link href={`/your-outfits`} passHref>
             <NavLinkItem as="a">Outfits</NavLinkItem>
           </Link>
-          <Link href="/modeling" passHref>
-            <NavLinkItem as="a">Modeling</NavLinkItem>
-          </Link>
           <LogoutButton />
         </NavLinksList>
       </HStack>
@@ -149,9 +146,6 @@ function UserNavBarSection() {
   } else {
     return (
       <HStack align="center" spacing="2">
-        <Link href="/modeling" passHref>
-          <NavButton as="a">Modeling</NavButton>
-        </Link>
         <LoginButton />
       </HStack>
     );
