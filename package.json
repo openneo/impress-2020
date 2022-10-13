@@ -85,15 +85,17 @@
     "export-users-to-auth0": "yarn run-script scripts/export-users-to-auth0.js",
     "model-needed-items": "yarn run-script scripts/model-needed-items.js",
     "validate-owls-data": "yarn run-script scripts/validate-owls-data.js",
-    "archive:create": "yarn archive:create:list-urls && yarn archive:create:download-urls && yarn archive:create:upload",
-    "archive:create:list-urls": "yarn run-script scripts/archive/create/list-urls.js",
-    "archive:create:download-urls": "dotenv -- ./scripts/archive/create/download-urls.sh",
     "aws": "AWS_ACCESS_KEY_ID=$(dotenv -p ARCHIVE_STORAGE_READWRITE_ACCESS_KEY) AWS_SECRET_ACCESS_KEY=$(dotenv -p ARCHIVE_STORAGE_READWRITE_SECRET_KEY) aws --endpoint=https://$(dotenv -p ARCHIVE_STORAGE_HOST)",
-    "archive:create:upload": "yarn aws s3 sync $(dotenv -p ARCHIVE_DIR) s3://$(dotenv -p ARCHIVE_STORAGE_BUCKET)",
-    "archive:create:upload-test": "yarn aws s3 sync $(dotenv -p ARCHIVE_DIR)/images.neopets.com/cp/items/data/000/000/000/1_8422bedbf9/ s3://$(dotenv -p ARCHIVE_STORAGE_BUCKET)/images.neopets.com/cp/items/data/000/000/000/1_8422bedbf9/",
-    "archive:create:read-backup-state": "dotenv -- ./scripts/archive/create/read-backup-state.sh",
-    "archive:create:compute-backup-delta": "dotenv -- ./scripts/archive/create/compute-backup-delta.sh",
-    "archive:create:download-urls-delta": "dotenv -- ./scripts/archive/create/download-urls-delta.sh"
+    "archive:full": "yarn archive:prepare:full && yarn archive:create:full && yarn archive:upload:full",
+    "archive:delta": "yarn archive:prepare:delta && yarn archive:create:delta && yarn archive:upload:delta",
+    "archive:prepare:full": "yarn run-script scripts/archive/prepare/full.js",
+    "archive:prepare:remote": "dotenv -- ./scripts/archive/prepare/remote.sh",
+    "archive:prepare:delta": "dotenv -- ./scripts/archive/prepare/delta.sh",
+    "archive:create:full": "dotenv -- ./scripts/archive/create/full.sh",
+    "archive:create:delta": "dotenv -- ./scripts/archive/create/delta.sh",
+    "archive:upload:full": "dotenv -- ./scripts/archive/upload/full.sh",
+    "archive:upload:delta": "dotenv -- ./scripts/archive/upload/delta.sh",
+    "archive:upload:test": "dotenv -- ./scripts/archive/upload/test.sh"
   },
   "browserslist": {
     "production": [

@@ -1,5 +1,5 @@
 /**
- * archive:create:list-urls generates a urls-cache.txt file, containing all of
+ * archive:prepare:full generates a manifest-full.txt file, containing all of
  * the images.neopets.com URLs for customization that Dress to Impress is aware
  * of. This will enable us to back them all up in an archive!
  *
@@ -75,7 +75,7 @@ async function main() {
 }
 
 async function createUrlsCacheFile() {
-  const urlsCacheFilePath = path.join(__dirname, "urls-cache.txt");
+  const urlsCacheFilePath = path.join(__dirname, "../manifest-full.txt");
   return await fs.open(urlsCacheFilePath, "w");
 }
 

@@ -1,0 +1,1 @@
+yarn aws s3 sync $ARCHIVE_DIR s3://$ARCHIVE_STORAGE_BUCKET
