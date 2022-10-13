@@ -47,7 +47,14 @@ async function handle(req, res) {
   // So basically, just the host, path, and query string; no protocol or hash.
   // (Most archive keys don't have a query string, but some do! And don't
   // worry, `parsedUrl.search` will just be empty if there's no query string.)
-  const archiveKey = `${parsedUrl.host}${parsedUrl.pathname}${parsedUrl.search}`;
+  //
+  // The archive key doesn't include URL encoding (e.g. it has " " instead of
+  // "%20"), but the URI object gives us encoded paths and queries for safety
+  // by default, so we need to decode them when constructing the key!
+  const archiveKey =
+    parsedUrl.host +
+    decodeURIComponent(parsedUrl.pathname) +
+    decodeURIComponent(parsedUrl.search);
   let archiveRes;
   try {
     archiveRes = await fetchFromArchive(archiveKey);
@@ -55,6 +62,7 @@ async function handle(req, res) {
     if (error.Code === "NoSuchKey") {
       res.status(404);
       res.end();
+      return;
     }
 
     res.end(`Error loading file from archive: ${error.message}`);
