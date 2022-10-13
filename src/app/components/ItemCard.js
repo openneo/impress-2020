@@ -21,6 +21,7 @@ import Link from "next/link";
 
 import SquareItemCard from "./SquareItemCard";
 import { safeImageUrl, useCommonStyles } from "../util";
+import usePreferArchive from "./usePreferArchive";
 
 function ItemCard({ item, badges, variant = "list", ...props }) {
   const { brightBackground } = useCommonStyles();
@@ -105,6 +106,7 @@ export function ItemThumbnail({
   focusSelector,
   ...props
 }) {
+  const [preferArchive] = usePreferArchive();
   const theme = useTheme();
 
   const borderColor = useColorModeValue(
@@ -170,7 +172,7 @@ export function ItemThumbnail({
                 as="img"
                 width="100%"
                 height="100%"
-                src={safeImageUrl(item.thumbnailUrl)}
+                src={safeImageUrl(item.thumbnailUrl, { preferArchive })}
                 alt={`Thumbnail art for ${item.name}`}
               />
             )}

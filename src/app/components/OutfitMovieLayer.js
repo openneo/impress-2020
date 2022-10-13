@@ -3,6 +3,7 @@ import LRU from "lru-cache";
 import { Box, Grid, useToast } from "@chakra-ui/react";
 
 import { loadImage, logAndCapture, safeImageUrl } from "../util";
+import usePreferArchive from "./usePreferArchive";
 
 // Import EaselJS and TweenJS directly into the `window` object! The bundled
 // scripts are built to attach themselves to `window.createjs`, and
@@ -24,6 +25,7 @@ function OutfitMovieLayer({
   onLowFps = null,
   canvasProps = {},
 }) {
+  const [preferArchive] = usePreferArchive();
   const [stage, setStage] = React.useState(null);
   const [library, setLibrary] = React.useState(null);
   const [movieClip, setMovieClip] = React.useState(null);
@@ -129,7 +131,7 @@ function OutfitMovieLayer({
   React.useEffect(() => {
     let canceled = false;
 
-    const movieLibraryPromise = loadMovieLibrary(libraryUrl);
+    const movieLibraryPromise = loadMovieLibrary(libraryUrl, { preferArchive });
     movieLibraryPromise
       .then((library) => {
         if (canceled) {
@@ -154,7 +156,7 @@ function OutfitMovieLayer({
       setLibrary(null);
       setMovieClip(null);
     };
-  }, [libraryUrl, onError]);
+  }, [libraryUrl, preferArchive, onError]);
 
   // This effect puts the `movieClip` on the `stage`, when both are ready.
   React.useEffect(() => {
@@ -305,7 +307,7 @@ function loadScriptTag(src) {
 
 const MOVIE_LIBRARY_CACHE = new LRU(10);
 
-export function loadMovieLibrary(librarySrc) {
+export function loadMovieLibrary(librarySrc, { preferArchive = false } = {}) {
   const cancelableResourcePromises = [];
   const cancelAllResources = () =>
     cancelableResourcePromises.forEach((p) => p.cancel());
@@ -323,7 +325,9 @@ export function loadMovieLibrary(librarySrc) {
     }
 
     // Then, load the script tag. (Make sure we set it up to be cancelable!)
-    const scriptPromise = loadScriptTag(safeImageUrl(librarySrc));
+    const scriptPromise = loadScriptTag(
+      safeImageUrl(librarySrc, { preferArchive })
+    );
     cancelableResourcePromises.push(scriptPromise);
     await scriptPromise;
 
@@ -372,6 +376,7 @@ export function loadMovieLibrary(librarySrc) {
         id,
         loadImage(librarySrcDir + "/" + src, {
           crossOrigin: "anonymous",
+          preferArchive,
         }),
       ])
     );

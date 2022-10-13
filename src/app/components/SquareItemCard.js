@@ -12,6 +12,7 @@ import Link from "next/link";
 
 import { safeImageUrl, useCommonStyles } from "../util";
 import { CheckIcon, CloseIcon, StarIcon } from "@chakra-ui/icons";
+import usePreferArchive from "./usePreferArchive";
 
 function SquareItemCard({
   item,
@@ -183,6 +184,7 @@ function SquareItemCardLayout({
 }
 
 function ItemThumbnail({ item, tradeMatchingMode }) {
+  const [preferArchive] = usePreferArchive();
   const kindColorScheme = item.isNc ? "purple" : item.isPb ? "orange" : "gray";
 
   const thumbnailShadowColor = useColorModeValue(
@@ -229,7 +231,7 @@ function ItemThumbnail({ item, tradeMatchingMode }) {
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={safeImageUrl(item.thumbnailUrl)}
+            src={safeImageUrl(item.thumbnailUrl, { preferArchive })}
             alt={`Thumbnail art for ${item.name}`}
             width={80}
             height={80}

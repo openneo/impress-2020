@@ -20,6 +20,7 @@ import OutfitMovieLayer, {
 import HangerSpinner from "./HangerSpinner";
 import { loadImage, safeImageUrl, useLocalStorage } from "../util";
 import useOutfitAppearance from "./useOutfitAppearance";
+import usePreferArchive from "./usePreferArchive";
 
 /**
  * OutfitPreview is for rendering a full outfit! It accepts outfit data,
@@ -169,6 +170,7 @@ export function OutfitLayers({
   ...props
 }) {
   const [hiResMode] = useLocalStorage("DTIHiResMode", false);
+  const [preferArchive] = usePreferArchive();
 
   const containerRef = React.useRef(null);
   const [canvasSize, setCanvasSize] = React.useState(0);
@@ -281,7 +283,8 @@ export function OutfitLayers({
                     <Box
                       as="img"
                       src={safeImageUrl(
-                        getBestImageUrlForLayer(layer, { hiResMode })
+                        getBestImageUrlForLayer(layer, { hiResMode }),
+                        { preferArchive }
                       )}
                       alt=""
                       objectFit="contain"
@@ -367,6 +370,7 @@ export function getBestImageUrlForLayer(layer, { hiResMode = false } = {}) {
  */
 export function usePreloadLayers(layers) {
   const [hiResMode] = useLocalStorage("DTIHiResMode", false);
+  const [preferArchive] = usePreferArchive();
 
   const [error, setError] = React.useState(null);
   const [loadedLayers, setLoadedLayers] = React.useState([]);
@@ -393,7 +397,8 @@ export function usePreloadLayers(layers) {
     const movieAssetPromises = [];
     for (const layer of layers) {
       const imageAssetPromise = loadImage(
-        getBestImageUrlForLayer(layer, { hiResMode })
+        getBestImageUrlForLayer(layer, { hiResMode }),
+        { preferArchive }
       );
       imageAssetPromises.push(imageAssetPromise);
 
@@ -402,7 +407,8 @@ export function usePreloadLayers(layers) {
         // request will still be the image, which we'll show as a
         // placeholder, which should usually be noticeably faster!
         const movieLibraryPromise = loadMovieLibrary(
-          layer.canvasMovieLibraryUrl
+          layer.canvasMovieLibraryUrl,
+          { preferArchive }
         );
         const movieAssetPromise = movieLibraryPromise.then((library) => ({
           library,
@@ -465,7 +471,7 @@ export function usePreloadLayers(layers) {
     return () => {
       canceled = true;
     };
-  }, [layers, hiResMode]);
+  }, [layers, hiResMode, preferArchive]);
 
   return { loading, error, loadedLayers, layersHaveAnimations };
 }

@@ -43,6 +43,7 @@ import { loadImage, useLocalStorage } from "../util";
 import useCurrentUser from "../components/useCurrentUser";
 import useOutfitAppearance from "../components/useOutfitAppearance";
 import OutfitKnownGlitchesBadge from "./OutfitKnownGlitchesBadge";
+import usePreferArchive from "../components/usePreferArchive";
 
 /**
  * OutfitControls is the set of controls layered over the outfit preview, to
@@ -500,28 +501,56 @@ function SettingsButton({ onLockFocus, onUnlockFocus }) {
 
 function HiResModeSetting() {
   const [hiResMode, setHiResMode] = useLocalStorage("DTIHiResMode", false);
+  const [preferArchive, setPreferArchive] = usePreferArchive();
 
   return (
-    <FormControl>
-      <Flex>
-        <Box>
-          <FormLabel htmlFor="hi-res-mode-setting" fontSize="sm" margin="0">
-            Hi-res mode (SVG)
-          </FormLabel>
-          <FormHelperText marginTop="0" fontSize="xs">
-            Crisper at higher resolutions, but not always accurate
-          </FormHelperText>
-        </Box>
-        <Box width="2" />
-        <Switch
-          id="hi-res-mode-setting"
-          size="sm"
-          marginTop="0.1rem"
-          isChecked={hiResMode}
-          onChange={(e) => setHiResMode(e.target.checked)}
-        />
-      </Flex>
-    </FormControl>
+    <Box>
+      <FormControl>
+        <Flex>
+          <Box>
+            <FormLabel htmlFor="hi-res-mode-setting" fontSize="sm" margin="0">
+              Hi-res mode (SVG)
+            </FormLabel>
+            <FormHelperText marginTop="0" fontSize="xs">
+              Crisper at higher resolutions, but not always accurate
+            </FormHelperText>
+          </Box>
+          <Box width="2" />
+          <Switch
+            id="hi-res-mode-setting"
+            size="sm"
+            marginTop="0.1rem"
+            isChecked={hiResMode}
+            onChange={(e) => setHiResMode(e.target.checked)}
+          />
+        </Flex>
+      </FormControl>
+      <Box height="2" />
+      <FormControl>
+        <Flex>
+          <Box>
+            <FormLabel
+              htmlFor="prefer-archive-setting"
+              fontSize="sm"
+              margin="0"
+            >
+              Use DTI's image archive
+            </FormLabel>
+            <FormHelperText marginTop="0" fontSize="xs">
+              Turn this on when images.neopets.com is slow!
+            </FormHelperText>
+          </Box>
+          <Box width="2" />
+          <Switch
+            id="prefer-archive-setting"
+            size="sm"
+            marginTop="0.1rem"
+            isChecked={preferArchive ?? false}
+            onChange={(e) => setPreferArchive(e.target.checked)}
+          />
+        </Flex>
+      </FormControl>
+    </Box>
   );
 }
 
@@ -585,6 +614,7 @@ function ControlButton({ icon, "aria-label": ariaLabel, ...props }) {
  */
 function useDownloadableImage(visibleLayers) {
   const [hiResMode] = useLocalStorage("DTIHiResMode", false);
+  const [preferArchive] = usePreferArchive();
 
   const [downloadImageUrl, setDownloadImageUrl] = React.useState(null);
   const [preparedForLayerIds, setPreparedForLayerIds] = React.useState([]);
@@ -611,6 +641,7 @@ function useDownloadableImage(visibleLayers) {
     const imagePromises = visibleLayers.map((layer) =>
       loadImage(getBestImageUrlForLayer(layer, { hiResMode }), {
         crossOrigin: "anonymous",
+        preferArchive,
       })
     );
 
@@ -644,7 +675,7 @@ function useDownloadableImage(visibleLayers) {
     );
     setDownloadImageUrl(canvas.toDataURL("image/png"));
     setPreparedForLayerIds(layerIds);
-  }, [preparedForLayerIds, visibleLayers, toast, hiResMode]);
+  }, [preparedForLayerIds, visibleLayers, toast, hiResMode, preferArchive]);
 
   return [downloadImageUrl, prepareDownload];
 }

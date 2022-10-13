@@ -115,7 +115,10 @@ export function useCommonStyles() {
 /**
  * safeImageUrl returns an HTTPS-safe image URL for Neopets assets!
  */
-export function safeImageUrl(urlString, { crossOrigin = null } = {}) {
+export function safeImageUrl(
+  urlString,
+  { crossOrigin = null, preferArchive = false } = {}
+) {
   if (urlString == null) {
     return urlString;
   }
@@ -148,7 +151,14 @@ export function safeImageUrl(urlString, { crossOrigin = null } = {}) {
     url.origin === "https://images.neopets.com"
   ) {
     url.protocol = "https:";
-    if (crossOrigin) {
+    if (preferArchive) {
+      const archiveUrl = new URL(
+        `/api/readFromArchive`,
+        window.location.origin
+      );
+      archiveUrl.search = new URLSearchParams({ url: url.toString() });
+      url = archiveUrl;
+    } else if (crossOrigin) {
       url.host = "images.neopets-asset-proxy.openneo.net";
     }
   } else if (
@@ -161,7 +171,7 @@ export function safeImageUrl(urlString, { crossOrigin = null } = {}) {
     }
   }
 
-  if (url.protocol !== "https:") {
+  if (url.protocol !== "https:" && url.hostname !== "localhost") {
     logAndCapture(
       new Error(
         `safeImageUrl was provided an unsafe URL, but we don't know how to ` +
@@ -337,8 +347,11 @@ export function useLocalStorage(key, initialValue) {
   return [storedValue, setValue];
 }
 
-export function loadImage(rawSrc, { crossOrigin = null } = {}) {
-  const src = safeImageUrl(rawSrc, { crossOrigin });
+export function loadImage(
+  rawSrc,
+  { crossOrigin = null, preferArchive = false } = {}
+) {
+  const src = safeImageUrl(rawSrc, { crossOrigin, preferArchive });
   const image = new Image();
   let canceled = false;
   let resolved = false;
