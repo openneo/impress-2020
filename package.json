@@ -90,7 +90,10 @@
     "archive:create:download-urls": "dotenv -- ./scripts/archive/create/download-urls.sh",
     "aws": "AWS_ACCESS_KEY_ID=$(dotenv -p ARCHIVE_STORAGE_READWRITE_ACCESS_KEY) AWS_SECRET_ACCESS_KEY=$(dotenv -p ARCHIVE_STORAGE_READWRITE_SECRET_KEY) aws --endpoint=https://$(dotenv -p ARCHIVE_STORAGE_HOST)",
     "archive:create:upload": "yarn aws s3 sync $(dotenv -p ARCHIVE_DIR) s3://$(dotenv -p ARCHIVE_STORAGE_BUCKET)",
-    "archive:create:upload-test": "yarn aws s3 sync $(dotenv -p ARCHIVE_DIR)/images.neopets.com/cp/items/data/000/000/000/1_8422bedbf9/ s3://$(dotenv -p ARCHIVE_STORAGE_BUCKET)/images.neopets.com/cp/items/data/000/000/000/1_8422bedbf9/"
+    "archive:create:upload-test": "yarn aws s3 sync $(dotenv -p ARCHIVE_DIR)/images.neopets.com/cp/items/data/000/000/000/1_8422bedbf9/ s3://$(dotenv -p ARCHIVE_STORAGE_BUCKET)/images.neopets.com/cp/items/data/000/000/000/1_8422bedbf9/",
+    "archive:create:read-backup-state": "dotenv -- ./scripts/archive/create/read-backup-state.sh",
+    "archive:create:compute-backup-delta": "dotenv -- ./scripts/archive/create/compute-backup-delta.sh",
+    "archive:create:download-urls-delta": "dotenv -- ./scripts/archive/create/download-urls-delta.sh"
   },
   "browserslist": {
     "production": [
