@@ -585,7 +585,12 @@ async function loadAndCacheAssetDataFromManifest(db, layer) {
 async function loadAndCacheAssetManifest(db, layer) {
   let manifest;
   try {
-    manifest = await loadAssetManifest(layer.url);
+    manifest = await Promise.race([
+      loadAssetManifest(layer.url),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error(`manifest request timed out`)), 2000)
+      ),
+    ]);
   } catch (e) {
     console.error(
       new Error("Error loading asset manifest, caused by the error below")
