@@ -259,7 +259,6 @@ function SearchResultItem({
 
 /**
  * useSearchResults manages the actual querying and state management of search!
- * It's hefty, infinite-scroll pagination is a bit of a thing!
  */
 function useSearchResults(
   query,
