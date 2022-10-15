@@ -9,7 +9,9 @@ import { useRouter } from "next/router";
 import { Heading1, MajorErrorMessage, useCommonStyles } from "./util";
 import HangerSpinner from "./components/HangerSpinner";
 import OutfitThumbnail from "./components/OutfitThumbnail";
-import PaginationToolbar from "./components/PaginationToolbar";
+import PaginationToolbar, {
+  useRouterPagination,
+} from "./components/PaginationToolbar";
 import useCurrentUser from "./components/useCurrentUser";
 
 function UserOutfitsPage() {
@@ -93,6 +95,13 @@ function UserOutfitsPageContent() {
 
   const isLoading = userLoading || queryLoading;
 
+  const {
+    numTotalPages,
+    currentPageNumber,
+    goToPageNumber,
+    buildPageUrl,
+  } = useRouterPagination(numTotalOutfits, PER_PAGE);
+
   if (error) {
     return <MajorErrorMessage error={error} variant="network" />;
   }
@@ -102,8 +111,11 @@ function UserOutfitsPageContent() {
   return (
     <Box>
       <PaginationToolbar
+        numTotalPages={numTotalPages}
+        currentPageNumber={currentPageNumber}
+        goToPageNumber={goToPageNumber}
+        buildPageUrl={buildPageUrl}
         isLoading={isLoading}
-        totalCount={numTotalOutfits}
         numPerPage={PER_PAGE}
       />
       <Box height="6" />
@@ -131,8 +143,11 @@ function UserOutfitsPageContent() {
       )}
       <Box height="6" />
       <PaginationToolbar
+        numTotalPages={numTotalPages}
+        currentPageNumber={currentPageNumber}
+        goToPageNumber={goToPageNumber}
+        buildPageUrl={buildPageUrl}
         isLoading={isLoading}
-        totalCount={numTotalOutfits}
         numPerPage={PER_PAGE}
       />
     </Box>

@@ -5,17 +5,12 @@ import { useRouter } from "next/router";
 
 function PaginationToolbar({
   isLoading,
-  totalCount,
-  numPerPage = 30,
+  numTotalPages,
+  currentPageNumber,
+  goToPageNumber,
+  buildPageUrl,
   ...props
 }) {
-  const {
-    numTotalPages,
-    currentPageNumber,
-    goToPageNumber,
-    buildPageUrl,
-  } = useRouterPagination(totalCount, numPerPage);
-
   const pagesAreLoaded = currentPageNumber != null && numTotalPages != null;
   const hasPrevPage = pagesAreLoaded && currentPageNumber > 1;
   const hasNextPage = pagesAreLoaded && currentPageNumber < numTotalPages;
@@ -63,7 +58,7 @@ function PaginationToolbar({
   );
 }
 
-function useRouterPagination(totalCount, numPerPage) {
+export function useRouterPagination(totalCount, numPerPage) {
   const { query, push: pushHistory } = useRouter();
 
   const currentOffset = parseInt(query.offset) || 0;

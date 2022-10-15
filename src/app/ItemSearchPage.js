@@ -10,7 +10,9 @@ import SquareItemCard, {
   SquareItemCardSkeleton,
 } from "./components/SquareItemCard";
 import { Delay, MajorErrorMessage, useDebounce } from "./util";
-import PaginationToolbar from "./components/PaginationToolbar";
+import PaginationToolbar, {
+  useRouterPagination,
+} from "./components/PaginationToolbar";
 import { useSearchQueryInUrl } from "./components/ItemSearchPageToolbar";
 
 function ItemSearchPage() {
@@ -91,6 +93,16 @@ function ItemSearchPage() {
     }
   );
 
+  const items = data?.itemSearch?.items || [];
+  const numTotalItems = data?.itemSearch?.numTotalItems || null;
+
+  const {
+    numTotalPages,
+    currentPageNumber,
+    goToPageNumber,
+    buildPageUrl,
+  } = useRouterPagination(numTotalItems, 30);
+
   if (searchQueryIsEmpty(query)) {
     return null;
   }
@@ -99,7 +111,7 @@ function ItemSearchPage() {
     return <MajorErrorMessage error={error} variant="network" />;
   }
 
-  if (data?.itemSearch?.numTotalItems === 0) {
+  if (numTotalItems === 0) {
     return (
       <Box>
         We couldn't find any matching items{" "}
@@ -111,13 +123,13 @@ function ItemSearchPage() {
     );
   }
 
-  const items = data?.itemSearch?.items || [];
-  const numTotalItems = data?.itemSearch?.numTotalItems || null;
-
   return (
     <Box>
       <PaginationToolbar
-        totalCount={numTotalItems}
+        numTotalPages={numTotalPages}
+        currentPageNumber={currentPageNumber}
+        goToPageNumber={goToPageNumber}
+        buildPageUrl={buildPageUrl}
         isLoading={loading}
         marginBottom="6"
       />
@@ -136,7 +148,10 @@ function ItemSearchPage() {
         </Delay>
       )}
       <PaginationToolbar
-        totalCount={numTotalItems}
+        numTotalPages={numTotalPages}
+        currentPageNumber={currentPageNumber}
+        goToPageNumber={goToPageNumber}
+        buildPageUrl={buildPageUrl}
         isLoading={loading}
         marginTop="4"
       />
