@@ -55,6 +55,7 @@ function WardrobePageLayout({
           gridArea="searchFooter"
           bg={searchBackground}
           boxShadow={`0 0 8px ${searchShadowColorValue}`}
+          display={{ base: "none", md: "block" }}
         >
           {searchFooter}
         </Box>
