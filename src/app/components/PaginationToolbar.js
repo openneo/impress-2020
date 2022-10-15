@@ -9,6 +9,7 @@ function PaginationToolbar({
   currentPageNumber,
   goToPageNumber,
   buildPageUrl,
+  size = "md",
   ...props
 }) {
   const pagesAreLoaded = currentPageNumber != null && numTotalPages != null;
@@ -32,11 +33,12 @@ function PaginationToolbar({
           opacity: 0.4,
         }}
         isDisabled={!hasPrevPage}
+        size={size}
       >
         ← Prev
       </LinkOrButton>
       {numTotalPages > 0 && (
-        <Flex align="center">
+        <Flex align="center" paddingX="4" fontSize={size}>
           <Box flex="0 0 auto">Page</Box>
           <Box width="1" />
           <PageNumberSelect
@@ -61,6 +63,7 @@ function PaginationToolbar({
           opacity: 0.4,
         }}
         isDisabled={!hasNextPage}
+        size={size}
       >
         Next →
       </LinkOrButton>

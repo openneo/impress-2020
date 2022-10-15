@@ -35,6 +35,17 @@ export function searchQueryIsEmpty(query) {
   return Object.values(query).every((value) => !value);
 }
 
+const SUGGESTIONS_PLACEMENT_PROPS = {
+  inline: {
+    borderBottomRadius: "md",
+  },
+  top: {
+    position: "absolute",
+    bottom: "100%",
+    borderTopRadius: "md",
+  },
+};
+
 /**
  * SearchToolbar is rendered above both the ItemsPanel and the SearchPanel,
  * and contains the search field where the user types their query.
@@ -53,6 +64,7 @@ function SearchToolbar({
   showItemsLabel = false,
   background = null,
   boxShadow = null,
+  suggestionsPlacement = "inline",
   ...props
 }) {
   const [suggestions, setSuggestions] = React.useState([]);
@@ -84,7 +96,7 @@ function SearchToolbar({
     }
   };
 
-  const suggestionBgColor = useColorModeValue("transparent", "whiteAlpha.100");
+  const suggestionBgColor = useColorModeValue("white", "whiteAlpha.100");
   const highlightedBgColor = useColorModeValue("gray.100", "whiteAlpha.300");
 
   const renderSuggestion = React.useCallback(
@@ -110,11 +122,11 @@ function SearchToolbar({
           {({ css, cx }) => (
             <Box
               {...otherContainerProps}
-              borderBottomRadius="md"
               boxShadow="md"
               overflow="auto"
               transition="all 0.4s"
               maxHeight="48"
+              width="100%"
               className={cx(
                 className,
                 css`
@@ -123,6 +135,7 @@ function SearchToolbar({
                   }
                 `
               )}
+              {...SUGGESTIONS_PLACEMENT_PROPS[suggestionsPlacement]}
             >
               {children}
               {!children && advancedSearchIsOpen && (
@@ -140,7 +153,7 @@ function SearchToolbar({
         </ClassNames>
       );
     },
-    [advancedSearchIsOpen]
+    [advancedSearchIsOpen, suggestionsPlacement]
   );
 
   // When we change the query filters, clear out the suggestions.
@@ -183,7 +196,7 @@ function SearchToolbar({
   const focusBorderColor = useColorModeValue("green.600", "green.400");
 
   return (
-    <Box {...props}>
+    <Box position="relative" {...props}>
       <Autosuggest
         suggestions={advancedSearchIsOpen ? allSuggestions : suggestions}
         onSuggestionsFetchRequested={({ value }) => {

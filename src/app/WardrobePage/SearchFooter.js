@@ -3,6 +3,7 @@ import * as Sentry from "@sentry/react";
 import { Box, Flex } from "@chakra-ui/react";
 import SearchToolbar, { emptySearchQuery } from "./SearchToolbar";
 import { MajorErrorMessage, TestErrorSender, useLocalStorage } from "../util";
+import PaginationToolbar from "../components/PaginationToolbar";
 
 /**
  * SearchFooter appears on large screens only, to let you search for new items
@@ -35,8 +36,23 @@ function SearchFooter() {
           <Box fontWeight="600" flex="0 0 auto">
             Add new items:
           </Box>
-          <Box width="4" />
-          <SearchToolbar query={query} onChange={setQuery} flex="0 1 100%" />
+          <Box width="8" />
+          <SearchToolbar
+            query={query}
+            onChange={setQuery}
+            flex="0 1 100%"
+            suggestionsPlacement="top"
+          />
+          <Box width="8" />
+          <Box flex="0 0 auto">
+            <PaginationToolbar
+              numTotalPages={1}
+              currentPageNumber={1}
+              goToPageNumber={() => alert("TODO")}
+              buildPageUrl={() => null}
+              size="sm"
+            />
+          </Box>
         </Flex>
       </Sentry.ErrorBoundary>
     </Box>
