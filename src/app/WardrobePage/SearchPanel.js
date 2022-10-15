@@ -318,6 +318,7 @@ function useSearchResults(
           currentUserOwnsOrWants: $currentUserOwnsOrWants
           zoneIds: $zoneIds
         ) {
+          id
           numTotalItems
           items(offset: $offset, limit: $perPage) {
             # TODO: De-dupe this from useOutfitState?
