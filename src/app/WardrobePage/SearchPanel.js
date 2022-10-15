@@ -166,6 +166,7 @@ function SearchResults({
           currentPageNumber={currentPageNumber}
           goToPageNumber={setCurrentPageNumber}
           buildPageUrl={() => null}
+          size="sm"
         />
       </Box>
       <ItemListContainer paddingX="4" paddingBottom="2">
