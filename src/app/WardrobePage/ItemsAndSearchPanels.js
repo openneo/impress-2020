@@ -38,7 +38,7 @@ function ItemsAndSearchPanels({
     <Sentry.ErrorBoundary fallback={MajorErrorMessage}>
       <TestErrorSender />
       <Flex direction="column" height="100%">
-        <Box px="5" py="3" boxShadow="sm">
+        <Box paddingX="5" paddingTop="3" paddingBottom="2" boxShadow="sm">
           <SearchToolbar
             query={searchQuery}
             searchQueryRef={searchQueryRef}
@@ -49,30 +49,23 @@ function ItemsAndSearchPanels({
         {!searchQueryIsEmpty(searchQuery) ? (
           <Box
             key="search-panel"
-            gridArea="items"
+            flex="1 0 0"
             position="relative"
-            overflow="auto"
+            overflowY="scroll"
             ref={scrollContainerRef}
             data-test-id="search-panel-scroll-container"
           >
-            <Box px="4" py="2">
-              <SearchPanel
-                query={searchQuery}
-                outfitState={outfitState}
-                dispatchToOutfit={dispatchToOutfit}
-                scrollContainerRef={scrollContainerRef}
-                searchQueryRef={searchQueryRef}
-                firstSearchResultRef={firstSearchResultRef}
-              />
-            </Box>
+            <SearchPanel
+              query={searchQuery}
+              outfitState={outfitState}
+              dispatchToOutfit={dispatchToOutfit}
+              scrollContainerRef={scrollContainerRef}
+              searchQueryRef={searchQueryRef}
+              firstSearchResultRef={firstSearchResultRef}
+            />
           </Box>
         ) : (
-          <Box
-            gridArea="items"
-            position="relative"
-            overflow="auto"
-            key="items-panel"
-          >
+          <Box position="relative" overflow="auto" key="items-panel">
             <Box px="4" py="2">
               <ItemsPanel
                 loading={loading}

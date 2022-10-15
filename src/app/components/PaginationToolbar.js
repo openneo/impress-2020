@@ -22,6 +22,11 @@ function PaginationToolbar({
     <Flex align="center" justify="space-between" {...props}>
       <LinkOrButton
         href={prevPageUrl}
+        onClick={
+          prevPageUrl == null
+            ? () => goToPageNumber(currentPageNumber - 1)
+            : undefined
+        }
         _disabled={{
           cursor: isLoading ? "wait" : "not-allowed",
           opacity: 0.4,
@@ -30,7 +35,7 @@ function PaginationToolbar({
       >
         ← Prev
       </LinkOrButton>
-      {numTotalPages && (
+      {numTotalPages > 0 && (
         <Flex align="center">
           <Box flex="0 0 auto">Page</Box>
           <Box width="1" />
@@ -46,6 +51,11 @@ function PaginationToolbar({
       )}
       <LinkOrButton
         href={nextPageUrl}
+        onClick={
+          nextPageUrl == null
+            ? () => goToPageNumber(currentPageNumber + 1)
+            : undefined
+        }
         _disabled={{
           cursor: isLoading ? "wait" : "not-allowed",
           opacity: 0.4,

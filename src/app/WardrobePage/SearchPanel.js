@@ -1,12 +1,15 @@
 import React from "react";
 import gql from "graphql-tag";
-import { Box, Text, VisuallyHidden } from "@chakra-ui/react";
+import { Box, Text, useColorModeValue, VisuallyHidden } from "@chakra-ui/react";
 import { useQuery } from "@apollo/client";
 
-import { Delay, useDebounce } from "../util";
+import { useDebounce } from "../util";
 import { emptySearchQuery } from "./SearchToolbar";
 import Item, { ItemListContainer, ItemListSkeleton } from "./Item";
 import { itemAppearanceFragment } from "../components/useOutfitAppearance";
+import PaginationToolbar from "../components/PaginationToolbar";
+
+const SEARCH_PER_PAGE = 30;
 
 /**
  * SearchPanel shows item search results to the user, so they can preview them
@@ -50,19 +53,15 @@ function SearchPanel({
     >
       <SearchResults
         // When the query changes, replace the SearchResults component with a
-        // new instance, to reset `itemIdsToReconsider`. That way, if you find
-        // an item you like in one search, then immediately do a second search
-        // and try a conflicting item, we'll restore the item you liked from
-        // your first search!
-        //
-        // NOTE: I wonder how this affects things like state. This component
-        //       also tries to gracefully handle changes in the query, but tbh
-        //       I wonder whether that's still necessary...
+        // new instance. This resets both `currentPageNumber`, to take us back
+        // to page 1; and also `itemIdsToReconsider`. That way, if you find an
+        // item you like in one search, then immediately do a second search and
+        // try a conflicting item, we'll restore the item you liked from your
+        // first search!
         key={serializeQuery(query)}
         query={query}
         outfitState={outfitState}
         dispatchToOutfit={dispatchToOutfit}
-        scrollContainerRef={scrollContainerRef}
         firstSearchResultRef={firstSearchResultRef}
         onMoveFocusUpToQuery={onMoveFocusUpToQuery}
       />
@@ -82,15 +81,15 @@ function SearchResults({
   query,
   outfitState,
   dispatchToOutfit,
-  scrollContainerRef,
   firstSearchResultRef,
   onMoveFocusUpToQuery,
 }) {
-  const { loading, loadingMore, error, items, fetchMore } = useSearchResults(
+  const [currentPageNumber, setCurrentPageNumber] = React.useState(1);
+  const { loading, error, items, numTotalPages } = useSearchResults(
     query,
-    outfitState
+    outfitState,
+    currentPageNumber
   );
-  useScrollTracker(scrollContainerRef, 300, fetchMore);
 
   // This will save the `wornItemIds` when the SearchResults first mounts, and
   // keep it saved even after the outfit changes. We use this to try to restore
@@ -123,29 +122,15 @@ function SearchResults({
     }
   }, []);
 
+  const searchPanelBackground = useColorModeValue("white", "gray.900");
+
   // If the results aren't ready, we have some special case UI!
-  if (loading) {
-    return (
-      <Delay ms={500}>
-        <ItemListSkeleton count={8} />
-      </Delay>
-    );
-  } else if (error) {
+  if (error) {
     return (
       <Text>
         We hit an error trying to load your search results{" "}
         <span role="img" aria-label="(sweat emoji)">
           😓
-        </span>{" "}
-        Try again?
-      </Text>
-    );
-  } else if (items.length === 0) {
-    return (
-      <Text>
-        We couldn't find any matching items{" "}
-        <span role="img" aria-label="(thinking emoji)">
-          🤔
         </span>{" "}
         Try again?
       </Text>
@@ -156,8 +141,24 @@ function SearchResults({
   // We also render some extra skeleton items at the bottom during infinite
   // scroll loading.
   return (
-    <>
-      <ItemListContainer>
+    <Box>
+      <Box
+        position="sticky"
+        top="0"
+        background={searchPanelBackground}
+        zIndex="2"
+        paddingX="5"
+        paddingBottom="2"
+        paddingTop="1"
+      >
+        <PaginationToolbar
+          numTotalPages={numTotalPages}
+          currentPageNumber={currentPageNumber}
+          goToPageNumber={setCurrentPageNumber}
+          buildPageUrl={() => null}
+        />
+      </Box>
+      <ItemListContainer paddingX="4" paddingBottom="2">
         {items.map((item, index) => (
           <SearchResultItem
             key={item.id}
@@ -172,8 +173,23 @@ function SearchResults({
           />
         ))}
       </ItemListContainer>
-      {loadingMore && <ItemListSkeleton count={8} />}
-    </>
+      {loading && (
+        <ItemListSkeleton
+          count={SEARCH_PER_PAGE}
+          paddingX="4"
+          paddingBottom="2"
+        />
+      )}
+      {!loading && items.length === 0 && (
+        <Text paddingX="4">
+          We couldn't find any matching items{" "}
+          <span role="img" aria-label="(thinking emoji)">
+            🤔
+          </span>{" "}
+          Try again?
+        </Text>
+      )}
+    </Box>
   );
 }
 
@@ -245,9 +261,13 @@ function SearchResultItem({
  * useSearchResults manages the actual querying and state management of search!
  * It's hefty, infinite-scroll pagination is a bit of a thing!
  */
-function useSearchResults(query, outfitState) {
+function useSearchResults(
+  query,
+  outfitState,
+  currentPageNumber,
+  { skip = false } = {}
+) {
   const { speciesId, colorId } = outfitState;
-  const [isEndOfResults, setIsEndOfResults] = React.useState(false);
 
   // We debounce the search query, so that we don't resend a new query whenever
   // the user types anything.
@@ -255,12 +275,6 @@ function useSearchResults(query, outfitState) {
     waitForFirstPause: true,
     initialValue: emptySearchQuery,
   });
-
-  // When the query changes, we should update our impression of whether we've
-  // reached the end!
-  React.useEffect(() => {
-    setIsEndOfResults(false);
-  }, [query]);
 
   // NOTE: This query should always load ~instantly, from the client cache.
   const { data: zoneData } = useQuery(gql`
@@ -277,13 +291,11 @@ function useSearchResults(query, outfitState) {
     : [];
   const filterToZoneIds = filterToZones.map((z) => z.id);
 
+  const currentPageIndex = currentPageNumber - 1;
+  const offset = currentPageIndex * SEARCH_PER_PAGE;
+
   // Here's the actual GQL query! At the bottom we have more config than usual!
-  const {
-    loading: loadingGQL,
-    error,
-    data,
-    fetchMore: fetchMoreGQL,
-  } = useQuery(
+  const { loading: loadingGQL, error, data } = useQuery(
     gql`
       query SearchPanel(
         $query: String!
@@ -294,6 +306,7 @@ function useSearchResults(query, outfitState) {
         $speciesId: ID!
         $colorId: ID!
         $offset: Int!
+        $perPage: Int!
       ) {
         itemSearch: itemSearchV2(
           query: $query
@@ -302,11 +315,8 @@ function useSearchResults(query, outfitState) {
           currentUserOwnsOrWants: $currentUserOwnsOrWants
           zoneIds: $zoneIds
         ) {
-          query
-          zones {
-            id
-          }
-          items(offset: $offset, limit: 50) {
+          numTotalItems
+          items(offset: $offset, limit: $perPage) {
             # TODO: De-dupe this from useOutfitState?
             id
             name
@@ -346,139 +356,32 @@ function useSearchResults(query, outfitState) {
         itemKind: debouncedQuery.filterToItemKind,
         currentUserOwnsOrWants: debouncedQuery.filterToCurrentUserOwnsOrWants,
         zoneIds: filterToZoneIds,
-        offset: 0,
         speciesId,
         colorId,
+        offset,
+        perPage: SEARCH_PER_PAGE,
       },
       context: { sendAuth: true },
       skip:
-        !debouncedQuery.value &&
-        !debouncedQuery.filterToItemKind &&
-        !debouncedQuery.filterToZoneLabel &&
-        !debouncedQuery.filterToCurrentUserOwnsOrWants,
-      notifyOnNetworkStatusChange: true,
-      onCompleted: (d) => {
-        // This is called each time the query completes, including on
-        // `fetchMore`, with the extended results. But, on the first time, this
-        // logic can tell us whether we're at the end of the list, by counting
-        // whether there was <30. We also have to check in `fetchMore`!
-        const items = d && d.itemSearch && d.itemSearch.items;
-        if (items && items.length < 30) {
-          setIsEndOfResults(true);
-        }
-      },
+        skip ||
+        (!debouncedQuery.value &&
+          !debouncedQuery.filterToItemKind &&
+          !debouncedQuery.filterToZoneLabel &&
+          !debouncedQuery.filterToCurrentUserOwnsOrWants),
       onError: (e) => {
         console.error("Error loading search results", e);
       },
+      // Return `numTotalItems` from the GQL cache while waiting for next page!
+      returnPartialData: true,
     }
   );
 
-  // Smooth over the data a bit, so that we can use key fields with confidence!
-  const result = data?.itemSearch;
-  const resultValue = result?.query;
-  const zoneStr = [...filterToZoneIds].sort().join(",");
-  const resultZoneStr = (result?.zones || [])
-    .map((z) => z.id)
-    .sort()
-    .join(",");
-  const queriesMatch = resultValue === query.value && resultZoneStr === zoneStr;
-  const items = result?.items || [];
+  const loading = debouncedQuery !== query || loadingGQL;
+  const items = data?.itemSearch?.items ?? [];
+  const numTotalItems = data?.itemSearch?.numTotalItems ?? null;
+  const numTotalPages = Math.ceil(numTotalItems / SEARCH_PER_PAGE);
 
-  // Okay, what kind of loading state is this?
-  let loading;
-  let loadingMore;
-  if (loadingGQL && items.length > 0 && queriesMatch) {
-    // If we already have items for this query, but we're also loading GQL,
-    // then we're `loadingMore`.
-    loading = false;
-    loadingMore = true;
-  } else if (loadingGQL || query !== debouncedQuery) {
-    // Otherwise, if we're loading GQL or the user has changed the query, we're
-    // just `loading`.
-    loading = true;
-    loadingMore = false;
-  } else {
-    // Otherwise, we're not loading at all!
-    loading = false;
-    loadingMore = false;
-  }
-
-  // When SearchResults calls this, we'll resend the query, with the `offset`
-  // increased. We'll append the results to the original query!
-  const fetchMore = React.useCallback(() => {
-    if (!loadingGQL && !error && !isEndOfResults) {
-      fetchMoreGQL({
-        variables: {
-          offset: items.length,
-        },
-        updateQuery: (prev, { fetchMoreResult }) => {
-          // Note: This is a bit awkward because, if the results count ends on
-          // a multiple of 30, the user will see a flash of loading before
-          // getting told it's actually the end. Ah well :/
-          //
-          // We could maybe make this more rigorous later with
-          // react-virtualized to have a better scrollbar anyway, and then
-          // we'd need to return the total result count... a bit annoying to
-          // potentially double the query runtime? We'd need to see how slow it
-          // actually makes things.
-          if (fetchMoreResult.itemSearch.items.length < 30) {
-            setIsEndOfResults(true);
-          }
-
-          return {
-            ...prev,
-            itemSearch: {
-              ...(prev?.itemSearch || {}),
-              items: [
-                ...(prev?.itemSearch?.items || []),
-                ...(fetchMoreResult?.itemSearch?.items || []),
-              ],
-            },
-          };
-        },
-      }).catch((e) => {
-        console.error("Error loading more search results pages", e);
-      });
-    }
-  }, [loadingGQL, error, isEndOfResults, fetchMoreGQL, items.length]);
-
-  return { loading, loadingMore, error, items, fetchMore };
-}
-
-/**
- * useScrollTracker watches for the given scroll container to scroll near the
- * bottom, then fires a callback. We use this to fetch more search results!
- */
-function useScrollTracker(scrollContainerRef, threshold, onScrolledToBottom) {
-  const onScroll = React.useCallback(
-    (e) => {
-      const topEdgeScrollPosition = e.target.scrollTop;
-      const bottomEdgeScrollPosition =
-        topEdgeScrollPosition + e.target.clientHeight;
-      const remainingScrollDistance =
-        e.target.scrollHeight - bottomEdgeScrollPosition;
-      if (remainingScrollDistance < threshold) {
-        onScrolledToBottom();
-      }
-    },
-    [onScrolledToBottom, threshold]
-  );
-
-  React.useLayoutEffect(() => {
-    const scrollContainer = scrollContainerRef.current;
-
-    if (!scrollContainer) {
-      return;
-    }
-
-    scrollContainer.addEventListener("scroll", onScroll);
-
-    return () => {
-      if (scrollContainer) {
-        scrollContainer.removeEventListener("scroll", onScroll);
-      }
-    };
-  }, [onScroll, scrollContainerRef]);
+  return { loading, error, items, numTotalPages };
 }
 
 /**

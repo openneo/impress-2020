@@ -303,17 +303,21 @@ function LinkOrButton({ href, component = Button, ...props }) {
  * ItemListContainer is a container for Item components! Wrap your Item
  * components in this to ensure a consistent list layout.
  */
-export function ItemListContainer({ children }) {
-  return <Flex direction="column">{children}</Flex>;
+export function ItemListContainer({ children, ...props }) {
+  return (
+    <Flex direction="column" {...props}>
+      {children}
+    </Flex>
+  );
 }
 
 /**
  * ItemListSkeleton is a placeholder for when an ItemListContainer and its
  * Items are loading.
  */
-export function ItemListSkeleton({ count }) {
+export function ItemListSkeleton({ count, ...props }) {
   return (
-    <ItemListContainer>
+    <ItemListContainer {...props}>
       {Array.from({ length: count }).map((_, i) => (
         <ItemSkeleton key={i} />
       ))}
