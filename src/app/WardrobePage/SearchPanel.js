@@ -92,6 +92,16 @@ function SearchResults({
     currentPageNumber
   );
 
+  // Preload the previous and next page of search results, with this quick
+  // ~hacky trick: just `useSearchResults` two more times, with some extra
+  // attention to skip the query when we don't know if it will exist!
+  useSearchResults(query, outfitState, currentPageNumber - 1, {
+    skip: currentPageNumber <= 1,
+  });
+  useSearchResults(query, outfitState, currentPageNumber + 1, {
+    skip: numTotalPages == null || currentPageNumber >= numTotalPages,
+  });
+
   // This will save the `wornItemIds` when the SearchResults first mounts, and
   // keep it saved even after the outfit changes. We use this to try to restore
   // these items after the user makes changes, e.g., after they try on another
