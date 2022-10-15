@@ -26,12 +26,11 @@ function SearchPanel({
   searchQueryRef,
   firstSearchResultRef,
 }) {
-  // Whenever the search query changes, scroll back up to the top!
-  React.useEffect(() => {
+  const scrollToTop = React.useCallback(() => {
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollTop = 0;
     }
-  }, [query, scrollContainerRef]);
+  }, [scrollContainerRef]);
 
   // Sometimes we want to give focus back to the search field!
   const onMoveFocusUpToQuery = (e) => {
@@ -63,6 +62,7 @@ function SearchPanel({
         outfitState={outfitState}
         dispatchToOutfit={dispatchToOutfit}
         firstSearchResultRef={firstSearchResultRef}
+        scrollToTop={scrollToTop}
         onMoveFocusUpToQuery={onMoveFocusUpToQuery}
       />
     </Box>
@@ -82,6 +82,7 @@ function SearchResults({
   outfitState,
   dispatchToOutfit,
   firstSearchResultRef,
+  scrollToTop,
   onMoveFocusUpToQuery,
 }) {
   const [currentPageNumber, setCurrentPageNumber] = React.useState(1);
@@ -96,6 +97,9 @@ function SearchResults({
   // these items after the user makes changes, e.g., after they try on another
   // Background we want to restore the previous one!
   const [itemIdsToReconsider] = React.useState(outfitState.wornItemIds);
+
+  // Whenever the page number changes, scroll back to the top!
+  React.useEffect(() => scrollToTop(), [currentPageNumber, scrollToTop]);
 
   // You can use UpArrow/DownArrow to navigate between items, and even back up
   // to the search field!
