@@ -127,6 +127,7 @@ function WardrobePage() {
             <SearchFooter
               searchQuery={searchQuery}
               onChangeSearchQuery={setSearchQuery}
+              outfitState={outfitState}
             />
           }
         />

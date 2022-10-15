@@ -4,15 +4,22 @@ import { Box, Flex } from "@chakra-ui/react";
 import SearchToolbar from "./SearchToolbar";
 import { MajorErrorMessage, TestErrorSender, useLocalStorage } from "../util";
 import PaginationToolbar from "../components/PaginationToolbar";
+import { useSearchResults } from "./useSearchResults";
 
 /**
  * SearchFooter appears on large screens only, to let you search for new items
  * while still keeping the rest of the item screen open!
  */
-function SearchFooter({ searchQuery, onChangeSearchQuery }) {
+function SearchFooter({ searchQuery, onChangeSearchQuery, outfitState }) {
   const [canUseSearchFooter, setCanUseSearchFooter] = useLocalStorage(
     "DTIFeatureFlagCanUseSearchFooter",
     false
+  );
+
+  const { items, numTotalPages } = useSearchResults(
+    searchQuery,
+    outfitState,
+    1
   );
 
   React.useEffect(() => {
@@ -27,33 +34,46 @@ function SearchFooter({ searchQuery, onChangeSearchQuery }) {
   }
 
   return (
-    <Box paddingX="4" paddingY="4">
-      <Sentry.ErrorBoundary fallback={MajorErrorMessage}>
-        <TestErrorSender />
-        <Flex as="label" align="center">
-          <Box fontWeight="600" flex="0 0 auto">
-            Add new items:
-          </Box>
-          <Box width="8" />
-          <SearchToolbar
-            query={searchQuery}
-            onChange={onChangeSearchQuery}
-            flex="0 1 100%"
-            suggestionsPlacement="top"
-          />
-          <Box width="8" />
-          <Box flex="0 0 auto">
-            <PaginationToolbar
-              numTotalPages={1}
-              currentPageNumber={1}
-              goToPageNumber={() => alert("TODO")}
-              buildPageUrl={() => null}
-              size="sm"
+    <Sentry.ErrorBoundary fallback={MajorErrorMessage}>
+      <TestErrorSender />
+      <Box>
+        <Box paddingX="4" paddingY="4">
+          <Flex as="label" align="center">
+            <Box fontWeight="600" flex="0 0 auto">
+              Add new items:
+            </Box>
+            <Box width="8" />
+            <SearchToolbar
+              query={searchQuery}
+              onChange={onChangeSearchQuery}
+              flex="0 1 100%"
+              suggestionsPlacement="top"
             />
+            <Box width="8" />
+            {numTotalPages != null && (
+              <Box flex="0 0 auto">
+                <PaginationToolbar
+                  numTotalPages={numTotalPages}
+                  currentPageNumber={1}
+                  goToPageNumber={() => alert("TODO")}
+                  buildPageUrl={() => null}
+                  size="sm"
+                />
+              </Box>
+            )}
+          </Flex>
+        </Box>
+        <Box maxHeight="32" overflow="auto">
+          <Box as="ul" listStyleType="disc" paddingLeft="8">
+            {items.map((item) => (
+              <Box key={item.id} as="li">
+                {item.name}
+              </Box>
+            ))}
           </Box>
-        </Flex>
-      </Sentry.ErrorBoundary>
-    </Box>
+        </Box>
+      </Box>
+    </Sentry.ErrorBoundary>
   );
 }
 
