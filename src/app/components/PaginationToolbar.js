@@ -9,54 +9,29 @@ function PaginationToolbar({
   numPerPage = 30,
   ...props
 }) {
-  const { query, push: pushHistory } = useRouter();
+  const {
+    numTotalPages,
+    currentPageNumber,
+    goToPageNumber,
+    buildPageUrl,
+  } = useRouterPagination(totalCount, numPerPage);
 
-  const currentOffset = parseInt(query.offset) || 0;
+  const pagesAreLoaded = currentPageNumber != null && numTotalPages != null;
+  const hasPrevPage = pagesAreLoaded && currentPageNumber > 1;
+  const hasNextPage = pagesAreLoaded && currentPageNumber < numTotalPages;
 
-  const currentPageIndex = Math.floor(currentOffset / numPerPage);
-  const currentPageNumber = currentPageIndex + 1;
-  const numTotalPages = totalCount ? Math.ceil(totalCount / numPerPage) : null;
-
-  const prevPageSearchParams = new URLSearchParams(query);
-  const prevPageOffset = currentOffset - numPerPage;
-  prevPageSearchParams.set("offset", prevPageOffset);
-  const prevPageUrl = "?" + prevPageSearchParams.toString();
-
-  const nextPageSearchParams = new URLSearchParams(query);
-  const nextPageOffset = currentOffset + numPerPage;
-  nextPageSearchParams.set("offset", nextPageOffset);
-  const nextPageUrl = "?" + nextPageSearchParams.toString();
-
-  // We disable the buttons if we don't know how many total items there are,
-  // and therefore don't know how far navigation can go. We'll additionally
-  // show a loading spinner if `isLoading` is true. (But it's possible the
-  // buttons might be enabled, even if `isLoading` is true, because maybe
-  // something _else_ is loading. `isLoading` is designed to tell us whether
-  // waiting _might_ give us the data we need!)
-  const prevPageIsDisabled = totalCount == null || prevPageOffset < 0;
-  const nextPageIsDisabled = totalCount == null || nextPageOffset >= totalCount;
-
-  const goToPageNumber = React.useCallback(
-    (newPageNumber) => {
-      const newPageIndex = newPageNumber - 1;
-      const newPageOffset = newPageIndex * numPerPage;
-
-      const newPageSearchParams = new URLSearchParams(query);
-      newPageSearchParams.set("offset", newPageOffset);
-      pushHistory("?" + newPageSearchParams.toString());
-    },
-    [query, pushHistory, numPerPage]
-  );
+  const prevPageUrl = hasPrevPage ? buildPageUrl(currentPageNumber - 1) : null;
+  const nextPageUrl = hasNextPage ? buildPageUrl(currentPageNumber + 1) : null;
 
   return (
     <Flex align="center" justify="space-between" {...props}>
       <LinkOrButton
-        href={prevPageIsDisabled ? undefined : prevPageUrl}
+        href={prevPageUrl}
         _disabled={{
           cursor: isLoading ? "wait" : "not-allowed",
           opacity: 0.4,
         }}
-        isDisabled={prevPageIsDisabled}
+        isDisabled={!hasPrevPage}
       >
         ← Prev
       </LinkOrButton>
@@ -75,17 +50,52 @@ function PaginationToolbar({
         </Flex>
       )}
       <LinkOrButton
-        href={nextPageIsDisabled ? undefined : nextPageUrl}
+        href={nextPageUrl}
         _disabled={{
           cursor: isLoading ? "wait" : "not-allowed",
           opacity: 0.4,
         }}
-        isDisabled={nextPageIsDisabled}
+        isDisabled={!hasNextPage}
       >
         Next →
       </LinkOrButton>
     </Flex>
   );
+}
+
+function useRouterPagination(totalCount, numPerPage) {
+  const { query, push: pushHistory } = useRouter();
+
+  const currentOffset = parseInt(query.offset) || 0;
+
+  const currentPageIndex = Math.floor(currentOffset / numPerPage);
+  const currentPageNumber = currentPageIndex + 1;
+  const numTotalPages = totalCount ? Math.ceil(totalCount / numPerPage) : null;
+
+  const buildPageUrl = React.useCallback(
+    (newPageNumber) => {
+      const newParams = new URLSearchParams(query);
+      const newPageIndex = newPageNumber - 1;
+      const newOffset = newPageIndex * numPerPage;
+      newParams.set("offset", newOffset);
+      return "?" + newParams.toString();
+    },
+    [query, numPerPage]
+  );
+
+  const goToPageNumber = React.useCallback(
+    (newPageNumber) => {
+      pushHistory(buildPageUrl(newPageNumber));
+    },
+    [buildPageUrl, pushHistory]
+  );
+
+  return {
+    numTotalPages,
+    currentPageNumber,
+    goToPageNumber,
+    buildPageUrl,
+  };
 }
 
 function LinkOrButton({ href, ...props }) {
