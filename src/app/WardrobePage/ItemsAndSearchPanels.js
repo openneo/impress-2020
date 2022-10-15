@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Flex } from "@chakra-ui/react";
+import { Box, Flex, useBreakpointValue } from "@chakra-ui/react";
 import * as Sentry from "@sentry/react";
 
 import ItemsPanel from "./ItemsPanel";
@@ -8,7 +8,7 @@ import SearchToolbar, {
   searchQueryIsEmpty,
 } from "./SearchToolbar";
 import SearchPanel from "./SearchPanel";
-import { MajorErrorMessage, TestErrorSender } from "../util";
+import { MajorErrorMessage, TestErrorSender, useLocalStorage } from "../util";
 
 /**
  * ItemsAndSearchPanels manages the shared layout and state for:
@@ -34,19 +34,29 @@ function ItemsAndSearchPanels({
   const searchQueryRef = React.useRef();
   const firstSearchResultRef = React.useRef();
 
+  const hasRoomForSearchFooter = useBreakpointValue({ base: false, md: true });
+  const [canUseSearchFooter] = useLocalStorage(
+    "DTIFeatureFlagCanUseSearchFooter",
+    false
+  );
+  const isShowingSearchFooter = canUseSearchFooter && hasRoomForSearchFooter;
+
   return (
     <Sentry.ErrorBoundary fallback={MajorErrorMessage}>
       <TestErrorSender />
       <Flex direction="column" height="100%">
-        <Box paddingX="5" paddingTop="3" paddingBottom="2" boxShadow="sm">
-          <SearchToolbar
-            query={searchQuery}
-            searchQueryRef={searchQueryRef}
-            firstSearchResultRef={firstSearchResultRef}
-            onChange={setSearchQuery}
-          />
-        </Box>
-        {!searchQueryIsEmpty(searchQuery) ? (
+        {isShowingSearchFooter && <Box height="2" />}
+        {!isShowingSearchFooter && (
+          <Box paddingX="5" paddingTop="3" paddingBottom="2" boxShadow="sm">
+            <SearchToolbar
+              query={searchQuery}
+              searchQueryRef={searchQueryRef}
+              firstSearchResultRef={firstSearchResultRef}
+              onChange={setSearchQuery}
+            />
+          </Box>
+        )}
+        {!isShowingSearchFooter && !searchQueryIsEmpty(searchQuery) ? (
           <Box
             key="search-panel"
             flex="1 0 0"
