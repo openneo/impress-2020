@@ -46,6 +46,7 @@ function PaginationToolbar({
             numTotalPages={numTotalPages}
             onChange={goToPageNumber}
             marginBottom="-2px"
+            size={size}
           />
           <Box width="1" />
           <Box flex="0 0 auto">of {numTotalPages}</Box>
