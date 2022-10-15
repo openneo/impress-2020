@@ -702,13 +702,11 @@ function FeedbackFormPitch() {
           flex={{ base: "0 0 auto", sm: "0 1 50%" }}
         >
           <Box as="h3" fontWeight="600">
-            New updates (Oct 12)
+            New updates (Oct 14)
           </Box>
           <UnorderedList>
-            <ListItem>
-              Automatic modeling!! Thank you everyone who modeled over the
-              years!! &lt;333
-            </ListItem>
+            <ListItem>Paginated item search (bye infinite scroll!)</ListItem>
+            <ListItem>Automatic modeling! :0</ListItem>
             <ListItem>
               <ChakraLink
                 href="https://twitter.com/NeopetsDTI"
