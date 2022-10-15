@@ -3,10 +3,7 @@ import { Box, Flex, useBreakpointValue } from "@chakra-ui/react";
 import * as Sentry from "@sentry/react";
 
 import ItemsPanel from "./ItemsPanel";
-import SearchToolbar, {
-  emptySearchQuery,
-  searchQueryIsEmpty,
-} from "./SearchToolbar";
+import SearchToolbar, { searchQueryIsEmpty } from "./SearchToolbar";
 import SearchPanel from "./SearchPanel";
 import { MajorErrorMessage, TestErrorSender, useLocalStorage } from "../util";
 
@@ -25,11 +22,12 @@ import { MajorErrorMessage, TestErrorSender, useLocalStorage } from "../util";
  */
 function ItemsAndSearchPanels({
   loading,
+  searchQuery,
+  onChangeSearchQuery,
   outfitState,
   outfitSaving,
   dispatchToOutfit,
 }) {
-  const [searchQuery, setSearchQuery] = React.useState(emptySearchQuery);
   const scrollContainerRef = React.useRef();
   const searchQueryRef = React.useRef();
   const firstSearchResultRef = React.useRef();
@@ -52,7 +50,7 @@ function ItemsAndSearchPanels({
               query={searchQuery}
               searchQueryRef={searchQueryRef}
               firstSearchResultRef={firstSearchResultRef}
-              onChange={setSearchQuery}
+              onChange={onChangeSearchQuery}
             />
           </Box>
         )}

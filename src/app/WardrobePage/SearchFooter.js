@@ -1,7 +1,7 @@
 import React from "react";
 import * as Sentry from "@sentry/react";
 import { Box, Flex } from "@chakra-ui/react";
-import SearchToolbar, { emptySearchQuery } from "./SearchToolbar";
+import SearchToolbar from "./SearchToolbar";
 import { MajorErrorMessage, TestErrorSender, useLocalStorage } from "../util";
 import PaginationToolbar from "../components/PaginationToolbar";
 
@@ -9,7 +9,7 @@ import PaginationToolbar from "../components/PaginationToolbar";
  * SearchFooter appears on large screens only, to let you search for new items
  * while still keeping the rest of the item screen open!
  */
-function SearchFooter() {
+function SearchFooter({ searchQuery, onChangeSearchQuery }) {
   const [canUseSearchFooter, setCanUseSearchFooter] = useLocalStorage(
     "DTIFeatureFlagCanUseSearchFooter",
     false
@@ -20,8 +20,6 @@ function SearchFooter() {
       setCanUseSearchFooter(true);
     }
   }, [setCanUseSearchFooter]);
-
-  const [query, setQuery] = React.useState(emptySearchQuery);
 
   // TODO: Show the new footer to other users, too!
   if (!canUseSearchFooter) {
@@ -38,8 +36,8 @@ function SearchFooter() {
           </Box>
           <Box width="8" />
           <SearchToolbar
-            query={query}
-            onChange={setQuery}
+            query={searchQuery}
+            onChange={onChangeSearchQuery}
             flex="0 1 100%"
             suggestionsPlacement="top"
           />

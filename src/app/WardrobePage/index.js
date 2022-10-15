@@ -11,6 +11,7 @@ import WardrobePageLayout from "./WardrobePageLayout";
 import WardrobePreviewAndControls from "./WardrobePreviewAndControls";
 import { useRouter } from "next/router";
 import Head from "next/head";
+import { emptySearchQuery } from "./SearchToolbar";
 
 const WardrobeDevHacks = loadable(() => import("./WardrobeDevHacks"));
 
@@ -28,6 +29,8 @@ const WardrobeDevHacks = loadable(() => import("./WardrobeDevHacks"));
 function WardrobePage() {
   const toast = useToast();
   const { loading, error, outfitState, dispatchToOutfit } = useOutfitState();
+
+  const [searchQuery, setSearchQuery] = React.useState(emptySearchQuery);
 
   // We manage outfit saving up here, rather than at the point of the UI where
   // "Saving" indicators appear. That way, auto-saving still happens even when
@@ -113,12 +116,19 @@ function WardrobePage() {
           itemsAndMaybeSearchPanel={
             <ItemsAndSearchPanels
               loading={loading}
+              searchQuery={searchQuery}
+              onChangeSearchQuery={setSearchQuery}
               outfitState={outfitState}
               outfitSaving={outfitSaving}
               dispatchToOutfit={dispatchToOutfit}
             />
           }
-          searchFooter={<SearchFooter />}
+          searchFooter={
+            <SearchFooter
+              searchQuery={searchQuery}
+              onChangeSearchQuery={setSearchQuery}
+            />
+          }
         />
       </OutfitStateContext.Provider>
     </>
