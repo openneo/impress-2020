@@ -1,1 +1,1 @@
-MANIFEST=$(dirname $0)/../manifest-full.txt ./download-urls.sh
+MANIFEST=$(dirname $0)/../manifest-full.txt $(dirname $0)/download-urls.sh
