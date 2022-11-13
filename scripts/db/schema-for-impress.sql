@@ -63,6 +63,42 @@ CREATE TABLE `closet_lists` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `colors`
+--
+
+DROP TABLE IF EXISTS `colors`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `colors` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `basic` tinyint(1) DEFAULT NULL,
+  `standard` tinyint(1) DEFAULT NULL,
+  `prank` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `color_translations`
+--
+
+DROP TABLE IF EXISTS `color_translations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `color_translations` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `color_id` int(11) DEFAULT NULL,
+  `locale` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_color_translations_on_color_id` (`color_id`),
+  KEY `index_color_translations_on_locale` (`locale`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `items`
 --
 
@@ -202,6 +238,39 @@ CREATE TABLE `pet_states` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `species`
+--
+
+DROP TABLE IF EXISTS `species`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `species` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `species_translations`
+--
+
+DROP TABLE IF EXISTS `species_translations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `species_translations` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `species_id` int(11) DEFAULT NULL,
+  `locale` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_species_translations_on_species_id` (`species_id`),
+  KEY `index_species_translations_on_locale` (`locale`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `swf_assets`
 --
 
@@ -255,6 +324,42 @@ CREATE TABLE `users` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `zones`
+--
+
+DROP TABLE IF EXISTS `zones`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `zones` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `depth` int(11) DEFAULT NULL,
+  `type_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `zone_translations`
+--
+
+DROP TABLE IF EXISTS `zone_translations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `zone_translations` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `zone_id` int(11) DEFAULT NULL,
+  `locale` varchar(255) DEFAULT NULL,
+  `label` varchar(255) DEFAULT NULL,
+  `plain_label` varchar(255) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_zone_translations_on_zone_id` (`zone_id`),
+  KEY `index_zone_translations_on_locale` (`locale`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -265,4 +370,4 @@ CREATE TABLE `users` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-09-13 21:04:38
+-- Dump completed on 2022-11-13  6:46:05

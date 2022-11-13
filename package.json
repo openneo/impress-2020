@@ -75,7 +75,6 @@
     "mysql-dev": "mysql --host=localhost --user=impress_2020_dev --password=impress_2020_dev --database=openneo_impress",
     "mysql-admin": "mysql --host=impress.openneo.net --user=matchu --password --database=openneo_impress",
     "mysqldump": "mysqldump --host=impress.openneo.net --user=$(dotenv -p IMPRESS_MYSQL_USER) --password=$(dotenv -p IMPRESS_MYSQL_PASSWORD)",
-    "download-mysql-schema": "yarn --silent mysqldump --no-data openneo_impress closet_hangers closet_lists items item_translations modeling_logs parents_swf_assets pet_types pet_states swf_assets users | sed 's/ AUTO_INCREMENT=[0-9]*//g' > scripts/setup-mysql-dev-schema-impress.sql && yarn --silent mysqldump --no-data openneo_id users | sed 's/ AUTO_INCREMENT=[0-9]*//g' > scripts/setup-mysql-dev-schema-id.sql && yarn --silent mysqldump openneo_impress species species_translations colors color_translations zones zone_translations > scripts/setup-mysql-dev-constants.sql",
     "setup-mysql": "yarn mysql-admin < scripts/setup-mysql.sql",
     "setup-mysql-dev": "yarn mysql-dev < scripts/setup-mysql-dev-constants.sql && yarn mysql-dev < scripts/setup-mysql-dev-schema-impress.sql && yarn mysql-dev --database=openneo_id < scripts/setup-mysql-dev-schema-id.sql",
     "run-script": "ts-node --compiler=typescript-cached-transpile --transpile-only -r dotenv/config",
@@ -95,7 +94,11 @@
     "archive:create:delta": "dotenv -- ./scripts/archive/create/delta.sh",
     "archive:upload:full": "dotenv -- ./scripts/archive/upload/full.sh",
     "archive:upload:delta": "dotenv -- ./scripts/archive/upload/delta.sh",
-    "archive:upload:test": "dotenv -- ./scripts/archive/upload/test.sh"
+    "archive:upload:test": "dotenv -- ./scripts/archive/upload/test.sh",
+    "db:export:schema": "./scripts/db/export/schema.sh",
+    "db:export:public-data": "./scripts/db/export/public-data.sh",
+    "db:setup-dev:minimal": "./scripts/db/setup-dev/minimal.sh",
+    "db:setup-dev:full": "./scripts/db/setup-dev/full.sh"
   },
   "browserslist": {
     "production": [
