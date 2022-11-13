@@ -62,8 +62,8 @@
   "scripts": {
     "prepare": "husky install",
     "start": "next start",
-    "dev": "yarn build-cached-data && DB_ENV=development REACT_APP_IMPRESS_LOG_IN_AS=$IMPRESS_LOG_IN_AS TS_NODE_COMPILER=typescript-cached-transpile next dev",
-    "local-prod": "yarn build-cached-data && DB_ENV=production REACT_APP_IMPRESS_LOG_IN_AS=$IMPRESS_LOG_IN_AS TS_NODE_COMPILER=typescript-cached-transpile next dev",
+    "dev": "DB_ENV=development yarn build-cached-data && DB_ENV=development REACT_APP_IMPRESS_LOG_IN_AS=$IMPRESS_LOG_IN_AS TS_NODE_COMPILER=typescript-cached-transpile next dev",
+    "local-prod": "DB_ENV=production yarn build-cached-data && DB_ENV=production REACT_APP_IMPRESS_LOG_IN_AS=$IMPRESS_LOG_IN_AS TS_NODE_COMPILER=typescript-cached-transpile next dev",
     "build": "yarn build-cached-data && next build",
     "vercel-build": "yum install libuuid-devel libmount-devel && cp /lib64/{libuuid,libmount,libblkid}.so.1 node_modules/canvas/build/Release/",
     "test": "jest test --env=jsdom",
@@ -77,7 +77,7 @@
     "mysqldump": "mysqldump --host=impress.openneo.net --user=$(dotenv -p IMPRESS_MYSQL_USER) --password=$(dotenv -p IMPRESS_MYSQL_PASSWORD)",
     "setup-mysql": "yarn mysql-admin < scripts/setup-mysql.sql",
     "setup-mysql-dev": "yarn mysql-dev < scripts/setup-mysql-dev-constants.sql && yarn mysql-dev < scripts/setup-mysql-dev-schema-impress.sql && yarn mysql-dev --database=openneo_id < scripts/setup-mysql-dev-schema-id.sql",
-    "run-script": "ts-node --compiler=typescript-cached-transpile --transpile-only -r dotenv/config",
+    "run-script": "echo $DB_ENV; ts-node --compiler=typescript-cached-transpile --transpile-only -r dotenv/config",
     "build-cached-data": "yarn run-script scripts/build-cached-data.js",
     "cache-asset-manifests": "yarn run-script scripts/cache-asset-manifests.js",
     "delete-user": "yarn run-script scripts/delete-user.js",
@@ -98,7 +98,9 @@
     "db:export:schema": "./scripts/db/export/schema.sh",
     "db:export:public-data": "./scripts/db/export/public-data.sh",
     "db:setup-dev:minimal": "./scripts/db/setup-dev/minimal.sh",
-    "db:setup-dev:full": "./scripts/db/setup-dev/full.sh"
+    "db:setup-dev:full": "./scripts/db/setup-dev/full.sh",
+    "hmm": "echo $FOO",
+    "hmmm": "yarn hmm"
   },
   "browserslist": {
     "production": [
