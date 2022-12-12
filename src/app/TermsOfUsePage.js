@@ -8,7 +8,7 @@ function TermsOfUsePage() {
   return (
     <>
       <Head>
-        <title>Terms of Use | Dress to Impres</title>
+        <title>Terms of Use | Dress to Impress</title>
       </Head>
       <Heading1 marginBottom="4">Our terms of use</Heading1>
       <TextContent maxWidth="800px">
