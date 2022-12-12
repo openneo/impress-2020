@@ -664,7 +664,7 @@ function FeedbackFormSection() {
   );
 }
 
-function FeedbackFormContainer({ background, borderColor, children }) {
+export function FeedbackFormContainer({ background, borderColor, children }) {
   return (
     <Box
       as="section"
@@ -796,7 +796,7 @@ function FeedbackFormPitch() {
   );
 }
 
-function FeedbackForm() {
+export function FeedbackForm({ contentPlaceholder }) {
   const [content, setContent] = React.useState("");
   const [email, setEmail] = useLocalStorage("DTIFeedbackFormEmail", "");
   const [isSending, setIsSending] = React.useState(false);
@@ -870,7 +870,9 @@ function FeedbackForm() {
       />
       <Textarea
         size="sm"
-        placeholder={"I love…\nI wish…\nNext, you should add…"}
+        placeholder={
+          contentPlaceholder ?? "I love…\nI wish…\nNext, you should add…"
+        }
         gridArea="content"
         value={content}
         onChange={(e) => setContent(e.target.value)}
