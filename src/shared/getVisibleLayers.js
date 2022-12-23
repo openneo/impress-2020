@@ -74,7 +74,7 @@ function getVisibleLayers(petAppearance, itemAppearances) {
       layer.source === "item" &&
       layer.bodyId !== "0" &&
       (petAppearance.pose === "UNCONVERTED" ||
-        petOccupiedOrRestrictedZoneIds.has(layer.zone.id))
+        petOccupiedZoneIds.has(layer.zone.id))
     ) {
       return false;
     }
