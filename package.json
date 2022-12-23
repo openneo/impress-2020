@@ -39,7 +39,7 @@
     "honeycomb-beeline": "^2.7.4",
     "immer": "^9.0.6",
     "jimp": "^0.14.0",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "jwks-rsa": "^1.9.0",
     "lru-cache": "^6.0.0",
     "mysql2": "^2.1.0",
