@@ -77,7 +77,7 @@
     "mysqldump": "mysqldump --host=impress.openneo.net --user=$(dotenv -p IMPRESS_MYSQL_USER) --password=$(dotenv -p IMPRESS_MYSQL_PASSWORD)",
     "setup-mysql": "yarn mysql-admin < scripts/setup-mysql.sql",
     "setup-mysql-dev": "yarn mysql-dev < scripts/setup-mysql-dev-constants.sql && yarn mysql-dev < scripts/setup-mysql-dev-schema-impress.sql && yarn mysql-dev --database=openneo_id < scripts/setup-mysql-dev-schema-id.sql",
-    "run-script": "echo $DB_ENV; ts-node --compiler=typescript-cached-transpile --transpile-only -r dotenv/config",
+    "run-script": "ts-node --compiler=typescript-cached-transpile --transpile-only -r dotenv/config",
     "build-cached-data": "yarn run-script scripts/build-cached-data.js",
     "cache-asset-manifests": "yarn run-script scripts/cache-asset-manifests.js",
     "delete-user": "yarn run-script scripts/delete-user.js",
