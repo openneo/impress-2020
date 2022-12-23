@@ -22,14 +22,9 @@ function getVisibleLayers(petAppearance, itemAppearances) {
       .flat()
       .map((z) => z.id)
   );
-  const petOccupiedZoneIds = new Set(petLayers.map((l) => l.zone.id));
   const petRestrictedZoneIds = new Set(
     petAppearance.restrictedZones.map((z) => z.id)
   );
-  const petOccupiedOrRestrictedZoneIds = new Set([
-    ...petOccupiedZoneIds,
-    ...petRestrictedZoneIds,
-  ]);
 
   const visibleLayers = allLayers.filter((layer) => {
     // When an item restricts a zone, it hides pet layers of the same zone.
@@ -42,11 +37,11 @@ function getVisibleLayers(petAppearance, itemAppearances) {
       return false;
     }
 
-    // When a pet appearance restricts or occupies a zone, or when the pet is
-    // Unconverted, it makes body-specific items incompatible. We use this to
-    // disallow UCs from wearing certain body-specific Biology Effects,
-    // Statics, etc, while still allowing non-body-specific items in those
-    // zones! (I think this happens for some Invisible pet stuff, too?)
+    // When a pet appearance restricts a zone, or when the pet is Unconverted,
+    // it makes body-specific items incompatible. We use this to disallow UCs
+    // from wearing certain body-specific Biology Effects, Statics, etc, while
+    // still allowing non-body-specific items in those zones! (I think this
+    // happens for some Invisible pet stuff, too?)
     //
     // TODO: We shouldn't be *hiding* these zones, like we do with items; we
     //       should be doing this way earlier, to prevent the item from even
@@ -58,6 +53,13 @@ function getVisibleLayers(petAppearance, itemAppearances) {
     //       it by placing item layers second in the list, and rely on JS sort
     //       stability, and *then* rely on the UI to respect that ordering when
     //       rendering them by depth. Not great! 😅)
+    //
+    // NOTE: We used to also include the pet appearance's *occupied* zones in
+    //       this condition, not just the restricted zones, as a sensible
+    //       defensive default, even though we weren't aware of any relevant
+    //       items. But now we know that actually the "Bruce Brucey B Mouth"
+    //       occupies the real Mouth zone, and still should be visible and
+    //       above pet layers! So, we now only check *restricted* zones.
     //
     // NOTE: UCs used to implement their restrictions by listing specific
     //       zones, but it seems that the logic has changed to just be about
@@ -74,7 +76,7 @@ function getVisibleLayers(petAppearance, itemAppearances) {
       layer.source === "item" &&
       layer.bodyId !== "0" &&
       (petAppearance.pose === "UNCONVERTED" ||
-        petOccupiedZoneIds.has(layer.zone.id))
+        petRestrictedZoneIds.has(layer.zone.id))
     ) {
       return false;
     }
