@@ -53,6 +53,7 @@ import SpeciesColorPicker from "./components/SpeciesColorPicker";
 import SquareItemCard, {
   SquareItemCardSkeleton,
 } from "./components/SquareItemCard";
+import WIPCallout from "./components/WIPCallout";
 import { useAuthModeFeatureFlag } from "./components/useCurrentUser";
 
 import HomepageSplashImg from "./images/homepage-splash.png";
@@ -64,8 +65,15 @@ function HomePage() {
   const [previewState, setPreviewState] = React.useState(null);
 
   return (
-    <Flex direction="column" align="center" textAlign="center" marginTop="8">
-      <Box height="4" />
+    <Flex direction="column" align="center" textAlign="center" marginTop="4">
+      <WIPCallout>
+        <Link href="/state-of-dti-2023" passHref>
+          <ChakraLink textDecoration="underline">
+            Here's a little update on the state of DTI !
+          </ChakraLink>
+        </Link>
+      </WIPCallout>
+      <Box height="6" />
       <Box
         width="200px"
         height="200px"
