@@ -65,8 +65,15 @@ function HomePage() {
   const [previewState, setPreviewState] = React.useState(null);
 
   return (
-    <Flex direction="column" align="center" textAlign="center" marginTop="8">
-      <Box height="4" />
+    <Flex direction="column" align="center" textAlign="center" marginTop="4">
+      <WIPCallout>
+        <Link href="/state-of-dti-2023" passHref>
+          <ChakraLink textDecoration="underline">
+            Here's a little update on the state of DTI !
+          </ChakraLink>
+        </Link>
+      </WIPCallout>
+      <Box height="6" />
       <Box
         width="200px"
         height="200px"
@@ -108,10 +115,6 @@ function HomePage() {
       <NewItemsSection />
       <Box height="16" />
       <FeedbackFormSection />
-      <Box height="16" />
-      <WIPCallout details="We started building this in 2020, but, well… sheesh, what a time 😅 This will eventually become the main site, at impress.openneo.net!">
-        Maybe we'll rename it to Impress 2022… or maybe not! 🤔
-      </WIPCallout>
       <TestErrorSender />
     </Flex>
   );
@@ -664,7 +667,7 @@ function FeedbackFormSection() {
   );
 }
 
-function FeedbackFormContainer({ background, borderColor, children }) {
+export function FeedbackFormContainer({ background, borderColor, children }) {
   return (
     <Box
       as="section"
@@ -689,10 +692,14 @@ function FeedbackFormPitch() {
 
   return (
     <Flex direction="column" textAlign="left" opacity="0.9">
-      <Box as="header">Hi friends! Welcome to the beta!</Box>
+      <Box as="header">Hi friends! Welcome to DTI 2020!</Box>
       <Box as="p" fontSize="sm">
-        This is the new Dress to Impress! It's ready for the future, and it even
-        works great on mobile! More coming soon!
+        This is the newer Dress to Impress! It supports the new HTML5
+        animations, and it works great on mobile! Some features are still on
+        Classic DTI though.{" "}
+        <Link href="/state-of-dti-2023" passHref>
+          <ChakraLink textDecoration="underline">Here's what's up.</ChakraLink>
+        </Link>
       </Box>
       <Flex direction={{ base: "column", sm: "row" }}>
         <Box
@@ -796,7 +803,7 @@ function FeedbackFormPitch() {
   );
 }
 
-function FeedbackForm() {
+export function FeedbackForm({ contentPlaceholder }) {
   const [content, setContent] = React.useState("");
   const [email, setEmail] = useLocalStorage("DTIFeedbackFormEmail", "");
   const [isSending, setIsSending] = React.useState(false);
@@ -870,7 +877,9 @@ function FeedbackForm() {
       />
       <Textarea
         size="sm"
-        placeholder={"I love…\nI wish…\nNext, you should add…"}
+        placeholder={
+          contentPlaceholder ?? "I love…\nI wish…\nNext, you should add…"
+        }
         gridArea="content"
         value={content}
         onChange={(e) => setContent(e.target.value)}
