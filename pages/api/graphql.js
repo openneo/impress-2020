@@ -10,6 +10,7 @@ const beeline = require("honeycomb-beeline")({
 
 const { ApolloServer } = require("../../src/server/lib/apollo-server-vercel");
 const { config } = require("../../src/server");
+const { applyCORSHeaders } = require("../../src/server/cors");
 const crypto = require("crypto");
 
 const server = new ApolloServer(config);
@@ -48,13 +49,13 @@ function deterministicSampler(traceId, sampleRate) {
 }
 
 async function handle(req, res) {
-  // CAREFUL! We here allow any website to use our GraphQL API, so our data can
-  // be more useful to the public. Using the * wildcard means that, in modern
-  // browsers, requests should be sent without credentials. Additionally, we
-  // don't store credentials in cookies; the client is responsible for setting
-  // an Authorization header. So, I don't think there's any CSRF danger here.
-  // But, let's be careful and make sure this continues to be true!
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  // Apply CORS headers, to allow Classic DTI to request this.
+  // If this is an OPTIONS request asking for CORS info, return an empty
+  // response with just the CORS headers applied.
+  applyCORSHeaders(req, res);
+  if (req.method === "OPTIONS") {
+    return res.status(204).end();
+  }
 
   await serverHandler(req, res);
 

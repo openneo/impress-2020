@@ -6,6 +6,7 @@ const beeline = require("honeycomb-beeline")({
       : "Dress to Impress (2020, dev)",
   serviceName: "impress-2020-gql-server",
 });
+import { applyCORSHeaders } from "../../src/server/cors";
 import connectToDb from "../../src/server/db";
 import { getPoseFromPetState, normalizeRow } from "../../src/server/util";
 
@@ -103,6 +104,14 @@ async function getDistinctPetStates(db) {
 }
 
 async function handle(req, res) {
+  // Apply CORS headers, to allow Classic DTI to request this.
+  // If this is an OPTIONS request asking for CORS info, return an empty
+  // response with just the CORS headers applied.
+  applyCORSHeaders(req, res);
+  if (req.method === "OPTIONS") {
+    return res.status(204).end();
+  }
+
   const buffer = await getValidPetPoses();
 
   // Cache for 1 hour, and allow the CDN cache to serve copies up to an
