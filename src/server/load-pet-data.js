@@ -1,23 +1,22 @@
-import util from "util";
 import fetch from "node-fetch";
-import xmlrpc from "xmlrpc";
 
-const neopetsXmlrpcClient = xmlrpc.createSecureClient({
-  host: "www.neopets.com",
-  path: "/amfphp/xmlrpc.php",
-});
-const neopetsXmlrpcCall = util
-  .promisify(neopetsXmlrpcClient.methodCall)
-  .bind(neopetsXmlrpcClient);
+async function neopetsAmfphpCall(methodName, args) {
+  const url =
+    "https://www.neopets.com/amfphp/json.php/" +
+    encodeURIComponent(methodName) +
+    "/" +
+    args.map(encodeURIComponent).join("/");
+  return await fetch(url).then((res) => res.json());
+}
 
 export async function loadPetMetaData(petName) {
-  const response = await neopetsXmlrpcCall("PetService.getPet", [petName]);
+  const response = await neopetsAmfphpCall("PetService.getPet", [petName]);
   return response;
 }
 
 export async function loadCustomPetData(petName) {
   try {
-    const response = await neopetsXmlrpcCall("CustomPetService.getViewerData", [
+    const response = await neopetsAmfphpCall("CustomPetService.getViewerData", [
       petName,
     ]);
     return response;
