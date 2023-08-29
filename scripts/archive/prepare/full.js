@@ -88,7 +88,7 @@ async function loadItems(offset, limit, db) {
   const [
     rows,
   ] = await db.query(
-    `SELECT id, thumbnail_url FROM items ORDER BY id LIMIT ? OFFSET ?;`,
+    {sql: `SELECT id, thumbnail_url FROM items ORDER BY id LIMIT ? OFFSET ?;`, timeout: 20000},
     [limit, offset]
   );
   return rows.map(normalizeRow);
@@ -103,7 +103,7 @@ async function loadSwfAssets(offset, limit, db) {
   const [
     rows,
   ] = await db.query(
-    `SELECT id, url, manifest FROM swf_assets ORDER BY id LIMIT ? OFFSET ?;`,
+    {sql: `SELECT id, url, manifest FROM swf_assets ORDER BY id LIMIT ? OFFSET ?;`, timeout: 20000},
     [limit, offset]
   );
   return rows.map(normalizeRow);
