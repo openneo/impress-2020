@@ -57,16 +57,22 @@ const resolvers = {
       }
 
       // Next, look for a pet state matching the same pose. (This can happen if
-      // modeling data for this pet hasn't saved yet.)
-      const pose = getPoseFromPetData(petMetaData, customPetData);
-      petState = petStates.find((ps) => getPoseFromPetState(ps) === pose);
-      if (petState) {
-        console.warn(
-          `Warning: For pet "${name}", fell back to pet state ${petState.id} ` +
-            `because it matches pose ${pose}. Actual pet state for these ` +
-            `assets not found: ${swfAssetIdsString}`
-        );
-        return { id: petState.id };
+      // modeling data for this pet hasn't saved yet.) (We might skip this step
+      // if we couldn't load either the custom pet data or metadata, which is
+      // expected if e.g. the pet name starts with a leading digit, so we can
+      // use a workaround for the custom pet data but the JSON endpoint for
+      // metadata fails.)
+      if (petMetaData != null && customPetData != null) {
+        const pose = getPoseFromPetData(petMetaData, customPetData);
+        petState = petStates.find((ps) => getPoseFromPetState(ps) === pose);
+        if (petState) {
+          console.warn(
+            `Warning: For pet "${name}", fell back to pet state ${petState.id} ` +
+              `because it matches pose ${pose}. Actual pet state for these ` +
+              `assets not found: ${swfAssetIdsString}`
+          );
+          return { id: petState.id };
+        }
       }
 
       // Finally, look for an UNKNOWN pet state. (This can happen if modeling
@@ -119,10 +125,17 @@ const resolvers = {
     ) => {
       const [customPetData, petMetaData] = await Promise.all([
         loadCustomPetData(petName),
-        loadPetMetaData(petName),
+        loadPetMetaData(petName).catch((error) => {
+          console.warn(`Couldn't load metadata for pet ${petName}: `, error);
+          return null;
+        }),
       ]);
 
-      if (customPetData != null && process.env["USE_NEW_MODELING"] === "1") {
+      if (
+        customPetData != null &&
+        petMetaData != null &&
+        process.env["USE_NEW_MODELING"] === "1"
+      ) {
         await saveModelingData(customPetData, petMetaData, {
           db,
           petTypeBySpeciesAndColorLoader,

@@ -6,20 +6,38 @@ async function neopetsAmfphpCall(methodName, args) {
     encodeURIComponent(methodName) +
     "/" +
     args.map(encodeURIComponent).join("/");
-  return await fetch(url).then((res) => res.json());
+
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(
+      `[AMFPHP] HTTP request failed, got status ${res.status} ${res.statusText}`
+    );
+  }
+
+  return res.json();
 }
 
 export async function loadPetMetaData(petName) {
-  const response = await neopetsAmfphpCall("PetService.getPet", [petName]);
-  return response;
+  return neopetsAmfphpCall("PetService.getPet", [petName]);
 }
 
 export async function loadCustomPetData(petName) {
+  // HACK: The json.php amfphp endpoint is known not to support string
+  // arguments with leading digits. (It aggressively parses them as ints lmao.)
+  // So, we work around it by converting the pet name to its image hash, then
+  // prepending "@", which is a special code that can *also* be used in the
+  // CustomPetService in place of name, to get a pet's appearance from its image
+  // hash.
+  if (petName.match(/^[0-9]/)) {
+    const imageHash = await loadImageHashFromPetName(petName);
+    console.debug(
+      `[loadCustomPetData] Converted pet name ${petName} to @${imageHash}`
+    );
+    petName = "@" + imageHash;
+  }
+
   try {
-    const response = await neopetsAmfphpCall("CustomPetService.getViewerData", [
-      petName,
-    ]);
-    return response;
+    return neopetsAmfphpCall("CustomPetService.getViewerData", [petName]);
   } catch (error) {
     // If Neopets.com fails to find valid customization data, we return null.
     if (
@@ -31,6 +49,30 @@ export async function loadCustomPetData(petName) {
       throw error;
     }
   }
+}
+
+const PETS_CP_URL_PATTERN = /https?:\/\/pets\.neopets\.com\/cp\/([a-z0-9]+)\/[0-9]+\/[0-9]+\.png/;
+async function loadImageHashFromPetName(petName) {
+  const res = await fetch(`https://pets.neopets.com/cpn/${petName}/1/1.png`, {
+    redirect: "manual",
+  });
+  if (res.status !== 302) {
+    throw new Error(
+      `[loadImageHashFromPetName] expected /cpn/ URL to redirect with status ` +
+        `302, but instead got status ${res.status} ${res.statusText}`
+    );
+  }
+
+  const newUrl = res.headers.get("location");
+  const newUrlMatch = newUrl.match(PETS_CP_URL_PATTERN);
+  if (newUrlMatch == null) {
+    throw new Error(
+      `[loadImageHashFromPetName] expected /cpn/ URL to redirect to a /cp/ ` +
+        `URL matching ${PETS_CP_URL_PATTERN}, but got ${newUrl}`
+    );
+  }
+
+  return newUrlMatch[1];
 }
 
 export async function loadNCMallPreviewImageHash(basicImageHash, itemIds) {
