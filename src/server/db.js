@@ -18,7 +18,7 @@ const defaultOptions =
         database: "openneo_impress",
       }
     : {
-        host: "impress.openneo.net",
+        host: process.env["IMPRESS_MYSQL_HOST"],
         user: process.env["IMPRESS_MYSQL_USER"],
         password: process.env["IMPRESS_MYSQL_PASSWORD"],
         database: "openneo_impress",
