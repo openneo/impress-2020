@@ -67,11 +67,12 @@ function HomePage() {
   return (
     <Flex direction="column" align="center" textAlign="center" marginTop="4">
       <WIPCallout>
-        <Link href="/state-of-dti-2023" passHref>
-          <ChakraLink textDecoration="underline">
-            Here's a little update on the state of DTI !
-          </ChakraLink>
-        </Link>
+        <ChakraLink
+          href="https://impress.openneo.net/pardon-our-dust"
+          textDecoration="underline"
+        >
+          Here's a little update on the state of DTI!
+        </ChakraLink>
       </WIPCallout>
       <Box height="6" />
       <Box
