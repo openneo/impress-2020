@@ -260,11 +260,19 @@
         path: /srv/impress-2020/cron-logs
         state: directory
 
-    - name: Set up cron jobs
+    - name: Set up modeling cron jobs
       cron:
         name: model-needed-items
         minute: "*/10" # Every 10 minutes
         job: "cd /srv/impress-2020/current && yarn model-needed-items 2>&1 > /srv/impress-2020/cron-logs/model-needed-items.log"
+
+    # Idk why the app has been so memory leaky lately, but let's just restart it
+    # like *constantly* tbh.
+    - name: Set up cron job to restart the app
+      cron:
+        name: restart-impress-2020
+        minute: "*/8" # Every 8 minutes
+        job: "pm2 restart impress-2020"
 
     - name: Install dependencies for the npm module node-canvas
       become: yes
@@ -277,7 +285,6 @@
           - libjpeg-dev
           - libgif-dev
           - librsvg2-dev
-
     - name: Install Playwright system dependencies
       # NOTE: I copied the package list from the source list for
       #       `npx playwright install-deps`, which I couldn't get running in
@@ -327,7 +334,6 @@
           - libxfixes3
           - libxrandr2
           - libxshmfence1
-
     - name: Enable user namespace cloning for Chromium sandboxing
       become: yes
       ansible.posix.sysctl:
