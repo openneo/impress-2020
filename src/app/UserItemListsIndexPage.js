@@ -33,7 +33,7 @@ import { useRouter } from "next/router";
 import { useQuery, useLazyQuery, useMutation } from "@apollo/client";
 
 import HangerSpinner from "./components/HangerSpinner";
-import { Heading1, Heading2 } from "./util";
+import { Heading1, Heading2, MajorErrorMessage } from "./util";
 import SupportOnly from "./WardrobePage/support/SupportOnly";
 import useSupport from "./WardrobePage/support/useSupport";
 import useCurrentUser from "./components/useCurrentUser";
@@ -101,7 +101,7 @@ function UserItemListsIndexPage() {
   }
 
   if (error) {
-    return <Box color="red.400">{error.message}</Box>;
+    return <MajorErrorMessage error={error} variant="network" />;
   }
 
   // TODO: I'm not sure why, but apparently `data` is `undefined` in the user
