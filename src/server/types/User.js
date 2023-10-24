@@ -238,7 +238,7 @@ const resolvers = {
       const defaultListOwnedHangers = [];
       const defaultListWantedHangers = [];
       for (const hanger of allClosetHangers) {
-        if (hanger.listId) {
+        if (hanger.listId && hangersByList.has(hanger.listId)) {
           hangersByList.get(hanger.listId).push(hanger);
         } else if (hanger.owned) {
           defaultListOwnedHangers.push(hanger);
