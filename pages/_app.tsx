@@ -19,7 +19,7 @@ export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
 
 const theme = extendTheme({
   styles: {
-    global: (props) => ({
+    global: (props: any) => ({
       html: {
         // HACK: Chakra sets body as the relative position element, which is
         //       fine, except its `min-height: 100%` doesn't actually work
@@ -35,7 +35,10 @@ const theme = extendTheme({
   },
 });
 
-type AppPropsWithLayout = AppProps & { Component: NextPageWithLayout };
+type AppPropsWithLayout = AppProps & {
+  Component: NextPageWithLayout;
+  pageProps: any;
+};
 
 export default function DTIApp({ Component, pageProps }: AppPropsWithLayout) {
   const renderWithLayout =
@@ -92,9 +95,8 @@ function DTIApolloProvider({
 
   // Save the first `additionalCacheState` we get as our `initialCacheState`,
   // which we'll use to initialize the client without having to wait a tick.
-  const [initialCacheState, unusedSetInitialCacheState] = React.useState(
-    additionalCacheState
-  );
+  const [initialCacheState, unusedSetInitialCacheState] =
+    React.useState(additionalCacheState);
 
   const client = React.useMemo(
     () =>
@@ -102,7 +104,7 @@ function DTIApolloProvider({
         getAuth0: () => auth0Ref.current,
         initialCacheState,
       }),
-    [initialCacheState]
+    [initialCacheState],
   );
 
   // When we get a new `additionalCacheState` object, merge it into the cache:
@@ -135,7 +137,7 @@ function DTIApolloProvider({
     console.debug(
       "Merging Apollo cache:",
       additionalCacheState,
-      mergedCacheState
+      mergedCacheState,
     );
     client.cache.restore(mergedCacheState);
   }, [client, additionalCacheState]);
@@ -145,8 +147,7 @@ function DTIApolloProvider({
 
 function setupLogging() {
   Sentry.init({
-    dsn:
-      "https://c55875c3b0904264a1a99e5b741a221e@o506079.ingest.sentry.io/5595379",
+    dsn: "https://c55875c3b0904264a1a99e5b741a221e@o506079.ingest.sentry.io/5595379",
     autoSessionTracking: true,
     integrations: [
       new Integrations.BrowserTracing({
