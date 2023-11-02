@@ -50,7 +50,7 @@ const schema = makeExecutableSchema(
     require("./types/PetAppearance"),
     require("./types/User"),
     require("./types/Zone"),
-  ])
+  ]),
 );
 
 const plugins = [cacheControlPluginFork({ calculateHttpHeaders: true })];
@@ -75,7 +75,7 @@ const config = {
       currentUserId = await getCurrentUserIdViaDb(req);
     } else {
       console.warn(
-        `Unexpected auth mode: ${JSON.stringify(authMode)}. Skipping auth.`
+        `Unexpected auth mode: ${JSON.stringify(authMode)}. Skipping auth.`,
       );
       currentUserId = null;
     }
@@ -99,7 +99,7 @@ const config = {
           res.setHeader(
             "Set-Cookie",
             `DTIAuthToken=${encodeURIComponent(JSON.stringify(authToken))}; ` +
-              `Max-Age=${60 * 60 * 24 * 7}; Secure; HttpOnly; SameSite=Strict`
+              `Max-Age=${60 * 60 * 24 * 7}; Secure; HttpOnly; SameSite=Strict`,
           );
         } else {
           // Set a header to delete the cookie. (That is, empty and expired.)
@@ -115,6 +115,8 @@ const config = {
     // for caching user data! That way, login/logout will refresh user data,
     // even if it was briefly cached.
     //
+    // We also put Vary: Origin, for compatibility with our CORS stuff!
+    //
     // NOTE: Our frontend JS only sends the Authorization header for user data
     //       queries. For public data, the header will be absent, and different
     //       users will still be able to share the same public cache data.
@@ -122,7 +124,7 @@ const config = {
     // NOTE: At time of writing, I'm not sure we use this in app? I think all
     //       current user data queries request fields with `maxAge: 0`. But I'm
     //       adding it just to remove a potential surprise gotcha later!
-    context.response.http.headers.set("Vary", "Authorization");
+    context.response.http.headers.set("Vary", "Authorization, Origin");
 
     return res;
   },

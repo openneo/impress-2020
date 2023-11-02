@@ -57,6 +57,8 @@ async function handle(req, res) {
     return res.status(204).end();
   }
 
+  // NOTE: We also have `Vary: Origin` hardcoded into the Apollo implementation,
+  // since it has other `Vary` stuff going on that's hard to integrate with.
   await serverHandler(req, res);
 
   // As a sneaky trick, we require the Honeycomb trace to finish before the
