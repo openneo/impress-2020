@@ -180,8 +180,11 @@ function setupLogging() {
       /^moz-extension:\/\//,
     ],
 
-    // Since we're only tracking first-page loads and not navigations, 100%
-    // sampling isn't actually so much! Tune down if it becomes a problem, tho.
-    tracesSampleRate: 1.0,
+    // Don't actually send anything to Sentry though… we want to focus on
+    // errors from the new main app!
+    // TODO: If this codebase were to continue, we would want to remove Sentry,
+    // or make its output more reliable!
+    sampleRate: 0,
+    tracesSampleRate: 0,
   });
 }
