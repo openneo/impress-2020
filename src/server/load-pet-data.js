@@ -7,10 +7,15 @@ async function neopetsAmfphpCall(methodName, args) {
     "/" +
     args.map(encodeURIComponent).join("/");
 
-  const res = await fetch(url);
+  const res = await fetch(url, {
+    headers: {
+      "X-Requested-With": "XMLHttpRequest",
+      "User-Agent": "impress-2020 (https://impress-2020.openneo.net/)",
+    },
+  });
   if (!res.ok) {
     throw new Error(
-      `[AMFPHP] HTTP request failed, got status ${res.status} ${res.statusText}`
+      `[AMFPHP] HTTP request failed, got status ${res.status} ${res.statusText}`,
     );
   }
 
@@ -31,7 +36,7 @@ export async function loadCustomPetData(petName) {
   if (petName.match(/^[0-9]/)) {
     const imageHash = await loadImageHashFromPetName(petName);
     console.debug(
-      `[loadCustomPetData] Converted pet name ${petName} to @${imageHash}`
+      `[loadCustomPetData] Converted pet name ${petName} to @${imageHash}`,
     );
     petName = "@" + imageHash;
   }
@@ -51,7 +56,8 @@ export async function loadCustomPetData(petName) {
   }
 }
 
-const PETS_CP_URL_PATTERN = /https?:\/\/pets\.neopets\.com\/cp\/([a-z0-9]+)\/[0-9]+\/[0-9]+\.png/;
+const PETS_CP_URL_PATTERN =
+  /https?:\/\/pets\.neopets\.com\/cp\/([a-z0-9]+)\/[0-9]+\/[0-9]+\.png/;
 async function loadImageHashFromPetName(petName) {
   const res = await fetch(`https://pets.neopets.com/cpn/${petName}/1/1.png`, {
     redirect: "manual",
@@ -59,7 +65,7 @@ async function loadImageHashFromPetName(petName) {
   if (res.status !== 302) {
     throw new Error(
       `[loadImageHashFromPetName] expected /cpn/ URL to redirect with status ` +
-        `302, but instead got status ${res.status} ${res.statusText}`
+        `302, but instead got status ${res.status} ${res.statusText}`,
     );
   }
 
@@ -68,7 +74,7 @@ async function loadImageHashFromPetName(petName) {
   if (newUrlMatch == null) {
     throw new Error(
       `[loadImageHashFromPetName] expected /cpn/ URL to redirect to a /cp/ ` +
-        `URL matching ${PETS_CP_URL_PATTERN}, but got ${newUrl}`
+        `URL matching ${PETS_CP_URL_PATTERN}, but got ${newUrl}`,
     );
   }
 
@@ -92,16 +98,16 @@ export async function loadNCMallPreviewImageHash(basicImageHash, itemIds) {
     try {
       console.error(
         `[loadNCMallPreviewImageHash] ${res.status} ${res.statusText}:\n` +
-          (await res.text())
+          (await res.text()),
       );
     } catch (error) {
       console.error(
         `[loadNCMallPreviewImageHash] could not load response text for ` +
-          `NC Mall preview failed request: ${error.message}`
+          `NC Mall preview failed request: ${error.message}`,
       );
     }
     throw new Error(
-      `could not load NC Mall preview image hash: ${res.status} ${res.statusText}`
+      `could not load NC Mall preview image hash: ${res.status} ${res.statusText}`,
     );
   }
 
@@ -112,12 +118,12 @@ export async function loadNCMallPreviewImageHash(basicImageHash, itemIds) {
   const data = JSON.parse(dataText);
   if (data.success !== true) {
     throw new Error(
-      `NC Mall preview returned non-success data: ${JSON.stringify(data)}`
+      `NC Mall preview returned non-success data: ${JSON.stringify(data)}`,
     );
   }
   if (!data.newsci) {
     throw new Error(
-      `NC Mall preview returned no newsci field: ${JSON.stringify(data)}`
+      `NC Mall preview returned no newsci field: ${JSON.stringify(data)}`,
     );
   }
   return data.newsci;
