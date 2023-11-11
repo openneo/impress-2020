@@ -24,10 +24,10 @@ async function cacheAssetManifests(db) {
     : `manifest IS NULL OR manifest = ""`;
 
   const [rows] = await db.execute(
-    `SELECT id, url, manifest FROM swf_assets ` +
+    `SELECT id, url, manifest, manifest_url FROM swf_assets ` +
       `WHERE ${condition} AND id >= ? ` +
       `ORDER BY id`,
-    [argv.start || 0]
+    [argv.start || 0],
   );
 
   const numRowsTotal = rows.length;
@@ -37,7 +37,10 @@ async function cacheAssetManifests(db) {
 
   async function cacheAssetManifest(row) {
     try {
-      let manifest = await neopetsAssets.loadAssetManifest(row.url);
+      let manifest = await neopetsAssets.loadAssetManifest(
+        row.manifest_url,
+        row.url,
+      );
 
       // After loading, write the new manifest. We make sure to write an empty
       // string if there was no manifest, to signify that it doesn't exist, so
@@ -55,20 +58,18 @@ async function cacheAssetManifests(db) {
           console.info(
             `UPDATE swf_assets SET manifest = ${escapedManifest}, ` +
               `manifest_cached_at = CURRENT_TIMESTAMP() ` +
-              `WHERE id = ${row.id} LIMIT 1;`
+              `WHERE id = ${row.id} LIMIT 1;`,
           );
         } else {
-          const [
-            result,
-          ] = await db.execute(
+          const [result] = await db.execute(
             `UPDATE swf_assets SET manifest = ?, ` +
               `manifest_cached_at = CURRENT_TIMESTAMP() ` +
               `WHERE id = ? LIMIT 1;`,
-            [manifest, row.id]
+            [manifest, row.id],
           );
           if (result.affectedRows !== 1) {
             throw new Error(
-              `Expected to affect 1 asset, but affected ${result.affectedRows}`
+              `Expected to affect 1 asset, but affected ${result.affectedRows}`,
             );
           }
         }
@@ -85,7 +86,7 @@ async function cacheAssetManifests(db) {
         console.error(
           `${percent}% ${numRowsDone}/${numRowsTotal} ` +
             `(Exists? ${Boolean(manifest)}. Updated? ${updated}. ` +
-            `Layer: ${row.id}, ${row.url}.)`
+            `Layer: ${row.id}, ${row.url}.)`,
         );
       }
     } catch (e) {

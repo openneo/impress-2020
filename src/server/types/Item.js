@@ -339,12 +339,12 @@ const resolvers = {
       const translation = await itemTranslationLoader.load(id);
       if (!translation) {
         console.warn(
-          `Item.isPb: Translation not found for item ${id}. Returning false.`
+          `Item.isPb: Translation not found for item ${id}. Returning false.`,
         );
         return false;
       }
       return translation.description.includes(
-        "This item is part of a deluxe paint brush set!"
+        "This item is part of a deluxe paint brush set!",
       );
     },
     createdAt: async ({ id }, _, { itemLoader }) => {
@@ -358,7 +358,7 @@ const resolvers = {
     ncTradeValueText: async (
       { id },
       _,
-      { itemLoader, itemTranslationLoader }
+      { itemLoader, itemTranslationLoader },
     ) => {
       // Skip this lookup for non-NC items, as a perf optimization.
       const item = await itemLoader.load(id);
@@ -382,7 +382,7 @@ const resolvers = {
         ncTradeValue = await getOWLSTradeValue(itemName);
       } catch (e) {
         console.error(
-          `Error loading ncTradeValueText for item ${id}, skipping:`
+          `Error loading ncTradeValueText for item ${id}, skipping:`,
         );
         console.error(e);
         ncTradeValue = null;
@@ -395,7 +395,7 @@ const resolvers = {
     currentUserOwnsThis: async (
       { id },
       _,
-      { currentUserId, userItemClosetHangersLoader }
+      { currentUserId, userItemClosetHangersLoader },
     ) => {
       if (currentUserId == null) return false;
       const closetHangers = await userItemClosetHangersLoader.load({
@@ -407,7 +407,7 @@ const resolvers = {
     currentUserWantsThis: async (
       { id },
       _,
-      { currentUserId, userItemClosetHangersLoader }
+      { currentUserId, userItemClosetHangersLoader },
     ) => {
       if (currentUserId == null) return false;
       const closetHangers = await userItemClosetHangersLoader.load({
@@ -419,7 +419,7 @@ const resolvers = {
     currentUserHasInLists: async (
       { id },
       _,
-      { currentUserId, userItemClosetHangersLoader }
+      { currentUserId, userItemClosetHangersLoader },
     ) => {
       if (currentUserId == null) return false;
       const closetHangers = await userItemClosetHangersLoader.load({
@@ -444,7 +444,7 @@ const resolvers = {
     numUsersOfferingThis: async (
       { id },
       _,
-      { itemTradesLoader, userLastTradeActivityLoader }
+      { itemTradesLoader, userLastTradeActivityLoader },
     ) => {
       // First, get the trades themselves. TODO: Optimize into one query?
       const trades = await itemTradesLoader.load({
@@ -455,7 +455,7 @@ const resolvers = {
       // Then, get the last active dates for those users.
       const userIds = trades.map((t) => t.user.id);
       const lastActiveDates = await userLastTradeActivityLoader.loadMany(
-        userIds
+        userIds,
       );
 
       // Finally, count how many of those dates were in the last 6 months.
@@ -469,7 +469,7 @@ const resolvers = {
     numUsersSeekingThis: async (
       { id },
       _,
-      { itemTradesLoader, userLastTradeActivityLoader }
+      { itemTradesLoader, userLastTradeActivityLoader },
     ) => {
       // First, get the trades themselves. TODO: Optimize into one query?
       const trades = await itemTradesLoader.load({
@@ -480,7 +480,7 @@ const resolvers = {
       // Then, get the last active dates for those users.
       const userIds = trades.map((t) => t.user.id);
       const lastActiveDates = await userLastTradeActivityLoader.loadMany(
-        userIds
+        userIds,
       );
 
       // Finally, count how many of those dates were in the last 6 months.
@@ -528,7 +528,7 @@ const resolvers = {
     appearanceOn: async (
       { id },
       { speciesId, colorId },
-      { petTypeBySpeciesAndColorLoader }
+      { petTypeBySpeciesAndColorLoader },
     ) => {
       const petType = await petTypeBySpeciesAndColorLoader.load({
         speciesId,
@@ -553,7 +553,7 @@ const resolvers = {
     speciesThatNeedModels: async (
       { id },
       { colorId = "8" }, // Blue
-      { speciesThatNeedModelsForItemLoader, allSpeciesIdsForColorLoader }
+      { speciesThatNeedModelsForItemLoader, allSpeciesIdsForColorLoader },
     ) => {
       // NOTE: If we're running this in the context of `itemsThatNeedModels`,
       //       this loader should already be primed, no extra query!
@@ -567,25 +567,25 @@ const resolvers = {
 
       const modeledSpeciesIds = row.modeledSpeciesIds.split(",");
       const allSpeciesIdsForThisColor = await allSpeciesIdsForColorLoader.load(
-        colorId
+        colorId,
       );
 
       let allModelableSpeciesIds = allSpeciesIdsForThisColor;
       if (!row.supportsVandagyre) {
         allModelableSpeciesIds = allModelableSpeciesIds.filter(
-          (s) => s !== "55"
+          (s) => s !== "55",
         );
       }
 
       const unmodeledSpeciesIds = allModelableSpeciesIds.filter(
-        (id) => !modeledSpeciesIds.includes(id)
+        (id) => !modeledSpeciesIds.includes(id),
       );
       return unmodeledSpeciesIds.map((id) => ({ id }));
     },
     canonicalAppearance: async (
       { id },
       { preferredSpeciesId, preferredColorId },
-      { db }
+      { db },
     ) => {
       const [rows] = await db.query(
         `
@@ -607,7 +607,7 @@ const resolvers = {
             colors.standard DESC
           LIMIT 1
         `,
-        [id, preferredSpeciesId || "<ignore>", preferredColorId || "<ignore>"]
+        [id, preferredSpeciesId || "<ignore>", preferredColorId || "<ignore>"],
       );
       if (rows.length === 0) {
         return null;
@@ -649,7 +649,7 @@ const resolvers = {
             parents_swf_assets.swf_asset_id = swf_assets.id
           WHERE items.id = ?
         `,
-        [id]
+        [id],
       );
       const bodyIds = rows.map((row) => row.body_id);
       const bodies = bodyIds.map((id) => ({ id }));
@@ -658,7 +658,7 @@ const resolvers = {
     compatibleBodiesAndTheirZones: async (
       { id },
       _,
-      { itemCompatibleBodiesAndTheirZonesLoader }
+      { itemCompatibleBodiesAndTheirZonesLoader },
     ) => {
       const rows = await itemCompatibleBodiesAndTheirZonesLoader.load(id);
       return rows.map((row) => ({
@@ -682,7 +682,7 @@ const resolvers = {
             parents_swf_assets.swf_asset_id = swf_assets.id
           WHERE items.id = ?
         `,
-        [id]
+        [id],
       );
       const bodyIds = rows.map((row) => String(row.body_id));
       return bodyIds.map((bodyId) => ({ item: { id }, bodyId }));
@@ -698,7 +698,12 @@ const resolvers = {
         bodyId,
       });
 
-      let assets = allSwfAssets.filter((sa) => sa.url.endsWith(".swf"));
+      // NOTE: Previously, I used this to filter assets to just SWFs, to avoid
+      // dealing with the audio assets altogether cuz I never built support for
+      // them. But now, some assets have the url `https://images.neopets.com/temp`
+      // instead? So uhh. Disabling this for now.
+      // let assets = allSwfAssets.filter((sa) => sa.url.endsWith(".swf"));
+      let assets = allSwfAssets;
 
       // If there are no body-specific assets in this appearance, then remove
       // assets with the glitch flag REQUIRES_OTHER_BODY_SPECIFIC_ASSETS: the
@@ -717,7 +722,7 @@ const resolvers = {
     restrictedZones: async (
       { item: { id: itemId }, bodyId },
       _,
-      { itemSwfAssetLoader, itemLoader }
+      { itemSwfAssetLoader, itemLoader },
     ) => {
       // Check whether this appearance is empty. If so, restrict no zones.
       const allSwfAssets = await itemSwfAssetLoader.load({ itemId, bodyId });
@@ -760,7 +765,7 @@ const resolvers = {
         petTypeBySpeciesAndColorLoader,
         currentUserId,
       },
-      { cacheControl }
+      { cacheControl },
     ) => {
       if (currentUserOwnsOrWants != null) {
         cacheControl.setCacheHint({ scope: "PRIVATE" });
@@ -775,7 +780,7 @@ const resolvers = {
         if (!petType) {
           throw new Error(
             `pet type not found: speciesId=${fitsPet.speciesId}, ` +
-              `colorId: ${fitsPet.colorId}`
+              `colorId: ${fitsPet.colorId}`,
           );
         }
         bodyId = petType.bodyId;
@@ -806,7 +811,7 @@ const resolvers = {
     itemSearchV2: async (
       _,
       { query, fitsPet, itemKind, currentUserOwnsOrWants, zoneIds = [] },
-      { petTypeBySpeciesAndColorLoader }
+      { petTypeBySpeciesAndColorLoader },
     ) => {
       let bodyId = null;
       if (fitsPet) {
@@ -817,7 +822,7 @@ const resolvers = {
         if (!petType) {
           throw new Error(
             `pet type not found: speciesId=${fitsPet.speciesId}, ` +
-              `colorId: ${fitsPet.colorId}`
+              `colorId: ${fitsPet.colorId}`,
           );
         }
         bodyId = petType.bodyId;
@@ -851,7 +856,7 @@ const resolvers = {
         offset,
         limit,
       },
-      { petTypeBySpeciesAndColorLoader, itemSearchLoader, currentUserId }
+      { petTypeBySpeciesAndColorLoader, itemSearchLoader, currentUserId },
     ) => {
       const petType = await petTypeBySpeciesAndColorLoader.load({
         speciesId,
@@ -859,7 +864,7 @@ const resolvers = {
       });
       if (!petType) {
         throw new Error(
-          `pet type not found: speciesId=${speciesId}, colorId: ${colorId}`
+          `pet type not found: speciesId=${speciesId}, colorId: ${colorId}`,
         );
       }
       const { bodyId } = petType;
@@ -883,10 +888,10 @@ const resolvers = {
     itemsThatNeedModels: async (
       _,
       { colorId = "8" }, // Defaults to Blue
-      { itemsThatNeedModelsLoader }
+      { itemsThatNeedModelsLoader },
     ) => {
       const speciesIdsByColorIdAndItemId = await itemsThatNeedModelsLoader.load(
-        "all"
+        "all",
       );
       const speciesIdsByItemIds = speciesIdsByColorIdAndItemId.get(colorId);
       const itemIds = (speciesIdsByItemIds && speciesIdsByItemIds.keys()) || [];
@@ -899,7 +904,7 @@ const resolvers = {
       { query, bodyId, itemKind, currentUserOwnsOrWants, zoneIds },
       { offset, limit },
       { currentUserId, itemSearchNumTotalItemsLoader },
-      { cacheControl }
+      { cacheControl },
     ) => {
       if (currentUserOwnsOrWants != null) {
         cacheControl.setCacheHint({ scope: "PRIVATE" });
@@ -920,7 +925,7 @@ const resolvers = {
       { query, bodyId, itemKind, currentUserOwnsOrWants, zoneIds },
       { offset, limit },
       { currentUserId, itemSearchItemsLoader },
-      { cacheControl }
+      { cacheControl },
     ) => {
       if (currentUserOwnsOrWants != null) {
         cacheControl.setCacheHint({ scope: "PRIVATE" });
@@ -944,7 +949,7 @@ const resolvers = {
     addToItemsCurrentUserOwns: async (
       _,
       { itemId },
-      { currentUserId, db, itemLoader }
+      { currentUserId, db, itemLoader },
     ) => {
       if (currentUserId == null) {
         throw new Error(`must be logged in`);
@@ -969,7 +974,7 @@ const resolvers = {
                   WHERE item_id = ? AND user_id = ? AND owned = ?
               )
         `,
-        [itemId, currentUserId, 1, now, now, true, itemId, currentUserId, true]
+        [itemId, currentUserId, 1, now, now, true, itemId, currentUserId, true],
       );
 
       return { id: itemId };
@@ -977,7 +982,7 @@ const resolvers = {
     removeFromItemsCurrentUserOwns: async (
       _,
       { itemId },
-      { currentUserId, db, itemLoader }
+      { currentUserId, db, itemLoader },
     ) => {
       if (currentUserId == null) {
         throw new Error(`must be logged in`);
@@ -991,7 +996,7 @@ const resolvers = {
       await db.query(
         `DELETE FROM closet_hangers
          WHERE item_id = ? AND user_id = ? AND owned = ?;`,
-        [itemId, currentUserId, true]
+        [itemId, currentUserId, true],
       );
 
       return { id: itemId };
@@ -999,7 +1004,7 @@ const resolvers = {
     addToItemsCurrentUserWants: async (
       _,
       { itemId },
-      { currentUserId, db, itemLoader }
+      { currentUserId, db, itemLoader },
     ) => {
       if (currentUserId == null) {
         throw new Error(`must be logged in`);
@@ -1034,7 +1039,7 @@ const resolvers = {
           itemId,
           currentUserId,
           false,
-        ]
+        ],
       );
 
       return { id: itemId };
@@ -1042,7 +1047,7 @@ const resolvers = {
     removeFromItemsCurrentUserWants: async (
       _,
       { itemId },
-      { currentUserId, db, itemLoader }
+      { currentUserId, db, itemLoader },
     ) => {
       if (currentUserId == null) {
         throw new Error(`must be logged in`);
@@ -1056,7 +1061,7 @@ const resolvers = {
       await db.query(
         `DELETE FROM closet_hangers
          WHERE item_id = ? AND user_id = ? AND owned = ?;`,
-        [itemId, currentUserId, false]
+        [itemId, currentUserId, false],
       );
 
       return { id: itemId };
@@ -1064,11 +1069,11 @@ const resolvers = {
     addItemToClosetList: async (
       _,
       { listId, itemId, removeFromDefaultList },
-      { currentUserId, db, closetListLoader }
+      { currentUserId, db, closetListLoader },
     ) => {
       const closetListRef = await loadClosetListOrDefaultList(
         listId,
-        closetListLoader
+        closetListLoader,
       );
       if (closetListRef == null) {
         throw new Error(`list ${listId} not found`);
@@ -1094,7 +1099,7 @@ const resolvers = {
                 AND owned = ?
               LIMIT 1;
           `,
-            [itemId, userId, ownsOrWantsItems === "OWNS"]
+            [itemId, userId, ownsOrWantsItems === "OWNS"],
           );
         }
 
@@ -1105,7 +1110,7 @@ const resolvers = {
               (item_id, user_id, owned, list_id, quantity, created_at, updated_at)
               VALUES (?, ?, ?, ?, ?, ?, ?);
           `,
-          [itemId, userId, ownsOrWantsItems === "OWNS", listId, 1, now, now]
+          [itemId, userId, ownsOrWantsItems === "OWNS", listId, 1, now, now],
         );
 
         await connection.commit();
@@ -1126,11 +1131,11 @@ const resolvers = {
     removeItemFromClosetList: async (
       _,
       { listId, itemId, ensureInSomeList },
-      { currentUserId, db, closetListLoader }
+      { currentUserId, db, closetListLoader },
     ) => {
       const closetListRef = await loadClosetListOrDefaultList(
         listId,
-        closetListLoader
+        closetListLoader,
       );
       if (closetListRef == null) {
         throw new Error(`list ${listId} not found`);
@@ -1157,7 +1162,7 @@ const resolvers = {
             DELETE FROM closet_hangers
               WHERE ${listMatcherCondition} AND item_id = ? LIMIT 1;
           `,
-          [...listMatcherValues, itemId]
+          [...listMatcherValues, itemId],
         );
 
         if (ensureInSomeList) {
@@ -1168,7 +1173,7 @@ const resolvers = {
               SELECT COUNT(*) AS count FROM closet_hangers
                 WHERE user_id = ? AND item_id = ? AND owned = ?
             `,
-            [userId, itemId, ownsOrWantsItems === "OWNS"]
+            [userId, itemId, ownsOrWantsItems === "OWNS"],
           );
 
           if (rows[0].count === 0) {
@@ -1179,7 +1184,7 @@ const resolvers = {
                   (item_id, user_id, owned, list_id, quantity, created_at, updated_at)
                   VALUES (?, ?, ?, ?, ?, ?, ?);
               `,
-              [itemId, userId, ownsOrWantsItems === "OWNS", null, 1, now, now]
+              [itemId, userId, ownsOrWantsItems === "OWNS", null, 1, now, now],
             );
           }
         }

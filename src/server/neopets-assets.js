@@ -1,10 +1,13 @@
 import fetch from "node-fetch";
 
-async function loadAssetManifest(swfUrl) {
-  const possibleManifestUrls = convertSwfUrlToPossibleManifestUrls(swfUrl);
+async function loadAssetManifest(manifestUrl, swfUrl) {
+  const possibleManifestUrls =
+    manifestUrl != null
+      ? [manifestUrl]
+      : convertSwfUrlToPossibleManifestUrls(swfUrl);
 
   const responses = await Promise.all(
-    possibleManifestUrls.map((url) => fetch(url))
+    possibleManifestUrls.map((url) => fetch(url)),
   );
 
   // Print errors for any responses with unexpected statuses. We'll do this
@@ -13,7 +16,7 @@ async function loadAssetManifest(swfUrl) {
     if (!res.ok && res.status !== 404) {
       console.error(
         `for asset manifest, images.neopets.com returned: ` +
-          `${res.status} ${res.statusText}. (${res.url})`
+          `${res.status} ${res.statusText}. (${res.url})`,
       );
     }
   }
@@ -34,7 +37,8 @@ async function loadAssetManifest(swfUrl) {
   };
 }
 
-const SWF_URL_PATTERN = /^https?:\/\/images\.neopets\.com\/cp\/(bio|items)\/swf\/(.+?)_([a-z0-9]+)\.swf$/;
+const SWF_URL_PATTERN =
+  /^https?:\/\/images\.neopets\.com\/cp\/(bio|items)\/swf\/(.+?)_([a-z0-9]+)\.swf$/;
 
 function convertSwfUrlToPossibleManifestUrls(swfUrl) {
   const match = new URL(swfUrl, "https://images.neopets.com")

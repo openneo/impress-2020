@@ -198,7 +198,7 @@ const typeDefs = gql`
 const ALL_KNOWN_GLITCH_VALUES = new Set(
   typeDefs.definitions
     .find((d) => d.name.value === "AppearanceLayerKnownGlitch")
-    .values.map((v) => v.name.value)
+    .values.map((v) => v.name.value),
 );
 
 const resolvers = {
@@ -222,11 +222,8 @@ const resolvers = {
     imageUrl: async ({ id }, { size = "SIZE_150" }, { swfAssetLoader, db }) => {
       const layer = await swfAssetLoader.load(id);
 
-      const {
-        format,
-        jsAssetUrl,
-        pngAssetUrl,
-      } = await loadAndCacheAssetDataFromManifest(db, layer);
+      const { format, jsAssetUrl, pngAssetUrl } =
+        await loadAndCacheAssetDataFromManifest(db, layer);
 
       // For the largest size, try to use the official Neopets PNG!
       if (size === "SIZE_600") {
@@ -280,11 +277,8 @@ const resolvers = {
     imageUrlV2: async ({ id }, { idealSize }, { swfAssetLoader, db }) => {
       const layer = await swfAssetLoader.load(id);
 
-      const {
-        format,
-        jsAssetUrl,
-        pngAssetUrl,
-      } = await loadAndCacheAssetDataFromManifest(db, layer);
+      const { format, jsAssetUrl, pngAssetUrl } =
+        await loadAndCacheAssetDataFromManifest(db, layer);
 
       // If there's an official single-image PNG we can use, use it! This is
       // what the official /customise editor uses at time of writing.
@@ -350,11 +344,8 @@ const resolvers = {
         return null;
       }
 
-      const {
-        format,
-        jsAssetUrl,
-        svgAssetUrl,
-      } = await loadAndCacheAssetDataFromManifest(db, layer);
+      const { format, jsAssetUrl, svgAssetUrl } =
+        await loadAndCacheAssetDataFromManifest(db, layer);
 
       // If there's an official single-image SVG we can use, use it! The NC
       // Mall player uses this at time of writing, and we generally prefer it
@@ -377,7 +368,7 @@ const resolvers = {
 
       const { format, jsAssetUrl } = await loadAndCacheAssetDataFromManifest(
         db,
-        layer
+        layer,
       );
 
       if (format === "lod" && jsAssetUrl) {
@@ -395,7 +386,7 @@ const resolvers = {
         SELECT parent_id FROM parents_swf_assets
         WHERE swf_asset_id = ? AND parent_type = "Item" LIMIT 1;
       `,
-        [id]
+        [id],
       );
 
       if (rows.length === 0) {
@@ -419,7 +410,7 @@ const resolvers = {
       knownGlitches = knownGlitches.filter((knownGlitch) => {
         if (!ALL_KNOWN_GLITCH_VALUES.has(knownGlitch)) {
           console.warn(
-            `Layer ${id}: Skipping unexpected knownGlitches value: ${knownGlitch}`
+            `Layer ${id}: Skipping unexpected knownGlitches value: ${knownGlitch}`,
           );
           return false;
         }
@@ -434,17 +425,17 @@ const resolvers = {
     itemAppearanceLayersByRemoteId: async (
       _,
       { remoteIds },
-      { swfAssetByRemoteIdLoader }
+      { swfAssetByRemoteIdLoader },
     ) => {
       const layers = await swfAssetByRemoteIdLoader.loadMany(
-        remoteIds.map((remoteId) => ({ type: "object", remoteId }))
+        remoteIds.map((remoteId) => ({ type: "object", remoteId })),
       );
       return layers.filter((l) => l).map(({ id }) => ({ id }));
     },
     numAppearanceLayersConverted: async (
       _,
       { type },
-      { swfAssetCountLoader }
+      { swfAssetCountLoader },
     ) => {
       const count = await swfAssetCountLoader.load({
         type: convertLayerTypeToSwfAssetType(type),
@@ -461,7 +452,7 @@ const resolvers = {
     appearanceLayerByRemoteId: async (
       _,
       { type, remoteId },
-      { swfAssetByRemoteIdLoader }
+      { swfAssetByRemoteIdLoader },
     ) => {
       const swfAsset = await swfAssetByRemoteIdLoader.load({
         type: type === "PET_LAYER" ? "biology" : "object",
@@ -512,7 +503,7 @@ async function loadAndCacheAssetDataFromManifest(db, layer) {
   } catch (e) {
     console.error(
       `Layer ${layer.id} has invalid manifest JSON: ` +
-        `${JSON.stringify(layer.manifest)}`
+        `${JSON.stringify(layer.manifest)}`,
     );
     manifest = null;
   }
@@ -526,7 +517,7 @@ async function loadAndCacheAssetDataFromManifest(db, layer) {
   if (manifest === null || manifestAgeInMs > MAX_MANIFEST_AGE_IN_MS) {
     console.info(
       `[Layer ${layer.id}] Updating manifest cache, ` +
-        `last updated ${manifestAgeInMs}ms ago: ${layer.manifestCachedAt}`
+        `last updated ${manifestAgeInMs}ms ago: ${layer.manifestCachedAt}`,
     );
     manifest = await loadAndCacheAssetManifest(db, layer);
   }
@@ -540,7 +531,7 @@ async function loadAndCacheAssetDataFromManifest(db, layer) {
 
   const format = asset.format;
   const assetUrls = asset.assetData.map(
-    (ad) => new URL(ad.path, "https://images.neopets.com")
+    (ad) => new URL(ad.path, "https://images.neopets.com"),
   );
 
   // In the case of JS assets, we want the *last* one in the list, because
@@ -554,7 +545,7 @@ async function loadAndCacheAssetDataFromManifest(db, layer) {
     // TODO: There's a file_ext field in the full manifest, but it's not
     //       included in our cached copy. That would probably be more
     //       reliable!
-    (url) => path.extname(url.pathname) === ".js"
+    (url) => path.extname(url.pathname) === ".js",
   );
 
   const svgAssetUrl = assetUrls.find(
@@ -563,7 +554,7 @@ async function loadAndCacheAssetDataFromManifest(db, layer) {
     // TODO: There's a file_ext field in the full manifest, but it's not
     //       included in our cached copy. That would probably be more
     //       reliable!
-    (url) => path.extname(url.pathname) === ".svg"
+    (url) => path.extname(url.pathname) === ".svg",
   );
 
   // NOTE: Unlike movies, we *must* use the first PNG and not the last, because
@@ -576,7 +567,7 @@ async function loadAndCacheAssetDataFromManifest(db, layer) {
     // TODO: There's a file_ext field in the full manifest, but it's not
     //       included in our cached copy. That would probably be more
     //       reliable!
-    (url) => path.extname(url.pathname) === ".png"
+    (url) => path.extname(url.pathname) === ".png",
   );
 
   return { format, jsAssetUrl, svgAssetUrl, pngAssetUrl };
@@ -586,14 +577,14 @@ async function loadAndCacheAssetManifest(db, layer) {
   let manifest;
   try {
     manifest = await Promise.race([
-      loadAssetManifest(layer.url),
+      loadAssetManifest(layer.manifestUrl, layer.url),
       new Promise((_, reject) =>
-        setTimeout(() => reject(new Error(`manifest request timed out`)), 2000)
+        setTimeout(() => reject(new Error(`manifest request timed out`)), 2000),
       ),
     ]);
   } catch (e) {
     console.error(
-      new Error("Error loading asset manifest, caused by the error below")
+      new Error("Error loading asset manifest, caused by the error below"),
     );
     console.error(e);
     return null;
@@ -610,7 +601,7 @@ async function loadAndCacheAssetManifest(db, layer) {
   if (manifestJson.length > 16777215) {
     console.warn(
       `Skipping saving asset manifest for layer ${layer.id}, because its ` +
-        `length is ${manifestJson.length}, which exceeds the database limit.`
+        `length is ${manifestJson.length}, which exceeds the database limit.`,
     );
     return manifest;
   }
@@ -621,16 +612,16 @@ async function loadAndCacheAssetManifest(db, layer) {
         SET manifest = ?, manifest_cached_at = CURRENT_TIMESTAMP()
         WHERE id = ? LIMIT 1;
     `,
-    [manifestJson, layer.id]
+    [manifestJson, layer.id],
   );
   if (result.affectedRows !== 1) {
     throw new Error(
-      `Expected to affect 1 asset, but affected ${result.affectedRows}`
+      `Expected to affect 1 asset, but affected ${result.affectedRows}`,
     );
   }
   console.info(
     `Loaded and saved manifest for ${layer.type} ${layer.remoteId}. ` +
-      `DTI ID: ${layer.id}. Exists?: ${Boolean(manifest)}`
+      `DTI ID: ${layer.id}. Exists?: ${Boolean(manifest)}`,
   );
 
   return manifest;
