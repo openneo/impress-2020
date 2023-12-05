@@ -47,10 +47,9 @@ class MyDocument extends Document {
             }}
           />
           <script
-            async
             defer
             data-domain="impress-2020.openneo.net"
-            src="https://plausible.io/js/plausible.js"
+            src="https://analytics.openneo.net/js/script.js"
             dangerouslySetInnerHTML={{ __html: `` }}
           />
           <link
